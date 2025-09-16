@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>列表页面框架</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .search-form {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .button-group {
+            margin-bottom: 20px;
+        }
+        .ag-theme-alpine {
+            --ag-header-height: 40px;
+            --ag-row-height: 40px;
+        }
+        .operation-button {
+            padding: 4px 8px;
+            margin: 0 4px;
+            cursor: pointer;
+            color: #606266;
+        }
+        .operation-button:hover {
+            color: #409EFF;
+        }
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" v-cloak>
+        <div class="container mx-auto px-4 py-6">
+            <!-- 功能按钮组 -->
+            <div class="button-group" v-if="hasButtons">
+                <el-button type="primary" icon="el-icon-plus">新增</el-button>
+                <el-button type="danger" icon="el-icon-delete">批量删除</el-button>
+                <el-button type="success" icon="el-icon-download">导出</el-button>
+            </div>
+
+            <!-- 搜索表单 -->
+            <div class="search-form">
+                <el-form :model="searchForm" ref="searchForm" :inline="true">
+                    <template v-for="(field, index) in visibleSearchFields">
+                        <el-form-item :label="field.label" :key="field.prop">
+                            <el-input 
+                                v-if="field.type === 'input'"
+                                v-model="searchForm[field.prop]"
+                                :placeholder="'请输入' + field.label"
+                                clearable>
+                            </el-input>
+                            <el-select
+                                v-if="field.type === 'select'"
+                                v-model="searchForm[field.prop]"
+                                :placeholder="'请选择' + field.label"
+                                clearable>
+                                <el-option
+                                    v-for="item in field.options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+                            <el-date-picker
+                                v-if="field.type === 'date'"
+                                v-model="searchForm[field.prop]"
+                                type="date"
+                                :placeholder="'选择' + field.label"
+                                clearable>
+                            </el-date-picker>
+                        </el-form-item>
+                    </template>
+                    <el-form-item>
+                        <el-button type="primary" @click="handleSearch">搜索</el-button>
+                        <el-button @click="handleReset">重置</el-button>
+                        <el-button type="text" @click="toggleSearchFields">
+                            {{ isExpanded ? '收起' : '展开' }}
+                            <i :class="['el-icon-arrow-' + (isExpanded ? 'up' : 'down')]"></i>
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+
+            <!-- Element UI 表格 -->
+            <el-table
+                :data="tableData"
+                style="width: 100%"
+                stripe
+                border
+                @selection-change="handleSelectionChange">
+                <el-table-column
+                    type="selection"
+                    width="55">
+                </el-table-column>
+                <el-table-column
+                    prop="name"
+                    label="名称"
+                    sortable>
+                </el-table-column>
+                <el-table-column
+                    prop="type"
+                    label="类型"
+                    sortable>
+                </el-table-column>
+                <el-table-column
+                    prop="status"
+                    label="状态"
+                    sortable>
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.status ? 'success' : 'danger'">
+                            {{ scope.row.status ? '启用' : '禁用' }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="createDate"
+                    label="创建日期"
+                    sortable>
+                </el-table-column>
+                <el-table-column
+                    prop="updateDate"
+                    label="更新日期"
+                    sortable>
+                </el-table-column>
+                <el-table-column
+                    prop="remark"
+                    label="备注">
+                </el-table-column>
+                <el-table-column
+                    label="操作"
+                    width="180">
+                    <template slot-scope="scope">
+                        <el-tooltip content="查看" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-view"
+                                style="color: #409EFF;"
+                                @click="handleView(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="编辑" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-edit"
+                                style="color: #409EFF;"
+                                @click="handleEdit(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="删除" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-delete"
+                                style="color: #F56C6C;"
+                                @click="handleDelete(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div class="mt-4">
+                <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="currentPage"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next"
+                    :total="total">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    hasButtons: true,
+                    isExpanded: false,
+                    searchFields: [
+                        { label: '名称', prop: 'name', type: 'input' },
+                        { label: '类型', prop: 'type', type: 'select', options: [
+                            { label: '类型A', value: 'A' },
+                            { label: '类型B', value: 'B' }
+                        ]},
+                        { label: '状态', prop: 'status', type: 'select', options: [
+                            { label: '启用', value: 1 },
+                            { label: '禁用', value: 0 }
+                        ]},
+                        { label: '创建日期', prop: 'createDate', type: 'date' },
+                        { label: '更新日期', prop: 'updateDate', type: 'date' },
+                        { label: '备注', prop: 'remark', type: 'input' }
+                    ],
+                    searchForm: {},
+                        tableData: [],
+                    multipleSelection: [],
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0
+                };
+            },
+            computed: {
+                visibleSearchFields() {
+                    return this.isExpanded 
+                        ? this.searchFields 
+                        : this.searchFields.slice(0, 3);
+                }
+            },
+            methods: {
+                loadData() {
+                    // 模拟数据加载
+                    const mockData = Array.from({ length: 16 }, (_, index) => ({
+                        name: `测试项目${index + 1}`,
+                        type: ['A', 'B', 'C'][index % 3],
+                        status: index % 2,
+                        createDate: new Date(2024, 0, index + 1).toLocaleDateString(),
+                        updateDate: new Date(2024, 0, index + 2).toLocaleDateString(),
+                        remark: `这是第${index + 1}条测试数据的备注信息`
+                    }));
+                    this.total = mockData.length;
+                    this.tableData = mockData;
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                },
+                handleView(row) {
+                    console.log('查看', row);
+                },
+                handleEdit(row) {
+                    console.log('编辑', row);
+                },
+                handleDelete(row) {
+                    console.log('删除', row);
+                },
+                handleSearch() {
+                    console.log('搜索条件：', this.searchForm);
+                    this.currentPage = 1;
+                    this.loadData();
+                },
+                handleReset() {
+                    this.$refs.searchForm.resetFields();
+                    this.handleSearch();
+                },
+                toggleSearchFields() {
+                    this.isExpanded = !this.isExpanded;
+                },
+                handleSizeChange(val) {
+                    this.pageSize = val;
+                    if (this.gridApi) {
+                        this.gridApi.paginationSetPageSize(val);
+                    }
+                },
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                    if (this.gridApi) {
+                        this.gridApi.paginationGoToPage(val - 1);
+                    }
+                }
+            },
+            created() {
+                // 初始化搜索表单
+                this.searchFields.forEach(field => {
+                    this.$set(this.searchForm, field.prop, '');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
