@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检记录详情</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .page-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            color: #909399;
+            font-size: 14px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .detection-result-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .detection-result-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .detection-result-badge.danger {
+            background: #fef0f0;
+            color: #f56565;
+            border-color: #f56565;
+        }
+
+        .detection-result-badge.success {
+            background: #f0fff4;
+            color: #38a169;
+            border-color: #38a169;
+        }
+
+        .detection-result-badge.warning {
+            background: #fffbeb;
+            color: #d69e2e;
+            border-color: #d69e2e;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 卡片布局 */
+        .card-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .detail-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            background: #fafafa;
+            padding: 16px 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-header i {
+            margin-right: 8px;
+            color: #409EFF;
+            font-size: 16px;
+        }
+
+        .card-title {
+            color: #303133;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        /* 信息展示 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px 32px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #909399;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #303133;
+        }
+
+        /* 检测结果样式 */
+        .detection-summary {
+            background: #f4f4f5;
+            padding: 16px;
+            border-radius: 4px;
+            border-left: 4px solid #409EFF;
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            color: #303133;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-content {
+            color: #606266;
+            line-height: 1.6;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .detection-work-type-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid #ebeef5;
+            margin-bottom: 16px;
+        }
+
+        .work-type-label-large {
+            font-size: 18px;
+            color: #303133;
+            font-weight: 600;
+        }
+
+
+        /* 图片展示 */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* 作业票表格 */
+        .work-permit-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .work-permit-table .el-table {
+            font-size: 14px;
+        }
+
+        .work-permit-table .el-table th {
+            background-color: #f8f9fa;
+            color: #303133;
+            font-weight: 600;
+        }
+
+        .work-permit-table .el-table td,
+        .work-permit-table .el-table th {
+            padding: 8px 10px;
+        }
+
+        /* 作业票筛选样式 */
+        .permit-filter-section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ebeef5;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: flex-end;
+            margin-left: auto;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .advanced-filters {
+            padding-top: 16px;
+            border-top: 1px solid #e4e7ed;
+        }
+
+        .image-card {
+            background: #fafafa;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #ebeef5;
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .image-info {
+            padding: 12px 16px;
+        }
+
+        .image-title {
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .image-time {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        /* 时间线 */
+        .timeline-container {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ebeef5;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            background: #409EFF;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #409EFF;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            color: #303133;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* 审核面板 */
+        .audit-panel {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            border: 2px solid #409EFF;
+        }
+
+        .audit-header {
+            background: #ecf5ff;
+            padding: 16px 20px;
+            border-bottom: 1px solid #d9ecff;
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .audit-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .audit-title i {
+            margin-right: 8px;
+            color: #409EFF;
+            font-size: 16px;
+        }
+
+        .audit-title h3 {
+            color: #303133;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .audit-description {
+            color: #606266;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .audit-form {
+            padding: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+        }
+
+        .audit-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 16px 20px;
+            border-top: 1px solid #ebeef5;
+            background: #fafafa;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #ccc;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            .header-actions {
+                justify-content: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .audit-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+    <div class="page-container">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-left">
+                    <h1 class="page-title">{{ pageTitle }}</h1>
+                    <div class="header-info">
+                        <div class="detection-result-badge" 
+                             :class="getDetectionResultType(detailData.detectionResult)"
+                             @click="toggleDetectionResult"
+                             :title="'点击切换检测结果 (当前: ' + getDetectionResultText(detailData.detectionResult) + ')'">
+                            {{ getDetectionResultText(detailData.detectionResult) }}
+                        </div>
+                        <p class="page-description">巡检ID: {{ detailData.id }}</p>
+                    </div>
+            </div>
+            <div class="header-actions">
+                    <el-button icon="el-icon-arrow-left" @click="goBack">
+                        返回列表
+                    </el-button>
+                    <el-button type="primary" icon="el-icon-download" @click="exportReport">
+                        导出报告
+                    </el-button>
+            </div>
+        </div>
+
+            <!-- 卡片容器 -->
+            <div class="card-container">
+            <!-- 基本信息 -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i>
+                        <h3 class="card-title">基本信息</h3>
+                </div>
+                <div class="card-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">巡检ID</div>
+                                <div class="info-value">{{ detailData.id }}</div>
+                    </div>
+                            <div class="info-item">
+                                <div class="info-label">工厂名称</div>
+                                <div class="info-value">{{ detailData.factory }}</div>
+                    </div>
+                            <div class="info-item">
+                                <div class="info-label">巡检区域</div>
+                                <div class="info-value">{{ detailData.area }}</div>
+                    </div>
+                            <div class="info-item">
+                                <div class="info-label">巡检时间</div>
+                                <div class="info-value">{{ detailData.time }}</div>
+                    </div>
+                            <div class="info-item">
+                                <div class="info-label">摄像机</div>
+                                <div class="info-value">{{ detailData.camera.name }}</div>
+                    </div>
+                            <div class="info-item">
+                                <div class="info-label">告警类型</div>
+                                <div class="info-value">{{ detailData.alertType }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">处理方式</div>
+                                <div class="info-value">系统自动处理</div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- AI检测结果 -->
+                <div class="detail-card full-width">
+                <div class="card-header">
+                        <i class="fas fa-search"></i>
+                        <h3 class="card-title">AI检测结果</h3>
+                </div>
+                <div class="card-content">
+                        <div class="detection-work-type-header">
+                            <span class="work-type-label-large">作业类型判断：</span>
+                            <el-tag type="warning" size="large">{{ detailData.detection.workType }}</el-tag>
+                    </div>
+                        <div class="detection-summary">
+                            <div class="summary-title">AI 检测结果</div>
+                            <div class="summary-content">{{ detailData.detection.summary }}</div>
+                    </div>
+                    </div>
+                    </div>
+
+                <!-- 图像证据 -->
+                <div class="detail-card full-width">
+                    <div class="card-header">
+                        <i class="fas fa-images"></i>
+                        <h3 class="card-title">图像证据</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="image-gallery">
+                            <div class="image-card" v-for="image in detailData.images" :key="image.id">
+                                <img :src="image.url" :alt="image.caption" @click="openModal(image.url, image.caption)">
+                                <div class="image-info">
+                                    <div class="image-title">{{ image.caption }}</div>
+                                    <div class="image-time">{{ image.timestamp }}</div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 作业票信息 -->
+            <div class="detail-card full-width">
+                <div class="card-header">
+                        <i class="fas fa-file-alt"></i>
+                        <h3 class="card-title">作业票信息</h3>
+                </div>
+                <div class="card-content">
+                        <!-- 作业票筛选区域 -->
+                        <div class="permit-filter-section">
+                            <div class="filter-form">
+                                <!-- 基本筛选行 -->
+                                <div class="filter-row">
+                                    <div class="filter-item">
+                                        <label class="filter-label">申请部门/单位</label>
+                                        <el-select v-model="permitFilters.applyDepartment" placeholder="请选择申请部门/单位" clearable>
+                                            <el-option label="吉林省淮远设备安装工程有限公司" value="吉林省淮远设备安装工程有限公司"></el-option>
+                                            <el-option label="苏华建设集团有限公司（设备）" value="苏华建设集团有限公司（设备）"></el-option>
+                                            <el-option label="中建材技术装备有限公司" value="中建材技术装备有限公司"></el-option>
+                                            <el-option label="华润水泥技术研发有限公司" value="华润水泥技术研发有限公司"></el-option>
+                                            <el-option label="海螺水泥工程技术有限公司" value="海螺水泥工程技术有限公司"></el-option>
+                                        </el-select>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">申请人</label>
+                                        <el-input v-model="permitFilters.applicant" placeholder="请输入申请人姓名" clearable></el-input>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">作业票类型</label>
+                                        <el-select v-model="permitFilters.permitType" placeholder="请选择作业票类型" clearable>
+                                            <el-option label="动火作业" value="动火作业"></el-option>
+                                            <el-option label="起重吊装作业" value="起重吊装作业"></el-option>
+                                            <el-option label="高处作业" value="高处作业"></el-option>
+                                            <el-option label="受限空间作业" value="受限空间作业"></el-option>
+                                            <el-option label="临时用电作业" value="临时用电作业"></el-option>
+                                            <el-option label="土石方作业" value="土石方作业"></el-option>
+                                            <el-option label="断路作业" value="断路作业"></el-option>
+                                            <el-option label="盲板抽堵作业" value="盲板抽堵作业"></el-option>
+                                        </el-select>
+                                    </div>
+                                    <div class="filter-actions">
+                                        <el-button @click="toggleAdvancedFilter" type="text">
+                                            {{ showAdvancedFilter ? '收起' : '展开' }}
+                                            <i :class="showAdvancedFilter ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                                        </el-button>
+                                    </div>
+                    </div>
+                    
+                                <!-- 高级筛选行（展开后显示） -->
+                                <div class="filter-row advanced-filters" v-show="showAdvancedFilter">
+                                    <div class="filter-item">
+                                        <label class="filter-label">作业票编号</label>
+                                        <el-input v-model="permitFilters.permitNumber" placeholder="请输入作业票编号" clearable></el-input>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">计划作业时间</label>
+                                        <el-date-picker
+                                            v-model="permitFilters.scheduledTime"
+                                            type="daterange"
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            format="yyyy-MM-dd"
+                                            value-format="yyyy-MM-dd"
+                                            clearable>
+                                        </el-date-picker>
+                </div>
+            </div>
+
+                                <!-- 操作按钮 -->
+                                <div class="filter-buttons">
+                                    <el-button type="primary" icon="el-icon-search" @click="searchPermits">查询</el-button>
+                                    <el-button icon="el-icon-refresh" @click="resetPermitFilters">重置</el-button>
+                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="work-permit-table">
+                            <el-table :data="filteredWorkPermits" border stripe style="width: 100%">
+                                <el-table-column prop="permitNumber" label="作业票编号" width="180" sortable></el-table-column>
+                                <el-table-column prop="permitType" label="作业票类型" width="120" sortable>
+                                    <template slot-scope="scope">
+                                        <el-tag :type="getPermitTypeTag(scope.row.permitType)" size="small">
+                                            {{ scope.row.permitType }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="riskLevel" label="风险等级" width="100" sortable>
+                                    <template slot-scope="scope">
+                                        <el-tag :type="getRiskLevelTag(scope.row.riskLevel)" size="small">
+                                            {{ scope.row.riskLevel }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="workContent" label="作业内容" width="120" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="workLocation" label="作业地点" width="130" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="workArea" label="作业区域" width="110" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="scheduledTime" label="计划作业时间" width="160" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="workerCount" label="作业人数" width="80" align="center"></el-table-column>
+                                <el-table-column prop="permitStatus" label="作业票状态" width="100" sortable>
+                                    <template slot-scope="scope">
+                                        <el-tag :type="getStatusTag(scope.row.permitStatus)" size="small">
+                                            {{ scope.row.permitStatus }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="projectManager" label="项目负责人" width="180" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="supervisor" label="监护人" width="200" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="workDepartment" label="作业部门/单位" width="200" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="applyDepartment" label="申请部门/单位" width="200" show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="applicant" label="申请人" width="100"></el-table-column>
+                                <el-table-column prop="applyTime" label="申请时间" width="150" sortable></el-table-column>
+                                <el-table-column prop="relatedMaintenance" label="关联检维修" width="120" show-overflow-tooltip></el-table-column>
+                            </el-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 处理记录 -->
+            <div class="detail-card full-width" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-history"></i>
+                        <h3 class="card-title">处理记录</h3>
+                </div>
+                <div class="card-content">
+                        <div class="timeline-container">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-item" v-for="record in detailData.timeline" :key="record.time">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-time">{{ record.time }}</div>
+                                <div class="timeline-content">{{ record.content }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            <!-- 审核面板 -->
+            <div class="audit-panel" v-if="pageMode === 'audit'">
+                <div class="audit-header">
+                    <div class="audit-title">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>审核检测结果</h3>
+                    </div>
+                    <p class="audit-description">请根据实际情况修改AI检测结果，确保准确性。</p>
+                </div>
+                <div class="audit-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">检测结果</label>
+                            <el-select v-model="auditForm.detectionResult" placeholder="请选择检测结果">
+                                <el-option label="无票作业" value="no_permit_work"></el-option>
+                                <el-option label="正常作业" value="normal_work"></el-option>
+                                <el-option label="疑似无票作业" value="suspected_no_permit"></el-option>
+                            </el-select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">审核备注</label>
+                            <el-input 
+                                type="textarea" 
+                                v-model="auditForm.comments" 
+                                placeholder="请输入审核备注（可选）"
+                                :rows="3">
+                            </el-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="audit-actions">
+                    <el-button @click="cancelAudit">取消</el-button>
+                    <el-button type="primary" @click="submitAudit">提交审核</el-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图像模态框 -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="">
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        // 页面模式变量
+        let pageMode = 'view';
+
+        // Vue实例
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    pageMode: 'view',
+                    pageTitle: '巡检记录详情',
+                    // 筛选相关数据
+                    showAdvancedFilter: false,
+                    permitFilters: {
+                        applyDepartment: '',
+                        applicant: '',
+                        permitType: '',
+                        permitNumber: '',
+                        scheduledTime: null
+                    },
+                    detailData: {
+            id: 'INS001',
+            factory: '北京工厂',
+            area: 'A区生产车间',
+            time: '2024-01-15 14:30:25',
+            status: 'danger',
+            handler: '张三',
+            processed: false,
+                        detectionResult: 'no_permit_work',
+                        audited: false,
+                        alertType: '电子围栏',
+            camera: {
+                id: 'CAM-A001',
+                name: 'A区入口监控',
+                location: '东经116.4074, 北纬39.9042',
+                resolution: '1920x1080',
+                status: 'normal'
+            },
+            detection: {
+                summary: '在A区生产车间检测到1名无票作业人员，置信度较高，建议立即处理。',
+                            workType: '动火作业'
+            },
+            images: [
+                {
+                                id: 1,
+                                url: './image/车辆攀爬 永登_2024-07-27 105628.jpg',
+                    caption: '原始监控图像',
+                                timestamp: '2024-07-27 10:56:28'
+                },
+                {
+                                id: 2,
+                                url: './image/车辆攀爬 永登_2024-07-27 105628.jpg',
+                    caption: 'AI检测结果标注',
+                                timestamp: '2024-07-27 10:56:29'
+                },
+                {
+                                id: 3,
+                                url: './image/车辆攀爬 永登_2024-07-27 105628.jpg',
+                    caption: '区域全景图像',
+                                timestamp: '2024-07-27 10:56:30'
+                            }
+                        ],
+                        workPermits: [
+                            {
+                                permitNumber: 'ZYPJ-20250916-0019',
+                                permitType: '动火作业',
+                                riskLevel: '一般风险',
+                                workContent: '焊接槽钢',
+                                workLocation: '二线脱硫塔',
+                                workArea: '二线脱硫',
+                                scheduledTime: '2025-09-16 14:18至2025-09-17 02:18',
+                                workerCount: 1,
+                                permitStatus: '审批中',
+                                projectManager: '罗航胜(机械动力部，13588393129)',
+                                supervisor: '【刘富美（吉林省淮远设备安装工程有限公司，17398911009）】',
+                                workDepartment: '吉林省淮远设备安装工程有限公司',
+                                applyDepartment: '吉林省淮远设备安装工程有限公司',
+                                applicant: '刘富美',
+                                applyTime: '2025-09-16 13:37:41',
+                                relatedMaintenance: ''
+                            },
+                            {
+                                permitNumber: 'ZYPJ-20250915-0007',
+                                permitType: '动火作业',
+                                riskLevel: '一般风险',
+                                workContent: '积料箱焊接',
+                                workLocation: '2号入磨提升机',
+                                workArea: '一线水泥磨',
+                                scheduledTime: '2025-09-15 09:40至2025-09-15 17:25',
+                                workerCount: 2,
+                                permitStatus: '审批中',
+                                projectManager: '张河平(水泥生产部，13645814197)',
+                                supervisor: '【杨春平（苏华建设集团有限公司（设备），13868125034）】',
+                                workDepartment: '苏华建设集团有限公司（设备）',
+                                applyDepartment: '苏华建设集团有限公司（设备）',
+                                applicant: '杨春平',
+                                applyTime: '2025-09-15 08:07:11',
+                                relatedMaintenance: ''
+                            },
+                            {
+                                permitNumber: 'ZYPJ-20250913-0013',
+                                permitType: '起重吊装作业',
+                                riskLevel: '一般风险',
+                                workContent: '吊装电机',
+                                workLocation: '一线水泥磨',
+                                workArea: '一线水泥磨',
+                                scheduledTime: '2025-09-13 08:48至2025-09-13 20:48',
+                                workerCount: 2,
+                                permitStatus: '审批中',
+                                projectManager: '张河平(水泥生产部，13645814197)',
+                                supervisor: '【刘富美（吉林省淮远设备安装工程有限公司，17398911009）】',
+                                workDepartment: '吉林省淮远设备安装工程有限公司',
+                                applyDepartment: '吉林省淮远设备安装工程有限公司',
+                                applicant: '刘富美',
+                                applyTime: '2025-09-13 08:31:25',
+                                relatedMaintenance: ''
+                            }
+                        ],
+                        timeline: [
+                            {
+                                time: '2024-01-15 14:30:25',
+                                content: 'AI系统检测到异常，自动生成告警记录，标记为疑似无票作业，备注：监控显示作业人员未佩戴安全帽且无作业许可证'
+                            },
+                            {
+                                time: '2024-01-15 15:15:30',
+                                content: '张三审核告警记录，处理结果为：确认无票作业，备注：现场核实确认工人未办理作业许可证，立即要求停工整改'
+                            },
+                            {
+                                time: '2024-01-15 16:20:45',
+                                content: '李四审核告警记录，处理结果为：确认有票作业，备注：经二次核查发现作业许可证在工人随身携带，AI识别有误差'
+                            }
+                        ]
+                    },
+                    auditForm: {
+                        detectionResult: 'no_permit_work',
+                        comments: ''
+                    }
+                };
+            },
+            mounted() {
+                this.checkPageMode();
+                this.initPageByMode();
+                this.loadDetailData();
+            },
+            computed: {
+                // 筛选后的作业票数据
+                filteredWorkPermits() {
+                    let permits = this.detailData.workPermits || [];
+                    
+                    // 根据筛选条件过滤数据
+                    if (this.permitFilters.applyDepartment) {
+                        permits = permits.filter(permit => 
+                            permit.applyDepartment.includes(this.permitFilters.applyDepartment)
+                        );
+                    }
+                    
+                    if (this.permitFilters.applicant) {
+                        permits = permits.filter(permit => 
+                            permit.applicant.includes(this.permitFilters.applicant)
+                        );
+                    }
+                    
+                    if (this.permitFilters.permitType) {
+                        permits = permits.filter(permit => 
+                            permit.permitType === this.permitFilters.permitType
+                        );
+                    }
+                    
+                    if (this.permitFilters.permitNumber) {
+                        permits = permits.filter(permit => 
+                            permit.permitNumber.includes(this.permitFilters.permitNumber)
+                        );
+                    }
+                    
+                    if (this.permitFilters.scheduledTime && this.permitFilters.scheduledTime.length === 2) {
+                        const startDate = this.permitFilters.scheduledTime[0];
+                        const endDate = this.permitFilters.scheduledTime[1];
+                        permits = permits.filter(permit => {
+                            // 从作业时间字符串中提取开始日期进行比较
+                            const scheduledTimeStr = permit.scheduledTime;
+                            if (scheduledTimeStr && scheduledTimeStr.includes('至')) {
+                                const startTimeStr = scheduledTimeStr.split('至')[0].trim();
+                                const permitDate = startTimeStr.split(' ')[0]; // 取日期部分
+                                return permitDate >= startDate && permitDate <= endDate;
+                            }
+                            return false;
+                        });
+                    }
+                    
+                    return permits;
+                }
+            },
+            methods: {
+                // 检查页面模式
+                checkPageMode() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const urlMode = urlParams.get('mode');
+                    const sessionMode = sessionStorage.getItem('navigationMode');
+                    
+                    pageMode = sessionMode || urlMode || 'view';
+                    this.pageMode = pageMode;
+                },
+
+                // 根据模式初始化页面
+                initPageByMode() {
+                    if (this.pageMode === 'audit') {
+                        this.pageTitle = '巡检记录审核';
+                        this.auditForm.detectionResult = this.detailData.detectionResult;
+                    } else {
+                        this.pageTitle = '巡检记录详情';
+                    }
+                },
+
+                // 加载详情数据
+                loadDetailData() {
+                    const navigationData = sessionStorage.getItem('navigationData');
+                    if (navigationData) {
+                        try {
+                            const data = JSON.parse(navigationData);
+                            // 合并数据，保持现有的详细信息
+                            Object.assign(this.detailData, {
+                                id: data.id || this.detailData.id,
+                                factory: data.factory || this.detailData.factory,
+                                area: data.area || this.detailData.area,
+                                time: data.time || this.detailData.time,
+                                handler: data.handler || this.detailData.handler
+                            });
+                        } catch (error) {
+                            console.error('解析导航数据失败:', error);
+                        }
+                    }
+                },
+
+                // 获取状态类型
+                getStatusType(status) {
+                    const statusMap = {
+                        'danger': 'danger',
+                        'warning': 'warning',
+                        'normal': 'success',
+                        'info': 'info'
+                    };
+                    return statusMap[status] || 'info';
+                },
+
+        // 获取状态文本
+                getStatusText(status) {
+            const statusMap = {
+                        'danger': '告警',
+                        'warning': '警告',
+                'normal': '正常',
+                        'info': '信息'
+                    };
+                    return statusMap[status] || '未知';
+                },
+
+                // 获取检测结果类型
+                getDetectionResultType(result) {
+                    const resultMap = {
+                        'normal_work': 'success',
+                        'no_permit_work': 'danger',
+                        'suspected_no_permit': 'warning'
+                    };
+                    return resultMap[result] || 'info';
+                },
+
+        // 返回列表
+                goBack() {
+                    this.navigateToInspectionList();
+                },
+
+        // 导出报告
+                exportReport() {
+                    this.$message.info('报告导出功能开发中...');
+                },
+
+                // 打开图像模态框
+                openModal(imageSrc, caption) {
+                    const modal = document.getElementById('imageModal');
+                    const modalImage = document.getElementById('modalImage');
+                    modal.style.display = 'block';
+                    modalImage.src = imageSrc;
+                    modalImage.alt = caption;
+                },
+
+                // 取消审核
+                cancelAudit() {
+                    this.$confirm('确定要取消审核吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.navigateToInspectionList();
+                    });
+                },
+
+                // 提交审核
+                submitAudit() {
+                    if (!this.auditForm.detectionResult) {
+                        this.$message.error('请选择检测结果');
+                        return;
+                    }
+
+                    const resultText = this.getDetectionResultText(this.auditForm.detectionResult);
+                    const message = `确定将检测结果修改为"${resultText}"吗？${this.auditForm.comments ? '\n备注：' + this.auditForm.comments : ''}`;
+
+                    this.$confirm(message, '确认审核', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        // 更新数据
+                        this.detailData.detectionResult = this.auditForm.detectionResult;
+                        this.detailData.audited = true;
+                        
+                        // 添加审核记录到时间线
+                    const now = new Date();
+                    const timeString = now.toLocaleString('zh-CN');
+                        this.detailData.timeline.push({
+                        time: timeString,
+                            content: `审核完成，检测结果：${resultText}${this.auditForm.comments ? '，备注：' + this.auditForm.comments : ''}`
+                        });
+
+                        this.$message.success('审核提交成功！');
+                        
+                        setTimeout(() => {
+                            this.navigateToInspectionList();
+                        }, 1000);
+                    });
+                },
+
+                // 获取检测结果文本
+                getDetectionResultText(result) {
+                    const resultMap = {
+                        'no_permit_work': '无票作业',
+                        'normal_work': '有票作业',
+                        'suspected_no_permit': '疑似无票作业'
+                    };
+                    return resultMap[result] || '未知';
+                },
+
+                // 切换检测结果
+                toggleDetectionResult() {
+                    const resultCycle = ['no_permit_work', 'normal_work', 'suspected_no_permit'];
+                    const currentIndex = resultCycle.indexOf(this.detailData.detectionResult);
+                    const nextIndex = (currentIndex + 1) % resultCycle.length;
+                    
+                    const oldResult = this.getDetectionResultText(this.detailData.detectionResult);
+                    this.detailData.detectionResult = resultCycle[nextIndex];
+                    const newResult = this.getDetectionResultText(this.detailData.detectionResult);
+                    
+                    // 显示切换提示
+                    this.$message({
+                        message: `检测结果已切换：${oldResult} → ${newResult}`,
+                        type: 'success',
+                        duration: 2000
+                    });
+                },
+
+                // 导航到巡检列表
+                navigateToInspectionList() {
+                    try {
+                        window.parent.postMessage({
+                            type: 'navigate',
+                            page: 'inspection-list'
+                        }, '*');
+                    } catch (error) {
+                        console.error('导航失败:', error);
+                        window.location.href = 'inspection-list.html';
+                    }
+                },
+
+                // 获取作业票类型标签
+                getPermitTypeTag(type) {
+                    const typeMap = {
+                        '动火作业': 'warning',
+                        '起重吊装作业': 'danger',
+                        '高处作业': 'warning',
+                        '受限空间作业': 'danger',
+                        '临时用电作业': 'info'
+                    };
+                    return typeMap[type] || 'info';
+                },
+
+                // 获取风险等级标签
+                getRiskLevelTag(level) {
+                    const levelMap = {
+                        '高风险': 'danger',
+                        '中等风险': 'warning',
+                        '一般风险': 'success',
+                        '低风险': 'info'
+                    };
+                    return levelMap[level] || 'info';
+                },
+
+                // 获取状态标签
+                getStatusTag(status) {
+                    const statusMap = {
+                        '审批中': 'warning',
+                        '已审批': 'success',
+                        '已拒绝': 'danger',
+                        '已完成': 'info',
+                        '已取消': 'info'
+                    };
+                    return statusMap[status] || 'info';
+                },
+
+                // 切换高级筛选展示
+                toggleAdvancedFilter() {
+                    this.showAdvancedFilter = !this.showAdvancedFilter;
+                },
+
+                // 查询作业票
+                searchPermits() {
+                    // 筛选逻辑已在computed属性中实现，这里可以添加其他操作
+                    this.$message({
+                        message: `筛选完成，找到 ${this.filteredWorkPermits.length} 条记录`,
+                        type: 'success',
+                        duration: 1500
+                    });
+                },
+
+                // 重置筛选条件
+                resetPermitFilters() {
+                    this.permitFilters = {
+                        applyDepartment: '',
+                        applicant: '',
+                        permitType: '',
+                        permitNumber: '',
+                        scheduledTime: null
+                    };
+                    this.showAdvancedFilter = false;
+                    this.$message({
+                        message: '筛选条件已重置',
+                        type: 'info',
+                        duration: 1500
+                    });
+                }
+            }
+        });
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面 inspection-detail 加载完成');
+        });
+    </script>
+</body>
+</html>

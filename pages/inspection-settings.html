@@ -1,0 +1,3743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检设置 - 无票作业巡检系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 自定义表格样式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Element UI 风格的搜索表单 */
+        .search-form {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .button-group {
+            margin-bottom: 20px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #303133;
+            margin: 0;
+        }
+
+        .page-description {
+            color: #909399;
+            margin: 4px 0 0 0;
+            font-size: 14px;
+        }
+
+        .settings-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #EBEEF5;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #EBEEF5;
+            background: #FAFAFA;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #303133;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #606266;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            color: #606266;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #409EFF;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background-color: #f5f7fa;
+            border-color: #409EFF;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+            flex: 1;
+        }
+
+        /* 删除图标样式 */
+        .delete-icon:hover {
+            fill: #409EFF !important;
+            color: #409EFF !important;
+        }
+
+        /* 列表管理样式 */
+        .list-management, .table-management {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        .table-container {
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        /* Element UI 表格统一样式 */
+        .el-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        
+        .el-table th,
+        .el-table td {
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .el-table th {
+            background-color: #fafafa;
+            font-weight: 500;
+            color: #909399;
+            border-bottom: 1px solid #EBEEF5;
+            text-align: center;
+        }
+        
+        .el-table td {
+            border-bottom: 1px solid #EBEEF5;
+        }
+        
+        .el-table .cell {
+            padding: 0;
+            line-height: 1.5;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 表格行高度统一 */
+        .el-table__row {
+            height: 40px;
+        }
+        
+        .el-table__header {
+            height: 40px;
+        }
+        
+        /* 表格头部居中对齐 */
+        .el-table__header-wrapper .el-table__header th {
+            text-align: center;
+        }
+        
+        .el-table__header-wrapper .el-table__header th .cell {
+            text-align: center;
+            justify-content: center;
+        }
+        
+        /* 表格内容居中对齐 */
+        .el-table__body-wrapper .el-table__body td {
+            text-align: center;
+        }
+        
+        .el-table__body-wrapper .el-table__body td .cell {
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .list-header, .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .toolbar-title {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 表格容器统一样式 */
+        .table-management {
+            margin-bottom: 20px;
+        }
+        
+        .table-management .el-table {
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .table-management .el-table__header {
+            background-color: #fafafa;
+        }
+        
+        .table-management .el-table__body tr:hover {
+            background-color: #F5F7FA;
+        }
+        
+        .table-management .el-table__body tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        /* 操作按钮样式 */
+        .action-btn {
+            padding: 4px 8px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn.select {
+            background: #409EFF;
+            color: white;
+        }
+        
+        .action-btn.select:hover {
+            background: #337ecc;
+        }
+        
+        .action-btn.selected {
+            background: #67C23A;
+            color: white;
+        }
+        
+        .action-btn.delete {
+            background: #F56C6C;
+            color: white;
+        }
+        
+        .action-btn.delete:hover {
+            background: #d9534f;
+        }
+        
+        /* 搜索框样式 */
+        .el-input {
+            width: 200px;
+        }
+        
+        .el-input__inner {
+            border-radius: 4px;
+            border: 1px solid #dcdfe6;
+            padding: 0 12px;
+            height: 32px;
+            font-size: 13px;
+        }
+        
+        .el-input__inner:focus {
+            border-color: #409EFF;
+            outline: none;
+        }
+        
+        /* 按钮样式 */
+        .el-button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            color: #606266;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .el-button--primary {
+            background: #409EFF;
+            border-color: #409EFF;
+            color: #fff;
+        }
+        
+        .el-button--primary:hover {
+            background: #66b1ff;
+            border-color: #66b1ff;
+        }
+        
+        .el-button:hover {
+            color: #409EFF;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+        }
+        
+        /* 工厂选择表格样式 */
+        .factory-grid-container {
+            overflow: hidden;
+        }
+        
+        /* 工厂选择表格样式 */
+        .factory-selection-table {
+            height: 350px;
+        }
+        
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: #e8f5e8;
+            color: #67C23A;
+        }
+        
+        .status-inactive {
+            background: #fef0f0;
+            color: #F56C6C;
+        }
+        
+        .btn-add {
+            background-color: #409EFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-add:hover {
+            background-color: #66b1ff;
+        }
+
+        .btn-add i {
+            font-size: 12px;
+        }
+        
+        .item-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .list-item.selected {
+            border-left: 4px solid #409EFF;
+            background-color: #ecf5ff;
+        }
+        
+        .item-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .item-name {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .item-details {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .detail-item {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #475569;
+            margin-right: 8px;
+            margin-bottom: 2px;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .btn-action:not(.btn-delete) {
+            background-color: #409EFF;
+            color: white;
+        }
+        
+        .btn-action:not(.btn-delete):hover {
+            background-color: #66b1ff;
+        }
+        
+        .btn-delete {
+            background-color: #F56C6C;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background-color: #f78989;
+        }
+        
+        .selected-summary {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .selected-summary .summary-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .selected-summary .summary-content {
+            font-size: 14px;
+            color: #334155;
+            font-weight: 500;
+        }
+        
+        .selected-items {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .selected-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            background-color: #e0f2fe;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #0277bd;
+        }
+        
+        .selected-tag .remove {
+            margin-left: 6px;
+            cursor: pointer;
+            color: #0277bd;
+            font-weight: bold;
+        }
+        
+        .selected-tag .remove:hover {
+             color: #ffcccc;
+         }
+
+         /* 模态框样式 */
+         .modal {
+             position: fixed;
+             z-index: 1000;
+             left: 0;
+             top: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0, 0, 0, 0.5);
+             backdrop-filter: blur(4px);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .modal-content {
+             background-color: #fff;
+             border-radius: 4px;
+             width: 95%;
+             max-width: 1200px;
+             max-height: 85vh;
+             overflow: hidden;
+             box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+             border: 1px solid #EBEEF5;
+             animation: modalSlideIn 0.3s ease-out;
+         }
+
+         @keyframes modalSlideIn {
+             from {
+                 opacity: 0;
+                 transform: translateY(-20px) scale(0.95);
+             }
+             to {
+                 opacity: 1;
+                 transform: translateY(0) scale(1);
+             }
+         }
+
+         .modal-header {
+             padding: 20px 24px;
+             background: #ffffff;
+             border-bottom: 1px solid #EBEEF5;
+             border-radius: 4px 4px 0 0;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+         }
+
+         .modal-header h3 {
+             margin: 0;
+             color: #303133;
+             font-size: 18px;
+             font-weight: 500;
+             font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+         }
+
+         .modal-header h3::before {
+             content: '\f275';
+             font-family: 'Font Awesome 6 Free';
+             font-weight: 900;
+             color: #409EFF;
+             font-size: 16px;
+         }
+
+         .close {
+             color: #909399;
+             font-size: 20px;
+             font-weight: bold;
+             cursor: pointer;
+             background: none;
+             border: none;
+             padding: 8px;
+             border-radius: 4px;
+             transition: all 0.2s ease;
+             line-height: 1;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             width: 32px;
+             height: 32px;
+         }
+
+         .close:hover {
+             color: #F56C6C;
+             background-color: #F5F7FA;
+         }
+
+         .modal-body {
+             padding: 20px 24px;
+             background: #ffffff;
+             max-height: 60vh;
+             overflow-y: auto;
+         }
+
+         .modal-footer {
+             padding: 16px 24px;
+             background: #ffffff;
+             border-top: 1px solid #EBEEF5;
+             border-radius: 0 0 4px 4px;
+             display: flex;
+             justify-content: flex-end;
+             gap: 12px;
+         }
+
+         .modal-footer .btn {
+             padding: 9px 15px;
+             border-radius: 4px;
+             font-size: 14px;
+             font-weight: 500;
+             font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+             border: 1px solid transparent;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             min-width: 80px;
+         }
+
+         .modal-footer .btn-secondary {
+             background-color: #ffffff;
+             color: #606266;
+             border: 1px solid #DCDFE6;
+         }
+
+         .modal-footer .btn-secondary:hover {
+             color: #409EFF;
+             border-color: #c6e2ff;
+             background-color: #ecf5ff;
+         }
+
+         .modal-footer .btn-primary {
+             background-color: #409EFF;
+             color: white;
+         }
+
+         .modal-footer .btn-primary:hover {
+              background-color: #66b1ff;
+          }
+
+          /* 工厂选择弹窗特殊样式 */
+          .factory-grid-container {
+              margin-top: 16px;
+              overflow: hidden;
+          }
+          
+          .factory-selection-table {
+              height: 350px;
+              overflow-y: auto;
+          }
+
+          .factory-grid-container .form-label {
+              font-size: 14px;
+              font-weight: 500;
+              color: #303133;
+              font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+          }
+
+          .factory-grid-container .form-label::before {
+              content: '\f1ad';
+              font-family: 'Font Awesome 6 Free';
+              font-weight: 900;
+              color: #409EFF;
+              font-size: 14px;
+          }
+
+          /* 自定义表格基础样式 */
+          .custom-table {
+              width: 100%;
+              background: #ffffff;
+              border: 1px solid #EBEEF5;
+              border-radius: 4px;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+          }
+
+          .custom-table-header {
+              background: #F5F7FA;
+              border-bottom: 1px solid #EBEEF5;
+              display: flex;
+              flex-shrink: 0;
+          }
+
+          .custom-table-body {
+              background: #ffffff;
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+              max-height: 300px;
+              overflow-y: auto;
+          }
+
+          .custom-table-row {
+              display: flex;
+              border-bottom: 1px solid #EBEEF5;
+              transition: background-color 0.2s ease;
+              min-height: 48px;
+              align-items: center;
+          }
+
+          .custom-table-row:hover {
+              background-color: #F5F7FA;
+          }
+
+          .custom-table-row:last-child {
+              border-bottom: none;
+          }
+
+          .custom-table-header-cell,
+          .custom-table-cell {
+              padding: 12px 16px;
+              text-align: left;
+              font-size: 14px;
+              line-height: 1.5;
+              border-right: 1px solid #EBEEF5;
+              display: flex;
+              align-items: center;
+              flex-shrink: 0;
+              box-sizing: border-box;
+          }
+
+          .custom-table-header-cell:last-child,
+          .custom-table-cell:last-child {
+              border-right: none;
+          }
+
+          .custom-table-header-cell {
+              font-weight: 500;
+              color: #303133;
+              background: #F5F7FA;
+          }
+
+          .custom-table-cell {
+              color: #606266;
+          }
+
+          .custom-table-checkbox {
+              width: 16px;
+              height: 16px;
+              margin: 0;
+              cursor: pointer;
+              accent-color: #409EFF;
+          }
+
+          /* 摄像机选择表格样式 */
+        .camera-selection-table {
+            height: 350px;
+            overflow-y: auto;
+        }
+        
+        /* 模态框搜索区域样式 */
+        .modal-search-section {
+            margin-bottom: 16px;
+        }
+        
+        .search-container {
+            position: relative;
+            margin: 12px 0;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 6px 10px 6px 28px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .camera-count-info {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .camera-count-info span {
+            font-weight: 500;
+        }
+        
+        #selectedCount {
+            color: #409eff;
+            font-weight: 600;
+        }
+        
+        /* 状态指示器样式 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-online {
+            background-color: #f0f9ff;
+            color: #10b981;
+            border: 1px solid #d1fae5;
+        }
+        
+        .status-offline {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+        }
+        
+        .status-indicator i {
+            margin-right: 4px;
+            font-size: 10px;
+        }
+
+           /* 弹窗表格列宽对齐 */
+           .factory-selection-table .custom-table-header-cell:nth-child(1),
+           .factory-selection-table .custom-table-cell:nth-child(1) {
+               width: 50px;
+               min-width: 50px;
+               max-width: 50px;
+           }
+
+           .factory-selection-table .custom-table-header-cell:nth-child(2),
+           .factory-selection-table .custom-table-cell:nth-child(2) {
+               width: 180px;
+               min-width: 180px;
+               max-width: 180px;
+           }
+
+           .factory-selection-table .custom-table-header-cell:nth-child(3),
+           .factory-selection-table .custom-table-cell:nth-child(3) {
+               width: 100px;
+               min-width: 100px;
+               max-width: 100px;
+           }
+
+           .factory-selection-table .custom-table-header-cell:nth-child(4),
+           .factory-selection-table .custom-table-cell:nth-child(4) {
+               width: 140px;
+               min-width: 140px;
+               max-width: 140px;
+           }
+
+           .factory-selection-table .custom-table-header-cell:nth-child(5),
+           .factory-selection-table .custom-table-cell:nth-child(5) {
+               width: 90px;
+               min-width: 90px;
+               max-width: 90px;
+           }
+
+           .factory-selection-table .custom-table-header-cell:nth-child(6),
+           .factory-selection-table .custom-table-cell:nth-child(6) {
+               width: 90px;
+               min-width: 90px;
+               max-width: 90px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(1),
+           .camera-selection-table .custom-table-cell:nth-child(1) {
+               width: 50px;
+               min-width: 50px;
+               max-width: 50px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(2),
+           .camera-selection-table .custom-table-cell:nth-child(2) {
+               width: 200px;
+               min-width: 200px;
+               max-width: 200px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(3),
+           .camera-selection-table .custom-table-cell:nth-child(3) {
+               width: 180px;
+               min-width: 180px;
+               max-width: 180px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(4),
+           .camera-selection-table .custom-table-cell:nth-child(4) {
+               width: 150px;
+               min-width: 150px;
+               max-width: 150px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(5),
+           .camera-selection-table .custom-table-cell:nth-child(5) {
+               width: 120px;
+               min-width: 120px;
+               max-width: 120px;
+           }
+
+           .camera-selection-table .custom-table-header-cell:nth-child(6),
+           .camera-selection-table .custom-table-cell:nth-child(6) {
+               width: 140px;
+               min-width: 140px;
+               max-width: 140px;
+           }
+
+           /* 选择摄像机弹窗特殊样式 */
+           #selectCameraModal .modal-header h3::before {
+               content: '\f03d';
+               font-family: 'Font Awesome 6 Free';
+               font-weight: 900;
+               color: #409EFF;
+               font-size: 16px;
+           }
+
+           .camera-grid-container {
+                margin-top: 16px;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+           .camera-grid-container h4 {
+               margin: 0 0 16px 0;
+               color: #303133;
+               font-size: 14px;
+               font-weight: 500;
+               font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+           }
+
+
+ 
+         .time-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            background-color: #409EFF;
+            color: white;
+            border: 1px solid #409EFF;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background-color: #66b1ff;
+            border-color: #66b1ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(64, 158, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #606266;
+            border: 1px solid #DCDFE6;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            color: #409EFF;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(64, 158, 255, 0.12);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(64, 158, 255, 0.12);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background-color: #f0f9ff;
+            color: #67C23A;
+            border: 1px solid #e1f3d8;
+        }
+
+        .status-inactive {
+            background-color: #fef0f0;
+            color: #F56C6C;
+            border: 1px solid #fde2e2;
+        }
+
+        .alert {
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-success {
+            background-color: #f0f9ff;
+            color: #67C23A;
+            border: 1px solid #e1f3d8;
+        }
+
+        .alert-info {
+            background-color: #f4f4f5;
+            color: #409EFF;
+            border: 1px solid #d3d4d6;
+        }
+
+        .btn-sm {
+            padding: 5px 7px;
+            font-size: 12px;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-danger {
+            background-color: #F56C6C;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #f78989;
+        }
+
+        /* 表格操作列右对齐 */
+        .table-cell-right {
+            justify-content: flex-end;
+        }
+
+        /* 穿梭框样式 */
+        .algorithm-transfer-container {
+            display: flex;
+            gap: 20px;
+            height: 500px;
+            margin-top: 16px;
+        }
+
+        .transfer-left {
+            width: 240px;
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transfer-right {
+            flex: 1;
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transfer-panel-header {
+            background: #F5F7FA;
+            padding: 10px 12px;
+            border-bottom: 1px solid #EBEEF5;
+            font-weight: 500;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .factory-tree-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .algorithm-list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .factory-tree-item {
+            margin-bottom: 8px;
+        }
+
+        .tree-node {
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .tree-node:hover {
+            background-color: #F5F7FA;
+        }
+
+        .tree-node.expanded {
+            background-color: #ECF5FF;
+        }
+
+        .tree-node.selected {
+            background-color: #409EFF;
+            color: white;
+        }
+
+        .tree-node-icon {
+            width: 12px;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .tree-children {
+            margin-left: 16px;
+            display: none;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .algorithm-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .algorithm-table th,
+        .algorithm-table td {
+            padding: 6px 4px;
+            text-align: left;
+            border-bottom: 1px solid #EBEEF5;
+            font-size: 12px;
+        }
+
+        .algorithm-table th {
+            background: #F5F7FA;
+            font-weight: 500;
+            color: #909399;
+        }
+
+        .algorithm-table tr:hover {
+            background-color: #F5F7FA;
+        }
+
+        .algorithm-checkbox {
+            margin-right: 8px;
+        }
+
+        .transfer-controls {
+            padding: 16px;
+            border-top: 1px solid #EBEEF5;
+            background: #FAFAFA;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .transfer-btn {
+            padding: 4px 8px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            background: #fff;
+            color: #606266;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            height: 28px;
+            line-height: 18px;
+        }
+
+        .transfer-btn:hover {
+            color: #409EFF;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+        }
+
+        .transfer-btn.primary {
+            background: #409EFF;
+            border-color: #409EFF;
+            color: #fff;
+        }
+
+        .transfer-btn.primary:hover {
+            background: #66b1ff;
+            border-color: #66b1ff;
+        }
+
+        .algorithm-count {
+            color: #909399;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .tree-search-container {
+            padding: 12px 16px;
+            border-bottom: 1px solid #EBEEF5;
+            background: #FAFAFA;
+        }
+
+        .search-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .search-actions .transfer-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            min-width: auto;
+        }
+
+        .tree-search-highlight {
+            background-color: #FFE58F !important;
+            font-weight: bold;
+        }
+
+        .tree-node.hidden {
+            display: none !important;
+        }
+
+        /* 分页样式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            border-top: 1px solid #EBEEF5;
+            background: #FAFAFA;
+        }
+
+        .pagination-info {
+            color: #606266;
+            font-size: 13px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .pagination-btn {
+            padding: 4px 8px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            background: #fff;
+            color: #606266;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            min-width: 32px;
+            text-align: center;
+            height: 28px;
+            line-height: 18px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            color: #409EFF;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+        }
+
+        .pagination-btn.active {
+            background: #409EFF;
+            border-color: #409EFF;
+            color: #fff;
+        }
+
+        .pagination-btn:disabled {
+            background: #f5f7fa;
+            border-color: #e4e7ed;
+            color: #c0c4cc;
+            cursor: not-allowed;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-size-select {
+            padding: 2px 6px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #606266;
+            background: #fff;
+            height: 28px;
+        }
+
+        .page-size-select:focus {
+            outline: none;
+            border-color: #409EFF;
+        }
+
+        /* 人员选择样式 */
+        .personnel-selection-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .selected-personnel-list {
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .selected-personnel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .selected-personnel-table th,
+        .selected-personnel-table td {
+            padding: 6px 4px;
+            text-align: center;
+            border-bottom: 1px solid #EBEEF5;
+            font-size: 12px;
+        }
+
+        .selected-personnel-table th {
+            background: #F5F7FA;
+            font-weight: 500;
+            color: #909399;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .selected-personnel-table tr:hover {
+            background-color: #F5F7FA;
+        }
+
+        .selected-personnel-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 删除按钮样式 */
+        .selected-personnel-table .el-button--text {
+            transition: color 0.3s;
+        }
+
+        .selected-personnel-table .el-button--text:hover {
+            color: #f56565 !important;
+            background-color: rgba(245, 101, 101, 0.1);
+        }
+
+        .personnel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            border-bottom: 1px solid #EBEEF5;
+            background: #fff;
+            transition: background-color 0.2s;
+        }
+
+        .personnel-item:last-child {
+            border-bottom: none;
+        }
+
+        .personnel-item:hover {
+            background-color: #F5F7FA;
+        }
+
+        .personnel-info {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .personnel-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .personnel-detail .label {
+            color: #909399;
+            font-size: 10px;
+        }
+
+        .personnel-detail .value {
+            color: #303133;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .personnel-remove-btn {
+            color: #F56C6C;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .personnel-remove-btn:hover {
+            background-color: #FEF0F0;
+        }
+
+        .empty-personnel-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+            color: #909399;
+            font-size: 13px;
+        }
+
+        /* 人员选择弹窗样式 */
+        .personnel-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .personnel-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 900px;
+            max-width: 90vw;
+            height: 600px;
+            max-height: 80vh;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .personnel-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #EBEEF5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .personnel-modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+        }
+
+        .personnel-modal-close {
+            font-size: 20px;
+            color: #909399;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .personnel-modal-close:hover {
+            color: #F56C6C;
+            background-color: #FEF0F0;
+        }
+
+        .personnel-modal-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+        }
+
+        .personnel-search-container {
+            margin-bottom: 12px;
+        }
+
+        .personnel-search-input {
+            width: 100%;
+            padding: 6px 10px 6px 28px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .personnel-search-input:focus {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .personnel-table-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        .personnel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .personnel-table th,
+        .personnel-table td {
+            padding: 6px 4px;
+            text-align: left;
+            border-bottom: 1px solid #EBEEF5;
+            font-size: 12px;
+        }
+
+        .personnel-table th {
+            background: #F5F7FA;
+            font-weight: 500;
+            color: #909399;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #EBEEF5;
+        }
+
+        .personnel-table tr:hover {
+            background-color: #F5F7FA;
+        }
+
+        .personnel-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #EBEEF5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .personnel-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .time-group {
+                grid-template-columns: 1fr;
+            }
+
+            .algorithm-transfer-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .transfer-left,
+            .transfer-right {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="header-left">
+                <div class="page-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div>
+                    <h1 class="page-title">巡检设置</h1>
+                    <p class="page-description">配置全局巡检参数，一次设置全局生效</p>
+                </div>
+            </div>
+            <el-button type="default" icon="el-icon-arrow-left" onclick="navigateToInspectionList()">
+                返回列表
+            </el-button>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="settings-content">
+            <!-- 基础配置 -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-sliders-h"></i>
+                        基础配置
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">算法管理</label>
+                        <div class="table-management">
+                            <div class="table-toolbar">
+                                <el-button type="primary" size="small" icon="el-icon-cpu" @click="openAlgorithmTransferModal">
+                                    配置算法
+                                </el-button>
+                                <el-input
+                                    placeholder="搜索算法名称或类型"
+                                    v-model="algorithmSearchText"
+                                    @input="searchAlgorithms"
+                                    prefix-icon="el-icon-search"
+                                    size="small"
+                                    style="width: 200px; margin-left: 16px;">
+                                </el-input>
+                            </div>
+                            <div class="table-container">
+                                <el-table
+                                    :data="algorithmTableDataPaged"
+                                style="width: 100%"
+                                stripe
+                                border
+                                    @selection-change="handleAlgorithmSelectionChange">
+                                <el-table-column
+                                    type="selection"
+                                    align="center">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="factoryName"
+                                        label="所属工厂"
+                                    align="center"
+                                    sortable>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="areaName"
+                                        label="所属区域"
+                                    align="center"
+                                    sortable>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="cameraName"
+                                        label="所属摄像机"
+                                    align="center"
+                                    sortable>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="name"
+                                        label="算法名称"
+                                        align="center"
+                                        sortable>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="type"
+                                        label="算法类型"
+                                        align="center"
+                                        sortable>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="version"
+                                        label="算法版本"
+                                        align="center"
+                                        sortable>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="status"
+                                        label="算法状态"
+                                        align="center"
+                                        sortable>
+                                        <template slot-scope="scope">
+                                            <span :class="['status-badge', scope.row.status === 'running' ? 'status-active' : 'status-inactive']">
+                                                {{ scope.row.status === 'running' ? '启动' : '停止' }}
+                                            </span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                        label="操作"
+                                        align="center">
+                                        <template slot-scope="scope">
+                                            <el-tooltip content="删除" placement="top">
+                                                <el-button
+                                                    type="text"
+                                                    icon="el-icon-delete"
+                                                    @click="deleteAlgorithm(scope.row.id)"
+                                                    style="color: #f56565;">
+                                                </el-button>
+                                            </el-tooltip>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                            <!-- 主界面算法表格分页 -->
+                            <div class="pagination-container" v-if="algorithmTableData.length > 0">
+                                <div class="pagination-info">
+                                    显示 {{ mainPageStart + 1 }}-{{ Math.min(mainPageStart + mainPageSize, algorithmTableData.length) }} 条，共 {{ algorithmTableData.length }} 条数据
+                        </div>
+                                <div class="pagination-controls">
+                                    <div class="page-size-selector">
+                                        <span>每页</span>
+                                        <select v-model="mainPageSize" @change="changeMainPageSize" class="page-size-select">
+                                            <option :value="5">5</option>
+                                            <option :value="10">10</option>
+                                            <option :value="20">20</option>
+                                            <option :value="50">50</option>
+                                        </select>
+                                        <span>条</span>
+                                    </div>
+                                    <div class="pagination-buttons">
+                                        <button class="pagination-btn" :disabled="mainCurrentPage === 1" @click="goToMainPage(1)">首页</button>
+                                        <button class="pagination-btn" :disabled="mainCurrentPage === 1" @click="goToMainPage(mainCurrentPage - 1)">上一页</button>
+                                        <button 
+                                            v-for="page in getMainPageNumbers()" 
+                                            :key="page"
+                                            class="pagination-btn"
+                                            :class="{ active: page === mainCurrentPage }"
+                                            @click="goToMainPage(page)">
+                                            {{ page }}
+                                        </button>
+                                        <button class="pagination-btn" :disabled="mainCurrentPage === mainTotalPages" @click="goToMainPage(mainCurrentPage + 1)">下一页</button>
+                                        <button class="pagination-btn" :disabled="mainCurrentPage === mainTotalPages" @click="goToMainPage(mainTotalPages)">尾页</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 巡检计划 -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        巡检计划
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">工作时间</label>
+                        <div class="time-group">
+                            <div>
+                                <label class="form-label" for="startTime">开始时间</label>
+                                <input type="time" id="startTime" class="form-control" value="08:00">
+                            </div>
+                            <div>
+                                <label class="form-label" for="endTime">结束时间</label>
+                                <input type="time" id="endTime" class="form-control" value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预警设置 -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-bell"></i>
+                        预警设置
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">预警接收人</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <el-button type="primary" icon="el-icon-plus" size="small" onclick="openPersonnelSelectionModal()">
+                                    选择人员
+                                </el-button>
+                    </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <el-input
+                                    v-model="personnelSearchText"
+                                    @input="searchSelectedPersonnel"
+                                    @keyup.enter="searchSelectedPersonnel"
+                                    placeholder="搜索人员..."
+                                    prefix-icon="el-icon-search"
+                                    size="small"
+                                    style="width: 200px;">
+                                </el-input>
+                                <el-button type="primary" size="small" @click="searchSelectedPersonnel">搜索</el-button>
+                                <el-button size="small" @click="resetPersonnelSearch">重置</el-button>
+                    </div>
+                </div>
+                        <div class="selected-personnel-list" id="selectedPersonnelList">
+                            <!-- 已选人员列表将在这里动态生成 -->
+            </div>
+                </div>
+                        </div>
+                    </div>
+                    
+            <!-- 操作按钮 -->
+            <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 20px 0; border-top: 1px solid #EBEEF5; margin-top: 20px;">
+                <button type="button" class="btn-secondary" onclick="cancelSettings()">
+                    <i class="fas fa-times"></i>
+                    取消
+                        </button>
+                        <button type="button" class="btn-primary" onclick="saveSettings()">
+                            <i class="fas fa-save"></i>
+                            保存设置
+                        </button>
+                    </div>
+
+        </div>
+    </div>
+
+    <!-- 算法配置穿梭框弹窗 -->
+    <div id="algorithmTransferModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 1400px; width: 95%;">
+            <div class="modal-header">
+                <h3>算法配置</h3>
+                <span class="close" onclick="closeAlgorithmTransferModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="algorithm-transfer-container">
+                    <!-- 左侧：工厂树形结构 -->
+                    <div class="transfer-left">
+                        <div class="transfer-panel-header">
+                            <i class="fas fa-sitemap"></i>
+                            工厂结构树
+                        </div>
+                        <div class="tree-search-container">
+                            <div class="search-container">
+                                <input type="text" id="treeSearchInput" class="search-input" placeholder="搜索集团、工厂、区域、摄像机...">
+                                <i class="fas fa-search search-icon"></i>
+                    </div>
+                            <div class="search-actions">
+                                <button class="transfer-btn" onclick="clearTreeSearch()">清空</button>
+                                <button class="transfer-btn" onclick="expandAllNodes()">全部展开</button>
+                                <button class="transfer-btn" onclick="collapseAllNodes()">全部收起</button>
+                    </div>
+                </div>
+                        <div class="factory-tree-container" id="factoryTreeContainer">
+                            <!-- 动态生成工厂树 -->
+        </div>
+    </div>
+
+                    <!-- 右侧：算法列表 -->
+                    <div class="transfer-right">
+                        <div class="transfer-panel-header">
+                            <i class="fas fa-microchip"></i>
+                            算法列表
+                            <span class="algorithm-count" id="algorithmCount">请选择摄像机</span>
+            </div>
+                        <div class="algorithm-search-container" style="padding: 12px;">
+                        <div class="search-container">
+                                <input type="text" id="algorithmSearchInput" class="search-input" placeholder="搜索算法名称...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        </div>
+                        <div class="algorithm-list-container">
+                            <table class="algorithm-table" id="algorithmTable">
+                                <thead>
+                                    <tr>
+                                        <th width="50">
+                                            <input type="checkbox" class="algorithm-checkbox" id="selectAllAlgorithms" onchange="toggleSelectAllAlgorithms()">
+                                        </th>
+                                        <th>算法名称</th>
+                                        <th>算法类型</th>
+                                        <th>版本</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="algorithmTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: #909399; padding: 40px;">
+                                            请在左侧选择摄像机查看算法
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                        <!-- 穿梭框算法列表分页 -->
+                        <div class="pagination-container" id="transferPaginationContainer" style="display: none;">
+                            <div class="pagination-info" id="transferPaginationInfo">
+                                显示 1-10 条，共 0 条数据
+                        </div>
+                            <div class="pagination-controls">
+                                <div class="page-size-selector">
+                                    <span>每页</span>
+                                    <select id="transferPageSize" class="page-size-select" onchange="changeTransferPageSize()">
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <span>条</span>
+                    </div>
+                                <div class="pagination-buttons" id="transferPaginationButtons">
+                                    <!-- 动态生成分页按钮 -->
+                    </div>
+                </div>
+                </div>
+                        <div class="transfer-controls">
+                            <button class="transfer-btn" onclick="selectAllCurrentAlgorithms()">选择全部</button>
+                            <button class="transfer-btn" onclick="unselectAllCurrentAlgorithms()">取消全部</button>
+            </div>
+            </div>
+        </div>
+    </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAlgorithmTransferModal()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAlgorithmSelection()">确定</button>
+            </div>
+                        </div>
+                    </div>
+                    
+
+    <script>
+        // 算法管理数据结构 - 集团→工厂→区域→摄像机→算法
+        const algorithmData = {
+            groups: [
+                {
+                    id: 'group1',
+                    name: '中建材集团',
+                    factories: [
+                        {
+                            id: 'factory1',
+                            name: '中建材北京建材科技有限公司',
+                            shortName: '北京工厂',
+                            areas: [
+                                {
+                                    id: 'area1',
+                                    name: '生产车间A',
+                                    cameras: [
+                                        {
+                                            id: 'camera1',
+                                            name: '摄像机1',
+                                            algorithms: [
+                                                { id: 'algo1', name: '人员检测', type: '目标检测', version: 'v1.2.0', status: 'running' },
+                                                { id: 'algo2', name: '安全帽检测', type: '目标检测', version: 'v2.1.0', status: 'stopped' },
+                                                { id: 'algo3', name: '危险区域检测', type: '行为分析', version: 'v1.0.5', status: 'running' }
+                                            ]
+                                        },
+                                        {
+                                            id: 'camera2',
+                                            name: '摄像机2',
+                                            algorithms: [
+                                                { id: 'algo4', name: '工具检测', type: '目标检测', version: 'v1.3.2', status: 'running' },
+                                                { id: 'algo5', name: '烟雾检测', type: '环境监测', version: 'v2.0.1', status: 'stopped' }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: 'area2',
+                                    name: '仓库区域',
+                                    cameras: [
+                                        {
+                                            id: 'camera3',
+                                            name: '摄像机3',
+                                            algorithms: [
+                                                { id: 'algo6', name: '入侵检测', type: '行为分析', version: 'v1.1.0', status: 'running' },
+                                                { id: 'algo7', name: '货物计数', type: '目标检测', version: 'v1.4.0', status: 'running' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'factory2',
+                            name: '中建材上海复合材料有限公司',
+                            shortName: '上海工厂',
+                            areas: [
+                                {
+                                    id: 'area3',
+                                    name: '生产车间B',
+                                    cameras: [
+                                        {
+                                            id: 'camera4',
+                                            name: '摄像机4',
+                                            algorithms: [
+                                                { id: 'algo8', name: '质量检测', type: '质量控制', version: 'v2.2.0', status: 'running' },
+                                                { id: 'algo9', name: '设备监控', type: '设备分析', version: 'v1.5.1', status: 'running' }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: 'area4',
+                                    name: '办公区域',
+                                    cameras: [
+                                        {
+                                            id: 'camera5',
+                                            name: '摄像机5',
+                                            algorithms: [
+                                                { id: 'algo10', name: '门禁管理', type: '身份识别', version: 'v1.8.0', status: 'running' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'factory3',
+                            name: '中建材天津重工厂',
+                            shortName: '天津工厂',
+                            areas: [
+                                {
+                                    id: 'area5',
+                                    name: '重工车间',
+                                    cameras: [
+                                        {
+                                            id: 'camera6',
+                                            name: '摄像机6',
+                                            algorithms: [
+                                                { id: 'algo11', name: '重型设备监控', type: '设备分析', version: 'v1.1.0', status: 'running' },
+                                                { id: 'algo12', name: '噪音检测', type: '环境监测', version: 'v1.0.3', status: 'running' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'factory4',
+                            name: '中建材深圳智能工厂',
+                            shortName: '深圳工厂',
+                            areas: [
+                                {
+                                    id: 'area6',
+                                    name: '智能生产线',
+                                    cameras: [
+                                        {
+                                            id: 'camera7',
+                                            name: '摄像机7',
+                                            algorithms: [
+                                                { id: 'algo13', name: 'AI质检', type: '质量控制', version: 'v3.0.0', status: 'running' },
+                                                { id: 'algo14', name: '自动化监控', type: '设备分析', version: 'v2.1.5', status: 'running' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 当前选择的算法列表
+        let selectedAlgorithms = JSON.parse(localStorage.getItem('selectedAlgorithms') || '[]');
+        let currentSelectedCamera = null;
+        let currentSelectedNode = null;
+        let currentAlgorithmsForSelection = [];
+
+        // 人员数据
+        const personnelData = [
+            { id: 'p1', name: '张安全', factory: '北京工厂', department: '安全部', phone: '13800138001', email: 'zhang.safety@company.com' },
+            { id: 'p2', name: '李生产', factory: '北京工厂', department: '生产部', phone: '13800138002', email: 'li.production@company.com' },
+            { id: 'p3', name: '王质检', factory: '北京工厂', department: '质检部', phone: '13800138003', email: 'wang.quality@company.com' },
+            { id: 'p4', name: '赵维修', factory: '北京工厂', department: '维修部', phone: '13800138004', email: 'zhao.maintenance@company.com' },
+            { id: 'p5', name: '刘管理', factory: '北京工厂', department: '管理部', phone: '13800138005', email: 'liu.management@company.com' },
+            { id: 'p6', name: '陈安全', factory: '上海工厂', department: '安全部', phone: '13900139001', email: 'chen.safety@company.com' },
+            { id: 'p7', name: '黄生产', factory: '上海工厂', department: '生产部', phone: '13900139002', email: 'huang.production@company.com' },
+            { id: 'p8', name: '周质检', factory: '上海工厂', department: '质检部', phone: '13900139003', email: 'zhou.quality@company.com' },
+            { id: 'p9', name: '吴维修', factory: '上海工厂', department: '维修部', phone: '13900139004', email: 'wu.maintenance@company.com' },
+            { id: 'p10', name: '徐管理', factory: '上海工厂', department: '管理部', phone: '13900139005', email: 'xu.management@company.com' },
+            { id: 'p11', name: '孙安全', factory: '天津工厂', department: '安全部', phone: '13700137001', email: 'sun.safety@company.com' },
+            { id: 'p12', name: '马生产', factory: '天津工厂', department: '生产部', phone: '13700137002', email: 'ma.production@company.com' },
+            { id: 'p13', name: '朱质检', factory: '天津工厂', department: '质检部', phone: '13700137003', email: 'zhu.quality@company.com' },
+            { id: 'p14', name: '胡维修', factory: '天津工厂', department: '维修部', phone: '13700137004', email: 'hu.maintenance@company.com' },
+            { id: 'p15', name: '郭管理', factory: '天津工厂', department: '管理部', phone: '13700137005', email: 'guo.management@company.com' },
+            { id: 'p16', name: '何安全', factory: '深圳工厂', department: '安全部', phone: '13600136001', email: 'he.safety@company.com' },
+            { id: 'p17', name: '林生产', factory: '深圳工厂', department: '生产部', phone: '13600136002', email: 'lin.production@company.com' },
+            { id: 'p18', name: '罗质检', factory: '深圳工厂', department: '质检部', phone: '13600136003', email: 'luo.quality@company.com' },
+            { id: 'p19', name: '高维修', factory: '深圳工厂', department: '维修部', phone: '13600136004', email: 'gao.maintenance@company.com' },
+            { id: 'p20', name: '梁管理', factory: '深圳工厂', department: '管理部', phone: '13600136005', email: 'liang.management@company.com' }
+        ];
+
+        // 人员选择相关变量
+        let selectedPersonnel = JSON.parse(localStorage.getItem('selectedPersonnel') || '[]');
+        let personnelCurrentPage = 1;
+        let personnelPageSize = 10;
+        let filteredPersonnelData = [];
+        let tempSelectedPersonnelIds = [];
+
+        // 主界面分页变量
+        let mainCurrentPage = 1;
+        let mainPageSize = 10;
+        let mainTotalPages = 1;
+        let mainPageStart = 0;
+
+        // 穿梭框分页变量
+        let transferCurrentPage = 1;
+        let transferPageSize = 10;
+        let transferTotalPages = 1;
+        let transferPageStart = 0;
+        let filteredAlgorithmsForTransfer = [];
+        
+        // 自定义表格实例
+        let selectedFactoriesForSelection = [];
+        let selectedCamerasForSelection = [];
+        let sortConfig = { column: null, direction: 'asc' };
+        
+        // Element UI表格不需要API实例
+        
+        // Vue应用实例
+        let vueApp;
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initVueApp();
+            loadCurrentSettings();
+        });
+        
+        // 添加ESC键关闭模态框功能
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const algorithmModal = document.getElementById('algorithmTransferModal');
+                if (algorithmModal && algorithmModal.style.display === 'flex') {
+                    closeAlgorithmTransferModal();
+                }
+            }
+        });
+        
+        // 添加点击模态框背景关闭功能
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                if (e.target.id === 'algorithmTransferModal') {
+                    closeAlgorithmTransferModal();
+                }
+            }
+        });
+        
+        // 初始化Vue应用
+        function initVueApp() {
+            vueApp = new Vue({
+                el: '.container',
+                data: {
+                    algorithmSearchText: '',
+                    algorithmTableData: [],
+                    algorithmTableDataPaged: [],
+                    selectedAlgorithms: [],
+                    personnelSearchText: '',
+                    // 主界面分页数据
+                    mainCurrentPage: 1,
+                    mainPageSize: 10,
+                    mainTotalPages: 1,
+                    mainPageStart: 0
+                },
+                computed: {
+                    mainTotalPages: function() {
+                        return Math.ceil(this.algorithmTableData.length / this.mainPageSize);
+                    }
+                },
+                methods: {
+                    openAlgorithmTransferModal: openAlgorithmTransferModal,
+                    handleAlgorithmSelectionChange: function(selection) {
+                        this.selectedAlgorithms = selection;
+                    },
+                    deleteAlgorithm: deleteAlgorithm,
+                    searchAlgorithms: function() {
+                        const searchText = this.algorithmSearchText.toLowerCase();
+                         if (!searchText) {
+                            this.algorithmTableData = getFlatAlgorithmList();
+                         } else {
+                            this.algorithmTableData = getFlatAlgorithmList().filter(algorithm => 
+                                algorithm.name.toLowerCase().includes(searchText) ||
+                                algorithm.type.toLowerCase().includes(searchText) ||
+                                algorithm.factoryName.toLowerCase().includes(searchText) ||
+                                algorithm.cameraName.toLowerCase().includes(searchText)
+                            );
+                        }
+                        this.updateMainPagination();
+                    },
+                    // 主界面分页方法
+                    updateMainPagination: function() {
+                        this.mainCurrentPage = 1;
+                        this.mainPageStart = 0;
+                        this.updateMainPagedData();
+                    },
+                    updateMainPagedData: function() {
+                        const start = (this.mainCurrentPage - 1) * this.mainPageSize;
+                        const end = start + this.mainPageSize;
+                        this.algorithmTableDataPaged = this.algorithmTableData.slice(start, end);
+                        this.mainPageStart = start;
+                    },
+                    goToMainPage: function(page) {
+                        if (page >= 1 && page <= this.mainTotalPages) {
+                            this.mainCurrentPage = page;
+                            this.updateMainPagedData();
+                        }
+                    },
+                    changeMainPageSize: function() {
+                        this.updateMainPagination();
+                    },
+                    getMainPageNumbers: function() {
+                        const pages = [];
+                        const current = this.mainCurrentPage;
+                        const total = this.mainTotalPages;
+                        
+                        // 显示当前页前后2页
+                        let start = Math.max(1, current - 2);
+                        let end = Math.min(total, current + 2);
+                        
+                        for (let i = start; i <= end; i++) {
+                            pages.push(i);
+                        }
+                        return pages;
+                    },
+                    // 搜索已选人员
+                    searchSelectedPersonnel: function() {
+                        renderSelectedPersonnelList();
+                    },
+                    // 重置人员搜索
+                    resetPersonnelSearch: function() {
+                        this.personnelSearchText = '';
+                        renderSelectedPersonnelList();
+                     }
+                }
+            });
+            
+            // 初始化算法表格数据
+            vueApp.algorithmTableData = getFlatAlgorithmList();
+            vueApp.updateMainPagination();
+        }
+
+        // 获取扁平化的算法列表
+        function getFlatAlgorithmList() {
+            const flatList = [];
+            algorithmData.groups.forEach(group => {
+                group.factories.forEach(factory => {
+                    factory.areas.forEach(area => {
+                        area.cameras.forEach(camera => {
+                            camera.algorithms.forEach(algorithm => {
+                                flatList.push({
+                                    ...algorithm,
+                                    groupName: group.name,
+                                    factoryName: factory.shortName,
+                                    areaName: area.name,
+                                    cameraName: camera.name,
+                                    groupId: group.id,
+                                    factoryId: factory.id,
+                                    areaId: area.id,
+                                    cameraId: camera.id
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+            return flatList.filter(algo => selectedAlgorithms.includes(algo.id));
+        }
+
+        // ================ 算法穿梭框功能函数 ================
+        
+        // 打开算法配置穿梭框
+        function openAlgorithmTransferModal() {
+            document.body.style.overflow = 'hidden';
+            document.getElementById('algorithmTransferModal').style.display = 'flex';
+            renderFactoryTree();
+            renderAlgorithmList();
+        }
+
+        // 关闭算法配置穿梭框
+        function closeAlgorithmTransferModal() {
+            document.body.style.overflow = '';
+            document.getElementById('algorithmTransferModal').style.display = 'none';
+            currentSelectedCamera = null;
+            currentSelectedNode = null;
+            currentAlgorithmsForSelection = [];
+        }
+
+        // 渲染工厂树形结构（支持集团→工厂→区域→摄像机四层结构）
+        function renderFactoryTree() {
+            const container = document.getElementById('factoryTreeContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            algorithmData.groups.forEach(group => {
+                // 集团节点
+                const groupNode = document.createElement('div');
+                groupNode.className = 'factory-tree-item';
+                groupNode.innerHTML = `
+                    <div class="tree-node" onclick="selectNodeAlgorithms('group', '${group.id}', event)" id="group-${group.id}">
+                        <span class="tree-node-icon" onclick="toggleGroupNode('${group.id}', event)"><i class="fas fa-chevron-right"></i></span>
+                        <i class="fas fa-building"></i>
+                        <span>${group.name}</span>
+                    </div>
+                    <div class="tree-children" id="group-children-${group.id}">
+                        ${group.factories.map(factory => `
+                            <div class="tree-node" onclick="selectNodeAlgorithms('factory', '${factory.id}', event, '${group.id}')" id="factory-${factory.id}">
+                                <span class="tree-node-icon" onclick="toggleFactoryNode('${group.id}', '${factory.id}', event)"><i class="fas fa-chevron-right"></i></span>
+                                <i class="fas fa-industry"></i>
+                                <span>${factory.shortName}</span>
+                            </div>
+                            <div class="tree-children" id="factory-children-${factory.id}">
+                                ${factory.areas.map(area => `
+                                    <div class="tree-node" onclick="selectNodeAlgorithms('area', '${area.id}', event, '${group.id}', '${factory.id}')" id="area-${area.id}">
+                                        <span class="tree-node-icon" onclick="toggleAreaNode('${group.id}', '${factory.id}', '${area.id}', event)"><i class="fas fa-chevron-right"></i></span>
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>${area.name}</span>
+                                    </div>
+                                    <div class="tree-children" id="area-children-${area.id}">
+                                        ${area.cameras.map(camera => `
+                                            <div class="tree-node" onclick="selectNodeAlgorithms('camera', '${camera.id}', event, '${group.id}', '${factory.id}', '${area.id}')" id="camera-${camera.id}">
+                                                <span class="tree-node-icon"></span>
+                                                <i class="fas fa-video"></i>
+                                                <span>${camera.name}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(groupNode);
+            });
+
+            // 添加树形搜索事件监听器
+            const treeSearchInput = document.getElementById('treeSearchInput');
+            if (treeSearchInput) {
+                treeSearchInput.addEventListener('input', performTreeSearch);
+            }
+        }
+
+        // 切换集团节点展开/收起
+        function toggleGroupNode(groupId, event) {
+            if (event) event.stopPropagation();
+            const node = document.getElementById(`group-${groupId}`);
+            const children = document.getElementById(`group-children-${groupId}`);
+            const icon = node.querySelector('.tree-node-icon i');
+            
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                icon.className = 'fas fa-chevron-right';
+                node.classList.remove('expanded');
+            } else {
+                children.classList.add('expanded');
+                icon.className = 'fas fa-chevron-down';
+                node.classList.add('expanded');
+            }
+        }
+
+        // 切换工厂节点展开/收起
+        function toggleFactoryNode(groupId, factoryId, event) {
+            if (event) event.stopPropagation();
+            const node = document.getElementById(`factory-${factoryId}`);
+            const children = document.getElementById(`factory-children-${factoryId}`);
+            const icon = node.querySelector('.tree-node-icon i');
+            
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                icon.className = 'fas fa-chevron-right';
+                node.classList.remove('expanded');
+            } else {
+                children.classList.add('expanded');
+                icon.className = 'fas fa-chevron-down';
+                node.classList.add('expanded');
+            }
+        }
+
+        // 切换区域节点展开/收起
+        function toggleAreaNode(groupId, factoryId, areaId, event) {
+            if (event) event.stopPropagation();
+            const node = document.getElementById(`area-${areaId}`);
+            const children = document.getElementById(`area-children-${areaId}`);
+            const icon = node.querySelector('.tree-node-icon i');
+            
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                icon.className = 'fas fa-chevron-right';
+                node.classList.remove('expanded');
+            } else {
+                children.classList.add('expanded');
+                icon.className = 'fas fa-chevron-down';
+                node.classList.add('expanded');
+            }
+        }
+
+        // 统一的节点选择函数（支持集团、工厂、区域、摄像机）
+        function selectNodeAlgorithms(nodeType, nodeId, event, groupId, factoryId, areaId) {
+            if (event) event.stopPropagation();
+            
+            // 移除之前选择的高亮
+            document.querySelectorAll('.tree-node.selected').forEach(node => {
+                node.classList.remove('selected');
+            });
+
+            // 高亮当前选择的节点
+            const selectedNode = document.getElementById(`${nodeType}-${nodeId}`);
+            if (selectedNode) {
+                selectedNode.classList.add('selected');
+            }
+
+            // 收集算法数据
+            let algorithms = [];
+            let nodeInfo = {};
+
+            switch (nodeType) {
+                case 'group':
+                    // 集团：收集所有工厂的算法
+                    const group = algorithmData.groups.find(g => g.id === nodeId);
+                    if (group) {
+                        group.factories.forEach(factory => {
+                            factory.areas.forEach(area => {
+                                area.cameras.forEach(camera => {
+                                    camera.algorithms.forEach(algorithm => {
+                                        algorithms.push({
+                                            ...algorithm,
+                                            groupName: group.name,
+                                            factoryName: factory.shortName,
+                                            areaName: area.name,
+                                            cameraName: camera.name,
+                                            sourcePath: `${factory.shortName} > ${area.name} > ${camera.name}`
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                        nodeInfo = {
+                            type: 'group',
+                            name: group.name,
+                            description: `集团下共有 ${algorithms.length} 个算法`
+                        };
+                    }
+                    break;
+
+                case 'factory':
+                    // 工厂：收集该工厂的所有算法
+                    const groupForFactory = algorithmData.groups.find(g => g.id === groupId);
+                    const factory = groupForFactory?.factories.find(f => f.id === nodeId);
+                    if (factory) {
+                        factory.areas.forEach(area => {
+                            area.cameras.forEach(camera => {
+                                camera.algorithms.forEach(algorithm => {
+                                    algorithms.push({
+                                        ...algorithm,
+                                        groupName: groupForFactory.name,
+                                        factoryName: factory.shortName,
+                                        areaName: area.name,
+                                        cameraName: camera.name,
+                                        sourcePath: `${area.name} > ${camera.name}`
+                                    });
+                                });
+                            });
+                        });
+                        nodeInfo = {
+                            type: 'factory',
+                            name: factory.shortName,
+                            description: `工厂下共有 ${algorithms.length} 个算法`
+                        };
+                    }
+                    break;
+
+                case 'area':
+                    // 区域：收集该区域的所有算法
+                    const groupForArea = algorithmData.groups.find(g => g.id === groupId);
+                    const factoryForArea = groupForArea?.factories.find(f => f.id === factoryId);
+                    const area = factoryForArea?.areas.find(a => a.id === nodeId);
+                    if (area) {
+                        area.cameras.forEach(camera => {
+                            camera.algorithms.forEach(algorithm => {
+                                algorithms.push({
+                                    ...algorithm,
+                                    groupName: groupForArea.name,
+                                    factoryName: factoryForArea.shortName,
+                                    areaName: area.name,
+                                    cameraName: camera.name,
+                                    sourcePath: camera.name
+                                });
+                            });
+                        });
+                        nodeInfo = {
+                            type: 'area',
+                            name: area.name,
+                            description: `区域下共有 ${algorithms.length} 个算法`
+                        };
+                    }
+                    break;
+
+                case 'camera':
+                    // 摄像机：显示该摄像机的算法（原有功能）
+                    const groupForCamera = algorithmData.groups.find(g => g.id === groupId);
+                    const factoryForCamera = groupForCamera?.factories.find(f => f.id === factoryId);
+                    const areaForCamera = factoryForCamera?.areas.find(a => a.id === areaId);
+                    const camera = areaForCamera?.cameras.find(c => c.id === nodeId);
+                    if (camera) {
+                        camera.algorithms.forEach(algorithm => {
+                            algorithms.push({
+                                ...algorithm,
+                                groupName: groupForCamera.name,
+                                factoryName: factoryForCamera.shortName,
+                                areaName: areaForCamera.name,
+                                cameraName: camera.name,
+                                sourcePath: camera.name
+                            });
+                        });
+                        nodeInfo = {
+                            type: 'camera',
+                            name: camera.name,
+                            description: `摄像机共有 ${algorithms.length} 个算法`
+                        };
+                        // 保持原有的摄像机选择逻辑
+                        currentSelectedCamera = {
+                            groupId, factoryId, areaId, cameraId: nodeId,
+                            groupName: groupForCamera.name,
+                            factoryName: factoryForCamera.shortName,
+                            areaName: areaForCamera.name,
+                            cameraName: camera.name
+                        };
+                    }
+                    break;
+            }
+
+            // 更新当前选择的算法列表
+            currentAlgorithmsForSelection = algorithms;
+            currentSelectedNode = nodeInfo;
+            
+            // 渲染算法列表
+            renderAlgorithmList();
+        }
+
+        // 渲染算法列表（支持搜索过滤、来源路径显示和分页）
+        function renderAlgorithmList() {
+            const tbody = document.getElementById('algorithmTableBody');
+            const countSpan = document.getElementById('algorithmCount');
+            const searchTerm = document.getElementById('algorithmSearchInput')?.value.toLowerCase() || '';
+            
+            // 更新表头，根据节点类型调整列
+            const table = document.getElementById('algorithmTable');
+            const isMultiSource = currentSelectedNode && currentSelectedNode.type !== 'camera';
+            
+            // 动态更新表头
+            const thead = table.querySelector('thead tr');
+            if (isMultiSource) {
+                thead.innerHTML = `
+                    <th width="50">
+                        <input type="checkbox" class="algorithm-checkbox" id="selectAllAlgorithms" onchange="toggleSelectAllAlgorithms()">
+                    </th>
+                    <th>算法名称</th>
+                    <th>算法类型</th>
+                    <th>版本</th>
+                    <th>状态</th>
+                    <th>来源</th>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <th width="50">
+                        <input type="checkbox" class="algorithm-checkbox" id="selectAllAlgorithms" onchange="toggleSelectAllAlgorithms()">
+                    </th>
+                    <th>算法名称</th>
+                    <th>算法类型</th>
+                    <th>版本</th>
+                    <th>状态</th>
+                `;
+            }
+            
+            if (!currentSelectedNode || currentAlgorithmsForSelection.length === 0) {
+                const emptyMessage = currentSelectedNode ? 
+                    `该${currentSelectedNode.type === 'group' ? '集团' : 
+                        currentSelectedNode.type === 'factory' ? '工厂' : 
+                        currentSelectedNode.type === 'area' ? '区域' : '摄像机'}暂无算法` : 
+                    '请在左侧选择节点查看算法';
+                    
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${isMultiSource ? '6' : '5'}" style="text-align: center; color: #909399; padding: 40px;">
+                            ${emptyMessage}
+                        </td>
+                    </tr>
+                `;
+                countSpan.textContent = currentSelectedNode ? 
+                    currentSelectedNode.description : '请选择节点';
+                
+                // 隐藏分页容器
+                document.getElementById('transferPaginationContainer').style.display = 'none';
+                return;
+            }
+
+            // 根据搜索词过滤算法
+            filteredAlgorithmsForTransfer = currentAlgorithmsForSelection;
+            if (searchTerm) {
+                filteredAlgorithmsForTransfer = currentAlgorithmsForSelection.filter(algorithm => 
+                    algorithm.name.toLowerCase().includes(searchTerm) ||
+                    algorithm.type.toLowerCase().includes(searchTerm) ||
+                    (algorithm.sourcePath && algorithm.sourcePath.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // 更新穿梭框分页
+            updateTransferPagination();
+
+            // 获取当前页的算法数据
+            const start = (transferCurrentPage - 1) * transferPageSize;
+            const end = start + transferPageSize;
+            const pagedAlgorithms = filteredAlgorithmsForTransfer.slice(start, end);
+
+            countSpan.textContent = `${filteredAlgorithmsForTransfer.length} 个算法${searchTerm ? '（搜索结果）' : ''}`;
+            
+            if (filteredAlgorithmsForTransfer.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${isMultiSource ? '6' : '5'}" style="text-align: center; color: #909399; padding: 40px;">
+                            未找到匹配的算法
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('transferPaginationContainer').style.display = 'none';
+                return;
+            }
+
+            // 显示分页容器
+            if (filteredAlgorithmsForTransfer.length > 5) {
+                document.getElementById('transferPaginationContainer').style.display = 'flex';
+            } else {
+                document.getElementById('transferPaginationContainer').style.display = 'none';
+            }
+
+            tbody.innerHTML = pagedAlgorithms.map(algorithm => {
+                const baseColumns = `
+                    <td>
+                        <input type="checkbox" class="algorithm-checkbox" 
+                               value="${algorithm.id}" 
+                               onchange="toggleAlgorithmSelection('${algorithm.id}')">
+                    </td>
+                    <td>${highlightSearchTerm(algorithm.name, searchTerm)}</td>
+                    <td>${highlightSearchTerm(algorithm.type, searchTerm)}</td>
+                    <td>${algorithm.version}</td>
+                    <td>
+                        <span class="status-badge ${algorithm.status === 'running' ? 'status-active' : 'status-inactive'}">
+                            ${algorithm.status === 'running' ? '启动' : '停止'}
+                        </span>
+                    </td>
+                `;
+                
+                const sourceColumn = isMultiSource ? 
+                    `<td style="font-size: 12px; color: #666;">${highlightSearchTerm(algorithm.sourcePath || '', searchTerm)}</td>` : '';
+                    
+                return `<tr>${baseColumns}${sourceColumn}</tr>`;
+            }).join('');
+
+            // 添加算法搜索事件监听器
+            const algorithmSearchInput = document.getElementById('algorithmSearchInput');
+            if (algorithmSearchInput && !algorithmSearchInput.hasAttribute('data-listener-added')) {
+                algorithmSearchInput.addEventListener('input', renderAlgorithmList);
+                algorithmSearchInput.setAttribute('data-listener-added', 'true');
+            }
+        }
+
+        // 切换算法选择状态
+        function toggleAlgorithmSelection(algorithmId) {
+            // 这个函数会在复选框change事件中调用，但实际选择状态由复选框本身维护
+        }
+
+        // 选择当前摄像机的所有算法
+        function selectAllCurrentAlgorithms() {
+            const checkboxes = document.querySelectorAll('#algorithmTableBody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateSelectAllAlgorithmsCheckbox();
+        }
+
+        // 取消选择当前摄像机的所有算法
+        function unselectAllCurrentAlgorithms() {
+            const checkboxes = document.querySelectorAll('#algorithmTableBody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateSelectAllAlgorithmsCheckbox();
+        }
+
+        // 全选/取消全选算法
+        function toggleSelectAllAlgorithms() {
+            const selectAllCheckbox = document.getElementById('selectAllAlgorithms');
+            const checkboxes = document.querySelectorAll('#algorithmTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        // 更新全选复选框状态
+        function updateSelectAllAlgorithmsCheckbox() {
+            const selectAllCheckbox = document.getElementById('selectAllAlgorithms');
+            const checkboxes = document.querySelectorAll('#algorithmTableBody input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            if (checkedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCount === checkboxes.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+
+        // 确认算法选择
+        function confirmAlgorithmSelection() {
+            const checkboxes = document.querySelectorAll('#algorithmTableBody input[type="checkbox"]:checked');
+            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedIds.length === 0) {
+                alert('请选择要配置的算法！');
+                return;
+            }
+
+            // 获取选中的算法完整信息
+            const newAlgorithms = currentAlgorithmsForSelection.filter(algo => 
+                selectedIds.includes(algo.id)
+            ).map(algo => ({
+                ...algo,
+                groupId: currentSelectedCamera.groupId,
+                factoryId: currentSelectedCamera.factoryId,
+                areaId: currentSelectedCamera.areaId,
+                cameraId: currentSelectedCamera.cameraId,
+                groupName: currentSelectedCamera.groupName,
+                factoryName: currentSelectedCamera.factoryName,
+                areaName: currentSelectedCamera.areaName,
+                cameraName: currentSelectedCamera.cameraName
+            }));
+
+            // 更新选择的算法列表（去重）
+            newAlgorithms.forEach(newAlgo => {
+                if (!selectedAlgorithms.includes(newAlgo.id)) {
+                    selectedAlgorithms.push(newAlgo.id);
+                }
+            });
+
+            // 保存到localStorage
+            localStorage.setItem('selectedAlgorithms', JSON.stringify(selectedAlgorithms));
+
+            // 更新Vue表格数据
+            if (vueApp) {
+                vueApp.algorithmTableData = getFlatAlgorithmList();
+            }
+
+            closeAlgorithmTransferModal();
+            showAlert(`成功配置 ${selectedIds.length} 个算法！`, 'success');
+        }
+
+        // ================ 穿梭框分页功能函数 ================
+
+        // 更新穿梭框分页
+        function updateTransferPagination() {
+            transferTotalPages = Math.ceil(filteredAlgorithmsForTransfer.length / transferPageSize);
+            transferCurrentPage = 1;
+            renderTransferPagination();
+        }
+
+        // 渲染穿梭框分页控件
+        function renderTransferPagination() {
+            const infoElement = document.getElementById('transferPaginationInfo');
+            const buttonsContainer = document.getElementById('transferPaginationButtons');
+            
+            if (!infoElement || !buttonsContainer) return;
+
+            const start = (transferCurrentPage - 1) * transferPageSize + 1;
+            const end = Math.min(transferCurrentPage * transferPageSize, filteredAlgorithmsForTransfer.length);
+            const total = filteredAlgorithmsForTransfer.length;
+
+            infoElement.textContent = `显示 ${start}-${end} 条，共 ${total} 条数据`;
+
+            // 生成分页按钮
+            const pages = getTransferPageNumbers();
+            buttonsContainer.innerHTML = `
+                <button class="pagination-btn" ${transferCurrentPage === 1 ? 'disabled' : ''} onclick="goToTransferPage(1)">首页</button>
+                <button class="pagination-btn" ${transferCurrentPage === 1 ? 'disabled' : ''} onclick="goToTransferPage(${transferCurrentPage - 1})">上一页</button>
+                ${pages.map(page => `
+                    <button class="pagination-btn ${page === transferCurrentPage ? 'active' : ''}" onclick="goToTransferPage(${page})">${page}</button>
+                `).join('')}
+                <button class="pagination-btn" ${transferCurrentPage === transferTotalPages ? 'disabled' : ''} onclick="goToTransferPage(${transferCurrentPage + 1})">下一页</button>
+                <button class="pagination-btn" ${transferCurrentPage === transferTotalPages ? 'disabled' : ''} onclick="goToTransferPage(${transferTotalPages})">尾页</button>
+            `;
+        }
+
+        // 获取穿梭框页码数组
+        function getTransferPageNumbers() {
+            const pages = [];
+            const current = transferCurrentPage;
+            const total = transferTotalPages;
+            
+            // 显示当前页前后2页
+            let start = Math.max(1, current - 2);
+            let end = Math.min(total, current + 2);
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        }
+
+        // 跳转到指定页
+        function goToTransferPage(page) {
+            if (page >= 1 && page <= transferTotalPages) {
+                transferCurrentPage = page;
+                renderAlgorithmList();
+            }
+        }
+
+        // 改变穿梭框每页大小
+        function changeTransferPageSize() {
+            const selectElement = document.getElementById('transferPageSize');
+            transferPageSize = parseInt(selectElement.value);
+            updateTransferPagination();
+            renderAlgorithmList();
+        }
+
+        // ================ 搜索功能函数 ================
+
+        // 高亮搜索关键词
+        function highlightSearchTerm(text, searchTerm) {
+            if (!searchTerm) return text;
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="tree-search-highlight">$1</span>');
+        }
+
+        // 执行树形搜索
+        function performTreeSearch() {
+            const searchTerm = document.getElementById('treeSearchInput')?.value.toLowerCase() || '';
+            const allNodes = document.querySelectorAll('.tree-node');
+            
+            if (!searchTerm) {
+                // 清空搜索时显示所有节点
+                allNodes.forEach(node => {
+                    node.classList.remove('hidden', 'tree-search-highlight');
+                    node.innerHTML = node.innerHTML.replace(/<span class="tree-search-highlight">(.*?)<\/span>/g, '$1');
+                });
+                return;
+            }
+
+            // 搜索匹配的节点
+            allNodes.forEach(node => {
+                const text = node.textContent.toLowerCase();
+                const nodeText = node.querySelector('span:last-child');
+                
+                if (text.includes(searchTerm)) {
+                    node.classList.remove('hidden');
+                    // 高亮匹配文本
+                    if (nodeText) {
+                        const originalText = nodeText.textContent;
+                        nodeText.innerHTML = highlightSearchTerm(originalText, searchTerm);
+                    }
+                    
+                    // 展开所有父节点
+                    expandParentNodes(node);
+                } else {
+                    node.classList.add('hidden');
+                    // 移除高亮
+                    if (nodeText) {
+                        nodeText.innerHTML = nodeText.textContent;
+                    }
+                }
+            });
+        }
+
+        // 展开指定节点的所有父节点
+        function expandParentNodes(node) {
+            let parent = node.parentElement;
+            while (parent) {
+                if (parent.classList.contains('tree-children')) {
+                    parent.classList.add('expanded');
+                    // 找到对应的节点图标并更新
+                    const parentNode = parent.previousElementSibling;
+                    if (parentNode && parentNode.classList.contains('tree-node')) {
+                        const icon = parentNode.querySelector('.tree-node-icon i');
+                        if (icon) {
+                            icon.className = 'fas fa-chevron-down';
+                        }
+                        parentNode.classList.add('expanded');
+                    }
+                }
+                parent = parent.parentElement;
+            }
+        }
+
+        // 清空树形搜索
+        function clearTreeSearch() {
+            const searchInput = document.getElementById('treeSearchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                performTreeSearch();
+            }
+        }
+
+        // 全部展开
+        function expandAllNodes() {
+            document.querySelectorAll('.tree-children').forEach(children => {
+                children.classList.add('expanded');
+            });
+            document.querySelectorAll('.tree-node .tree-node-icon i').forEach(icon => {
+                if (icon.parentElement.parentElement.nextElementSibling?.classList.contains('tree-children')) {
+                    icon.className = 'fas fa-chevron-down';
+                    icon.parentElement.parentElement.classList.add('expanded');
+                }
+            });
+        }
+
+        // 全部收起
+        function collapseAllNodes() {
+            document.querySelectorAll('.tree-children').forEach(children => {
+                children.classList.remove('expanded');
+            });
+            document.querySelectorAll('.tree-node .tree-node-icon i').forEach(icon => {
+                if (icon.parentElement.parentElement.nextElementSibling?.classList.contains('tree-children')) {
+                    icon.className = 'fas fa-chevron-right';
+                    icon.parentElement.parentElement.classList.remove('expanded');
+                }
+            });
+        }
+
+        // 删除算法
+        function deleteAlgorithm(algorithmId) {
+            if (confirm('确定要删除这个算法配置吗？')) {
+                selectedAlgorithms = selectedAlgorithms.filter(id => id !== algorithmId);
+                localStorage.setItem('selectedAlgorithms', JSON.stringify(selectedAlgorithms));
+                
+                if (vueApp) {
+                    vueApp.algorithmTableData = getFlatAlgorithmList();
+                }
+                
+                showAlert('算法删除成功！', 'success');
+            }
+        }
+
+
+
+
+
+
+        // ================ 基础设置功能 ================
+
+        // 导航到巡检记录列表页面
+        function navigateToInspectionList() {
+            try {
+                // 使用 postMessage 安全地通知父窗口进行导航
+                window.parent.postMessage({
+                    type: 'navigate',
+                    page: 'inspection-list'
+                }, '*');
+                
+            } catch (error) {
+                console.error('导航失败:', error);
+                // 如果 postMessage 失败，直接在当前窗口打开
+                window.location.href = 'inspection-list.html';
+            }
+        }
+
+        // 记录当前参数并重置为初始化参数
+        // 取消设置
+        function cancelSettings() {
+            // 确认取消操作
+            if (confirm('确定要取消当前设置吗？未保存的更改将丢失。')) {
+                // 重新加载当前设置
+                loadCurrentSettings();
+                showAlert('已取消当前更改！', 'info');
+                
+                // 延迟返回到巡检记录列表（让用户看到提示信息）
+                setTimeout(() => {
+                    navigateToInspectionList();
+                }, 1000);
+            }
+        }
+
+        function resetToInitialSettings() {
+            // 记录当前参数
+            const currentSettings = JSON.parse(localStorage.getItem('inspectionSettings')) || {};
+            console.log('当前参数记录:', {
+                algorithms: selectedAlgorithms,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                selectedPersonnel: selectedPersonnel
+            });
+            
+            // 重置为初始化参数
+            const initialSettings = {
+                algorithms: ['algo1', 'algo6'], // 默认选择几个算法
+                startTime: '08:00',
+                endTime: '18:00',
+                selectedPersonnel: [
+                    personnelData.find(p => p.id === 'p1'), // 张安全
+                    personnelData.find(p => p.id === 'p2')  // 李生产
+                ].filter(p => p)
+            };
+            
+            // 保存初始化设置到本地存储
+            localStorage.setItem('inspectionSettings', JSON.stringify(initialSettings));
+            localStorage.setItem('selectedAlgorithms', JSON.stringify(initialSettings.algorithms));
+            localStorage.setItem('selectedPersonnel', JSON.stringify(initialSettings.selectedPersonnel));
+            
+            // 更新全局变量
+            selectedAlgorithms = initialSettings.algorithms;
+            selectedPersonnel = initialSettings.selectedPersonnel;
+            
+            // 更新界面显示
+            document.getElementById('startTime').value = initialSettings.startTime;
+            document.getElementById('endTime').value = initialSettings.endTime;
+            
+            // 更新算法表格数据
+            if (vueApp) {
+                vueApp.algorithmTableData = getFlatAlgorithmList();
+                vueApp.updateMainPagination();
+            }
+            
+            // 更新人员列表
+            renderSelectedPersonnelList();
+            
+            showAlert('参数已重置为初始化状态！', 'success');
+        }
+
+        // 加载当前设置
+        function loadCurrentSettings() {
+            const settings = JSON.parse(localStorage.getItem('inspectionSettings')) || {
+                algorithms: ['algo1', 'algo6'],
+                startTime: '08:00',
+                endTime: '18:00',
+                selectedPersonnel: [
+                    personnelData.find(p => p.id === 'p1'), // 张安全
+                    personnelData.find(p => p.id === 'p2')  // 李生产
+                ].filter(p => p)
+            };
+
+            if (settings.algorithms && Array.isArray(settings.algorithms)) {
+                selectedAlgorithms = settings.algorithms;
+            }
+            
+            if (settings.selectedPersonnel && Array.isArray(settings.selectedPersonnel)) {
+                selectedPersonnel = settings.selectedPersonnel;
+            }
+            
+            document.getElementById('startTime').value = settings.startTime;
+            document.getElementById('endTime').value = settings.endTime;
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                algorithms: selectedAlgorithms,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                selectedPersonnel: selectedPersonnel
+            };
+
+            // 验证必填项
+            if (settings.algorithms.length === 0) {
+                showAlert('请至少配置一个算法！', 'info');
+                return;
+            }
+
+            if (settings.selectedPersonnel.length === 0) {
+                showAlert('请至少选择一名预警接收人员！', 'info');
+                return;
+            }
+
+            // 保存到localStorage
+            localStorage.setItem('inspectionSettings', JSON.stringify(settings));
+            localStorage.setItem('selectedAlgorithms', JSON.stringify(selectedAlgorithms));
+            localStorage.setItem('selectedPersonnel', JSON.stringify(selectedPersonnel));
+            
+            // 更新最后更新时间
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const lastUpdateElement = document.getElementById('lastUpdate');
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = timeStr;
+            }
+            
+            showAlert('巡检设置已保存并生效！', 'success');
+            
+            // 延迟返回到巡检记录列表（让用户看到保存成功提示）
+            setTimeout(() => {
+                navigateToInspectionList();
+            }, 1500);
+        }
+
+        // ================ 人员选择功能 ================
+
+        // 打开人员选择弹窗
+        function openPersonnelSelectionModal() {
+            document.body.style.overflow = 'hidden';
+            document.getElementById('personnelSelectionModal').style.display = 'flex';
+            
+            // 复制当前已选人员ID到临时变量
+            tempSelectedPersonnelIds = [...selectedPersonnel.map(p => p.id)];
+            
+            renderPersonnelList();
+            renderSelectedPersonnelList();
+        }
+
+        // 关闭人员选择弹窗
+        function closePersonnelSelectionModal() {
+            document.body.style.overflow = '';
+            document.getElementById('personnelSelectionModal').style.display = 'none';
+            
+            // 清空临时选择
+            tempSelectedPersonnelIds = [];
+            
+            // 清空搜索
+            document.getElementById('personnelSearchInput').value = '';
+        }
+
+        // 渲染人员列表
+        function renderPersonnelList() {
+            const searchTerm = document.getElementById('personnelSearchInput')?.value.toLowerCase() || '';
+            
+            // 过滤人员数据
+            filteredPersonnelData = personnelData;
+            if (searchTerm) {
+                filteredPersonnelData = personnelData.filter(person => 
+                    person.name.toLowerCase().includes(searchTerm) ||
+                    person.factory.toLowerCase().includes(searchTerm) ||
+                    person.department.toLowerCase().includes(searchTerm) ||
+                    person.phone.includes(searchTerm) ||
+                    person.email.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 更新分页
+            updatePersonnelPagination();
+
+            // 获取当前页数据
+            const start = (personnelCurrentPage - 1) * personnelPageSize;
+            const end = start + personnelPageSize;
+            const pagedPersonnel = filteredPersonnelData.slice(start, end);
+
+            const tbody = document.getElementById('personnelTableBody');
+            
+            if (filteredPersonnelData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #909399; padding: 40px;">
+                            ${searchTerm ? '未找到匹配的人员' : '暂无人员数据'}
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('personnelPaginationContainer').style.display = 'none';
+                return;
+            }
+
+            // 显示分页
+            if (filteredPersonnelData.length > 10) {
+                document.getElementById('personnelPaginationContainer').style.display = 'flex';
+            } else {
+                document.getElementById('personnelPaginationContainer').style.display = 'none';
+            }
+
+            tbody.innerHTML = pagedPersonnel.map(person => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="personnel-checkbox" 
+                               value="${person.id}" 
+                               ${tempSelectedPersonnelIds.includes(person.id) ? 'checked' : ''}
+                               onchange="togglePersonnelSelection('${person.id}')">
+                    </td>
+                    <td>${person.name}</td>
+                    <td>${person.factory}</td>
+                    <td>${person.department}</td>
+                    <td>${person.phone}</td>
+                    <td>${person.email}</td>
+                </tr>
+            `).join('');
+
+            // 更新全选状态
+            updateSelectAllPersonnelCheckbox();
+            
+            // 更新选择计数
+            updateSelectedPersonnelCount();
+        }
+
+        // 更新人员分页
+        function updatePersonnelPagination() {
+            const totalPages = Math.ceil(filteredPersonnelData.length / personnelPageSize);
+            personnelCurrentPage = Math.min(personnelCurrentPage, Math.max(1, totalPages));
+            renderPersonnelPagination();
+        }
+
+        // 渲染人员分页控件
+        function renderPersonnelPagination() {
+            const infoElement = document.getElementById('personnelPaginationInfo');
+            const buttonsContainer = document.getElementById('personnelPaginationButtons');
+            
+            if (!infoElement || !buttonsContainer) return;
+
+            const totalPages = Math.ceil(filteredPersonnelData.length / personnelPageSize);
+            const start = (personnelCurrentPage - 1) * personnelPageSize + 1;
+            const end = Math.min(personnelCurrentPage * personnelPageSize, filteredPersonnelData.length);
+            const total = filteredPersonnelData.length;
+
+            infoElement.textContent = `显示 ${start}-${end} 条，共 ${total} 条数据`;
+
+            // 生成分页按钮
+            const pages = getPersonnelPageNumbers();
+            buttonsContainer.innerHTML = `
+                <button class="pagination-btn" ${personnelCurrentPage === 1 ? 'disabled' : ''} onclick="goToPersonnelPage(1)">首页</button>
+                <button class="pagination-btn" ${personnelCurrentPage === 1 ? 'disabled' : ''} onclick="goToPersonnelPage(${personnelCurrentPage - 1})">上一页</button>
+                ${pages.map(page => `
+                    <button class="pagination-btn ${page === personnelCurrentPage ? 'active' : ''}" onclick="goToPersonnelPage(${page})">${page}</button>
+                `).join('')}
+                <button class="pagination-btn" ${personnelCurrentPage === totalPages ? 'disabled' : ''} onclick="goToPersonnelPage(${personnelCurrentPage + 1})">下一页</button>
+                <button class="pagination-btn" ${personnelCurrentPage === totalPages ? 'disabled' : ''} onclick="goToPersonnelPage(${totalPages})">尾页</button>
+            `;
+        }
+
+        // 获取人员页码数组
+        function getPersonnelPageNumbers() {
+            const pages = [];
+            const current = personnelCurrentPage;
+            const total = Math.ceil(filteredPersonnelData.length / personnelPageSize);
+            
+            let start = Math.max(1, current - 2);
+            let end = Math.min(total, current + 2);
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        }
+
+        // 跳转到指定页
+        function goToPersonnelPage(page) {
+            const totalPages = Math.ceil(filteredPersonnelData.length / personnelPageSize);
+            if (page >= 1 && page <= totalPages) {
+                personnelCurrentPage = page;
+                renderPersonnelList();
+            }
+        }
+
+        // 改变每页大小
+        function changePersonnelPageSize() {
+            const selectElement = document.getElementById('personnelPageSize');
+            personnelPageSize = parseInt(selectElement.value);
+            personnelCurrentPage = 1;
+            renderPersonnelList();
+        }
+
+        // 切换人员选择状态
+        function togglePersonnelSelection(personnelId) {
+            const index = tempSelectedPersonnelIds.indexOf(personnelId);
+            if (index > -1) {
+                tempSelectedPersonnelIds.splice(index, 1);
+            } else {
+                tempSelectedPersonnelIds.push(personnelId);
+            }
+            updateSelectAllPersonnelCheckbox();
+            updateSelectedPersonnelCount();
+        }
+
+        // 切换全选状态
+        function toggleSelectAllPersonnel() {
+            const checkbox = document.getElementById('selectAllPersonnel');
+            const currentPagePersonnel = getCurrentPagePersonnelIds();
+            
+            if (checkbox.checked) {
+                // 全选当前页
+                currentPagePersonnel.forEach(id => {
+                    if (!tempSelectedPersonnelIds.includes(id)) {
+                        tempSelectedPersonnelIds.push(id);
+                    }
+                });
+            } else {
+                // 取消当前页选择
+                currentPagePersonnel.forEach(id => {
+                    const index = tempSelectedPersonnelIds.indexOf(id);
+                    if (index > -1) {
+                        tempSelectedPersonnelIds.splice(index, 1);
+                    }
+                });
+            }
+            
+            renderPersonnelList();
+        }
+
+        // 获取当前页人员ID
+        function getCurrentPagePersonnelIds() {
+            const start = (personnelCurrentPage - 1) * personnelPageSize;
+            const end = start + personnelPageSize;
+            return filteredPersonnelData.slice(start, end).map(p => p.id);
+        }
+
+        // 更新全选复选框状态
+        function updateSelectAllPersonnelCheckbox() {
+            const checkbox = document.getElementById('selectAllPersonnel');
+            const currentPagePersonnel = getCurrentPagePersonnelIds();
+            const selectedCount = currentPagePersonnel.filter(id => tempSelectedPersonnelIds.includes(id)).length;
+            
+            if (selectedCount === 0) {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+            } else if (selectedCount === currentPagePersonnel.length) {
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.indeterminate = true;
+            }
+        }
+
+        // 更新选择计数
+        function updateSelectedPersonnelCount() {
+            document.getElementById('selectedPersonnelCount').textContent = tempSelectedPersonnelIds.length;
+        }
+
+        // 选择当前页全部
+        function selectAllCurrentPersonnel() {
+            const currentPagePersonnel = getCurrentPagePersonnelIds();
+            currentPagePersonnel.forEach(id => {
+                if (!tempSelectedPersonnelIds.includes(id)) {
+                    tempSelectedPersonnelIds.push(id);
+                }
+            });
+            renderPersonnelList();
+        }
+
+        // 取消当前页全部
+        function unselectAllCurrentPersonnel() {
+            const currentPagePersonnel = getCurrentPagePersonnelIds();
+            currentPagePersonnel.forEach(id => {
+                const index = tempSelectedPersonnelIds.indexOf(id);
+                if (index > -1) {
+                    tempSelectedPersonnelIds.splice(index, 1);
+                }
+            });
+            renderPersonnelList();
+        }
+
+        // 确认人员选择
+        function confirmPersonnelSelection() {
+            // 根据选择的ID获取完整人员信息
+            selectedPersonnel = tempSelectedPersonnelIds.map(id => 
+                personnelData.find(p => p.id === id)
+            ).filter(p => p);
+            
+            // 保存到localStorage
+            localStorage.setItem('selectedPersonnel', JSON.stringify(selectedPersonnel));
+            
+            // 渲染已选人员列表
+            renderSelectedPersonnelList();
+            
+            // 关闭弹窗
+            closePersonnelSelectionModal();
+            
+            showAlert(`成功选择 ${selectedPersonnel.length} 名人员！`, 'success');
+        }
+
+        // 渲染已选人员列表
+        function renderSelectedPersonnelList() {
+            const container = document.getElementById('selectedPersonnelList');
+            
+            if (selectedPersonnel.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-personnel-message">
+                        <i class="fas fa-users" style="margin-right: 8px; color: #C0C4CC;"></i>
+                        暂未选择预警接收人员
+                    </div>
+                `;
+                return;
+            }
+
+            // 获取搜索关键词
+            const searchText = vueApp ? vueApp.personnelSearchText.toLowerCase() : '';
+            
+            // 过滤人员列表
+            let filteredPersonnel = selectedPersonnel;
+            if (searchText) {
+                filteredPersonnel = selectedPersonnel.filter(person => 
+                    person.name.toLowerCase().includes(searchText) ||
+                    person.factory.toLowerCase().includes(searchText) ||
+                    person.department.toLowerCase().includes(searchText) ||
+                    person.phone.includes(searchText) ||
+                    person.email.toLowerCase().includes(searchText)
+                );
+            }
+
+            if (filteredPersonnel.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-personnel-message">
+                        <i class="fas fa-search" style="margin-right: 8px; color: #C0C4CC;"></i>
+                        未找到匹配的人员
+                    </div>
+                `;
+                return;
+            }
+
+            // 清空选择状态
+            selectedPersonnelForRemoval = [];
+            
+            container.innerHTML = `
+                <table class="selected-personnel-table">
+                    <thead>
+                        <tr>
+                            <th width="55">
+                                <input type="checkbox" id="selectAllSelectedPersonnel" onchange="toggleSelectAllSelectedPersonnel()">
+                            </th>
+                            <th>姓名</th>
+                            <th>所属工厂</th>
+                            <th>部门</th>
+                            <th>手机号</th>
+                            <th>邮箱</th>
+                            <th width="100">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredPersonnel.map(person => `
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="selected-personnel-checkbox" value="${person.id}" onchange="toggleSelectedPersonnelSelection('${person.id}')">
+                                </td>
+                                <td>${person.name}</td>
+                                <td>${person.factory}</td>
+                                <td>${person.department}</td>
+                                <td>${person.phone}</td>
+                                <td>${person.email}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="el-button el-button--text"
+                                        onclick="removePersonnel('${person.id}')"
+                                        title="删除"
+                                        style="color: #f56565; padding: 4px; border: none; background: none; cursor: pointer;">
+                                        <i class="el-icon-delete"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // 移除人员
+        function removePersonnel(personnelId) {
+            selectedPersonnel = selectedPersonnel.filter(p => p.id !== personnelId);
+            localStorage.setItem('selectedPersonnel', JSON.stringify(selectedPersonnel));
+            renderSelectedPersonnelList();
+            showAlert('人员已移除', 'info');
+        }
+
+        // 已选人员表格的全选功能
+        let selectedPersonnelForRemoval = [];
+
+        // 切换已选人员的选择状态
+        function toggleSelectedPersonnelSelection(personnelId) {
+            const index = selectedPersonnelForRemoval.indexOf(personnelId);
+            if (index > -1) {
+                selectedPersonnelForRemoval.splice(index, 1);
+            } else {
+                selectedPersonnelForRemoval.push(personnelId);
+            }
+            updateSelectAllSelectedPersonnelCheckbox();
+        }
+
+        // 切换已选人员全选状态
+        function toggleSelectAllSelectedPersonnel() {
+            const checkbox = document.getElementById('selectAllSelectedPersonnel');
+            if (checkbox.checked) {
+                // 全选
+                selectedPersonnelForRemoval = selectedPersonnel.map(p => p.id);
+            } else {
+                // 取消全选
+                selectedPersonnelForRemoval = [];
+            }
+            
+            // 更新所有复选框状态
+            document.querySelectorAll('.selected-personnel-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        // 更新已选人员全选复选框状态
+        function updateSelectAllSelectedPersonnelCheckbox() {
+            const checkbox = document.getElementById('selectAllSelectedPersonnel');
+            if (!checkbox) return;
+            
+            const selectedCount = selectedPersonnelForRemoval.length;
+            const totalCount = selectedPersonnel.length;
+            
+            if (selectedCount === 0) {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+            } else if (selectedCount === totalCount) {
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.indeterminate = true;
+            }
+        }
+
+        // 添加搜索事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('personnelSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    personnelCurrentPage = 1;
+                    renderPersonnelList();
+                });
+            }
+            
+            // 初始化已选人员列表
+            renderSelectedPersonnelList();
+        });
+    </script>
+    
+    <!-- 人员选择弹窗 -->
+    <div class="personnel-modal" id="personnelSelectionModal">
+        <div class="personnel-modal-content">
+            <div class="personnel-modal-header">
+                <h3 class="personnel-modal-title">选择预警接收人员</h3>
+                <span class="personnel-modal-close" onclick="closePersonnelSelectionModal()">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            <div class="personnel-modal-body">
+                <div class="personnel-search-container">
+                    <div style="position: relative;">
+                        <input type="text" id="personnelSearchInput" class="personnel-search-input" placeholder="搜索人员姓名、工厂、部门、手机号、邮箱...">
+                        <i class="fas fa-search" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #999; font-size: 12px;"></i>
+                    </div>
+                </div>
+                <div class="personnel-table-container">
+                    <table class="personnel-table">
+                        <thead>
+                            <tr>
+                                <th width="40">
+                                    <input type="checkbox" id="selectAllPersonnel" onchange="toggleSelectAllPersonnel()">
+                                </th>
+                                <th width="80">姓名</th>
+                                <th width="120">所属工厂</th>
+                                <th width="100">部门</th>
+                                <th width="120">手机号</th>
+                                <th>邮箱</th>
+                            </tr>
+                        </thead>
+                        <tbody id="personnelTableBody">
+                            <!-- 人员列表将在这里动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 人员选择弹窗分页 -->
+                <div class="pagination-container" id="personnelPaginationContainer" style="display: none;">
+                    <div class="pagination-info" id="personnelPaginationInfo">
+                        显示 1-10 条，共 0 条数据
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="page-size-selector">
+                            <span>每页</span>
+                            <select id="personnelPageSize" class="page-size-select" onchange="changePersonnelPageSize()">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span>条</span>
+                        </div>
+                        <div class="pagination-buttons" id="personnelPaginationButtons">
+                            <!-- 动态生成分页按钮 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="personnel-modal-footer">
+                <div style="color: #606266; font-size: 13px;">
+                    已选择 <span id="selectedPersonnelCount">0</span> 人
+                </div>
+                <div class="personnel-controls">
+                    <button class="transfer-btn" onclick="selectAllCurrentPersonnel()">选择全部</button>
+                    <button class="transfer-btn" onclick="unselectAllCurrentPersonnel()">取消全部</button>
+                    <button class="transfer-btn primary" onclick="confirmPersonnelSelection()">确定</button>
+                    <button class="transfer-btn" onclick="closePersonnelSelectionModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</body>
+</html>
