@@ -233,6 +233,80 @@
             border-radius: 16px;
             font-weight: 500;
         }
+        
+        /* 自定义气泡提示样式 */
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .custom-tooltip .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #303133;
+            color: #fff;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 300px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .custom-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #303133 transparent transparent transparent;
+        }
+
+        .custom-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 文字截断样式 */
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .text-ellipsis-multiline {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            max-height: 2.8em;
+        }
+
+        /* 响应式气泡提示 */
+        @media (max-width: 768px) {
+            .custom-tooltip .tooltip-content {
+                max-width: 250px;
+                font-size: 11px;
+                left: 10px;
+                transform: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -329,8 +403,17 @@
                 label="区域"
                 min-width="160"
                 align="center"
-                sortable
-                show-overflow-tooltip>
+                sortable>
+                <template slot-scope="scope">
+                    <div class="custom-tooltip">
+                        <div class="text-ellipsis" style="max-width: 140px;">
+                            {{ scope.row.area }}
+                        </div>
+                        <div class="tooltip-content" v-if="scope.row.area && scope.row.area.length > 12">
+                            {{ scope.row.area }}
+                        </div>
+                    </div>
+                </template>
             </el-table-column>
             <el-table-column
                 prop="time"
@@ -363,10 +446,16 @@
             <el-table-column
                 prop="result"
                 label="巡检结果描述"
-                min-width="200"
-                show-overflow-tooltip>
+                min-width="200">
                 <template slot-scope="scope">
-                    <span style="color: #606266; font-size: 13px;">{{ scope.row.result }}</span>
+                    <div class="custom-tooltip">
+                        <div class="text-ellipsis-multiline" style="max-width: 180px; color: #606266; font-size: 13px;">
+                            {{ scope.row.result }}
+                        </div>
+                        <div class="tooltip-content" v-if="scope.row.result && scope.row.result.length > 25">
+                            {{ scope.row.result }}
+                        </div>
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column

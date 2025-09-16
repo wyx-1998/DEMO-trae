@@ -28,47 +28,22 @@
 
         body {
             font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-            background-color: var(--bg-color);
+            background-color: #f5f5f5;
             color: var(--text-primary);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px rgba(51, 102, 204, 0.15);
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .page-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            font-weight: 400;
+            padding: 24px;
         }
 
         .search-form {
-            background: var(--card-bg);
-            padding: 24px;
+            background: #fff;
+            padding: 20px;
             margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .button-group {
@@ -126,29 +101,76 @@
         }
 
         .data-table {
-            background: var(--card-bg);
-            border-radius: 12px;
+            background: #fff;
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .el-table {
-            border-radius: 12px;
+        /* 文本截断样式 */
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            cursor: pointer;
         }
 
-        .el-table th {
-            background-color: #fafbfc;
-            color: var(--text-primary);
-            font-weight: 600;
+        /* 自定义tooltip样式 */
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+            width: 100%;
         }
 
-        .el-table td {
-            border-bottom: 1px solid #f0f2f5;
+        .custom-tooltip .tooltip-content {
+            visibility: hidden;
+            background-color: white;
+            color: #333;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e4e7ed;
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: normal;
+            font-size: 13px;
+            line-height: 1.4;
         }
 
-        .el-table tr:hover {
-            background-color: #f8f9ff;
+        .custom-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+
+        .custom-tooltip .tooltip-content::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #e4e7ed transparent transparent transparent;
+        }
+
+        .custom-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
         }
 
         .status-tag {
@@ -176,67 +198,205 @@
             border: 1px solid #b7eb8f;
         }
 
-        .operation-btn {
-            padding: 6px 12px;
-            margin: 0 4px;
-            border-radius: 6px;
-            border: none;
+
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px 0;
+            margin-top: 16px;
+        }
+
+        /* Element Plus 分页组件自定义样式 */
+        .el-pagination {
+            --el-pagination-font-size: 14px;
+            --el-pagination-bg-color: transparent;
+            --el-pagination-text-color: #606266;
+            --el-pagination-border-radius: 8px;
+            --el-pagination-button-color: #606266;
+            --el-pagination-button-bg-color: transparent;
+            --el-pagination-button-disabled-color: #c0c4cc;
+            --el-pagination-button-disabled-bg-color: transparent;
+            --el-pagination-hover-color: #409eff;
+            --el-pagination-hover-bg-color: #f5f7fa;
+            --el-pagination-active-color: #ffffff;
+            --el-pagination-active-bg-color: #409eff;
+            gap: 8px;
+        }
+
+        /* 分页按钮样式 */
+        .el-pagination .el-pager li {
+            min-width: 36px;
+            height: 36px;
+            line-height: 34px;
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            margin: 0 2px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            color: #606266;
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            display: inline-flex;
+        }
+
+        .el-pagination .el-pager li:hover {
+            border-color: #409eff;
+            color: #409eff;
+            background: #f0f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+        }
+
+        .el-pagination .el-pager li.is-active {
+            border-color: #409eff;
+            background: linear-gradient(135deg, #409eff 0%, #3b82f6 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* 上一页下一页按钮 */
+        .el-pagination .btn-prev,
+        .el-pagination .btn-next {
+            min-width: 36px;
+            height: 36px;
+            line-height: 34px;
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            margin: 0 4px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            color: #606266;
+            cursor: pointer;
+        }
+
+        .el-pagination .btn-prev:hover:not(:disabled),
+        .el-pagination .btn-next:hover:not(:disabled) {
+            border-color: #409eff;
+            color: #409eff;
+            background: #f0f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+        }
+
+        .el-pagination .btn-prev:disabled,
+        .el-pagination .btn-next:disabled {
+            border-color: #f0f0f0;
+            color: #c0c4cc;
+            background: #fafafa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 总数显示 */
+        .el-pagination .el-pagination__total {
+            color: #606266;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 16px;
+            padding: 8px 12px;
+        }
+
+        /* 每页显示数量选择器 */
+        .el-pagination .el-pagination__sizes {
+            margin-right: 16px;
+        }
+
+        .el-pagination .el-pagination__sizes .el-select {
+            width: 110px;
+        }
+
+        .el-pagination .el-pagination__sizes .el-select .el-input__wrapper {
+            border-radius: 8px;
+            border: 1px solid #e4e7ed;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            height: 36px;
+        }
+
+        .el-pagination .el-pagination__sizes .el-select .el-input__wrapper:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+        }
+
+        .el-pagination .el-pagination__sizes .el-select .el-input__wrapper.is-focus {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+        }
+
+        /* 跳转输入框 */
+        .el-pagination .el-pagination__jump {
+            margin-left: 16px;
+        }
+
+        .el-pagination .el-pagination__jump .el-input {
+            width: 60px;
+        }
+
+        .el-pagination .el-pagination__jump .el-input .el-input__wrapper {
+            border-radius: 8px;
+            border: 1px solid #e4e7ed;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            height: 36px;
+        }
+
+        .el-pagination .el-pagination__jump .el-input .el-input__wrapper:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+        }
+
+        .el-pagination .el-pagination__jump .el-input .el-input__wrapper.is-focus {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .pagination-wrapper {
+                padding: 16px 12px;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .el-pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+            }
+            
+            .el-pagination .el-pager li,
+            .el-pagination .btn-prev,
+            .el-pagination .btn-next {
+                min-width: 32px;
+                height: 32px;
+                line-height: 30px;
+                font-size: 13px;
+            }
+        }
+
+        /* 操作列样式 */
+        .el-table .el-table__cell .cell {
+            white-space: nowrap;
+            display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        .btn-view {
-            background: #e6f7ff;
-            color: #1890ff;
+        .el-table .el-table__cell .cell .el-tooltip {
+            flex-shrink: 0;
         }
 
-        .btn-view:hover {
-            background: #bae7ff;
-            transform: scale(1.05);
-        }
-
-        .btn-edit {
-            background: #fff7e6;
-            color: #fa8c16;
-        }
-
-        .btn-edit:hover {
-            background: #ffd591;
-            transform: scale(1.05);
-        }
-
-        .btn-delete {
-            background: #fff2f0;
-            color: #ff4d4f;
-        }
-
-        .btn-delete:hover {
-            background: #ffccc7;
-            transform: scale(1.05);
-        }
-
-        .btn-qr {
-            background: #f6ffed;
-            color: #52c41a;
-        }
-
-        .btn-qr:hover {
-            background: #d9f7be;
-            transform: scale(1.05);
-        }
-
-        .pagination-wrapper {
-            margin-top: 24px;
-            display: flex;
-            justify-content: center;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        .el-table .el-table__cell .cell .el-button {
+            min-width: 32px;
+            height: 32px;
+            padding: 6px !important;
+            margin: 0 2px;
         }
 
         .el-form-item {
@@ -321,17 +481,6 @@
 <body>
     <div id="app" v-cloak>
         <div class="container">
-            <!-- 页面头部 -->
-            <div class="page-header">
-                <div class="page-title">
-                    <i class="fas fa-users"></i>
-                    安全会议管理
-                </div>
-                <div class="page-subtitle">
-                    企业安全会议的创建、管理与参会人员签到系统
-                </div>
-            </div>
-
             <!-- 功能按钮组 -->
             <div class="button-group">
                 <button class="custom-button btn-primary" @click="handleCreate">
@@ -409,8 +558,8 @@
                     :data="tableData"
                     style="width: 100%"
                     stripe
-                    @selection-change="handleSelectionChange"
-                    :header-cell-style="{background: '#fafbfc', color: '#303133', fontWeight: '600'}">
+                    border
+                    @selection-change="handleSelectionChange">
                     <el-table-column
                         type="selection"
                         width="55">
@@ -430,7 +579,12 @@
                         min-width="200"
                         sortable>
                         <template #default="scope">
-                            <div style="font-weight: 500;">{{ scope.row.meetingName }}</div>
+                            <div class="custom-tooltip" style="font-weight: 500;">
+                                <div class="text-ellipsis">{{ truncateText(scope.row.meetingName, 25) }}</div>
+                                <div v-if="shouldShowTooltip(scope.row.meetingName, 25)" class="tooltip-content">
+                                    {{ scope.row.meetingName }}
+                                </div>
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -467,11 +621,27 @@
                         prop="location"
                         label="会议地点"
                         width="150">
+                        <template #default="scope">
+                            <div class="custom-tooltip">
+                                <div class="text-ellipsis">{{ truncateText(scope.row.location, 12) }}</div>
+                                <div v-if="shouldShowTooltip(scope.row.location, 12)" class="tooltip-content">
+                                    {{ scope.row.location }}
+                                </div>
+                            </div>
+                        </template>
                     </el-table-column>
                     <el-table-column
                         prop="organizer"
-                        label="主持人"
+                        label="会议主持人/组织人"
                         width="120">
+                        <template #default="scope">
+                            <div class="custom-tooltip">
+                                <div class="text-ellipsis">{{ truncateText(scope.row.organizer, 8) }}</div>
+                                <div v-if="shouldShowTooltip(scope.row.organizer, 8)" class="tooltip-content">
+                                    {{ scope.row.organizer }}
+                                </div>
+                            </div>
+                        </template>
                     </el-table-column>
                     <el-table-column
                         prop="attendeeCount"
@@ -504,25 +674,41 @@
                     </el-table-column>
                     <el-table-column
                         label="操作"
-                        width="220"
+                        width="180"
                         fixed="right">
                         <template #default="scope">
-                            <button class="operation-btn btn-view" @click="handleView(scope.row)">
-                                <i class="fas fa-eye"></i>
-                                查看
-                            </button>
-                            <button class="operation-btn btn-edit" @click="handleEdit(scope.row)">
-                                <i class="fas fa-edit"></i>
-                                编辑
-                            </button>
-                            <button class="operation-btn btn-qr" @click="handleQRCode(scope.row)">
-                                <i class="fas fa-qrcode"></i>
-                                签到码
-                            </button>
-                            <button class="operation-btn btn-delete" @click="handleDelete(scope.row)">
-                                <i class="fas fa-trash"></i>
-                                删除
-                            </button>
+                            <el-tooltip content="查看" placement="top">
+                                <el-button
+                                    type="text"
+                                    style="color: #409EFF;"
+                                    @click="handleView(scope.row)">
+                                    <i class="fas fa-eye"></i>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="编辑" placement="top">
+                                <el-button
+                                    type="text"
+                                    style="color: #409EFF;"
+                                    @click="handleEdit(scope.row)">
+                                    <i class="fas fa-edit"></i>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="签到码" placement="top">
+                                <el-button
+                                    type="text"
+                                    style="color: #52c41a;"
+                                    @click="handleQRCode(scope.row)">
+                                    <i class="fas fa-qrcode"></i>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="删除" placement="top">
+                                <el-button
+                                    type="text"
+                                    style="color: #F56C6C;"
+                                    @click="handleDelete(scope.row)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </el-button>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -537,7 +723,15 @@
                     :page-sizes="[10, 20, 50, 100]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="total">
+                    :total="total"
+                    background
+                    :hide-on-single-page="false"
+                    :pager-count="7"
+                    prev-text="上一页"
+                    next-text="下一页">
+                    <template #total="scope">
+                        共 {{ scope.total }} 条
+                    </template>
                 </el-pagination>
             </div>
         </div>
@@ -561,6 +755,7 @@
                 const currentPage = ref(1);
                 const pageSize = ref(10);
                 const total = ref(0);
+                const jumpPage = ref(1);
                 const searchFormRef = ref(null);
 
                 // 搜索字段配置
@@ -581,7 +776,7 @@
                     ]},
                     { label: '会议时间', prop: 'meetingTimeRange', type: 'daterange' },
                     { label: '会议地点', prop: 'location', type: 'input' },
-                    { label: '主持人', prop: 'organizer', type: 'input' },
+                    { label: '会议主持人/组织人', prop: 'organizer', type: 'input' },
                     { label: '状态', prop: 'status', type: 'select', options: [
                         { label: '待开始', value: 'pending' },
                         { label: '进行中', value: 'ongoing' },
@@ -591,7 +786,7 @@
 
                 // 计算属性
                 const visibleSearchFields = computed(() => {
-                    return isExpanded.value ? searchFields.value : searchFields.value.slice(0, 4);
+                    return isExpanded.value ? searchFields.value : searchFields.value.slice(0, 3);
                 });
 
                 // 方法
@@ -652,14 +847,27 @@
                         },
                         {
                             meetingCode: 'GTZB-AQHY-20241205-005',
-                            meetingName: '班组安全学习交流会',
+                            meetingName: '班组安全学习交流会暨年度安全生产工作总结表彰大会',
                             meetingType: '专题会议',
                             meetingLevel: '班组级',
                             startTime: '2024-12-05 08:30:00',
                             endTime: '2024-12-05 10:00:00',
-                            location: '班组活动室',
-                            organizer: '刘组长',
+                            location: '第一生产车间班组活动室（东区）',
+                            organizer: '刘德华组长',
                             attendeeCount: 8,
+                            signInCount: 0,
+                            status: 'pending'
+                        },
+                        {
+                            meetingCode: 'GTZB-AQHY-20241206-006',
+                            meetingName: '国家电投集团安全生产标准化建设推进会议暨危险化学品安全管理专题研讨会',
+                            meetingType: '安全生产监督网络会议',
+                            meetingLevel: '公司级',
+                            startTime: '2024-12-06 09:00:00',
+                            endTime: '2024-12-06 17:30:00',
+                            location: '国家电投集团总部大厦第一会议厅（视频会议主会场）',
+                            organizer: '张三丰副总经理',
+                            attendeeCount: 120,
                             signInCount: 0,
                             status: 'pending'
                         }
@@ -674,7 +882,13 @@
                 };
 
                 const handleCreate = () => {
-                    ElMessage.success('跳转到新建安全会议页面');
+                    // 通过消息传递跳转到新建安全会议页面
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        page: 'create-meeting',
+                        title: '新建安全会议',
+                        icon: 'el-icon-plus'
+                    }, '*');
                 };
 
                 const handleBatchDelete = () => {
@@ -752,6 +966,16 @@
                     isExpanded.value = !isExpanded.value;
                 };
 
+                // 文本截断相关方法
+                const truncateText = (text, maxLength = 20) => {
+                    if (!text) return '';
+                    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+                };
+
+                const shouldShowTooltip = (text, maxLength = 20) => {
+                    return text && text.length > maxLength;
+                };
+
                 const handleSizeChange = (val) => {
                     pageSize.value = val;
                     loadData();
@@ -759,7 +983,15 @@
 
                 const handleCurrentChange = (val) => {
                     currentPage.value = val;
+                    jumpPage.value = val;
                     loadData();
+                };
+
+                const handleJumpPage = (val) => {
+                    if (val && val >= 1 && val <= Math.ceil(total.value / pageSize.value)) {
+                        currentPage.value = val;
+                        loadData();
+                    }
                 };
 
                 const getLevelClass = (level) => {
@@ -818,6 +1050,7 @@
                     currentPage,
                     pageSize,
                     total,
+                    jumpPage,
                     searchFields,
                     visibleSearchFields,
                     handleSelectionChange,
@@ -833,10 +1066,13 @@
                     toggleSearchFields,
                     handleSizeChange,
                     handleCurrentChange,
+                    handleJumpPage,
                     getLevelClass,
                     getStatusClass,
                     getStatusText,
-                    formatDateTime
+                    formatDateTime,
+                    truncateText,
+                    shouldShowTooltip
                 };
             }
         }).use(ElementPlus).mount('#app');

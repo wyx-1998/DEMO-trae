@@ -349,6 +349,80 @@
             width: 200px;
         }
         
+        /* 自定义气泡提示样式 */
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .custom-tooltip .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #303133;
+            color: #fff;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 300px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .custom-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #303133 transparent transparent transparent;
+        }
+
+        .custom-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 文字截断样式 */
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .text-ellipsis-multiline {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            max-height: 2.8em;
+        }
+
+        /* 响应式气泡提示 */
+        @media (max-width: 768px) {
+            .custom-tooltip .tooltip-content {
+                max-width: 250px;
+                font-size: 11px;
+                left: 10px;
+                transform: none;
+            }
+        }
+        
         .el-input__inner {
             border-radius: 4px;
             border: 1px solid #dcdfe6;

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建安全会议</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            z-index: 2;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4fd;
+            position: relative;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-item {
+            flex: 1;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-item.half-width {
+            flex: 0 0 calc(50% - 10px);
+        }
+
+        .el-form-item {
+            margin-bottom: 24px;
+        }
+
+        .el-form-item__label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .el-input__wrapper,
+        .el-select .el-input__wrapper,
+        .el-textarea__inner {
+            border-radius: 8px;
+            border: 1px solid #e4e7ed;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .el-input__wrapper:hover,
+        .el-select .el-input__wrapper:hover,
+        .el-textarea__inner:hover {
+            border-color: #c0c4cc;
+        }
+
+        .el-input__wrapper.is-focus,
+        .el-select .el-input__wrapper.is-focus,
+        .el-textarea__inner:focus {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+        }
+
+        .el-upload {
+            width: 100%;
+        }
+
+        .el-upload-dragger {
+            border-radius: 8px;
+            border: 2px dashed #d9d9d9;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .el-upload-dragger:hover {
+            border-color: #409eff;
+            background-color: #f5f7fa;
+        }
+
+        .participants-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .participants-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .participants-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e4e7ed;
+        }
+
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            margin-right: 12px;
+        }
+
+        .participant-info {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .participant-dept {
+            font-size: 12px;
+            color: #8492a6;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 30px 0;
+            border-top: 1px solid #e8f4fd;
+            margin-top: 40px;
+        }
+
+        .el-button {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 12px 32px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .el-button--primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .el-button--primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .required-mark {
+            color: #f56c6c;
+            margin-left: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .form-item.half-width {
+                flex: none;
+                width: 100%;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .back-btn {
+                top: 20px;
+                right: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <div class="header-content">
+                    <h1>新建安全会议</h1>
+                    <p>创建新的安全会议，完善会议信息并选择参会人员</p>
+                </div>
+                <el-button class="back-btn" @click="goBack" type="info" plain>
+                    <el-icon><ArrowLeft /></el-icon>
+                    返回
+                </el-button>
+            </div>
+
+            <div class="form-container">
+                <el-form :model="meetingForm" :rules="formRules" ref="meetingFormRef" label-width="140px">
+                    <!-- 基本信息 -->
+                    <div class="form-section">
+                        <h3 class="section-title">基本信息</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-item half-width">
+                                <el-form-item label="会议编号" prop="meetingCode">
+                                    <el-input v-model="meetingForm.meetingCode" placeholder="自动生成" readonly>
+                                        <template #suffix>
+                                            <el-button @click="generateMeetingCode" type="text" size="small">
+                                                重新生成
+                                            </el-button>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item half-width">
+                                <el-form-item label="会议名称" prop="meetingName">
+                                    <el-input v-model="meetingForm.meetingName" placeholder="请输入会议名称" />
+                                </el-form-item>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-item half-width">
+                                <el-form-item label="会议类型" prop="meetingType">
+                                    <el-select v-model="meetingForm.meetingType" placeholder="请选择会议类型" style="width: 100%">
+                                        <el-option label="年度安全工作会议" value="年度安全工作会议" />
+                                        <el-option label="安全生产管理委员会" value="安全生产管理委员会" />
+                                        <el-option label="安全生产会议" value="安全生产会议" />
+                                        <el-option label="安全生产监督网络会议" value="安全生产监督网络会议" />
+                                        <el-option label="专题会议" value="专题会议" />
+                                        <el-option label="防汛工作例会" value="防汛工作例会" />
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item half-width">
+                                <el-form-item label="会议级别" prop="meetingLevel">
+                                    <el-select v-model="meetingForm.meetingLevel" placeholder="请选择会议级别" style="width: 100%">
+                                        <el-option label="公司级" value="公司级" />
+                                        <el-option label="部门级" value="部门级" />
+                                        <el-option label="班组级" value="班组级" />
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-item half-width">
+                                <el-form-item label="会议时间" prop="meetingTime">
+                                    <el-date-picker
+                                        v-model="meetingForm.meetingTime"
+                                        type="datetimerange"
+                                        range-separator="至"
+                                        start-placeholder="开始时间"
+                                        end-placeholder="结束时间"
+                                        format="YYYY-MM-DD HH:mm"
+                                        value-format="YYYY-MM-DD HH:mm"
+                                        style="width: 100%"
+                                    />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item half-width">
+                                <el-form-item label="会议地点" prop="location">
+                                    <el-input v-model="meetingForm.location" placeholder="请输入会议地点" />
+                                </el-form-item>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-item half-width">
+                                <el-form-item label="会议主持人/组织人" prop="organizer">
+                                    <el-input v-model="meetingForm.organizer" placeholder="点击选择主持人" readonly>
+                                        <template #suffix>
+                                            <el-button @click="selectOrganizer" type="text" size="small">
+                                                选择
+                                            </el-button>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item half-width">
+                                <el-form-item label="线上会议号">
+                                    <el-input v-model="meetingForm.onlineMeetingId" placeholder="请输入线上会议号（可选）" />
+                                </el-form-item>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-item full-width">
+                                <el-form-item label="会议内容" prop="content">
+                                    <el-input
+                                        v-model="meetingForm.content"
+                                        type="textarea"
+                                        :rows="4"
+                                        placeholder="请输入会议内容"
+                                    />
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 会议资料 -->
+                    <div class="form-section">
+                        <h3 class="section-title">会议资料</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-item half-width">
+                                <el-form-item label="会议资料">
+                                    <el-upload
+                                        class="upload-demo"
+                                        drag
+                                        :auto-upload="false"
+                                        multiple
+                                        :file-list="meetingForm.materials"
+                                        @change="handleMaterialsChange"
+                                    >
+                                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                                        <div class="el-upload__text">
+                                            将文件拖到此处，或<em>点击上传</em>
+                                        </div>
+                                        <template #tip>
+                                            <div class="el-upload__tip">
+                                                支持 pdf、doc、docx、ppt、pptx 等格式
+                                            </div>
+                                        </template>
+                                    </el-upload>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item half-width">
+                                <el-form-item label="会议纪要">
+                                    <el-upload
+                                        class="upload-demo"
+                                        drag
+                                        :auto-upload="false"
+                                        multiple
+                                        :file-list="meetingForm.minutes"
+                                        @change="handleMinutesChange"
+                                    >
+                                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                                        <div class="el-upload__text">
+                                            将文件拖到此处，或<em>点击上传</em>
+                                        </div>
+                                        <template #tip>
+                                            <div class="el-upload__tip">
+                                                支持 pdf、doc、docx 等格式
+                                            </div>
+                                        </template>
+                                    </el-upload>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 参会人员 -->
+                    <div class="form-section">
+                        <h3 class="section-title">参会人员</h3>
+                        
+                        <div class="participants-section">
+                            <div class="participants-header">
+                                <span>已选择 {{ participants.length }} 人</span>
+                                <div>
+                                    <el-button @click="addParticipants" type="primary" size="small">
+                                        <el-icon><Plus /></el-icon>
+                                        添加参会人员
+                                    </el-button>
+                                    <el-button @click="addExternalParticipant" type="default" size="small">
+                                        <el-icon><UserFilled /></el-icon>
+                                        添加外部人员
+                                    </el-button>
+                                </div>
+                            </div>
+                            
+                            <div class="participants-list" v-if="participants.length > 0">
+                                <div v-for="(participant, index) in participants" :key="index" class="participant-item">
+                                    <div class="participant-avatar">
+                                        {{ participant.name.charAt(0) }}
+                                    </div>
+                                    <div class="participant-info">
+                                        <div class="participant-name">{{ participant.name }}</div>
+                                        <div class="participant-dept">{{ participant.department }} - {{ participant.company }}</div>
+                                    </div>
+                                    <el-button @click="removeParticipant(index)" type="danger" size="small" text>
+                                        <el-icon><Delete /></el-icon>
+                                    </el-button>
+                                </div>
+                            </div>
+                            
+                            <el-empty v-else description="暂无参会人员" />
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="form-actions">
+                        <el-button @click="saveDraft" size="large">保存草稿</el-button>
+                        <el-button @click="submitForm" type="primary" size="large">创建会议</el-button>
+                    </div>
+                </el-form>
+            </div>
+        </div>
+
+        <!-- 选择主持人弹窗 -->
+        <el-dialog v-model="organizerDialogVisible" title="选择主持人" width="600px">
+            <el-input v-model="organizerSearch" placeholder="搜索人员" style="margin-bottom: 20px">
+                <template #prefix>
+                    <el-icon><Search /></el-icon>
+                </template>
+            </el-input>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <div v-for="person in filteredOrganizerList" :key="person.id" 
+                     @click="selectOrganizerPerson(person)"
+                     style="padding: 12px; border: 1px solid #e4e7ed; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;"
+                     :style="{ background: selectedOrganizer?.id === person.id ? '#f0f9ff' : 'white' }">
+                    <div class="participant-avatar" style="margin-right: 12px;">
+                        {{ person.name.charAt(0) }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 500;">{{ person.name }}</div>
+                        <div style="font-size: 12px; color: #8492a6;">{{ person.department }} - {{ person.company }}</div>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="organizerDialogVisible = false">取消</el-button>
+                <el-button @click="confirmOrganizer" type="primary">确定</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 添加参会人员弹窗 -->
+        <el-dialog v-model="participantsDialogVisible" title="添加参会人员" width="800px">
+            <el-input v-model="participantSearch" placeholder="搜索人员" style="margin-bottom: 20px">
+                <template #prefix>
+                    <el-icon><Search /></el-icon>
+                </template>
+            </el-input>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <div v-for="person in filteredParticipantList" :key="person.id" 
+                     @click="toggleParticipant(person)"
+                     style="padding: 12px; border: 1px solid #e4e7ed; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;"
+                     :style="{ background: isParticipantSelected(person) ? '#f0f9ff' : 'white' }">
+                    <el-checkbox :model-value="isParticipantSelected(person)" style="margin-right: 12px;" />
+                    <div class="participant-avatar" style="margin-right: 12px;">
+                        {{ person.name.charAt(0) }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 500;">{{ person.name }}</div>
+                        <div style="font-size: 12px; color: #8492a6;">{{ person.department }} - {{ person.company }}</div>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="participantsDialogVisible = false">取消</el-button>
+                <el-button @click="confirmParticipants" type="primary">确定</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 添加外部人员弹窗 -->
+        <el-dialog v-model="externalParticipantDialogVisible" title="添加外部人员" width="500px">
+            <el-form :model="externalParticipantForm" label-width="100px">
+                <el-form-item label="姓名" required>
+                    <el-input v-model="externalParticipantForm.name" placeholder="请输入姓名" />
+                </el-form-item>
+                <el-form-item label="公司">
+                    <el-input v-model="externalParticipantForm.company" placeholder="请输入公司名称" />
+                </el-form-item>
+                <el-form-item label="部门">
+                    <el-input v-model="externalParticipantForm.department" placeholder="请输入部门名称" />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="externalParticipantDialogVisible = false">取消</el-button>
+                <el-button @click="addExternalParticipantConfirm" type="primary">添加</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue/dist/index.iife.js"></script>
+
+    <script>
+        const { createApp, ref, reactive, computed, onMounted } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        const app = createApp({
+            setup() {
+                // 表单数据
+                const meetingForm = reactive({
+                    meetingCode: '',
+                    meetingName: '',
+                    meetingType: '',
+                    meetingLevel: '',
+                    meetingTime: [],
+                    location: '',
+                    organizer: '',
+                    onlineMeetingId: '',
+                    content: '',
+                    materials: [],
+                    minutes: []
+                });
+
+                // 表单验证规则
+                const formRules = {
+                    meetingName: [
+                        { required: true, message: '请输入会议名称', trigger: 'blur' }
+                    ],
+                    meetingType: [
+                        { required: true, message: '请选择会议类型', trigger: 'change' }
+                    ],
+                    meetingLevel: [
+                        { required: true, message: '请选择会议级别', trigger: 'change' }
+                    ],
+                    meetingTime: [
+                        { required: true, message: '请选择会议时间', trigger: 'change' }
+                    ],
+                    location: [
+                        { required: true, message: '请输入会议地点', trigger: 'blur' }
+                    ],
+                    organizer: [
+                        { required: true, message: '请选择会议主持人', trigger: 'blur' }
+                    ],
+                    content: [
+                        { required: true, message: '请输入会议内容', trigger: 'blur' }
+                    ]
+                };
+
+                const meetingFormRef = ref();
+
+                // 参会人员
+                const participants = ref([]);
+                const participantsDialogVisible = ref(false);
+                const participantSearch = ref('');
+                const selectedParticipants = ref([]);
+
+                // 主持人选择
+                const organizerDialogVisible = ref(false);
+                const organizerSearch = ref('');
+                const selectedOrganizer = ref(null);
+
+                // 外部人员
+                const externalParticipantDialogVisible = ref(false);
+                const externalParticipantForm = reactive({
+                    name: '',
+                    company: '',
+                    department: ''
+                });
+
+                // 模拟人员数据
+                const allPersons = ref([
+                    { id: 1, name: '张三', department: '安全管理部', company: '总公司' },
+                    { id: 2, name: '李四', department: '生产部', company: '总公司' },
+                    { id: 3, name: '王五', department: '技术部', company: '分公司A' },
+                    { id: 4, name: '赵六', department: '质量部', company: '分公司B' },
+                    { id: 5, name: '钱七', department: '安全管理部', company: '总公司' },
+                    { id: 6, name: '孙八', department: '运营部', company: '分公司A' }
+                ]);
+
+                // 过滤后的主持人列表
+                const filteredOrganizerList = computed(() => {
+                    if (!organizerSearch.value) return allPersons.value;
+                    return allPersons.value.filter(person => 
+                        person.name.includes(organizerSearch.value) ||
+                        person.department.includes(organizerSearch.value) ||
+                        person.company.includes(organizerSearch.value)
+                    );
+                });
+
+                // 过滤后的参会人员列表
+                const filteredParticipantList = computed(() => {
+                    if (!participantSearch.value) return allPersons.value;
+                    return allPersons.value.filter(person => 
+                        person.name.includes(participantSearch.value) ||
+                        person.department.includes(participantSearch.value) ||
+                        person.company.includes(participantSearch.value)
+                    );
+                });
+
+                // 生成会议编号
+                const generateMeetingCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() + 
+                                   (now.getMonth() + 1).toString().padStart(2, '0') + 
+                                   now.getDate().toString().padStart(2, '0');
+                    const sequence = Math.floor(Math.random() * 999) + 1;
+                    meetingForm.meetingCode = `ORG001-AQHY-${dateStr}-${sequence.toString().padStart(3, '0')}`;
+                };
+
+                // 选择主持人
+                const selectOrganizer = () => {
+                    organizerDialogVisible.value = true;
+                    organizerSearch.value = '';
+                };
+
+                const selectOrganizerPerson = (person) => {
+                    selectedOrganizer.value = person;
+                };
+
+                const confirmOrganizer = () => {
+                    if (selectedOrganizer.value) {
+                        meetingForm.organizer = selectedOrganizer.value.name;
+                        organizerDialogVisible.value = false;
+                    }
+                };
+
+                // 添加参会人员
+                const addParticipants = () => {
+                    participantsDialogVisible.value = true;
+                    participantSearch.value = '';
+                    selectedParticipants.value = [...participants.value];
+                };
+
+                const isParticipantSelected = (person) => {
+                    return selectedParticipants.value.some(p => p.id === person.id);
+                };
+
+                const toggleParticipant = (person) => {
+                    const index = selectedParticipants.value.findIndex(p => p.id === person.id);
+                    if (index > -1) {
+                        selectedParticipants.value.splice(index, 1);
+                    } else {
+                        selectedParticipants.value.push(person);
+                    }
+                };
+
+                const confirmParticipants = () => {
+                    participants.value = [...selectedParticipants.value];
+                    participantsDialogVisible.value = false;
+                };
+
+                const removeParticipant = (index) => {
+                    participants.value.splice(index, 1);
+                };
+
+                // 添加外部人员
+                const addExternalParticipant = () => {
+                    externalParticipantDialogVisible.value = true;
+                    Object.assign(externalParticipantForm, {
+                        name: '',
+                        company: '',
+                        department: ''
+                    });
+                };
+
+                const addExternalParticipantConfirm = () => {
+                    if (!externalParticipantForm.name.trim()) {
+                        ElMessage.warning('请输入姓名');
+                        return;
+                    }
+                    
+                    const newParticipant = {
+                        id: Date.now(),
+                        name: externalParticipantForm.name,
+                        company: externalParticipantForm.company || '外部',
+                        department: externalParticipantForm.department || '外部人员',
+                        isExternal: true
+                    };
+                    
+                    participants.value.push(newParticipant);
+                    externalParticipantDialogVisible.value = false;
+                    ElMessage.success('外部人员添加成功');
+                };
+
+                // 文件上传处理
+                const handleMaterialsChange = (file, fileList) => {
+                    meetingForm.materials = fileList;
+                };
+
+                const handleMinutesChange = (file, fileList) => {
+                    meetingForm.minutes = fileList;
+                };
+
+                // 表单提交
+                const submitForm = async () => {
+                    try {
+                        await meetingFormRef.value.validate();
+                        
+                        const meetingData = {
+                            ...meetingForm,
+                            participants: participants.value,
+                            createTime: new Date().toISOString()
+                        };
+                        
+                        console.log('提交会议数据:', meetingData);
+                        
+                        ElMessage.success('会议创建成功！');
+                        
+                        // 模拟延迟后跳转
+                        setTimeout(() => {
+                            goBack();
+                        }, 1500);
+                        
+                    } catch (error) {
+                        ElMessage.error('请完善必填信息');
+                    }
+                };
+
+                // 保存草稿
+                const saveDraft = () => {
+                    const draftData = {
+                        ...meetingForm,
+                        participants: participants.value,
+                        isDraft: true,
+                        saveTime: new Date().toISOString()
+                    };
+                    
+                    console.log('保存草稿:', draftData);
+                    ElMessage.success('草稿保存成功！');
+                };
+
+                // 返回上一页
+                const goBack = () => {
+                    window.history.back();
+                };
+
+                // 初始化
+                onMounted(() => {
+                    generateMeetingCode();
+                });
+
+                return {
+                    meetingForm,
+                    formRules,
+                    meetingFormRef,
+                    participants,
+                    participantsDialogVisible,
+                    participantSearch,
+                    selectedParticipants,
+                    organizerDialogVisible,
+                    organizerSearch,
+                    selectedOrganizer,
+                    externalParticipantDialogVisible,
+                    externalParticipantForm,
+                    filteredOrganizerList,
+                    filteredParticipantList,
+                    generateMeetingCode,
+                    selectOrganizer,
+                    selectOrganizerPerson,
+                    confirmOrganizer,
+                    addParticipants,
+                    isParticipantSelected,
+                    toggleParticipant,
+                    confirmParticipants,
+                    removeParticipant,
+                    addExternalParticipant,
+                    addExternalParticipantConfirm,
+                    handleMaterialsChange,
+                    handleMinutesChange,
+                    submitForm,
+                    saveDraft,
+                    goBack
+                };
+            }
+        });
+
+        // 注册图标
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
+        }
+        
+        app.use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>
