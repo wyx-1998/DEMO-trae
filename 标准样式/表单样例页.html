@@ -28,6 +28,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            padding-bottom: 120px; /* 为固定的按钮条留出空间 */
         }
 
         .page-header {
@@ -194,7 +195,46 @@
         .view-mode .form-textarea,
         .view-mode .upload-area,
         .view-mode .upload-file-list,
-        .view-mode .upload-container {
+        .view-mode .upload-button-section {
+            display: none;
+        }
+
+        /* 查看模式下显示预览和文件列表 */
+        .view-mode .preview-section,
+        .view-mode .file-list-section {
+            display: block;
+        }
+
+        /* 查看模式下的照片预览样式 */
+        .view-mode .photo-preview-grid {
+            margin-top: 0;
+        }
+
+        .view-mode .photo-preview-item {
+            cursor: pointer;
+        }
+
+        .view-mode .photo-preview-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 查看模式下的文件列表样式 */
+        .view-mode .file-list {
+            margin-top: 0;
+        }
+
+        .view-mode .file-item {
+            cursor: pointer;
+        }
+
+        .view-mode .file-item:hover {
+            background: #f8f9fa;
+        }
+
+        /* 查看模式下隐藏删除按钮，只显示查看/下载按钮 */
+        .view-mode .photo-action-btn.delete,
+        .view-mode .file-action-btn.delete {
             display: none;
         }
 
@@ -483,28 +523,51 @@
         }
 
         .file-action-btn {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: none;
-            border-radius: 4px;
-            background: #f9fafb;
-            color: #6b7280;
+            border-radius: 6px;
+            background: transparent;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
             transition: all 0.2s;
+            position: relative;
         }
 
-        .file-action-btn:hover {
-            background: #f3f4f6;
-            color: #374151;
+        /* 查看按钮 - 蓝色主题 */
+        .file-action-btn[title="查看"] {
+            color: #3b82f6;
         }
 
-        .file-action-btn.delete:hover {
+        .file-action-btn[title="查看"]:hover {
+            background: #eff6ff;
+            color: #1d4ed8;
+            transform: scale(1.1);
+        }
+
+        /* 下载按钮 - 绿色主题 */
+        .file-action-btn[title="下载"] {
+            color: #10b981;
+        }
+
+        .file-action-btn[title="下载"]:hover {
+            background: #ecfdf5;
+            color: #047857;
+            transform: scale(1.1);
+        }
+
+        /* 删除按钮 - 红色主题 */
+        .file-action-btn[title="删除"] {
+            color: #ef4444;
+        }
+
+        .file-action-btn[title="删除"]:hover {
             background: #fef2f2;
             color: #dc2626;
+            transform: scale(1.1);
         }
 
         .view-mode .view-content {
@@ -517,12 +580,18 @@
         }
 
         .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 24px;
             background: #fafbfc;
             border-top: 1px solid #ebeef5;
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn {
@@ -870,7 +939,7 @@
                                                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGN0ZBIi8+CjxwYXRoIGQ9Ik00MCAzMEg4MFY1MEg0MFYzMFoiIGZpbGw9IiNEQ0RGRTYiLz4KPGNpcmNsZSBjeD0iNTAiIGN5PSIzNyIgcj0iMyIgZmlsbD0iI0M5Q0NDRiIvPgo8cGF0aCBkPSJNNDUgNDVMNTAgNDBMNTUgNDVMNjUgMzVMNzUgNDVINDVaIiBmaWxsPSIjQzlDQ0NGIi8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTA5Mzk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mo4Dmn6XnjrDlnLo8L3RleHQ+Cjwvc3ZnPgo=" alt="检查现场1" class="photo-preview-img">
                                                 <div class="photo-preview-name">检查现场1.jpg</div>
                                                 <div class="photo-preview-actions">
-                                                    <button class="photo-action-btn" title="预览">
+                                                    <button class="photo-action-btn" title="预览" onclick="viewPhoto(this.closest('.photo-preview-item').querySelector('img').src, this.closest('.photo-preview-item').querySelector('.photo-preview-name').textContent)">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                     <button class="photo-action-btn delete" title="删除">
@@ -882,7 +951,7 @@
                                                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGN0ZBIi8+CjxwYXRoIGQ9Ik0zNSAyNUg4NVY1NUgzNVYyNVoiIGZpbGw9IiNEQ0RGRTYiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIzMyIgcj0iNCIgZmlsbD0iI0M5Q0NDRiIvPgo8cGF0aCBkPSJNNDAgNDhMNDggNDBMNTUgNDdMNjggMzRMODAgNDZINDBaIiBmaWxsPSIjQzlDQ0NGIi8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTA5Mzk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mo4Dmn6XnjrDlnLo8L3RleHQ+Cjwvc3ZnPgo=" alt="检查现场2" class="photo-preview-img">
                                                 <div class="photo-preview-name">检查现场2.jpg</div>
                                                 <div class="photo-preview-actions">
-                                                    <button class="photo-action-btn" title="预览">
+                                                    <button class="photo-action-btn" title="预览" onclick="viewPhoto(this.closest('.photo-preview-item').querySelector('img').src, this.closest('.photo-preview-item').querySelector('.photo-preview-name').textContent)">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                     <button class="photo-action-btn delete" title="删除">
@@ -894,7 +963,7 @@
                                                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRkVGMEYwIi8+CjxwYXRoIGQ9Ik0zOCAyOEg4MlY1Mkg0MFYzMEgzOFYyOFoiIGZpbGw9IiNGNTY1NjUiLz4KPGNpcmNsZSBjeD0iNDgiIGN5PSIzNSIgcj0iMyIgZmlsbD0iI0Y1NjU2NSIvPgo8cGF0aCBkPSJNNDMgNDVMNDggNDBMNTMgNDVMNjMgMzVMNzMgNDVINDNaIiBmaWxsPSIjRjU2NTY1Ii8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjRjU2NTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7pl67popjnhaU8L3RleHQ+Cjwvc3ZnPgo=" alt="问题照片" class="photo-preview-img">
                                                 <div class="photo-preview-name">问题照片.jpg</div>
                                                 <div class="photo-preview-actions">
-                                                    <button class="photo-action-btn" title="预览">
+                                                    <button class="photo-action-btn" title="预览" onclick="viewPhoto(this.closest('.photo-preview-item').querySelector('img').src, this.closest('.photo-preview-item').querySelector('.photo-preview-name').textContent)">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                     <button class="photo-action-btn delete" title="删除">
@@ -942,11 +1011,14 @@
                                                     <div class="file-size">2.3 MB</div>
                                                 </div>
                                                 <div class="file-actions">
-                                                    <button class="file-action-btn" title="下载">
+                                                    <button class="file-action-btn" title="查看" onclick="viewFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="下载" onclick="downloadFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
                                                         <i class="fas fa-download"></i>
                                                     </button>
                                                     <button class="file-action-btn delete" title="删除">
-                                                        <i class="fas fa-times"></i>
+                                                        <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -959,11 +1031,14 @@
                                                     <div class="file-size">1.8 MB</div>
                                                 </div>
                                                 <div class="file-actions">
-                                                    <button class="file-action-btn" title="下载">
+                                                    <button class="file-action-btn" title="查看" onclick="viewFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="下载" onclick="downloadFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
                                                         <i class="fas fa-download"></i>
                                                     </button>
                                                     <button class="file-action-btn delete" title="删除">
-                                                        <i class="fas fa-times"></i>
+                                                        <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1061,6 +1136,288 @@
                     }
                 });
             });
+        }
+
+        // 照片查看功能
+        function viewPhoto(imageSrc, imageName) {
+            // 获取所有照片信息
+            const photoItems = document.querySelectorAll('.photo-preview-item');
+            const photos = Array.from(photoItems).map(item => {
+                const img = item.querySelector('img');
+                const name = item.querySelector('.photo-preview-name').textContent;
+                return { src: img.src, name: name };
+            });
+            
+            // 找到当前照片的索引
+            let currentIndex = photos.findIndex(photo => photo.src === imageSrc);
+            if (currentIndex === -1) currentIndex = 0;
+
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const imageContainer = document.createElement('div');
+            imageContainer.style.cssText = `
+                position: relative;
+                max-width: 90%;
+                max-height: 90%;
+                text-align: center;
+            `;
+
+            const image = document.createElement('img');
+            image.style.cssText = `
+                max-width: 100%;
+                max-height: 80vh;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                cursor: default;
+            `;
+
+            // 照片计数器
+            const counter = document.createElement('div');
+            counter.style.cssText = `
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                color: white;
+                background: rgba(0, 0, 0, 0.6);
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-size: 14px;
+            `;
+
+            // 关闭按钮
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            // 左右切换按钮
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '‹';
+            prevBtn.style.cssText = `
+                position: absolute;
+                left: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 30px;
+                cursor: pointer;
+                display: ${photos.length > 1 ? 'flex' : 'none'};
+                align-items: center;
+                justify-content: center;
+                transition: background 0.3s;
+            `;
+
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '›';
+            nextBtn.style.cssText = `
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 30px;
+                cursor: pointer;
+                display: ${photos.length > 1 ? 'flex' : 'none'};
+                align-items: center;
+                justify-content: center;
+                transition: background 0.3s;
+            `;
+
+            // 更新显示内容
+            function updateDisplay() {
+                const currentPhoto = photos[currentIndex];
+                image.src = currentPhoto.src;
+                image.alt = currentPhoto.name;
+                counter.textContent = `${currentIndex + 1} / ${photos.length}`;
+            }
+
+            // 切换到上一张
+            function showPrev() {
+                currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+                updateDisplay();
+            }
+
+            // 切换到下一张
+            function showNext() {
+                currentIndex = (currentIndex + 1) % photos.length;
+                updateDisplay();
+            }
+
+            // 事件监听
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.body.removeChild(modal);
+                document.removeEventListener('keydown', handleKeydown);
+            });
+
+            prevBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showPrev();
+            });
+
+            nextBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showNext();
+            });
+
+            // 键盘事件
+            function handleKeydown(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleKeydown);
+                } else if (e.key === 'ArrowLeft') {
+                    showPrev();
+                } else if (e.key === 'ArrowRight') {
+                    showNext();
+                }
+            }
+
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleKeydown);
+                }
+            });
+
+            // 按钮hover效果
+            [prevBtn, nextBtn, closeBtn].forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(0, 0, 0, 0.8)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(0, 0, 0, 0.6)';
+                });
+            });
+
+            // 组装元素
+            imageContainer.appendChild(image);
+            modal.appendChild(imageContainer);
+            modal.appendChild(closeBtn);
+            modal.appendChild(prevBtn);
+            modal.appendChild(nextBtn);
+            modal.appendChild(counter);
+
+            // 初始化显示
+            updateDisplay();
+
+            // 添加键盘监听
+            document.addEventListener('keydown', handleKeydown);
+
+            document.body.appendChild(modal);
+        }
+
+        // 文件下载功能
+        function downloadFile(fileName, fileUrl) {
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.href = fileUrl || '#';
+            link.download = fileName;
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 显示下载提示
+            showNotification(`正在下载 ${fileName}`, 'success');
+        }
+
+        // 文件查看功能
+        function viewFile(fileName, fileUrl) {
+            // 根据文件类型决定查看方式
+            const extension = fileName.split('.').pop().toLowerCase();
+            
+            if (['pdf'].includes(extension)) {
+                // PDF文件在新窗口打开
+                window.open(fileUrl || '#', '_blank');
+            } else if (['doc', 'docx'].includes(extension)) {
+                // Word文档提示下载
+                showNotification(`${fileName} 将开始下载，请使用相应软件打开`, 'info');
+                downloadFile(fileName, fileUrl);
+            } else {
+                // 其他文件类型直接下载
+                downloadFile(fileName, fileUrl);
+            }
+        }
+
+        // 通知提示功能
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 4px;
+                color: white;
+                font-size: 14px;
+                z-index: 10001;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+
+            // 根据类型设置颜色
+            const colors = {
+                success: '#67c23a',
+                info: '#409eff',
+                warning: '#e6a23c',
+                error: '#f56c6c'
+            };
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 3000);
         }
 
         // 页面加载完成后的初始化
