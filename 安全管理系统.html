@@ -552,7 +552,7 @@
                 <!-- 侧边栏 -->
                 <aside class="sidebar" :class="{ collapsed: isCollapsed }">
                     <div class="menu-toggle" @click="toggleSidebar">
-                        <i :class="isCollapsed ? 'fas fa-bars' : 'fas fa-times'"></i>
+                        <i :class="isCollapsed ? 'fas fa-angle-double-right' : 'fas fa-angle-double-left'"></i>
                     </div>
                     <el-menu
                         :default-active="activeMenu"
@@ -723,7 +723,7 @@
                         <!-- 风险分析看板页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'risk-dashboard'">
                             <iframe 
-                                src="./风险分析看板.html" 
+                                src="./风险分析/风险分析看板.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单样例页 - 安全管理系统</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #909399;
+            font-size: 14px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 80px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* 查看模式样式 */
+        .view-mode .form-input,
+        .view-mode .form-select,
+        .view-mode .form-textarea,
+        .view-mode .upload-area,
+        .view-mode .upload-file-list,
+        .view-mode .upload-container {
+            display: none;
+        }
+
+        .view-content {
+            display: none;
+            padding: 12px 0;
+            color: #303133;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 20px;
+            flex: 1;
+        }
+
+        /* 上传组件样式 */
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            background: #fafafa;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #409eff;
+            background: #f5f7fa;
+        }
+
+        .upload-area.dragover {
+            border-color: #409eff;
+            background: #ecf5ff;
+        }
+
+        .upload-icon {
+            font-size: 28px;
+            color: #c0c4cc;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-file-list {
+            margin-top: 8px;
+        }
+
+        .upload-file-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 12px;
+            color: #606266;
+        }
+
+        .upload-file-item i {
+            margin-right: 4px;
+            color: #409eff;
+        }
+
+        /* 上传组件容器样式 */
+        .upload-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafbfc;
+            overflow: hidden;
+        }
+
+        /* 上传按钮区域 */
+        .upload-button-section {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #2563eb;
+        }
+
+        .upload-btn i {
+            font-size: 16px;
+        }
+
+        /* 预览区域 */
+        .preview-section {
+            padding: 16px;
+            background: #fafbfc;
+        }
+
+        .preview-section-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-section-title i {
+            color: #6b7280;
+        }
+
+        /* 照片预览网格样式 */
+        .photo-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            transition: box-shadow 0.2s;
+        }
+
+        .photo-preview-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-preview-img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-preview-name {
+            padding: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+            border-top: 1px solid #f3f4f6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .photo-preview-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .photo-preview-item:hover .photo-preview-actions {
+            opacity: 1;
+        }
+
+        .photo-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .photo-action-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .photo-action-btn.delete:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* 文件列表区域 */
+        .file-list-section {
+            padding: 16px;
+            background: #fafbfc;
+        }
+
+        .file-list-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-list-title i {
+            color: #6b7280;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .file-item:hover {
+            border-color: #d1d5db;
+        }
+
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 4px;
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .file-action-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .file-action-btn.delete:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .view-mode .view-content {
+            display: block;
+        }
+
+        .view-content.empty {
+            color: #c0c4cc;
+            font-style: italic;
+        }
+
+        .form-actions {
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(51, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .mode-toggle .btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .form-label {
+                width: auto;
+                padding-top: 0;
+            }
+
+            .module-content {
+                padding: 16px;
+            }
+
+            .form-actions {
+                padding: 16px;
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-module {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+
+        <!-- 模式切换按钮 -->
+        <div class="mode-toggle">
+            <button class="btn btn-secondary" onclick="toggleViewMode()">
+                <i class="fas fa-eye" id="mode-icon"></i>
+                <span id="mode-text">查看模式</span>
+            </button>
+        </div>
+
+        <!-- 表单容器 -->
+        <div class="form-container" id="formContainer">
+            <!-- 基本信息模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">检查编号</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" value="SC2024001" placeholder="请输入检查编号">
+                                <div class="view-content">SC2024001</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">检查日期</label>
+                            <div class="form-control">
+                                <input type="date" class="form-input" value="2024-01-15">
+                                <div class="view-content">2024年1月15日</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">检查类型</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="routine">日常检查</option>
+                                    <option value="special" selected>专项检查</option>
+                                    <option value="emergency">应急检查</option>
+                                </select>
+                                <div class="view-content">专项检查</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">检查人员</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" value="张三" placeholder="请输入检查人员">
+                                <div class="view-content">张三</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">联系电话</label>
+                            <div class="form-control">
+                                <input type="tel" class="form-input" value="13800138000" placeholder="请输入联系电话">
+                                <div class="view-content">13800138000</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">检查状态</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="pending">待检查</option>
+                                    <option value="ongoing">检查中</option>
+                                    <option value="completed" selected>已完成</option>
+                                </select>
+                                <div class="view-content">已完成</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 检查区域模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        检查区域
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">检查区域</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="workshop1" selected>生产车间1</option>
+                                    <option value="workshop2">生产车间2</option>
+                                    <option value="warehouse">仓储区域</option>
+                                    <option value="office">办公区域</option>
+                                </select>
+                                <div class="view-content">生产车间1</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">具体位置</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" value="A区域东侧" placeholder="请输入具体位置">
+                                <div class="view-content">A区域东侧</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">负责人</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" value="李四" placeholder="请输入区域负责人">
+                                <div class="view-content">李四</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">区域描述</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" placeholder="请描述检查区域的详细情况">该区域主要负责产品的初步加工，包含多台大型设备，人员流动较大，需要重点关注设备安全和人员防护。</textarea>
+                                <div class="view-content">该区域主要负责产品的初步加工，包含多台大型设备，人员流动较大，需要重点关注设备安全和人员防护。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 检查内容模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        检查内容
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">检查项目</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="fire" selected>消防安全</option>
+                                    <option value="equipment">设备安全</option>
+                                    <option value="environment">环境安全</option>
+                                    <option value="personnel">人员安全</option>
+                                </select>
+                                <div class="view-content">消防安全</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">风险等级</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="low">低风险</option>
+                                    <option value="medium" selected>中风险</option>
+                                    <option value="high">高风险</option>
+                                </select>
+                                <div class="view-content">中风险</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">检查结果</label>
+                            <div class="form-control">
+                                <select class="form-input form-select">
+                                    <option value="pass" selected>合格</option>
+                                    <option value="warning">警告</option>
+                                    <option value="fail">不合格</option>
+                                </select>
+                                <div class="view-content">合格</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">检查详情</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" placeholder="请详细描述检查过程和发现的问题">检查了消防设备的完好性，包括灭火器、消防栓、烟雾报警器等。发现2号灭火器压力不足，已要求立即更换。其他设备运行正常，符合安全标准。</textarea>
+                                <div class="view-content">检查了消防设备的完好性，包括灭火器、消防栓、烟雾报警器等。发现2号灭火器压力不足，已要求立即更换。其他设备运行正常，符合安全标准。</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">整改措施</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" placeholder="请描述需要采取的整改措施">1. 立即更换2号灭火器，确保压力正常
+2. 加强日常巡检频次，每周检查一次消防设备
+3. 对相关人员进行消防安全培训</textarea>
+                                <div class="view-content">1. 立即更换2号灭火器，确保压力正常<br>2. 加强日常巡检频次，每周检查一次消防设备<br>3. 对相关人员进行消防安全培训</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 附件信息模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-paperclip"></i>
+                        附件信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">检查照片</label>
+                            <div class="form-control">
+                                <div class="upload-container">
+                                    <!-- 上传按钮区域 -->
+                                    <div class="upload-button-section">
+                                        <button class="upload-btn" type="button">
+                                            <i class="fas fa-camera"></i>
+                                            上传照片
+                                        </button>
+                                        <span style="margin-left: 12px; font-size: 12px; color: #6b7280;">
+                                            支持 JPG、PNG 格式，单张不超过 5MB
+                                        </span>
+                                        <input type="file" class="upload-input" accept="image/*" multiple style="display: none;">
+                                    </div>
+                                    
+                                    <!-- 预览区域 -->
+                                    <div class="preview-section">
+                                        <div class="preview-section-title">
+                                            <i class="fas fa-images"></i>
+                                            照片预览 (3张)
+                                        </div>
+                                        <div class="photo-preview-grid">
+                                            <div class="photo-preview-item">
+                                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGN0ZBIi8+CjxwYXRoIGQ9Ik00MCAzMEg4MFY1MEg0MFYzMFoiIGZpbGw9IiNEQ0RGRTYiLz4KPGNpcmNsZSBjeD0iNTAiIGN5PSIzNyIgcj0iMyIgZmlsbD0iI0M5Q0NDRiIvPgo8cGF0aCBkPSJNNDUgNDVMNTAgNDBMNTUgNDVMNjUgMzVMNzUgNDVINDVaIiBmaWxsPSIjQzlDQ0NGIi8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTA5Mzk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mo4Dmn6XnjrDlnLo8L3RleHQ+Cjwvc3ZnPgo=" alt="检查现场1" class="photo-preview-img">
+                                                <div class="photo-preview-name">检查现场1.jpg</div>
+                                                <div class="photo-preview-actions">
+                                                    <button class="photo-action-btn" title="预览">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="photo-action-btn delete" title="删除">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="photo-preview-item">
+                                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjVGN0ZBIi8+CjxwYXRoIGQ9Ik0zNSAyNUg4NVY1NUgzNVYyNVoiIGZpbGw9IiNEQ0RGRTYiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIzMyIgcj0iNCIgZmlsbD0iI0M5Q0NDRiIvPgo8cGF0aCBkPSJNNDAgNDhMNDggNDBMNTUgNDdMNjggMzRMODAgNDZINDBaIiBmaWxsPSIjQzlDQ0NGIi8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTA5Mzk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7mo4Dmn6XnjrDlnLo8L3RleHQ+Cjwvc3ZnPgo=" alt="检查现场2" class="photo-preview-img">
+                                                <div class="photo-preview-name">检查现场2.jpg</div>
+                                                <div class="photo-preview-actions">
+                                                    <button class="photo-action-btn" title="预览">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="photo-action-btn delete" title="删除">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="photo-preview-item">
+                                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRkVGMEYwIi8+CjxwYXRoIGQ9Ik0zOCAyOEg4MlY1Mkg0MFYzMEgzOFYyOFoiIGZpbGw9IiNGNTY1NjUiLz4KPGNpcmNsZSBjeD0iNDgiIGN5PSIzNSIgcj0iMyIgZmlsbD0iI0Y1NjU2NSIvPgo8cGF0aCBkPSJNNDMgNDVMNDggNDBMNTMgNDVMNjMgMzVMNzMgNDVINDNaIiBmaWxsPSIjRjU2NTY1Ii8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjRjU2NTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7pl67popjnhaU8L3RleHQ+Cjwvc3ZnPgo=" alt="问题照片" class="photo-preview-img">
+                                                <div class="photo-preview-name">问题照片.jpg</div>
+                                                <div class="photo-preview-actions">
+                                                    <button class="photo-action-btn" title="预览">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="photo-action-btn delete" title="删除">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="view-content">已上传 3 张照片</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">相关文档</label>
+                            <div class="form-control">
+                                <div class="upload-container">
+                                    <!-- 上传按钮区域 -->
+                                    <div class="upload-button-section">
+                                        <button class="upload-btn" type="button">
+                                            <i class="fas fa-file-upload"></i>
+                                            上传文档
+                                        </button>
+                                        <span style="margin-left: 12px; font-size: 12px; color: #6b7280;">
+                                            支持 PDF、DOC、DOCX 格式，单个文件不超过 10MB
+                                        </span>
+                                        <input type="file" class="upload-input" accept=".pdf,.doc,.docx" multiple style="display: none;">
+                                    </div>
+                                    
+                                    <!-- 文件列表区域 -->
+                                    <div class="file-list-section">
+                                        <div class="file-list-title">
+                                            <i class="fas fa-folder-open"></i>
+                                            文件列表 (2个)
+                                        </div>
+                                        <div class="file-list">
+                                            <div class="file-item">
+                                                <div class="file-icon">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </div>
+                                                <div class="file-info">
+                                                    <div class="file-name">检查报告.pdf</div>
+                                                    <div class="file-size">2.3 MB</div>
+                                                </div>
+                                                <div class="file-actions">
+                                                    <button class="file-action-btn" title="下载">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="file-action-btn delete" title="删除">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="file-item">
+                                                <div class="file-icon">
+                                                    <i class="fas fa-file-word"></i>
+                                                </div>
+                                                <div class="file-info">
+                                                    <div class="file-name">整改通知.docx</div>
+                                                    <div class="file-size">1.8 MB</div>
+                                                </div>
+                                                <div class="file-actions">
+                                                    <button class="file-action-btn" title="下载">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="file-action-btn delete" title="删除">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="view-content">检查报告.pdf, 整改通知.docx</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">备注</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" value="需要跟进整改进度" placeholder="请输入备注信息">
+                                <div class="view-content">需要跟进整改进度</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 表单操作按钮 -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    取消
+                </button>
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-save"></i>
+                    保存草稿
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-check"></i>
+                    提交审核
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模块展开收起功能
+        function toggleModule(header) {
+            const content = header.nextElementSibling;
+            const toggle = header.querySelector('.module-toggle');
+            
+            content.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        // 查看模式切换
+        let isViewMode = false;
+        
+        function toggleViewMode() {
+            const container = document.getElementById('formContainer');
+            const modeIcon = document.getElementById('mode-icon');
+            const modeText = document.getElementById('mode-text');
+            
+            isViewMode = !isViewMode;
+            
+            if (isViewMode) {
+                container.classList.add('view-mode');
+                modeIcon.className = 'fas fa-edit';
+                modeText.textContent = '编辑模式';
+            } else {
+                container.classList.remove('view-mode');
+                modeIcon.className = 'fas fa-eye';
+                modeText.textContent = '查看模式';
+            }
+        }
+
+        // 初始化上传按钮功能
+        function initUploadButtons() {
+            // 为所有上传按钮添加点击事件
+            const uploadButtons = document.querySelectorAll('.upload-btn');
+            uploadButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 找到对应的文件输入框
+                    const container = this.closest('.upload-container');
+                    const fileInput = container.querySelector('.upload-input');
+                    if (fileInput) {
+                        fileInput.click();
+                    }
+                });
+            });
+
+            // 为文件输入框添加change事件
+            const fileInputs = document.querySelectorAll('.upload-input');
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const files = e.target.files;
+                    if (files.length > 0) {
+                        console.log('选择了文件:', Array.from(files).map(f => f.name));
+                        // 这里可以添加文件处理逻辑
+                    }
+                });
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加页面加载动画
+            const modules = document.querySelectorAll('.form-module');
+            modules.forEach((module, index) => {
+                module.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // 初始化上传按钮功能
+            initUploadButtons();
+
+            // 为按钮添加点击效果
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 创建点击波纹效果
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
