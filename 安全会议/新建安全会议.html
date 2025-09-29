@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新建安全会议</title>
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <title>新建安全会议 - 安全管理系统</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         * {
             margin: 0;
@@ -13,98 +16,141 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px; /* 为固定的按钮条留出空间 */
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 40px;
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
             position: relative;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 {
-            font-size: 28px;
+        .page-title {
+            font-size: 24px;
             font-weight: 600;
+            color: #3366CC;
             margin-bottom: 8px;
         }
 
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
+        .page-subtitle {
+            color: #909399;
+            font-size: 14px;
         }
 
         .back-btn {
             position: absolute;
-            top: 30px;
-            right: 40px;
-            z-index: 2;
+            top: 24px;
+            right: 24px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            color: #606266;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .form-container {
-            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        .form-section {
-            margin-bottom: 40px;
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
         }
 
-        .section-title {
-            font-size: 20px;
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-header:hover {
+            background: #f8f9fa;
+        }
+
+        .module-title {
+            font-size: 16px;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e8f4fd;
-            position: relative;
+            color: #303133;
+            display: flex;
+            align-items: center;
         }
 
-        .section-title::before {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
         }
 
         .form-row {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             margin-bottom: 20px;
             align-items: flex-start;
         }
 
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
         .form-item {
             flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .form-item.full-width {
@@ -113,67 +159,431 @@
         }
 
         .form-item.half-width {
-            flex: 0 0 calc(50% - 10px);
+            flex: 0 0 calc(50% - 12px);
         }
 
-        .el-form-item {
-            margin-bottom: 24px;
+        .form-label {
+            flex-shrink: 0;
+            width: 80px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+            position: relative;
         }
 
-        .el-form-item__label {
-            font-weight: 500;
-            color: #2c3e50;
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
             font-size: 14px;
         }
 
-        .el-input__wrapper,
-        .el-select .el-input__wrapper,
-        .el-textarea__inner {
-            border-radius: 8px;
-            border: 1px solid #e4e7ed;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .form-control {
+            flex: 1;
+            min-width: 0;
         }
 
-        .el-input__wrapper:hover,
-        .el-select .el-input__wrapper:hover,
-        .el-textarea__inner:hover {
-            border-color: #c0c4cc;
-        }
-
-        .el-input__wrapper.is-focus,
-        .el-select .el-input__wrapper.is-focus,
-        .el-textarea__inner:focus {
-            border-color: #409eff;
-            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
-        }
-
-        .el-upload {
+        .form-input {
             width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .el-upload-dragger {
-            border-radius: 8px;
-            border: 2px dashed #d9d9d9;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
         }
 
-        .el-upload-dragger:hover {
-            border-color: #409eff;
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .select-wrapper .form-select {
+            flex: 1;
+            padding-right: 80px; /* 为两个按钮留出空间 */
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 55px; /* 在放大镜按钮左侧 */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #909399;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-btn:hover {
+            color: #F56C6C;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 35px; /* 在下拉箭头左侧 */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #909399;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            color: #3366CC;
+        }
+
+        .form-input[readonly] {
             background-color: #f5f7fa;
+            color: #909399;
         }
 
+        .input-suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .input-suffix-btn {
+            background: none;
+            border: none;
+            color: #3366CC;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        .input-suffix-btn:hover {
+            color: #2952a3;
+        }
+
+        .form-control-wrapper {
+            position: relative;
+        }
+
+        /* 上传组件样式 */
+        .upload-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafbfc;
+            overflow: hidden;
+        }
+
+        /* 上传按钮区域 */
+        .upload-button-section {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #2563eb;
+        }
+
+        .upload-btn i {
+            font-size: 16px;
+        }
+
+        /* 预览区域 */
+        .preview-section {
+            padding: 16px;
+            background: #fafbfc;
+        }
+
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            background: #fafafa;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #3366CC;
+            background: #f5f7fa;
+        }
+
+        .upload-area.dragover {
+            border-color: #3366CC;
+            background: #ecf5ff;
+        }
+
+        .upload-icon {
+            font-size: 28px;
+            color: #c0c4cc;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-file-list {
+            margin-top: 8px;
+        }
+
+        /* 文件列表区域 */
+        .file-list-section {
+            padding: 16px;
+            background: #fafbfc;
+        }
+
+        .file-list-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-list-title i {
+            color: #6b7280;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .file-item:hover {
+            border-color: #d1d5db;
+        }
+
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        /* 查看按钮 - 蓝色主题 */
+        .file-action-btn[title="查看"] {
+            color: #3b82f6;
+        }
+
+        .file-action-btn[title="查看"]:hover {
+            background: #eff6ff;
+            color: #1d4ed8;
+            transform: scale(1.1);
+        }
+
+        /* 下载按钮 - 绿色主题 */
+        .file-action-btn[title="下载"] {
+            color: #10b981;
+        }
+
+        .file-action-btn[title="下载"]:hover {
+            background: #ecfdf5;
+            color: #047857;
+            transform: scale(1.1);
+        }
+
+        /* 删除按钮 - 红色主题 */
+        .file-action-btn[title="删除"] {
+            color: #ef4444;
+        }
+
+        .file-action-btn[title="删除"]:hover {
+            background: #fef2f2;
+            color: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* 兼容旧样式 */
+        .upload-file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .upload-file-item i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .upload-file-item .file-name {
+            flex: 1;
+        }
+
+        .upload-file-item .file-remove {
+            color: #f56c6c;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .upload-file-item .file-remove:hover {
+            color: #e6a23c;
+        }
+
+        /* 参会人员样式 */
         .participants-section {
             background: #f8fafc;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 20px;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
         }
 
         .participants-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+        }
+
+        .participants-count {
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .participants-actions {
+            display: flex;
+            gap: 8px;
         }
 
         .participants-list {
@@ -186,22 +596,28 @@
             align-items: center;
             padding: 12px;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 8px;
             border: 1px solid #e4e7ed;
+            transition: all 0.3s ease;
+        }
+
+        .participant-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .participant-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #3366CC;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 500;
             margin-right: 12px;
+            font-size: 16px;
         }
 
         .participant-info {
@@ -209,51 +625,122 @@
         }
 
         .participant-name {
-            font-weight: 500;
-            color: #2c3e50;
+            font-weight: 600;
+            color: #303133;
             margin-bottom: 4px;
+            font-size: 15px;
         }
 
         .participant-dept {
             font-size: 12px;
-            color: #8492a6;
+            color: #909399;
+        }
+
+        .participant-remove {
+            color: #f56c6c;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .participant-remove:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #909399;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #c0c4cc;
         }
 
         .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
             display: flex;
-            justify-content: center;
-            gap: 16px;
-            padding: 30px 0;
-            border-top: 1px solid #e8f4fd;
-            margin-top: 40px;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .el-button {
-            border-radius: 8px;
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: 500;
-            padding: 12px 32px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+            background: white;
         }
 
-        .el-button--primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
         }
 
-        .el-button--primary:hover {
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(51, 102, 204, 0.3);
         }
 
-        .required-mark {
-            color: #f56c6c;
-            margin-left: 4px;
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
         }
 
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+            min-width: 60px;
+        }
+
+        /* 响应式设计 */
         @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                padding-bottom: 120px;
+            }
+
             .form-row {
                 flex-direction: column;
-                gap: 0;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
             }
 
             .form-item.half-width {
@@ -261,597 +748,1695 @@
                 width: 100%;
             }
 
-            .header {
-                padding: 20px;
+            .form-label {
+                width: auto;
+                padding-top: 0;
+            }
+
+            .module-content {
+                padding: 16px;
+            }
+
+            .form-actions {
+                padding: 16px;
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
             }
 
             .back-btn {
-                top: 20px;
-                right: 20px;
+                position: static;
+                margin-bottom: 16px;
+                align-self: flex-start;
             }
 
-            .form-container {
-                padding: 20px;
+            .page-header {
+                padding: 16px;
             }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-module {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* 日期时间选择器样式 */
+        .datetime-range {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .datetime-input {
+            flex: 1;
+        }
+
+        .datetime-separator {
+            color: #909399;
+            font-size: 14px;
+        }
+
+        /* 选择人员弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #EBEEF5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #909399;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #F56C6C;
+            background-color: #FEF0F0;
+        }
+
+        .modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex: 1;
+            color: #606266;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #EBEEF5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: #fff;
+        }
+
+        /* 外部人员弹窗样式 */
+        #externalPersonModal .modal-content {
+            width: 500px;
+            max-width: 90vw;
+        }
+
+        #externalPersonModal .form-group {
+            margin-bottom: 16px;
+        }
+
+        #externalPersonModal .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #303133;
+            font-size: 14px;
+            width: auto;
+            flex-shrink: 1;
+            text-align: left;
+            padding-top: 0;
+        }
+
+        #externalPersonModal .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            margin-right: 4px;
+            position: static;
+        }
+
+        #externalPersonModal .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        #externalPersonModal .form-control:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        /* 穿梭框样式 */
+        .transfer-modal .modal-content {
+            width: 900px;
+            max-width: 90vw;
+        }
+
+        .transfer-container {
+            display: flex;
+            gap: 16px;
+            height: 500px;
+        }
+
+        .transfer-left {
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .transfer-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #EBEEF5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .transfer-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #F5F7FA;
+            border-bottom: 1px solid #EBEEF5;
+            font-size: 13px;
+            font-weight: 500;
+            color: #303133;
+        }
+
+        .transfer-panel-header i {
+            margin-right: 6px;
+            color: #409eff;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+
+        .tree-search-container {
+            padding: 12px;
+            border-bottom: 1px solid #EBEEF5;
+            background: #fff;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #409eff;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #C0C4CC;
+            font-size: 12px;
+        }
+
+        .tree-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .tree-node {
+            margin-bottom: 4px;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .tree-node-content:hover {
+            background-color: #F5F7FA;
+        }
+
+        .tree-node-content.selected {
+            background-color: #E6F7FF;
+            color: #409eff;
+        }
+
+        .tree-node-icon {
+            margin-right: 6px;
+            font-size: 12px;
+            color: #606266;
+        }
+
+        .tree-node-label {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tree-node-type {
+            font-size: 10px;
+            color: #909399;
+            background: #F0F2F5;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .tree-node-level-1 {
+            margin-left: 16px;
+        }
+
+        .tree-node-level-2 {
+            margin-left: 32px;
+        }
+
+        .tree-node-level-1 .tree-node-icon {
+            color: #67C23A;
+        }
+
+        .tree-node-level-2 .tree-node-icon {
+            color: #409EFF;
+        }
+
+        .personnel-table-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .personnel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .personnel-table th,
+        .personnel-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #EBEEF5;
+        }
+
+        .personnel-table th {
+            background: #F5F7FA;
+            font-weight: 500;
+            color: #303133;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .personnel-table tbody tr:hover {
+            background-color: #F5F7FA;
+        }
+
+        .personnel-table tbody tr.selected {
+            background-color: #E6F7FF;
+        }
+
+        .pagination-container {
+            padding: 12px 16px;
+            border-top: 1px solid #EBEEF5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #F5F7FA;
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: #606266;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 4px;
+        }
+
+        .pagination-btn {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .pagination-btn:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+
+        .pagination-btn.active {
+            background: #409eff;
+            border-color: #409eff;
+            color: #fff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 选择人员按钮样式 */
+        .select-personnel-btn {
+            padding: 6px 12px;
+            border: 1px solid #DCDFE6;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .select-personnel-btn:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+
+        .selected-personnel-list {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .personnel-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            background: #F0F2F5;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #606266;
+            gap: 4px;
+        }
+
+        .personnel-tag .remove-btn {
+            background: none;
+            border: none;
+            color: #909399;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            margin-left: 4px;
+        }
+
+        .personnel-tag .remove-btn:hover {
+            color: #F56C6C;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div class="container">
-            <div class="header">
-                <div class="header-content">
-                    <h1>新建安全会议</h1>
-                    <p>创建新的安全会议，完善会议信息并选择参会人员</p>
+    <div class="container">
+
+
+        <!-- 表单容器 -->
+        <div class="form-container">
+            <!-- 基本信息模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
                 </div>
-                <el-button class="back-btn" @click="goBack" type="info" plain>
-                    <el-icon><ArrowLeft /></el-icon>
-                    返回
-                </el-button>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">会议编号</label>
+                            <div class="form-control">
+                                <div class="form-control-wrapper">
+                                    <input type="text" class="form-input" id="meetingCode" value="AM2024001" readonly placeholder="自动生成">
+                                    <div class="input-suffix">
+                                        <button type="button" class="input-suffix-btn" onclick="generateMeetingCode()">重新生成</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">会议名称</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" id="meetingName" placeholder="请输入会议名称">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">会议类型</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" id="meetingType">
+                                    <option value="">请选择会议类型</option>
+                                    <option value="年度安全工作会议">年度安全工作会议</option>
+                                    <option value="安全生产管理委员会">安全生产管理委员会</option>
+                                    <option value="安全生产会议">安全生产会议</option>
+                                    <option value="安全生产监督网络会议">安全生产监督网络会议</option>
+                                    <option value="专题会议">专题会议</option>
+                                    <option value="防汛工作例会">防汛工作例会</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">会议级别</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" id="meetingLevel">
+                                    <option value="">请选择会议级别</option>
+                                    <option value="公司级">公司级</option>
+                                    <option value="部门级">部门级</option>
+                                    <option value="班组级">班组级</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">会议地点</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" id="location" placeholder="请输入会议地点">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">线上会议号</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" id="onlineMeetingId" placeholder="请输入线上会议号（可选）">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">会议时间</label>
+                            <div class="form-control">
+                                <div class="datetime-range">
+                                    <input type="datetime-local" class="form-input datetime-input" id="startTime">
+                                    <span class="datetime-separator">至</span>
+                                    <input type="datetime-local" class="form-input datetime-input" id="endTime">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">会议主持人/组织人</label>
+                            <div class="form-control">
+                                <div class="select-wrapper">
+                                    <select class="form-select" id="organizerSelect" onchange="handleOrganizerChange()">
+                                        <option value="">请选择主持人/组织人</option>
+                                    </select>
+                                    <button type="button" class="clear-btn" id="clearOrganizerBtn" onclick="clearOrganizer()" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button type="button" class="search-btn" onclick="openOrganizerModal()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">会议内容</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" id="content" rows="4" placeholder="请输入会议内容"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-container">
-                <el-form :model="meetingForm" :rules="formRules" ref="meetingFormRef" label-width="140px">
-                    <!-- 基本信息 -->
-                    <div class="form-section">
-                        <h3 class="section-title">基本信息</h3>
-                        
-                        <div class="form-row">
-                            <div class="form-item half-width">
-                                <el-form-item label="会议编号" prop="meetingCode">
-                                    <el-input v-model="meetingForm.meetingCode" placeholder="自动生成" readonly>
-                                        <template #suffix>
-                                            <el-button @click="generateMeetingCode" type="text" size="small">
-                                                重新生成
-                                            </el-button>
-                                        </template>
-                                    </el-input>
-                                </el-form-item>
-                            </div>
-                            <div class="form-item half-width">
-                                <el-form-item label="会议名称" prop="meetingName">
-                                    <el-input v-model="meetingForm.meetingName" placeholder="请输入会议名称" />
-                                </el-form-item>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-item half-width">
-                                <el-form-item label="会议类型" prop="meetingType">
-                                    <el-select v-model="meetingForm.meetingType" placeholder="请选择会议类型" style="width: 100%">
-                                        <el-option label="年度安全工作会议" value="年度安全工作会议" />
-                                        <el-option label="安全生产管理委员会" value="安全生产管理委员会" />
-                                        <el-option label="安全生产会议" value="安全生产会议" />
-                                        <el-option label="安全生产监督网络会议" value="安全生产监督网络会议" />
-                                        <el-option label="专题会议" value="专题会议" />
-                                        <el-option label="防汛工作例会" value="防汛工作例会" />
-                                    </el-select>
-                                </el-form-item>
-                            </div>
-                            <div class="form-item half-width">
-                                <el-form-item label="会议级别" prop="meetingLevel">
-                                    <el-select v-model="meetingForm.meetingLevel" placeholder="请选择会议级别" style="width: 100%">
-                                        <el-option label="公司级" value="公司级" />
-                                        <el-option label="部门级" value="部门级" />
-                                        <el-option label="班组级" value="班组级" />
-                                    </el-select>
-                                </el-form-item>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-item half-width">
-                                <el-form-item label="会议时间" prop="meetingTime">
-                                    <el-date-picker
-                                        v-model="meetingForm.meetingTime"
-                                        type="datetimerange"
-                                        range-separator="至"
-                                        start-placeholder="开始时间"
-                                        end-placeholder="结束时间"
-                                        format="YYYY-MM-DD HH:mm"
-                                        value-format="YYYY-MM-DD HH:mm"
-                                        style="width: 100%"
-                                    />
-                                </el-form-item>
-                            </div>
-                            <div class="form-item half-width">
-                                <el-form-item label="会议地点" prop="location">
-                                    <el-input v-model="meetingForm.location" placeholder="请输入会议地点" />
-                                </el-form-item>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-item half-width">
-                                <el-form-item label="会议主持人/组织人" prop="organizer">
-                                    <el-input v-model="meetingForm.organizer" placeholder="点击选择主持人" readonly>
-                                        <template #suffix>
-                                            <el-button @click="selectOrganizer" type="text" size="small">
-                                                选择
-                                            </el-button>
-                                        </template>
-                                    </el-input>
-                                </el-form-item>
-                            </div>
-                            <div class="form-item half-width">
-                                <el-form-item label="线上会议号">
-                                    <el-input v-model="meetingForm.onlineMeetingId" placeholder="请输入线上会议号（可选）" />
-                                </el-form-item>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-item full-width">
-                                <el-form-item label="会议内容" prop="content">
-                                    <el-input
-                                        v-model="meetingForm.content"
-                                        type="textarea"
-                                        :rows="4"
-                                        placeholder="请输入会议内容"
-                                    />
-                                </el-form-item>
-                            </div>
-                        </div>
+            <!-- 会议资料模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-file-alt"></i>
+                        会议资料
                     </div>
-
-                    <!-- 会议资料 -->
-                    <div class="form-section">
-                        <h3 class="section-title">会议资料</h3>
-                        
-                        <div class="form-row">
-                            <div class="form-item half-width">
-                                <el-form-item label="会议资料">
-                                    <el-upload
-                                        class="upload-demo"
-                                        drag
-                                        :auto-upload="false"
-                                        multiple
-                                        :file-list="meetingForm.materials"
-                                        @change="handleMaterialsChange"
-                                    >
-                                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                                        <div class="el-upload__text">
-                                            将文件拖到此处，或<em>点击上传</em>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">会议资料</label>
+                            <div class="form-control">
+                                <div class="upload-container">
+                                    <!-- 上传按钮区域 -->
+                                    <div class="upload-button-section">
+                                        <button class="upload-btn" type="button" onclick="document.getElementById('materialsInput').click()">
+                                            <i class="fas fa-upload"></i>
+                                            选择文件
+                                        </button>
+                                        <input type="file" id="materialsInput" class="upload-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx" onchange="handleFileUpload(this, 'materials')" style="display: none;">
+                                        <span style="margin-left: 12px; color: #6b7280; font-size: 12px;">支持 pdf、doc、docx、ppt、pptx 等格式</span>
+                                    </div>
+                                    <!-- 文件列表区域 -->
+                                    <div class="file-list-section">
+                                        <div class="file-list-title">
+                                            <i class="fas fa-folder-open"></i>
+                                            会议资料 (<span id="materialsCount">0</span>个)
                                         </div>
-                                        <template #tip>
-                                            <div class="el-upload__tip">
-                                                支持 pdf、doc、docx、ppt、pptx 等格式
+                                        <div class="file-list" id="materialsList">
+                                            <!-- 示例文件 -->
+                                            <div class="file-item">
+                                                <div class="file-icon">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </div>
+                                                <div class="file-info">
+                                                    <div class="file-name">安全会议议程.pdf</div>
+                                                    <div class="file-size">1.2 MB</div>
+                                                </div>
+                                                <div class="file-actions">
+                                                    <button class="file-action-btn" title="查看" onclick="viewFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="下载" onclick="downloadFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="删除" onclick="removeFile(this)">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </template>
-                                    </el-upload>
-                                </el-form-item>
-                            </div>
-                            <div class="form-item half-width">
-                                <el-form-item label="会议纪要">
-                                    <el-upload
-                                        class="upload-demo"
-                                        drag
-                                        :auto-upload="false"
-                                        multiple
-                                        :file-list="meetingForm.minutes"
-                                        @change="handleMinutesChange"
-                                    >
-                                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                                        <div class="el-upload__text">
-                                            将文件拖到此处，或<em>点击上传</em>
                                         </div>
-                                        <template #tip>
-                                            <div class="el-upload__tip">
-                                                支持 pdf、doc、docx 等格式
-                                            </div>
-                                        </template>
-                                    </el-upload>
-                                </el-form-item>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 参会人员 -->
-                    <div class="form-section">
-                        <h3 class="section-title">参会人员</h3>
-                        
-                        <div class="participants-section">
-                            <div class="participants-header">
-                                <span>已选择 {{ participants.length }} 人</span>
-                                <div>
-                                    <el-button @click="addParticipants" type="primary" size="small">
-                                        <el-icon><Plus /></el-icon>
-                                        添加参会人员
-                                    </el-button>
-                                    <el-button @click="addExternalParticipant" type="default" size="small">
-                                        <el-icon><UserFilled /></el-icon>
-                                        添加外部人员
-                                    </el-button>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="participants-list" v-if="participants.length > 0">
-                                <div v-for="(participant, index) in participants" :key="index" class="participant-item">
-                                    <div class="participant-avatar">
-                                        {{ participant.name.charAt(0) }}
-                                    </div>
-                                    <div class="participant-info">
-                                        <div class="participant-name">{{ participant.name }}</div>
-                                        <div class="participant-dept">{{ participant.department }} - {{ participant.company }}</div>
-                                    </div>
-                                    <el-button @click="removeParticipant(index)" type="danger" size="small" text>
-                                        <el-icon><Delete /></el-icon>
-                                    </el-button>
-                                </div>
-                            </div>
-                            
-                            <el-empty v-else description="暂无参会人员" />
                         </div>
                     </div>
-
-                    <!-- 操作按钮 -->
-                    <div class="form-actions">
-                        <el-button @click="saveDraft" size="large">保存草稿</el-button>
-                        <el-button @click="submitForm" type="primary" size="large">创建会议</el-button>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">会议纪要</label>
+                            <div class="form-control">
+                                <div class="upload-container">
+                                    <!-- 上传按钮区域 -->
+                                    <div class="upload-button-section">
+                                        <button class="upload-btn" type="button" onclick="document.getElementById('minutesInput').click()">
+                                            <i class="fas fa-upload"></i>
+                                            选择文件
+                                        </button>
+                                        <input type="file" id="minutesInput" class="upload-input" multiple accept=".pdf,.doc,.docx" onchange="handleFileUpload(this, 'minutes')" style="display: none;">
+                                        <span style="margin-left: 12px; color: #6b7280; font-size: 12px;">支持 pdf、doc、docx 等格式</span>
+                                    </div>
+                                    <!-- 文件列表区域 -->
+                                    <div class="file-list-section">
+                                        <div class="file-list-title">
+                                            <i class="fas fa-folder-open"></i>
+                                            会议纪要 (<span id="minutesCount">0</span>个)
+                                        </div>
+                                        <div class="file-list" id="minutesList">
+                                            <!-- 示例文件 -->
+                                            <div class="file-item">
+                                                <div class="file-icon">
+                                                    <i class="fas fa-file-word"></i>
+                                                </div>
+                                                <div class="file-info">
+                                                    <div class="file-name">会议纪要模板.docx</div>
+                                                    <div class="file-size">0.8 MB</div>
+                                                </div>
+                                                <div class="file-actions">
+                                                    <button class="file-action-btn" title="查看" onclick="viewFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="下载" onclick="downloadFile(this.closest('.file-item').querySelector('.file-name').textContent, '#')">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="file-action-btn" title="删除" onclick="removeFile(this)">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </el-form>
+                </div>
+            </div>
+
+            <!-- 参会人员模块 -->
+            <div class="form-module">
+                <div class="module-header" onclick="toggleModule(this)">
+                    <div class="module-title">
+                        <i class="fas fa-users"></i>
+                        参会人员
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="participants-section">
+                        <div class="participants-header">
+                            <span class="participants-count">已选择 <span id="participantCount">0</span> 人</span>
+                            <div class="participants-actions">
+                                <button class="btn btn-primary btn-small" onclick="openParticipantsModal()">
+                                    <i class="fas fa-plus"></i>
+                                    添加参会人员
+                                </button>
+                                <button class="btn btn-secondary btn-small" onclick="addExternalParticipant()">
+                                    <i class="fas fa-user-plus"></i>
+                                    添加外部人员
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="participants-list" id="participantsList">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <div>暂无参会人员</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 选择主持人弹窗 -->
-        <el-dialog v-model="organizerDialogVisible" title="选择主持人" width="600px">
-            <el-input v-model="organizerSearch" placeholder="搜索人员" style="margin-bottom: 20px">
-                <template #prefix>
-                    <el-icon><Search /></el-icon>
-                </template>
-            </el-input>
-            <div style="max-height: 400px; overflow-y: auto;">
-                <div v-for="person in filteredOrganizerList" :key="person.id" 
-                     @click="selectOrganizerPerson(person)"
-                     style="padding: 12px; border: 1px solid #e4e7ed; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;"
-                     :style="{ background: selectedOrganizer?.id === person.id ? '#f0f9ff' : 'white' }">
-                    <div class="participant-avatar" style="margin-right: 12px;">
-                        {{ person.name.charAt(0) }}
-                    </div>
-                    <div>
-                        <div style="font-weight: 500;">{{ person.name }}</div>
-                        <div style="font-size: 12px; color: #8492a6;">{{ person.department }} - {{ person.company }}</div>
-                    </div>
-                </div>
-            </div>
-            <template #footer>
-                <el-button @click="organizerDialogVisible = false">取消</el-button>
-                <el-button @click="confirmOrganizer" type="primary">确定</el-button>
-            </template>
-        </el-dialog>
-
-        <!-- 添加参会人员弹窗 -->
-        <el-dialog v-model="participantsDialogVisible" title="添加参会人员" width="800px">
-            <el-input v-model="participantSearch" placeholder="搜索人员" style="margin-bottom: 20px">
-                <template #prefix>
-                    <el-icon><Search /></el-icon>
-                </template>
-            </el-input>
-            <div style="max-height: 400px; overflow-y: auto;">
-                <div v-for="person in filteredParticipantList" :key="person.id" 
-                     @click="toggleParticipant(person)"
-                     style="padding: 12px; border: 1px solid #e4e7ed; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;"
-                     :style="{ background: isParticipantSelected(person) ? '#f0f9ff' : 'white' }">
-                    <el-checkbox :model-value="isParticipantSelected(person)" style="margin-right: 12px;" />
-                    <div class="participant-avatar" style="margin-right: 12px;">
-                        {{ person.name.charAt(0) }}
-                    </div>
-                    <div>
-                        <div style="font-weight: 500;">{{ person.name }}</div>
-                        <div style="font-size: 12px; color: #8492a6;">{{ person.department }} - {{ person.company }}</div>
-                    </div>
-                </div>
-            </div>
-            <template #footer>
-                <el-button @click="participantsDialogVisible = false">取消</el-button>
-                <el-button @click="confirmParticipants" type="primary">确定</el-button>
-            </template>
-        </el-dialog>
-
-        <!-- 添加外部人员弹窗 -->
-        <el-dialog v-model="externalParticipantDialogVisible" title="添加外部人员" width="500px">
-            <el-form :model="externalParticipantForm" label-width="100px">
-                <el-form-item label="姓名" required>
-                    <el-input v-model="externalParticipantForm.name" placeholder="请输入姓名" />
-                </el-form-item>
-                <el-form-item label="公司">
-                    <el-input v-model="externalParticipantForm.company" placeholder="请输入公司名称" />
-                </el-form-item>
-                <el-form-item label="部门">
-                    <el-input v-model="externalParticipantForm.department" placeholder="请输入部门名称" />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <el-button @click="externalParticipantDialogVisible = false">取消</el-button>
-                <el-button @click="addExternalParticipantConfirm" type="primary">添加</el-button>
-            </template>
-        </el-dialog>
+        <!-- 操作按钮 -->
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="saveDraft()">
+                <i class="fas fa-save"></i>
+                保存草稿
+            </button>
+            <button class="btn btn-primary" onclick="submitForm()">
+                <i class="fas fa-check"></i>
+                创建会议
+            </button>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
-    <script src="https://unpkg.com/@element-plus/icons-vue/dist/index.iife.js"></script>
+    <!-- 选择人员弹窗 -->
+    <div id="personnelModal" class="modal transfer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">选择人员</h3>
+                <button class="modal-close" onclick="closePersonnelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="transfer-container">
+                    <!-- 左侧：部门树 -->
+                    <div class="transfer-left">
+                        <div class="transfer-panel-header">
+                            <i class="fas fa-sitemap"></i>
+                            部门结构
+                        </div>
+                        <div class="tree-search-container">
+                            <div class="search-container">
+                                <input type="text" id="deptSearchInput" class="search-input" placeholder="搜索部门...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="tree-content" id="deptTreeContent">
+                            <!-- 动态生成部门树 -->
+                        </div>
+                    </div>
+
+                    <!-- 右侧：人员列表 -->
+                    <div class="transfer-right">
+                        <div class="transfer-panel-header">
+                            <i class="fas fa-users"></i>
+                            人员列表
+                            <div class="panel-actions">
+                                <button class="action-btn" onclick="selectAllPersonnel()">全选</button>
+                                <button class="action-btn" onclick="clearAllPersonnel()">清空</button>
+                            </div>
+                        </div>
+                        <div class="search-container">
+                            <input type="text" id="personnelSearchInput" class="search-input" placeholder="搜索人员姓名、职位...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <div class="personnel-table-container">
+                            <table class="personnel-table" id="personnelTable">
+                                <thead>
+                                    <tr>
+                                        <th width="40">
+                                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                                        </th>
+                                        <th>姓名</th>
+                                        <th>职位</th>
+                                        <th>部门</th>
+                                        <th>联系方式</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="personnelTableBody">
+                                    <!-- 动态生成人员列表 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-container">
+                            <div class="pagination-info">
+                                共 <span id="totalPersonnel">0</span> 人，已选择 <span id="selectedPersonnelCount">0</span> 人
+                            </div>
+                            <div class="pagination" id="personnelPagination">
+                                <!-- 动态生成分页 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePersonnelModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmPersonnelSelection()">确定</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const { createApp, ref, reactive, computed, onMounted } = Vue;
-        const { ElMessage, ElMessageBox } = ElementPlus;
-
-        const app = createApp({
-            setup() {
-                // 表单数据
-                const meetingForm = reactive({
-                    meetingCode: '',
-                    meetingName: '',
-                    meetingType: '',
-                    meetingLevel: '',
-                    meetingTime: [],
-                    location: '',
-                    organizer: '',
-                    onlineMeetingId: '',
-                    content: '',
-                    materials: [],
-                    minutes: []
-                });
-
-                // 表单验证规则
-                const formRules = {
-                    meetingName: [
-                        { required: true, message: '请输入会议名称', trigger: 'blur' }
-                    ],
-                    meetingType: [
-                        { required: true, message: '请选择会议类型', trigger: 'change' }
-                    ],
-                    meetingLevel: [
-                        { required: true, message: '请选择会议级别', trigger: 'change' }
-                    ],
-                    meetingTime: [
-                        { required: true, message: '请选择会议时间', trigger: 'change' }
-                    ],
-                    location: [
-                        { required: true, message: '请输入会议地点', trigger: 'blur' }
-                    ],
-                    organizer: [
-                        { required: true, message: '请选择会议主持人', trigger: 'blur' }
-                    ],
-                    content: [
-                        { required: true, message: '请输入会议内容', trigger: 'blur' }
-                    ]
-                };
-
-                const meetingFormRef = ref();
-
-                // 参会人员
-                const participants = ref([]);
-                const participantsDialogVisible = ref(false);
-                const participantSearch = ref('');
-                const selectedParticipants = ref([]);
-
-                // 主持人选择
-                const organizerDialogVisible = ref(false);
-                const organizerSearch = ref('');
-                const selectedOrganizer = ref(null);
-
-                // 外部人员
-                const externalParticipantDialogVisible = ref(false);
-                const externalParticipantForm = reactive({
-                    name: '',
-                    company: '',
-                    department: ''
-                });
-
-                // 模拟人员数据
-                const allPersons = ref([
-                    { id: 1, name: '张三', department: '安全管理部', company: '总公司' },
-                    { id: 2, name: '李四', department: '生产部', company: '总公司' },
-                    { id: 3, name: '王五', department: '技术部', company: '分公司A' },
-                    { id: 4, name: '赵六', department: '质量部', company: '分公司B' },
-                    { id: 5, name: '钱七', department: '安全管理部', company: '总公司' },
-                    { id: 6, name: '孙八', department: '运营部', company: '分公司A' }
-                ]);
-
-                // 过滤后的主持人列表
-                const filteredOrganizerList = computed(() => {
-                    if (!organizerSearch.value) return allPersons.value;
-                    return allPersons.value.filter(person => 
-                        person.name.includes(organizerSearch.value) ||
-                        person.department.includes(organizerSearch.value) ||
-                        person.company.includes(organizerSearch.value)
-                    );
-                });
-
-                // 过滤后的参会人员列表
-                const filteredParticipantList = computed(() => {
-                    if (!participantSearch.value) return allPersons.value;
-                    return allPersons.value.filter(person => 
-                        person.name.includes(participantSearch.value) ||
-                        person.department.includes(participantSearch.value) ||
-                        person.company.includes(participantSearch.value)
-                    );
-                });
-
-                // 生成会议编号
-                const generateMeetingCode = () => {
-                    const now = new Date();
-                    const dateStr = now.getFullYear().toString() + 
-                                   (now.getMonth() + 1).toString().padStart(2, '0') + 
-                                   now.getDate().toString().padStart(2, '0');
-                    const sequence = Math.floor(Math.random() * 999) + 1;
-                    meetingForm.meetingCode = `ORG001-AQHY-${dateStr}-${sequence.toString().padStart(3, '0')}`;
-                };
-
-                // 选择主持人
-                const selectOrganizer = () => {
-                    organizerDialogVisible.value = true;
-                    organizerSearch.value = '';
-                };
-
-                const selectOrganizerPerson = (person) => {
-                    selectedOrganizer.value = person;
-                };
-
-                const confirmOrganizer = () => {
-                    if (selectedOrganizer.value) {
-                        meetingForm.organizer = selectedOrganizer.value.name;
-                        organizerDialogVisible.value = false;
+        // 组织数据
+        const orgData = {
+            company: {
+                id: 'company-1',
+                name: '中建材集团',
+                type: '公司',
+                description: '中国建材集团有限公司',
+                departments: [
+                    {
+                        id: 'dept-1',
+                        name: '技术研发部',
+                        type: '部门',
+                        description: '负责技术研发和产品开发',
+                        subDepartments: [
+                            {
+                                id: 'subdept-1-1',
+                                name: '软件开发组',
+                                type: '子部门',
+                                description: '负责软件系统开发',
+                                personnel: [
+                                    {
+                                        id: 'person-1',
+                                        name: '张三',
+                                        position: '高级工程师',
+                                        phone: '13800138001',
+                                        email: 'zhangsan@company.com'
+                                    },
+                                    {
+                                        id: 'person-3',
+                                        name: '王五',
+                                        position: '软件工程师',
+                                        phone: '13800138003',
+                                        email: 'wangwu@company.com'
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'subdept-1-2',
+                                name: '硬件开发组',
+                                type: '子部门',
+                                description: '负责硬件设备开发',
+                                personnel: [
+                                    {
+                                        id: 'person-5',
+                                        name: '陈七',
+                                        position: '硬件工程师',
+                                        phone: '13800138005',
+                                        email: 'chenqi@company.com'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'dept-2',
+                        name: '市场营销部',
+                        type: '部门',
+                        description: '负责市场推广和销售',
+                        subDepartments: [
+                            {
+                                id: 'subdept-2-1',
+                                name: '销售一组',
+                                type: '子部门',
+                                description: '负责华北地区销售',
+                                personnel: [
+                                    {
+                                        id: 'person-2',
+                                        name: '李四',
+                                        position: '销售经理',
+                                        phone: '13800138002',
+                                        email: 'lisi@company.com'
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'subdept-2-2',
+                                name: '销售二组',
+                                type: '子部门',
+                                description: '负责华南地区销售',
+                                personnel: [
+                                    {
+                                        id: 'person-6',
+                                        name: '孙八',
+                                        position: '销售代表',
+                                        phone: '13800138006',
+                                        email: 'sunba@company.com'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'dept-3',
+                        name: '人力资源部',
+                        type: '部门',
+                        description: '负责人力资源管理',
+                        subDepartments: [
+                            {
+                                id: 'subdept-3-1',
+                                name: '招聘培训组',
+                                type: '子部门',
+                                description: '负责人员招聘和培训',
+                                personnel: [
+                                    {
+                                        id: 'person-4',
+                                        name: '赵六',
+                                        position: '人事专员',
+                                        phone: '13800138004',
+                                        email: 'zhaoliu@company.com'
+                                    }
+                                ]
+                            }
+                        ]
                     }
-                };
-
-                // 添加参会人员
-                const addParticipants = () => {
-                    participantsDialogVisible.value = true;
-                    participantSearch.value = '';
-                    selectedParticipants.value = [...participants.value];
-                };
-
-                const isParticipantSelected = (person) => {
-                    return selectedParticipants.value.some(p => p.id === person.id);
-                };
-
-                const toggleParticipant = (person) => {
-                    const index = selectedParticipants.value.findIndex(p => p.id === person.id);
-                    if (index > -1) {
-                        selectedParticipants.value.splice(index, 1);
-                    } else {
-                        selectedParticipants.value.push(person);
-                    }
-                };
-
-                const confirmParticipants = () => {
-                    participants.value = [...selectedParticipants.value];
-                    participantsDialogVisible.value = false;
-                };
-
-                const removeParticipant = (index) => {
-                    participants.value.splice(index, 1);
-                };
-
-                // 添加外部人员
-                const addExternalParticipant = () => {
-                    externalParticipantDialogVisible.value = true;
-                    Object.assign(externalParticipantForm, {
-                        name: '',
-                        company: '',
-                        department: ''
-                    });
-                };
-
-                const addExternalParticipantConfirm = () => {
-                    if (!externalParticipantForm.name.trim()) {
-                        ElMessage.warning('请输入姓名');
-                        return;
-                    }
-                    
-                    const newParticipant = {
-                        id: Date.now(),
-                        name: externalParticipantForm.name,
-                        company: externalParticipantForm.company || '外部',
-                        department: externalParticipantForm.department || '外部人员',
-                        isExternal: true
-                    };
-                    
-                    participants.value.push(newParticipant);
-                    externalParticipantDialogVisible.value = false;
-                    ElMessage.success('外部人员添加成功');
-                };
-
-                // 文件上传处理
-                const handleMaterialsChange = (file, fileList) => {
-                    meetingForm.materials = fileList;
-                };
-
-                const handleMinutesChange = (file, fileList) => {
-                    meetingForm.minutes = fileList;
-                };
-
-                // 表单提交
-                const submitForm = async () => {
-                    try {
-                        await meetingFormRef.value.validate();
-                        
-                        const meetingData = {
-                            ...meetingForm,
-                            participants: participants.value,
-                            createTime: new Date().toISOString()
-                        };
-                        
-                        console.log('提交会议数据:', meetingData);
-                        
-                        ElMessage.success('会议创建成功！');
-                        
-                        // 模拟延迟后跳转
-                        setTimeout(() => {
-                            goBack();
-                        }, 1500);
-                        
-                    } catch (error) {
-                        ElMessage.error('请完善必填信息');
-                    }
-                };
-
-                // 保存草稿
-                const saveDraft = () => {
-                    const draftData = {
-                        ...meetingForm,
-                        participants: participants.value,
-                        isDraft: true,
-                        saveTime: new Date().toISOString()
-                    };
-                    
-                    console.log('保存草稿:', draftData);
-                    ElMessage.success('草稿保存成功！');
-                };
-
-                // 返回上一页
-                const goBack = () => {
-                    window.history.back();
-                };
-
-                // 初始化
-                onMounted(() => {
-                    generateMeetingCode();
-                });
-
-                return {
-                    meetingForm,
-                    formRules,
-                    meetingFormRef,
-                    participants,
-                    participantsDialogVisible,
-                    participantSearch,
-                    selectedParticipants,
-                    organizerDialogVisible,
-                    organizerSearch,
-                    selectedOrganizer,
-                    externalParticipantDialogVisible,
-                    externalParticipantForm,
-                    filteredOrganizerList,
-                    filteredParticipantList,
-                    generateMeetingCode,
-                    selectOrganizer,
-                    selectOrganizerPerson,
-                    confirmOrganizer,
-                    addParticipants,
-                    isParticipantSelected,
-                    toggleParticipant,
-                    confirmParticipants,
-                    removeParticipant,
-                    addExternalParticipant,
-                    addExternalParticipantConfirm,
-                    handleMaterialsChange,
-                    handleMinutesChange,
-                    submitForm,
-                    saveDraft,
-                    goBack
-                };
+                ]
             }
+        };
+
+        // 人员选择弹窗功能
+        let selectedPersonnel = [];
+        let currentPersonnelPage = 1;
+        const personnelPerPage = 10;
+        let allPersonnelData = [];
+        let filteredPersonnelData = [];
+        let currentSelectionMode = ''; // 'organizer' 或 'participants'
+
+        // 初始化主持人选择器
+        function initOrganizerSelect() {
+            const select = document.getElementById('organizerSelect');
+            
+            // 清空现有选项（保留默认选项）
+            select.innerHTML = '<option value="">请选择主持人/组织人</option>';
+            
+            // 从组织架构中提取所有人员并添加到选择器
+            orgData.company.departments.forEach(dept => {
+                dept.subDepartments.forEach(subDept => {
+                    subDept.personnel.forEach(person => {
+                        const option = document.createElement('option');
+                        option.value = person.id;
+                        option.textContent = `${person.name} (${person.position}) - ${dept.name}`;
+                        option.dataset.personData = JSON.stringify({
+                            ...person,
+                            department: dept.name,
+                            subDepartment: subDept.name
+                        });
+                        select.appendChild(option);
+                    });
+                });
+            });
+        }
+
+        // 处理主持人选择变化
+        function handleOrganizerChange() {
+            const select = document.getElementById('organizerSelect');
+            const clearBtn = document.getElementById('clearOrganizerBtn');
+            
+            if (select.value) {
+                // 显示清空按钮
+                clearBtn.style.display = 'flex';
+            } else {
+                // 隐藏清空按钮
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        // 清空主持人选择
+        function clearOrganizer() {
+            const select = document.getElementById('organizerSelect');
+            const clearBtn = document.getElementById('clearOrganizerBtn');
+            
+            select.value = '';
+            clearBtn.style.display = 'none';
+        }
+
+        // 获取选中的主持人信息
+        function getSelectedOrganizer() {
+            const select = document.getElementById('organizerSelect');
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                return JSON.parse(selectedOption.dataset.personData);
+            }
+            return null;
+        }
+
+        function openOrganizerModal() {
+            currentSelectionMode = 'organizer';
+            openPersonnelModal();
+        }
+
+        function openParticipantsModal() {
+            currentSelectionMode = 'participants';
+            openPersonnelModal();
+        }
+
+        function openPersonnelModal() {
+            const modal = document.getElementById('personnelModal');
+            
+            // 从组织架构中提取所有人员
+            allPersonnelData = [];
+            orgData.company.departments.forEach(dept => {
+                dept.subDepartments.forEach(subDept => {
+                    subDept.personnel.forEach(person => {
+                        allPersonnelData.push({
+                            ...person,
+                            department: dept.name,
+                            subDepartment: subDept.name,
+                            fullPath: `${orgData.company.name} > ${dept.name} > ${subDept.name}`
+                        });
+                    });
+                });
+            });
+            
+            filteredPersonnelData = [...allPersonnelData];
+            selectedPersonnel = [];
+            currentPersonnelPage = 1;
+            
+            renderDepartmentTree();
+            renderPersonnelTable();
+            updatePersonnelCount();
+            
+            modal.classList.add('show');
+        }
+
+        function closePersonnelModal() {
+            const modal = document.getElementById('personnelModal');
+            modal.classList.remove('show');
+        }
+
+        function renderDepartmentTree() {
+            const container = document.getElementById('deptTreeContent');
+            container.innerHTML = '';
+            
+            // 渲染公司根节点
+            const companyNode = document.createElement('div');
+            companyNode.className = 'tree-node';
+            companyNode.innerHTML = `
+                <div class="tree-node-content" onclick="selectCompany()">
+                    <i class="fas fa-building tree-node-icon"></i>
+                    <span class="tree-node-label">
+                        ${orgData.company.name}
+                        <span class="tree-node-type">公司</span>
+                    </span>
+                </div>
+            `;
+            container.appendChild(companyNode);
+            
+            // 渲染部门节点
+            orgData.company.departments.forEach(dept => {
+                const deptNode = document.createElement('div');
+                deptNode.className = 'tree-node tree-node-level-1';
+                
+                // 计算部门总人数
+                const totalPersonnel = dept.subDepartments.reduce((sum, subDept) => sum + subDept.personnel.length, 0);
+                
+                deptNode.innerHTML = `
+                    <div class="tree-node-content" onclick="selectDepartment('${dept.id}')">
+                        <i class="fas fa-sitemap tree-node-icon"></i>
+                        <span class="tree-node-label">
+                            ${dept.name}
+                            <span class="tree-node-type">${totalPersonnel}人</span>
+                        </span>
+                    </div>
+                `;
+                container.appendChild(deptNode);
+                
+                // 渲染子部门节点
+                dept.subDepartments.forEach(subDept => {
+                    const subDeptNode = document.createElement('div');
+                    subDeptNode.className = 'tree-node tree-node-level-2';
+                    subDeptNode.innerHTML = `
+                        <div class="tree-node-content" onclick="selectSubDepartment('${subDept.id}')">
+                            <i class="fas fa-users tree-node-icon"></i>
+                            <span class="tree-node-label">
+                                ${subDept.name}
+                                <span class="tree-node-type">${subDept.personnel.length}人</span>
+                            </span>
+                        </div>
+                    `;
+                    container.appendChild(subDeptNode);
+                });
+            });
+        }
+
+        function selectCompany() {
+            // 显示所有人员
+            filteredPersonnelData = [...allPersonnelData];
+            currentPersonnelPage = 1;
+            renderPersonnelTable();
+        }
+
+        function selectDepartment(deptId) {
+            const dept = orgData.company.departments.find(d => d.id === deptId);
+            if (dept) {
+                filteredPersonnelData = [];
+                dept.subDepartments.forEach(subDept => {
+                    subDept.personnel.forEach(person => {
+                        filteredPersonnelData.push({
+                            ...person,
+                            department: dept.name,
+                            subDepartment: subDept.name,
+                            fullPath: `${orgData.company.name} > ${dept.name} > ${subDept.name}`
+                        });
+                    });
+                });
+                currentPersonnelPage = 1;
+                renderPersonnelTable();
+            }
+        }
+
+        function selectSubDepartment(subDeptId) {
+            let targetSubDept = null;
+            let targetDept = null;
+            
+            orgData.company.departments.forEach(dept => {
+                const subDept = dept.subDepartments.find(sd => sd.id === subDeptId);
+                if (subDept) {
+                    targetSubDept = subDept;
+                    targetDept = dept;
+                }
+            });
+            
+            if (targetSubDept && targetDept) {
+                filteredPersonnelData = targetSubDept.personnel.map(person => ({
+                    ...person,
+                    department: targetDept.name,
+                    subDepartment: targetSubDept.name,
+                    fullPath: `${orgData.company.name} > ${targetDept.name} > ${targetSubDept.name}`
+                }));
+                currentPersonnelPage = 1;
+                renderPersonnelTable();
+            }
+        }
+
+        function renderPersonnelTable() {
+            const tbody = document.getElementById('personnelTableBody');
+            const startIndex = (currentPersonnelPage - 1) * personnelPerPage;
+            const endIndex = startIndex + personnelPerPage;
+            const pageData = filteredPersonnelData.slice(startIndex, endIndex);
+            
+            tbody.innerHTML = '';
+            
+            pageData.forEach(person => {
+                const isSelected = selectedPersonnel.some(p => p.id === person.id);
+                const row = document.createElement('tr');
+                row.className = isSelected ? 'selected' : '';
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                               onchange="togglePersonnelSelection('${person.id}')">
+                    </td>
+                    <td>${person.name}</td>
+                    <td>${person.position}</td>
+                    <td>${person.fullPath || `${person.department} > ${person.subDepartment}`}</td>
+                    <td>${person.phone}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            renderPersonnelPagination();
+            updateSelectAllCheckbox();
+        }
+
+        function togglePersonnelSelection(personId) {
+            const person = allPersonnelData.find(p => p.id === personId);
+            const index = selectedPersonnel.findIndex(p => p.id === personId);
+            
+            if (index > -1) {
+                selectedPersonnel.splice(index, 1);
+            } else {
+                selectedPersonnel.push(person);
+            }
+            
+            renderPersonnelTable();
+            updatePersonnelCount();
+        }
+
+        function toggleSelectAll() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            const startIndex = (currentPersonnelPage - 1) * personnelPerPage;
+            const endIndex = startIndex + personnelPerPage;
+            const pageData = filteredPersonnelData.slice(startIndex, endIndex);
+            
+            if (checkbox.checked) {
+                pageData.forEach(person => {
+                    if (!selectedPersonnel.some(p => p.id === person.id)) {
+                        selectedPersonnel.push(person);
+                    }
+                });
+            } else {
+                pageData.forEach(person => {
+                    const index = selectedPersonnel.findIndex(p => p.id === person.id);
+                    if (index > -1) {
+                        selectedPersonnel.splice(index, 1);
+                    }
+                });
+            }
+            
+            renderPersonnelTable();
+            updatePersonnelCount();
+        }
+
+        function updateSelectAllCheckbox() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            const startIndex = (currentPersonnelPage - 1) * personnelPerPage;
+            const endIndex = startIndex + personnelPerPage;
+            const pageData = filteredPersonnelData.slice(startIndex, endIndex);
+            
+            const selectedInPage = pageData.filter(person => 
+                selectedPersonnel.some(p => p.id === person.id)
+            ).length;
+            
+            checkbox.checked = pageData.length > 0 && selectedInPage === pageData.length;
+            checkbox.indeterminate = selectedInPage > 0 && selectedInPage < pageData.length;
+        }
+
+        function selectAllPersonnel() {
+            filteredPersonnelData.forEach(person => {
+                if (!selectedPersonnel.some(p => p.id === person.id)) {
+                    selectedPersonnel.push(person);
+                }
+            });
+            renderPersonnelTable();
+            updatePersonnelCount();
+        }
+
+        function clearAllPersonnel() {
+            selectedPersonnel = [];
+            renderPersonnelTable();
+            updatePersonnelCount();
+        }
+
+        function updatePersonnelCount() {
+            document.getElementById('totalPersonnel').textContent = filteredPersonnelData.length;
+            document.getElementById('selectedPersonnelCount').textContent = selectedPersonnel.length;
+        }
+
+        function renderPersonnelPagination() {
+            const container = document.getElementById('personnelPagination');
+            const totalPages = Math.ceil(filteredPersonnelData.length / personnelPerPage);
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // 上一页
+            html += `<button class="pagination-btn" ${currentPersonnelPage === 1 ? 'disabled' : ''} 
+                     onclick="changePersonnelPage(${currentPersonnelPage - 1})">‹</button>`;
+            
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPersonnelPage) {
+                    html += `<button class="pagination-btn active">${i}</button>`;
+                } else {
+                    html += `<button class="pagination-btn" onclick="changePersonnelPage(${i})">${i}</button>`;
+                }
+            }
+            
+            // 下一页
+            html += `<button class="pagination-btn" ${currentPersonnelPage === totalPages ? 'disabled' : ''} 
+                     onclick="changePersonnelPage(${currentPersonnelPage + 1})">›</button>`;
+            
+            container.innerHTML = html;
+        }
+
+        function changePersonnelPage(page) {
+            const totalPages = Math.ceil(filteredPersonnelData.length / personnelPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPersonnelPage = page;
+                renderPersonnelTable();
+            }
+        }
+
+        function confirmPersonnelSelection() {
+            if (currentSelectionMode === 'organizer') {
+                // 主持人只能选择一个
+                if (selectedPersonnel.length > 1) {
+                    alert('主持人只能选择一个人员');
+                    return;
+                }
+                updateOrganizerDisplay();
+            } else if (currentSelectionMode === 'participants') {
+                updateParticipantsDisplay();
+            }
+            closePersonnelModal();
+        }
+
+        function updateOrganizerDisplay() {
+            const container = document.getElementById('selectedOrganizerList');
+            container.innerHTML = '';
+            
+            if (selectedPersonnel.length > 0) {
+                const person = selectedPersonnel[0];
+                const tag = document.createElement('div');
+                tag.className = 'personnel-tag';
+                tag.innerHTML = `
+                    ${person.name} (${person.position})
+                    <button class="remove-btn" onclick="removeOrganizer('${person.id}')">&times;</button>
+                `;
+                container.appendChild(tag);
+            }
+        }
+
+        function updateParticipantsDisplay() {
+            const container = document.getElementById('participantsList');
+            const countElement = document.getElementById('participantCount');
+            
+            if (selectedPersonnel.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <div>暂无参会人员</div>
+                    </div>
+                `;
+                countElement.textContent = '0';
+            } else {
+                // 将selectedPersonnel转换为participants数组格式并更新全局participants数组
+                participants = selectedPersonnel.map(person => ({
+                    id: person.id,
+                    name: person.name,
+                    department: person.subDepartment || person.department || '未知部门',
+                    company: '国投集团'
+                }));
+                
+                // 使用renderParticipants函数来保持样式一致
+                renderParticipants();
+            }
+        }
+
+        function removeOrganizer(personId) {
+            const container = document.getElementById('selectedOrganizerList');
+            container.innerHTML = '';
+        }
+
+
+
+        // 模块折叠功能
+        function toggleModule(header) {
+            const toggle = header.querySelector('.module-toggle');
+            const content = header.nextElementSibling;
+            
+            toggle.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        }
+
+        // 生成会议编号
+        function generateMeetingCode() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const code = `AM${year}${month}${day}${random}`;
+            document.getElementById('meetingCode').value = code;
+        }
+
+        // 选择主持人
+        function selectOrganizer() {
+            // 这里应该打开人员选择弹窗
+            alert('选择主持人功能待实现');
+        }
+
+        // 文件上传处理
+        function handleFileUpload(input, type) {
+            const files = input.files;
+            const listContainer = document.getElementById(type + 'List');
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'upload-file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <span class="file-name">${file.name}</span>
+                    <i class="fas fa-trash-alt file-remove" onclick="removeFile(this)"></i>
+                `;
+                listContainer.appendChild(fileItem);
+            }
+        }
+
+        // 移除文件
+        function removeFile(element) {
+            element.parentElement.remove();
+        }
+
+        // 参会人员数据
+        let participants = [];
+
+        // 添加参会人员
+        function addParticipants() {
+            // 这里应该打开人员选择弹窗
+            alert('添加参会人员功能待实现');
+        }
+
+        // 添加外部人员
+        function addExternalParticipant() {
+            openExternalPersonModal();
+        }
+
+        // 打开外部人员弹窗
+        function openExternalPersonModal() {
+            const modal = document.getElementById('externalPersonModal');
+            // 清空表单
+            document.getElementById('externalPersonName').value = '';
+            document.getElementById('externalPersonOrg').value = '';
+            document.getElementById('externalPersonDept').value = '';
+            modal.classList.add('show');
+        }
+
+        // 关闭外部人员弹窗
+        function closeExternalPersonModal() {
+            const modal = document.getElementById('externalPersonModal');
+            modal.classList.remove('show');
+        }
+
+        // 保存外部人员
+        function saveExternalPerson() {
+            const name = document.getElementById('externalPersonName').value.trim();
+            const org = document.getElementById('externalPersonOrg').value.trim();
+            const dept = document.getElementById('externalPersonDept').value.trim();
+
+            // 验证必填字段
+            if (!name) {
+                alert('请输入外部人员姓名');
+                document.getElementById('externalPersonName').focus();
+                return;
+            }
+
+            const participant = {
+                id: Date.now(),
+                name: name,
+                department: dept || '外部人员',
+                company: org || '外部单位'
+            };
+
+            participants.push(participant);
+            renderParticipants();
+            closeExternalPersonModal();
+        }
+
+        // 移除参会人员
+        function removeParticipant(id) {
+            // 从participants数组中移除
+            participants = participants.filter(p => p.id !== id);
+            
+            // 同时从selectedPersonnel数组中移除，保持数据同步
+            selectedPersonnel = selectedPersonnel.filter(p => p.id !== id);
+            
+            renderParticipants();
+        }
+
+        // 渲染参会人员列表
+        function renderParticipants() {
+            const listContainer = document.getElementById('participantsList');
+            const countElement = document.getElementById('participantCount');
+            
+            countElement.textContent = participants.length;
+            
+            if (participants.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <div>暂无参会人员</div>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = participants.map(participant => `
+                    <div class="participant-item">
+                        <div class="participant-avatar">
+                            ${participant.name.charAt(0)}
+                        </div>
+                        <div class="participant-info">
+                            <div class="participant-name">${participant.name}</div>
+                            <div class="participant-dept">${participant.department} - ${participant.company}</div>
+                        </div>
+                        <i class="fas fa-trash-alt participant-remove" onclick="removeParticipant('${participant.id}')"></i>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            alert('保存草稿功能待实现');
+        }
+
+        // 提交表单
+        function submitForm() {
+            // 表单验证
+            const requiredFields = [
+                { id: 'meetingName', name: '会议名称' },
+                { id: 'meetingType', name: '会议类型' },
+                { id: 'meetingLevel', name: '会议级别' },
+                { id: 'startTime', name: '开始时间' },
+                { id: 'endTime', name: '结束时间' },
+                { id: 'location', name: '会议地点' },
+                { id: 'organizer', name: '会议主持人' },
+                { id: 'content', name: '会议内容' }
+            ];
+
+            for (const field of requiredFields) {
+                const element = document.getElementById(field.id);
+                if (!element.value.trim()) {
+                    alert(`请填写${field.name}`);
+                    element.focus();
+                    return;
+                }
+            }
+
+            // 验证时间
+            const startTime = new Date(document.getElementById('startTime').value);
+            const endTime = new Date(document.getElementById('endTime').value);
+            if (endTime <= startTime) {
+                alert('结束时间必须晚于开始时间');
+                return;
+            }
+
+            alert('创建会议功能待实现');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成初始会议编号
+            generateMeetingCode();
+            
+            // 初始化主持人选择器
+            initOrganizerSelect();
+            
+            // 设置默认时间（当前时间+1小时到+2小时）
+            const now = new Date();
+            const startTime = new Date(now.getTime() + 60 * 60 * 1000); // +1小时
+            const endTime = new Date(now.getTime() + 2 * 60 * 60 * 1000); // +2小时
+            
+            document.getElementById('startTime').value = startTime.toISOString().slice(0, 16);
+            document.getElementById('endTime').value = endTime.toISOString().slice(0, 16);
         });
 
-        // 注册图标
-        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-            app.component(key, component);
-        }
-        
-        app.use(ElementPlus).mount('#app');
+        // 拖拽上传功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加测试数据来验证参会人员列表功能
+            participants = [
+                {
+                    id: 1,
+                    name: '张三',
+                    department: '安全部',
+                    company: '国投集团'
+                },
+                {
+                    id: 2,
+                    name: '李四',
+                    department: '技术部',
+                    company: '国投集团'
+                },
+                {
+                    id: 3,
+                    name: '王五',
+                    department: '管理部',
+                    company: '国投集团'
+                }
+            ];
+            renderParticipants();
+            
+            const uploadAreas = document.querySelectorAll('.upload-area');
+            
+            uploadAreas.forEach(area => {
+                area.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                
+                area.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                
+                area.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    const input = this.querySelector('input[type="file"]');
+                    input.files = files;
+                    
+                    // 触发change事件
+                    const event = new Event('change', { bubbles: true });
+                    input.dispatchEvent(event);
+                });
+            });
+
+            // 外部人员弹窗事件监听器
+            const externalPersonModal = document.getElementById('externalPersonModal');
+            
+            // 点击弹窗背景关闭弹窗
+            externalPersonModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeExternalPersonModal();
+                }
+            });
+
+            // ESC键关闭弹窗
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && externalPersonModal.classList.contains('show')) {
+                    closeExternalPersonModal();
+                }
+            });
+
+            // 表单提交事件
+            document.getElementById('externalPersonForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveExternalPerson();
+            });
+        });
     </script>
+
+    <!-- 外部人员弹窗 -->
+    <div id="externalPersonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加外部人员</h3>
+                <button class="modal-close" onclick="closeExternalPersonModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="externalPersonForm">
+                    <div class="form-group">
+                        <label class="form-label required">外部人员姓名</label>
+                        <input type="text" id="externalPersonName" class="form-control" placeholder="请输入外部人员姓名" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">所属组织</label>
+                        <input type="text" id="externalPersonOrg" class="form-control" placeholder="请输入所属组织">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">所属部门</label>
+                        <input type="text" id="externalPersonDept" class="form-control" placeholder="请输入所属部门">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExternalPersonModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveExternalPerson()">确定</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

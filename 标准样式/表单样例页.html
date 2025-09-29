@@ -25,8 +25,8 @@
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
             padding: 20px;
             padding-bottom: 120px; /* 为固定的按钮条留出空间 */
         }
@@ -114,6 +114,7 @@
             gap: 24px;
             margin-bottom: 20px;
             align-items: flex-start;
+            justify-content: flex-start;
         }
 
         .form-row:last-child {
@@ -121,7 +122,7 @@
         }
 
         .form-item {
-            flex: 1;
+            flex: 0 0 calc(33.333% - 16px);
             min-width: 0;
             display: flex;
             align-items: flex-start;
@@ -540,12 +541,36 @@
         /* 查看按钮 - 蓝色主题 */
         .file-action-btn[title="查看"] {
             color: #3b82f6;
+            position: relative;
         }
 
         .file-action-btn[title="查看"]:hover {
             background: #eff6ff;
             color: #1d4ed8;
             transform: scale(1.1);
+        }
+
+        /* 查看按钮的提示效果 */
+        .file-action-btn[title="查看"]::after {
+            content: "在新窗口预览";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .file-action-btn[title="查看"]:hover::after {
+            opacity: 1;
         }
 
         /* 下载按钮 - 绿色主题 */
@@ -1365,16 +1390,66 @@
             // 根据文件类型决定查看方式
             const extension = fileName.split('.').pop().toLowerCase();
             
-            if (['pdf'].includes(extension)) {
-                // PDF文件在新窗口打开
-                window.open(fileUrl || '#', '_blank');
-            } else if (['doc', 'docx'].includes(extension)) {
-                // Word文档提示下载
-                showNotification(`${fileName} 将开始下载，请使用相应软件打开`, 'info');
-                downloadFile(fileName, fileUrl);
+            // 构建预览URL，如果没有提供fileUrl则使用示例URL
+            let previewUrl = fileUrl;
+            if (!previewUrl || previewUrl === '#') {
+                // 为不同文件类型提供示例预览URL
+                if (['pdf'].includes(extension)) {
+                    previewUrl = 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKOekuuS+i+aWh+S7tik=';
+                } else if (['doc', 'docx'].includes(extension)) {
+                    // 对于Word文档，使用Office Online或Google Docs预览
+                    previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + '/sample.docx')}`;
+                } else if (['txt'].includes(extension)) {
+                    // 文本文件直接在新窗口显示
+                    previewUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent('这是一个示例文本文件的内容。\n\n在实际应用中，这里会显示真实的文件内容。');
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension)) {
+                    // 图片文件
+                    previewUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuekuuS+i+WbvueJhzwvdGV4dD4KPC9zdmc+';
+                } else {
+                    // 其他文件类型显示文件信息页面
+                    const fileInfoHtml = `
+                        <!DOCTYPE html>
+                        <html lang="zh-CN">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>文件预览 - ${fileName}</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+                                .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                                .file-icon { font-size: 64px; color: #666; text-align: center; margin-bottom: 20px; }
+                                .file-name { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 10px; color: #333; }
+                                .file-type { font-size: 16px; color: #666; text-align: center; margin-bottom: 30px; }
+                                .info { background: #f8f9fa; padding: 20px; border-radius: 6px; }
+                                .info-item { margin-bottom: 10px; }
+                                .label { font-weight: bold; color: #555; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="file-icon">📄</div>
+                                <div class="file-name">${fileName}</div>
+                                <div class="file-type">${extension.toUpperCase()} 文件</div>
+                                <div class="info">
+                                    <div class="info-item"><span class="label">文件名：</span>${fileName}</div>
+                                    <div class="info-item"><span class="label">文件类型：</span>${extension.toUpperCase()}</div>
+                                    <div class="info-item"><span class="label">预览说明：</span>此文件类型暂不支持在线预览，请下载后使用相应软件打开。</div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+                    previewUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(fileInfoHtml);
+                }
+            }
+            
+            // 在新窗口打开文件进行查看
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                newWindow.location.href = previewUrl;
+                showNotification(`正在新窗口中打开 ${fileName}`, 'success');
             } else {
-                // 其他文件类型直接下载
-                downloadFile(fileName, fileUrl);
+                showNotification('无法打开新窗口，请检查浏览器弹窗设置', 'error');
             }
         }
 
