@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建（构）筑物管理</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 页面头部 */
+        .page-header {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title i {
+            color: #409EFF;
+            font-size: 24px;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        /* 二级导航标签页 */
+        .sub-nav-tabs {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+        
+        .el-tabs__header {
+            margin: 0;
+            padding: 0 24px;
+        }
+        
+        .el-tabs__nav-wrap::after {
+            display: none;
+        }
+        
+        .el-tabs__item {
+            padding: 0 20px;
+            height: 56px;
+            line-height: 56px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .el-tabs__item.is-active {
+            color: #409EFF;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* 功能操作区 */
+        .function-bar {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .function-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* 搜索区域 */
+        .search-area {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        /* 表格区域 */
+        .table-area {
+            padding: 24px;
+        }
+        
+        .el-table {
+            border-radius: 0;
+        }
+        
+        .el-table th {
+            background-color: #fafafa;
+            color: #606266;
+            font-weight: 600;
+        }
+        
+        /* 分页区域 */
+        .pagination-area {
+            padding: 20px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pagination-info {
+            color: #909399;
+            font-size: 14px;
+        }
+        
+        /* 状态标签 */
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-normal {
+            background: #f0f9ff;
+            color: #1890ff;
+            border: 1px solid #d1ecf1;
+        }
+        
+        .status-maintenance {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .status-disabled {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 详情页面样式 */
+        .detail-container {
+            padding: 24px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .detail-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .detail-section {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #fafafa;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-content {
+            padding: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        /* Match Element Plus breakpoints: 3 columns >= 992px */
+        @media (max-width: 992px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-label {
+            width: 120px;
+            color: #606266;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            color: #303133;
+            flex: 1;
+        }
+        
+        /* 表单页面样式 */
+        .form-container {
+            padding: 24px;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .form-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .form-section {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .form-section-content {
+            padding: 20px;
+        }
+        
+        /* 检测记录页面样式 */
+        .inspection-container {
+            padding: 24px;
+        }
+        
+        .inspection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .inspection-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .inspection-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .record-actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+            
+            .function-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .function-left,
+            .function-right {
+                justify-content: center;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            .info-label {
+                width: auto;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 详情页只读输入框置灰样式 */
+        .readonly-input .el-input__wrapper {
+            background-color: #f5f7fa; /* 置灰背景 */
+            box-shadow: 0 0 0 1px #dcdfe6 inset; /* 边框色与禁用态一致 */
+        }
+        .readonly-input .el-input__inner {
+            color: #909399; /* 字体颜色偏灰 */
+        }
+        .readonly-input .el-input__wrapper:hover {
+            box-shadow: 0 0 0 1px #dcdfe6 inset; /* 只读不高亮 */
+        }
+        .readonly-input .el-input__prefix,
+        .readonly-input .el-input__suffix {
+            color: #c0c4cc; /* 前后缀颜色偏灰 */
+        }
+        
+        /* 折叠动画 */
+        .collapse-enter-active,
+        .collapse-leave-active {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .collapse-enter-from,
+        .collapse-leave-to {
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .collapse-enter-to,
+        .collapse-leave-from {
+            max-height: 1000px;
+            opacity: 1;
+        }
+        
+        /* 附件上传样式 */
+        .attachment-upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .attachment-upload-area:hover {
+            border-color: #409EFF;
+            background: #f0f9ff;
+        }
+        
+        .attachment-upload-area.dragover {
+            border-color: #409EFF;
+            background: #e6f7ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #c0c4cc;
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+        
+        .file-list {
+            margin-top: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            border-color: #409EFF;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+        }
+        
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #ffffff;
+        }
+        
+        .file-icon.pdf {
+            background: #f56565;
+        }
+        
+        .file-icon.image {
+            background: #48bb78;
+        }
+        
+        .file-icon.doc {
+            background: #4299e1;
+        }
+        
+        .file-icon.excel {
+            background: #38a169;
+        }
+        
+        .file-icon.other {
+            background: #a0aec0;
+        }
+        
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-size: 14px;
+            color: #303133;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-meta {
+            font-size: 12px;
+            color: #909399;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #409EFF;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .attachment-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: #f0f9ff;
+            color: #409EFF;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .attachment-dialog .el-dialog__body {
+            padding: 20px;
+        }
+        
+        .attachment-dialog-content {
+            position: relative;
+        }
+        
+        .attachment-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: #ffffff;
+        }
+        
+        .attachment-item:hover {
+            background: #f5f7fa;
+        }
+
+        .attachment-item .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .attachment-item .attachment-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 12px;
+        }
+
+        .attachment-item .attachment-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .attachment-item .attachment-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #909399;
+        }
+
+        .attachment-item .attachment-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .attachment-item .attachment-actions .el-button {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #909399;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        /* 详情页面附件展示样式 */
+        .attachment-count-badge {
+            background-color: #409eff;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+
+
+        .detail-attachment-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .detail-attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e4e7ed;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .detail-attachment-item:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+        }
+
+        .detail-attachment-item .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .detail-attachment-item .attachment-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 12px;
+        }
+
+        .attachment-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .attachment-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #909399;
+        }
+
+        .attachment-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .attachment-actions .el-button {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .empty-attachment-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #909399;
+        }
+
+        .empty-attachment-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .empty-attachment-state p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .empty-hint {
+            color: #c0c4cc !important;
+            font-size: 12px !important;
+        }
+
+        .attachment-info {
+            flex: 1;
+            min-width: 0;
+            margin-left: 12px;
+        }
+        
+        .attachment-name {
+            font-size: 14px;
+            color: #303133;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .attachment-meta {
+            font-size: 12px;
+            color: #909399;
+            display: flex;
+            gap: 16px;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-building"></i>
+                    建（构）筑物管理
+                </h1>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <!-- 列表视图 -->
+                <div v-if="activeView === 'list'">
+                            <!-- 建构筑物台账列表 -->
+                            <div class="content-card">
+                                <!-- 功能操作区 -->
+                                <div class="function-bar">
+                                    <div class="function-left">
+                                        <el-button type="primary" @click="showForm('create')">
+                                            <i class="fas fa-plus"></i>
+                                            新建
+                                        </el-button>
+                                        <el-button @click="importData">
+                                            <i class="fas fa-upload"></i>
+                                            导入
+                                        </el-button>
+                                        <el-button @click="exportData">
+                                            <i class="fas fa-download"></i>
+                                            导出
+                                        </el-button>
+                                        <el-button 
+                                            type="danger" 
+                                            :disabled="selectedRows.length === 0"
+                                            @click="batchDelete">
+                                            <i class="fas fa-trash"></i>
+                                            批量删除
+                                        </el-button>
+                                    </div>
+                                    <div class="function-right">
+                                        <span class="pagination-info">
+                                            共 {{ pagination.total }} 条记录
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 搜索区域 -->
+                                <div class="search-area">
+                                    <div class="search-form">
+                                        <el-form-item label="建筑物名称">
+                                            <el-input 
+                                                v-model="searchForm.name" 
+                                                placeholder="请输入建筑物名称"
+                                                clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="坐落区域">
+                                            <el-select 
+                                                v-model="searchForm.location" 
+                                                placeholder="请选择区域"
+                                                clearable>
+                                                <el-option label="生产区A" value="生产区A"></el-option>
+                                                <el-option label="办公区" value="办公区"></el-option>
+                                                <el-option label="仓储区" value="仓储区"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="建筑结构">
+                                            <el-select 
+                                                v-model="searchForm.structure" 
+                                                placeholder="请选择建筑结构"
+                                                clearable>
+                                                <el-option label="框架" value="框架"></el-option>
+                                                <el-option label="剪力墙" value="剪力墙"></el-option>
+                                                <el-option label="框-剪" value="框-剪"></el-option>
+                                                <el-option label="板柱-墙" value="板柱-墙"></el-option>
+                                                <el-option label="核心筒" value="核心筒"></el-option>
+                                                <el-option label="筒体" value="筒体"></el-option>
+                                                <el-option label="钢框架" value="钢框架"></el-option>
+                                                <el-option label="支撑框架" value="支撑框架"></el-option>
+                                                <el-option label="网架" value="网架"></el-option>
+                                                <el-option label="排架" value="排架"></el-option>
+                                                <el-option label="底框-砌体" value="底框-砌体"></el-option>
+                                                <el-option label="装配式" value="装配式"></el-option>
+                                                <el-option label="隔震" value="隔震"></el-option>
+                                                <el-option label="消能" value="消能"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="状态">
+                                            <el-select 
+                                                v-model="searchForm.status" 
+                                                placeholder="请选择状态"
+                                                clearable>
+                                                <el-option label="启用" value="enabled"></el-option>
+                                                <el-option label="弃用" value="disabled"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="启用时间">
+                                            <el-date-picker
+                                                v-model="searchForm.dateRange"
+                                                type="daterange"
+                                                range-separator="至"
+                                                start-placeholder="开始日期"
+                                                end-placeholder="结束日期"
+                                                format="YYYY-MM-DD"
+                                                value-format="YYYY-MM-DD">
+                                            </el-date-picker>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="附件筛选">
+                                            <el-select 
+                                                v-model="searchForm.hasAttachments" 
+                                                placeholder="请选择附件状态"
+                                                clearable>
+                                                <el-option label="有附件" value="true"></el-option>
+                                                <el-option label="无附件" value="false"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </div>
+                                    
+                                    <div class="search-buttons">
+                                        <el-button type="primary" @click="searchData" :loading="loading">
+                                            <i class="fas fa-search"></i>
+                                            搜索
+                                        </el-button>
+                                        <el-button @click="resetSearch">
+                                            <i class="fas fa-redo"></i>
+                                            重置
+                                        </el-button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 表格区域 -->
+                                <div class="table-area">
+                                    <el-table 
+                                        :data="tableData" 
+                                        v-loading="loading"
+                                        @selection-change="handleSelectionChange"
+                                        stripe
+                                        border>
+                                        <el-table-column type="selection" width="55"></el-table-column>
+                                        <el-table-column prop="name" label="名称" min-width="150"></el-table-column>
+                                        <el-table-column prop="location" label="坐落区域" width="120"></el-table-column>
+                                        <el-table-column prop="structure" label="建筑结构" width="100"></el-table-column>
+                                        <el-table-column prop="landArea" label="占地面积(㎡)" width="120"></el-table-column>
+                                        <el-table-column prop="startDate" label="启用日期" width="120"></el-table-column>
+                                        <el-table-column prop="status" label="状态" width="80">
+                                            <template #default="scope">
+                                                <span :class="getStatusClass(scope.row.status)">
+                                                    {{ scope.row.status === 'enabled' ? '启用' : '弃用' }}
+                                                </span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="附件" width="100">
+                                            <template #default="scope">
+                                                <div class="attachment-count">
+                                                    <span class="count-badge" v-if="getBuildingAttachments(scope.row.id).length > 0">
+                                                        <i class="fas fa-paperclip"></i>
+                                                        {{ getBuildingAttachments(scope.row.id).length }}
+                                                    </span>
+                                                    <span v-else class="no-attachment">
+                                                        <i class="fas fa-minus"></i>
+                                                    </span>
+                                                    <el-button 
+                                                        v-if="getBuildingAttachments(scope.row.id).length > 0"
+                                                        size="small" 
+                                                        type="text" 
+                                                        @click="viewAttachments(scope.row)">
+                                                        查看
+                                                    </el-button>
+                                                </div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column prop="lastVersionDate" label="最新版本日期" width="130"></el-table-column>
+                                        <el-table-column label="操作" width="400" fixed="right">
+                            <template #default="scope">
+                                <div class="action-buttons">
+                                    <el-button size="small" @click="viewDetail(scope.row)">
+                                        查看
+                                    </el-button>
+                                    <el-button size="small" type="primary" @click="editItem(scope.row)">
+                                        编辑
+                                    </el-button>
+                                    <el-button size="small" type="success" @click="openCreateInspectionDialog('lightning', scope.row)">
+                                        新增防雷检测记录
+                                    </el-button>
+                                    <el-button size="small" type="warning" @click="openCreateInspectionDialog('settlement', scope.row)">
+                                        新增沉降检测记录
+                                    </el-button>
+                                    <el-button size="small" type="danger" @click="deleteItem(scope.row)">
+                                        删除
+                                    </el-button>
+                                </div>
+                            </template>
+                        </el-table-column>
+                                    </el-table>
+                                </div>
+                                
+                                <!-- 分页区域 -->
+                                <div class="pagination-area">
+                                    <div class="pagination-info">
+                                        显示第 {{ (pagination.currentPage - 1) * pagination.pageSize + 1 }} 到 
+                                        {{ Math.min(pagination.currentPage * pagination.pageSize, pagination.total) }} 条，
+                                        共 {{ pagination.total }} 条记录
+                                    </div>
+                                    <el-pagination
+                                        v-model:current-page="pagination.currentPage"
+                                        v-model:page-size="pagination.pageSize"
+                                        :page-sizes="[10, 20, 50, 100]"
+                                        :total="pagination.total"
+                                        layout="sizes, prev, pager, next, jumper"
+                                        @size-change="handleSizeChange"
+                                        @current-change="handleCurrentChange">
+                                    </el-pagination>
+                                </div>
+                            </div>
+                </div>
+                
+                <!-- 详情视图 -->
+                <div v-if="activeView === 'detail' && currentItem">
+                            <!-- 建构筑物详情页面 -->
+                            <div class="content-card">
+                                <div class="detail-container">
+                                    <div class="detail-header">
+                                        <div class="detail-title">
+                                            <i class="fas fa-info-circle"></i>
+                                            {{ currentItem.name }} - 详细信息
+                                        </div>
+                                        <div class="detail-actions">
+                                            <el-button @click="goBackToList">
+                                                <i class="fas fa-arrow-left"></i>
+                                                返回列表
+                                            </el-button>
+                                            <el-button type="primary" @click="editItem(currentItem)">
+                                                <i class="fas fa-edit"></i>
+                                                编辑
+                                            </el-button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-sections">
+                                        <!-- 基础信息 -->
+                                        <div class="detail-section">
+                                            <div class="section-header" @click="toggleSection('basic')">
+                                                <div class="section-title">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    基础信息
+                                                </div>
+                                                <i :class="collapsedSections.basic ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                            </div>
+                                            <transition name="collapse">
+                                                <div v-show="!collapsedSections.basic" class="section-content">
+                                                    <div class="info-grid">
+                                                        <div class="info-item">
+                                                            <span class="info-label">版本编号：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.versionNumber" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">名称：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.name" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">坐落区域：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.location" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">建筑结构：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.structure" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">占地面积：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="`${currentItem.landArea} 平方米`" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">启用日期：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.startDate" readonly /></div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <span class="info-label">状态：</span>
+                                                            <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.status === 'enabled' ? '启用' : '弃用'" readonly /></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </transition>
+                                        </div>
+
+                                        
+                                        <!-- 附件管理 -->
+                                        <div class="detail-section">
+                                            <div class="section-header" @click="toggleSection('attachments')">
+                                                <div class="section-title">
+                                                    <i class="fas fa-paperclip"></i>
+                                                    附件管理
+                                                    <span class="attachment-count-badge" v-if="getBuildingAttachments(currentItem.id).length > 0">
+                                                        {{ getBuildingAttachments(currentItem.id).length }}
+                                                    </span>
+                                                </div>
+                                                <i :class="collapsedSections.attachments ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                            </div>
+                                            <transition name="collapse">
+                                                <div v-show="!collapsedSections.attachments" class="section-content">
+                                                    <!-- 附件列表 -->
+                                                    <div class="detail-attachment-list" v-if="getBuildingAttachments(currentItem.id).length > 0">
+                                                        <div 
+                                                            v-for="attachment in getBuildingAttachments(currentItem.id)" 
+                                                            :key="attachment.id" 
+                                                            class="detail-attachment-item">
+                                                            <div :class="['file-icon', getFileTypeClass(attachment.type)]">
+                                                                <i :class="getFileIcon(attachment.type)"></i>
+                                                            </div>
+                                                            <div class="attachment-info">
+                                                                <div class="attachment-name" :title="attachment.name">{{ attachment.name }}</div>
+                                                                <div class="attachment-meta">
+                                                                    <span class="file-size">{{ formatFileSize(attachment.size) }}</span>
+                                                                    <span class="upload-time">{{ attachment.uploadTime }}</span>
+                                                                    <span class="file-type">{{ attachment.type.toUpperCase() }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="attachment-actions">
+                                                                <el-button size="small" @click="previewFile(attachment)">
+                                                                    <i class="fas fa-eye"></i>
+                                                                    预览
+                                                                </el-button>
+                                                                <el-button size="small" type="primary" @click="downloadFile(attachment)">
+                                                                    <i class="fas fa-download"></i>
+                                                                    下载
+                                                                </el-button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- 空状态 -->
+                                                    <div v-else class="empty-attachment-state">
+                                                        <i class="fas fa-folder-open"></i>
+                                                        <p>暂无附件</p>
+                                                        <p class="empty-hint">可在编辑模式下上传附件</p>
+                                                    </div>
+                                                </div>
+                                            </transition>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 检测记录历史 -->
+                                    <div class="detail-section">
+                                        <div class="section-header" @click="toggleSection('inspectionHistory')">
+                                            <div class="section-title">
+                                                <i class="fas fa-clipboard-check"></i>
+                                                检测记录历史
+                                            </div>
+                                            <i :class="collapsedSections.inspectionHistory ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                        </div>
+                                        <transition name="collapse">
+                                            <div v-show="!collapsedSections.inspectionHistory" class="section-content">
+                                                <div class="inspection-records">
+                                                    <div class="records-header">
+                                                        <div class="records-actions">
+                                                            <el-button v-if="activeView === 'form'" type="primary" size="small" @click="openCreateInspectionDialog('lightning')">
+                                                                <i class="fas fa-plus"></i>
+                                                                新建防雷检测
+                                                            </el-button>
+                                                            <el-button v-if="activeView === 'form'" type="primary" size="small" @click="openCreateInspectionDialog('settlement')">
+                                                                <i class="fas fa-plus"></i>
+                                                                新建沉降监测
+                                                            </el-button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <el-table 
+                                                        :data="getInspectionRecords(currentItem.id)" 
+                                                        style="width: 100%; margin-top: 16px;"
+                                                        :empty-text="'暂无检测记录'">
+                                                        <el-table-column prop="type" label="检测类型" width="120">
+                                                            <template #default="scope">
+                                                                <el-tag :type="scope.row.type === 'lightning' ? 'warning' : 'info'">
+                                                                    {{ scope.row.type === 'lightning' ? '防雷检测' : '沉降监测' }}
+                                                                </el-tag>
+                                                            </template>
+                                                        </el-table-column>
+                                                        <el-table-column prop="date" label="检测时间" width="120"></el-table-column>
+                                                        <el-table-column prop="result" label="检测结果" width="100">
+                                                            <template #default="scope">
+                                                                <el-tag :type="scope.row.result === '合格' ? 'success' : 'danger'">
+                                                                    {{ scope.row.result }}
+                                                                </el-tag>
+                                                            </template>
+                                                        </el-table-column>
+                                                        <el-table-column prop="attachments" label="检测附件" width="140">
+                                                            <template #default="scope">
+                                                                <el-button link size="small" @click="previewInspectionAttachments(scope.row)">
+                                                                    {{ (scope.row.attachments && scope.row.attachments.length) ? (scope.row.attachments.length + ' 个') : '无' }}
+                                                                </el-button>
+                                                            </template>
+                                                        </el-table-column>
+                                                        <el-table-column label="操作" width="200">
+                                                            <template #default="scope">
+                                                                <div class="record-actions-cell">
+                                                                    <el-button size="small" @click="viewInspectionRecord(scope.row)">查看</el-button>
+                                                                    <el-button v-if="activeView === 'form'" size="small" type="primary" @click="editInspectionRecord(scope.row)">编辑</el-button>
+                                                                    <el-button v-if="activeView === 'form'" size="small" type="danger" @click="deleteInspectionRecord(scope.row)">删除</el-button>
+                                                                </div>
+                                                            </template>
+                                                        </el-table-column>
+                                                    </el-table>
+                                                </div>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+                
+                <!-- 表单视图 -->
+                <div v-if="activeView === 'form'">
+                            <!-- 新建/编辑表单页面 -->
+                            <div class="content-card">
+                                <div class="form-container">
+                                    <div class="form-header">
+                                        <div class="form-title">
+                                            <i class="fas fa-edit"></i>
+                                            {{ formMode === 'create' ? '新建建筑物' : '编辑建筑物' }}
+                                        </div>
+                                        <div class="form-actions">
+                                            <el-button @click="goBackToList">
+                                                <i class="fas fa-arrow-left"></i>
+                                                返回
+                                            </el-button>
+                                        </div>
+                                    </div>
+                                    
+                                    <el-form 
+                                        :model="formData" 
+                                        :rules="formRules" 
+                                        ref="formRef"
+                                        label-width="140px"
+                                        label-position="left">
+                                        
+                                        <div class="form-sections">
+                                            <!-- 基础信息 -->
+                                            <div class="form-section">
+                                                <div class="section-header" @click="toggleSection('formBasic')">
+                                                    <div class="section-title">
+                                                        <i class="fas fa-info-circle"></i>
+                                                        基础信息
+                                                    </div>
+                                                    <i :class="collapsedSections.formBasic ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                                </div>
+                                                <transition name="collapse">
+                                                    <div v-show="!collapsedSections.formBasic" class="form-section-content">
+                                                        <el-row :gutter="20">
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="版本编号" prop="versionNumber">
+                                                                    <el-input v-model="formData.versionNumber" placeholder="自动生成" disabled></el-input>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="名称" prop="name">
+                                                                    <el-input v-model="formData.name" placeholder="请输入建筑物名称"></el-input>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="坐落区域" prop="location">
+                                                                    <el-select v-model="formData.location" placeholder="请选择区域" style="width: 100%">
+                                                                        <el-option label="生产区A" value="生产区A"></el-option>
+                                                                        <el-option label="办公区" value="办公区"></el-option>
+                                                                        <el-option label="仓储区" value="仓储区"></el-option>
+                                                                    </el-select>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                        </el-row>
+                                                        <el-row :gutter="20">
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="建筑结构" prop="structure">
+                                                                    <el-select v-model="formData.structure" placeholder="请选择建筑结构" style="width: 100%">
+                                                                        <el-option label="框架" value="框架"></el-option>
+                                                                        <el-option label="剪力墙" value="剪力墙"></el-option>
+                                                                        <el-option label="框-剪" value="框-剪"></el-option>
+                                                                        <el-option label="板柱-墙" value="板柱-墙"></el-option>
+                                                                        <el-option label="核心筒" value="核心筒"></el-option>
+                                                                        <el-option label="筒体" value="筒体"></el-option>
+                                                                        <el-option label="钢框架" value="钢框架"></el-option>
+                                                                        <el-option label="支撑框架" value="支撑框架"></el-option>
+                                                                        <el-option label="网架" value="网架"></el-option>
+                                                                        <el-option label="排架" value="排架"></el-option>
+                                                                        <el-option label="底框-砌体" value="底框-砌体"></el-option>
+                                                                        <el-option label="装配式" value="装配式"></el-option>
+                                                                        <el-option label="隔震" value="隔震"></el-option>
+                                                                        <el-option label="消能" value="消能"></el-option>
+                                                                    </el-select>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="占地面积(㎡)" prop="landArea">
+                                                                    <el-input-number v-model="formData.landArea" :min="0" style="width: 100%"></el-input-number>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="启用日期" prop="startDate">
+                                                                    <el-date-picker 
+                                                                        v-model="formData.startDate" 
+                                                                        type="date" 
+                                                                        placeholder="选择日期"
+                                                                        format="YYYY-MM-DD"
+                                                                        value-format="YYYY-MM-DD"
+                                                                        style="width: 100%">
+                                                                    </el-date-picker>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                        </el-row>
+                                                        <el-row :gutter="20">
+                                                            <el-col :xs="24" :sm="12" :md="8">
+                                                                <el-form-item label="状态" prop="status">
+                                                                    <el-radio-group v-model="formData.status">
+                                                                        <el-radio label="enabled">启用</el-radio>
+                                                                        <el-radio label="disabled">弃用</el-radio>
+                                                                    </el-radio-group>
+                                                                </el-form-item>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </transition>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 附件管理 -->
+                                        <div class="form-section">
+                                            <div class="section-header" @click="toggleSection('formAttachments')">
+                                                <div class="section-title">
+                                                    <i class="fas fa-paperclip"></i>
+                                                    附件管理
+                                                </div>
+                                                <i :class="collapsedSections.formAttachments ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                            </div>
+                                            <transition name="collapse">
+                                                <div v-show="!collapsedSections.formAttachments" class="form-section-content">
+                                                    <!-- 文件上传区域 -->
+                                                    <div class="attachment-upload-area" 
+                                                         @click="triggerFileUpload"
+                                                         @dragover.prevent="handleDragOver"
+                                                         @dragleave.prevent="handleDragLeave"
+                                                         @drop.prevent="handleFileDrop"
+                                                         :class="{ dragover: isDragOver }">
+                                                        <div class="upload-icon">
+                                                            <i class="fas fa-cloud-upload-alt"></i>
+                                                        </div>
+                                                        <div class="upload-text">点击上传或拖拽文件到此区域</div>
+                                                        <div class="upload-hint">
+                                                            支持 PDF、图片、Word、Excel 等格式，单个文件不超过 50MB
+                                                        </div>
+                                                        <input 
+                                                            ref="fileInput" 
+                                                            type="file" 
+                                                            multiple 
+                                                            style="display: none"
+                                                            @change="handleFileSelect"
+                                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp">
+                                                    </div>
+                                                    
+                                                    <!-- 已上传文件列表 -->
+                                                    <div v-if="uploadedFiles.length > 0" class="file-list">
+                                                        <h4 style="margin-bottom: 16px; color: #303133;">已上传文件 ({{ uploadedFiles.length }})</h4>
+                                                        <div v-for="file in uploadedFiles" :key="file.id" class="file-item">
+                                                            <div :class="['file-icon', getFileTypeClass(file.type)]">
+                                                                <i :class="getFileIcon(file.type)"></i>
+                                                            </div>
+                                                            <div class="file-info">
+                                                                <div class="file-name" :title="file.name">{{ file.name }}</div>
+                                                                <div class="file-meta">
+                                                                    <span>{{ formatFileSize(file.size) }}</span>
+                                                                    <span>{{ file.uploadTime }}</span>
+                                                                    <span v-if="file.status === 'uploading'">
+                                                                        上传中 {{ file.progress }}%
+                                                                    </span>
+                                                                    <span v-else-if="file.status === 'success'" style="color: #67c23a;">
+                                                                        <i class="fas fa-check-circle"></i> 上传成功
+                                                                    </span>
+                                                                    <span v-else-if="file.status === 'error'" style="color: #f56c6c;">
+                                                                        <i class="fas fa-exclamation-circle"></i> 上传失败
+                                                                    </span>
+                                                                </div>
+                                                                <div v-if="file.status === 'uploading'" class="progress-bar">
+                                                                    <div class="progress-fill" :style="{ width: file.progress + '%' }"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="file-actions">
+                                                                <el-button v-if="file.status === 'success'" size="small" @click="previewFile(file)">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </el-button>
+                                                                <el-button v-if="file.status === 'success'" size="small" @click="downloadFile(file)">
+                                                                    <i class="fas fa-download"></i>
+                                                                </el-button>
+                                                                <el-button v-if="file.status === 'error'" size="small" type="primary" @click="retryUpload(file)">
+                                                                    <i class="fas fa-redo"></i>
+                                                                </el-button>
+                                                                <el-button size="small" type="danger" @click="removeFile(file)">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </el-button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </transition>
+                                        </div>
+                                        
+                                        <!-- 检测记录历史（表单视图） -->
+                                        <div class="form-section">
+                                            <div class="section-header" @click="toggleSection('formInspectionHistory')">
+                                                <div class="section-title">
+                                                    <i class="fas fa-clipboard-check"></i>
+                                                    检测记录历史
+                                                </div>
+                                                <i :class="collapsedSections.formInspectionHistory ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                            </div>
+                                            <transition name="collapse">
+                                                <div v-show="!collapsedSections.formInspectionHistory" class="form-section-content">
+                                                    <div class="inspection-records">
+                                                        <div class="records-header">
+                                                            <div class="records-actions">
+                                                                <el-button type="primary" size="small" @click="openCreateInspectionDialog('lightning')">
+                                                                    <i class="fas fa-plus"></i>
+                                                                    新建防雷检测
+                                                                </el-button>
+                                                                <el-button type="primary" size="small" @click="openCreateInspectionDialog('settlement')">
+                                                                    <i class="fas fa-plus"></i>
+                                                                    新建沉降监测
+                                                                </el-button>
+                                                            </div>
+                                                        </div>
+
+                                                        <el-table :data="getInspectionRecords(currentItem?.id)" style="width: 100%; margin-top: 16px;" :empty-text="'暂无检测记录'">
+                                                            <el-table-column prop="type" label="检测类型" width="120">
+                                                                <template #default="scope">
+                                                                    <el-tag :type="scope.row.type === 'lightning' ? 'warning' : 'info'">
+                                                                        {{ scope.row.type === 'lightning' ? '防雷检测' : '沉降监测' }}
+                                                                    </el-tag>
+                                                                </template>
+                                                            </el-table-column>
+                                                            <el-table-column prop="date" label="检测时间" width="120"></el-table-column>
+                                                            <el-table-column prop="result" label="检测结果" width="100">
+                                                                <template #default="scope">
+                                                                    <el-tag :type="scope.row.result === '合格' ? 'success' : 'danger'">
+                                                                        {{ scope.row.result }}
+                                                                    </el-tag>
+                                                                </template>
+                                                            </el-table-column>
+                                                            <el-table-column prop="attachments" label="检测附件" width="140">
+                                                                <template #default="scope">
+                                                                    <el-button link size="small" @click="previewInspectionAttachments(scope.row)">
+                                                                        {{ (scope.row.attachments && scope.row.attachments.length) ? (scope.row.attachments.length + ' 个') : '无' }}
+                                                                    </el-button>
+                                                                </template>
+                                                            </el-table-column>
+                                                            <el-table-column label="操作" width="200">
+                                                                <template #default="scope">
+                                                                    <div class="record-actions-cell">
+                                                                        <el-button size="small" @click="viewInspectionRecord(scope.row)">查看</el-button>
+                                                                        <el-button size="small" type="primary" @click="editInspectionRecord(scope.row)">编辑</el-button>
+                                                                        <el-button size="small" type="danger" @click="deleteInspectionRecord(scope.row)">删除</el-button>
+                                                                    </div>
+                                                                </template>
+                                                            </el-table-column>
+                                                        </el-table>
+                                                    </div>
+                                                </div>
+                                            </transition>
+                                        </div>
+
+                                        <!-- 表单操作按钮 -->
+                                        <div style="text-align: center; margin-top: 30px;">
+                                            <el-button @click="goBackToList">取消</el-button>
+                                            <el-button type="primary" @click="submitForm" :loading="submitting">
+                                                {{ formMode === 'create' ? '保存' : '更新' }}
+                                            </el-button>
+                                            <el-button v-if="formMode === 'create'" type="success" @click="submitAndNew" :loading="submitting">
+                                                保存并新建
+                                            </el-button>
+                                        </div>
+                                    </el-form>
+                                </div>
+                            </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 附件查看对话框 -->
+        <el-dialog 
+            v-model="showAttachmentDialog" 
+            :title="`${selectedBuildingName} - 附件列表`"
+            width="80%"
+            class="attachment-dialog">
+            <div class="attachment-dialog-content">
+                <!-- 附件列表 -->
+                <div class="attachment-list">
+                    <div 
+                        v-for="attachment in selectedBuildingAttachments" 
+                        :key="attachment.id" 
+                        class="attachment-item">
+                        <div :class="['file-icon', getFileTypeClass(attachment.type)]">
+                            <i :class="getFileIcon(attachment.type)"></i>
+                        </div>
+                        <div class="attachment-info">
+                            <div class="attachment-name" :title="attachment.name">{{ attachment.name }}</div>
+                            <div class="attachment-meta">
+                                <span>{{ formatFileSize(attachment.size) }}</span>
+                                <span>{{ attachment.uploadTime }}</span>
+                            </div>
+                        </div>
+                        <div class="attachment-actions">
+                            <el-button size="small" @click="previewFile(attachment)">
+                                <i class="fas fa-eye"></i>
+                                预览
+                            </el-button>
+                            <el-button size="small" type="primary" @click="downloadFile(attachment)">
+                                <i class="fas fa-download"></i>
+                                下载
+                            </el-button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 空状态 -->
+                <div v-if="selectedBuildingAttachments.length === 0" class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>暂无附件</p>
+                </div>
+            </div>
+            
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="showAttachmentDialog = false">关闭</el-button>
+                </div>
+            </template>
+        </el-dialog>
+
+        <!-- 新建/编辑/查看检测记录弹窗（放在根容器内） -->
+        <el-dialog v-model="showInspectionDialog" :title="isViewingInspection ? '查看检测记录' : (isEditingInspection ? '编辑检测记录' : '新建检测记录')" width="500px">
+            <el-form :model="inspectionForm" :rules="inspectionFormRules" ref="inspectionFormRef" label-width="100px">
+                <el-form-item label="检测时间" prop="date">
+                    <el-date-picker v-model="inspectionForm.date" type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD" placeholder="选择日期" :disabled="isViewingInspection" />
+                </el-form-item>
+                <el-form-item label="检测结果" prop="result">
+                    <el-select v-model="inspectionForm.result" placeholder="请选择检测结果" style="width: 100%" :disabled="isViewingInspection">
+                        <el-option v-for="opt in resultOptions" :key="opt" :label="opt" :value="opt" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="检测附件">
+                    <template v-if="isViewingInspection">
+                        <div class="attachments-view" style="margin-top:-4px;">
+                            <div v-if="!inspectionForm.attachments || inspectionForm.attachments.length === 0" style="color:#999;font-size:13px;">暂无附件</div>
+                            <ul v-else style="padding-left:0;margin:0;list-style:none;">
+                                <li v-for="(a, idx) in inspectionForm.attachments" :key="idx" style="margin:4px 0;font-size:13px;display:flex;align-items:center;gap:6px;">
+                                    <i class="el-icon el-icon--document"></i>
+                                    <a :href="a.url || 'javascript:void(0)'" target="_blank">{{ a.name }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <el-upload
+                            action=""
+                            :file-list="inspectionForm.attachments"
+                            :auto-upload="false"
+                            :on-change="handleInspectionFileChange"
+                            :on-remove="handleInspectionFileRemove"
+                            :disabled="false"
+                            list-type="text">
+                            <el-button size="small" type="primary">选择文件</el-button>
+                        </el-upload>
+                    </template>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="showInspectionDialog = false">{{ isViewingInspection ? '关闭' : '取消' }}</el-button>
+                    <el-button v-if="!isViewingInspection" type="primary" @click="saveInspectionRecord">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 和 Element Plus -->
+     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+     <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+     
+     <script>
+         const { createApp, ref, reactive, onMounted, nextTick } = Vue;
+         const { ElMessage, ElMessageBox } = ElementPlus;
+         
+         const app = createApp({
+             setup() {
+                 // 当前活动视图
+                const activeView = ref('list');
+                 
+                 // 当前项目和表单状态
+                 const currentItem = ref(null);
+                 const showFormTab = ref(false);
+                 const formMode = ref('create'); // create, edit
+                 const loading = ref(false);
+                 const submitting = ref(false);
+                 
+                 // 搜索表单
+                 const searchForm = reactive({
+                     name: '',
+                     location: '',
+                     structure: '',
+                     status: '',
+                     dateRange: [],
+                     hasAttachments: ''
+                 });
+                 
+                 // 分页信息
+                 const pagination = reactive({
+                     currentPage: 1,
+                     pageSize: 20,
+                     total: 0
+                 });
+                 
+                 // 选中的行
+                 const selectedRows = ref([]);
+                 
+                 // 折叠状态
+                const collapsedSections = reactive({
+                    basic: false,
+                    attachments: false,
+                    inspectionHistory: false,
+                    formBasic: false,
+                    formLocation: false,
+                    formTechnical: false,
+                    formManagement: false,
+                    formAttachments: false,
+                    formInspectionHistory: false
+                });
+                
+                // 检测记录数据（简化字段：时间、结果、附件）
+                const inspectionRecords = ref([
+                    {
+                        id: 1,
+                        buildingId: 1,
+                        type: 'lightning',
+                        date: '2024-01-15',
+                        result: '合格',
+                        attachments: []
+                    },
+                    {
+                        id: 2,
+                        buildingId: 1,
+                        type: 'settlement',
+                        date: '2024-02-20',
+                        result: '合格',
+                        attachments: []
+                    }
+                ]);
+
+                // 新建检测记录弹窗状态与表单
+                const showInspectionDialog = ref(false);
+                const inspectionFormRef = ref(null);
+                const inspectionForm = reactive({
+                    id: null,
+                    buildingId: null,
+                    type: '',
+                    date: '',
+                    result: '',
+                    attachments: []
+                });
+                const isEditingInspection = ref(false);
+                 const isViewingInspection = ref(false);
+                 const editingInspectionId = ref(null);
+                const inspectionFormRules = {
+                     date: [{ required: true, message: '请选择检测时间', trigger: 'change' }],
+                     result: [{ required: true, message: '请选择检测结果', trigger: 'change' }]
+                 };
+                 const resultOptions = ['合格', '不合格'];
+                
+                 // 表单数据
+                 const formData = reactive({
+                     versionNumber: '', // 版本编号（自动生成）
+                     name: '', // 名称
+                     location: '', // 坐落区域（原"所属区域"）
+                     structure: '', // 建筑结构
+                     landArea: null, // 占地面积
+                     startDate: '', // 启用日期
+                     status: 'enabled' // 状态（启用/弃用）
+                 });
+                 
+                 // 表单验证规则
+                 const formRules = {
+                     name: [{ required: true, message: '请输入建筑物名称', trigger: 'blur' }],
+                     location: [{ required: true, message: '请选择坐落区域', trigger: 'change' }],
+                     structure: [{ required: true, message: '请选择建筑结构', trigger: 'change' }],
+                     landArea: [{ required: true, message: '请输入占地面积', trigger: 'blur' }],
+                     startDate: [{ required: true, message: '请选择启用日期', trigger: 'change' }],
+                     status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+                 };
+                 
+                 // 附件管理相关数据
+                 const uploadedFiles = ref([]);
+                 const isDragOver = ref(false);
+                 const fileIdCounter = ref(1);
+                 const showAttachmentDialog = ref(false);
+                 const selectedBuildingAttachments = ref([]);
+                 const selectedBuildingName = ref('');
+                 
+                 // 模拟附件数据库
+                 const attachmentDatabase = ref([
+                     {
+                         id: 1,
+                         buildingId: 1,
+                         name: '建筑图纸.pdf',
+                         type: 'pdf',
+                         size: 2048576,
+                         uploadTime: '2024-01-15 10:30:00',
+                         status: 'success',
+                         url: '/mock/files/building-plan.pdf'
+                     },
+                     {
+                         id: 2,
+                         buildingId: 1,
+                         name: '验收报告.docx',
+                         type: 'doc',
+                         size: 1024000,
+                         uploadTime: '2024-01-20 14:20:00',
+                         status: 'success',
+                         url: '/mock/files/acceptance-report.docx'
+                     },
+                     {
+                         id: 3,
+                         buildingId: 2,
+                         name: '现场照片.jpg',
+                         type: 'image',
+                         size: 512000,
+                         uploadTime: '2024-02-01 09:15:00',
+                         status: 'success',
+                         url: '/mock/files/site-photo.jpg'
+                     }
+                 ]);
+                 
+                 
+                 
+                 // 模拟数据
+                 const tableData = ref([
+                     {
+                         id: 1,
+                         versionNumber: 'V1.0',
+                         name: '生产车间A栋',
+                         location: '工业园区东区',
+                         structure: '钢框架',
+                         landArea: 2500,
+                         startDate: '2020-03-15',
+                         status: 'enabled'
+                     },
+                     {
+                         id: 2,
+                         versionNumber: 'V1.1',
+                         name: '办公楼',
+                         location: '工业园区中心区',
+                         structure: '框架',
+                         landArea: 1200,
+                         startDate: '2019-08-20',
+                         status: 'enabled'
+                     },
+                     {
+                         id: 3,
+                         versionNumber: 'V1.0',
+                         name: '仓库B栋',
+                         location: '工业园区西区',
+                         structure: '底框-砌体',
+                         landArea: 1800,
+                         startDate: '2021-06-10',
+                         status: 'disabled'
+                     }
+                 ]);
+                 
+                 // 更新分页总数
+                 pagination.total = tableData.value.length;
+                 
+                 // 模拟检测记录数据
+                 const mockInspectionRecords = [
+                     {
+                         id: 1,
+                         type: '沉降监测',
+                         date: '2024-01-15',
+                         organization: '华测检测技术股份有限公司',
+                         result: '合格',
+                         nextDate: '2024-07-15'
+                     },
+                     {
+                         id: 2,
+                         type: '防雷检测',
+                         date: '2024-01-10',
+                         organization: '中国建筑科学研究院',
+                         result: '合格',
+                         nextDate: '2025-01-10'
+                     },
+                     {
+                         id: 3,
+                         type: '结构安全',
+                         date: '2023-12-20',
+                         organization: '建筑结构检测中心',
+                         result: '不合格',
+                         nextDate: '2024-03-20'
+                     }
+                 ];
+                 
+                 // 方法定义
+                 const methods = {
+
+                     
+                     // 搜索数据
+                     searchData() {
+                         loading.value = true;
+                         // 模拟搜索延迟
+                         setTimeout(() => {
+                             loading.value = false;
+                             ElMessage.success('搜索完成');
+                         }, 1000);
+                     },
+                     
+                     // 重置搜索
+                     resetSearch() {
+                         Object.keys(searchForm).forEach(key => {
+                             if (Array.isArray(searchForm[key])) {
+                                 searchForm[key] = [];
+                             } else {
+                                 searchForm[key] = '';
+                             }
+                         });
+                         ElMessage.info('搜索条件已重置');
+                     },
+                     
+                     // 显示表单
+                     showForm(mode, item = null) {
+                         formMode.value = mode;
+                         showFormTab.value = true;
+                         activeView.value = 'form';
+                         
+                         if (mode === 'edit' && item) {
+                             // 编辑模式，填充表单数据
+                             currentItem.value = item;
+                             Object.keys(formData).forEach(key => {
+                                 if (item[key] !== undefined) {
+                                     formData[key] = item[key];
+                                 }
+                             });
+                         } else {
+                             // 新建模式，清空表单
+                             Object.keys(formData).forEach(key => {
+                                 if (Array.isArray(formData[key])) {
+                                     formData[key] = [];
+                                 } else if (typeof formData[key] === 'number') {
+                                     formData[key] = null;
+                                 } else {
+                                     formData[key] = '';
+                                 }
+                             });
+                             // 统一默认状态与单选框选项一致
+                             formData.status = 'enabled';
+                         }
+                     },
+                     
+                     // 查看详情
+                    viewDetail(item) {
+                        currentItem.value = item;
+                        activeView.value = 'detail';
+                    },
+                     
+                     // 编辑项目
+                     editItem(item) {
+                         methods.showForm('edit', item);
+                     },
+                     
+                     // 删除项目
+                     deleteItem(item) {
+                         ElMessageBox.confirm(
+                             `确定要删除建筑物"${item.name}"吗？`,
+                             '确认删除',
+                             {
+                                 confirmButtonText: '确定',
+                                 cancelButtonText: '取消',
+                                 type: 'warning',
+                             }
+                         ).then(() => {
+                             const index = tableData.value.findIndex(d => d.id === item.id);
+                             if (index > -1) {
+                                 tableData.value.splice(index, 1);
+                                 pagination.total = tableData.value.length;
+                                 ElMessage.success('删除成功');
+                             }
+                         }).catch(() => {
+                             ElMessage.info('已取消删除');
+                         });
+                     },
+                     
+                     // 批量删除
+                     batchDelete() {
+                         if (selectedRows.value.length === 0) {
+                             ElMessage.warning('请选择要删除的记录');
+                             return;
+                         }
+                         
+                         ElMessageBox.confirm(
+                             `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+                             '确认批量删除',
+                             {
+                                 confirmButtonText: '确定',
+                                 cancelButtonText: '取消',
+                                 type: 'warning',
+                             }
+                         ).then(() => {
+                             const selectedIds = selectedRows.value.map(row => row.id);
+                             tableData.value = tableData.value.filter(item => !selectedIds.includes(item.id));
+                             pagination.total = tableData.value.length;
+                             selectedRows.value = [];
+                             ElMessage.success(`成功删除 ${selectedIds.length} 条记录`);
+                         }).catch(() => {
+                             ElMessage.info('已取消删除');
+                         });
+                     },
+                     
+                     // 导入数据
+                     importData() {
+                         ElMessage.info('导入功能开发中');
+                     },
+                     
+                     // 导出数据
+                     exportData() {
+                         ElMessage.info('导出功能开发中');
+                     },
+                     
+                     // 返回列表
+                    goBackToList() {
+                        activeView.value = 'list';
+                        showFormTab.value = false;
+                        currentItem.value = null;
+                    },
+                    
+                    // 获取建筑物的检测记录
+                    getInspectionRecords(buildingId) {
+                        return inspectionRecords.value.filter(record => record.buildingId === buildingId);
+                    },
+                    
+                    // 打开新建检测记录弹窗
+                    openCreateInspectionDialog(type, row) {
+                        const target = row || currentItem.value;
+                        if (!target) {
+                            ElMessage.error('请先选择建筑物');
+                            return;
+                        }
+                        // 新建时确保不是只读
+                        isViewingInspection.value = false;
+                        isEditingInspection.value = false;
+                        editingInspectionId.value = null;
+                        inspectionForm.id = null;
+                        inspectionForm.buildingId = target.id;
+                        inspectionForm.type = type;
+                        inspectionForm.date = '';
+                        inspectionForm.result = '';
+                        inspectionForm.attachments = [];
+                        showInspectionDialog.value = true;
+                    },
+
+                    // 保存检测记录（新建或编辑）
+                    saveInspectionRecord() {
+                        if (!inspectionFormRef.value) return;
+                        inspectionFormRef.value.validate((valid) => {
+                            if (!valid) return;
+                            if (isEditingInspection.value && editingInspectionId.value) {
+                                // 更新记录
+                                const idx = inspectionRecords.value.findIndex(r => r.id === editingInspectionId.value);
+                                if (idx > -1) {
+                                    inspectionRecords.value[idx] = {
+                                        ...inspectionRecords.value[idx],
+                                        date: inspectionForm.date,
+                                        result: inspectionForm.result,
+                                        attachments: inspectionForm.attachments.map(a => ({ name: a.name, url: a.url || '' }))
+                                    };
+                                    ElMessage.success('检测记录更新成功');
+                                }
+                            } else {
+                                // 新建记录
+                                const newRecord = {
+                                    id: Date.now(),
+                                    buildingId: inspectionForm.buildingId,
+                                    type: inspectionForm.type,
+                                    date: inspectionForm.date,
+                                    result: inspectionForm.result,
+                                    attachments: inspectionForm.attachments.map(a => ({ name: a.name, url: a.url || '' }))
+                                };
+                                inspectionRecords.value.push(newRecord);
+                                ElMessage.success('检测记录创建成功');
+                            }
+                            showInspectionDialog.value = false;
+                        });
+                    },
+
+                    // 检测记录附件预览
+                    previewInspectionAttachments(record) {
+                        if (!record.attachments || record.attachments.length === 0) {
+                            ElMessage.info('该记录无附件');
+                            return;
+                        }
+                        const names = record.attachments.map(a => a.name).join('\n');
+                        ElMessageBox.alert(names, '检测附件', { confirmButtonText: '确定' });
+                    },
+
+                    // 上传文件变化（新建检测记录弹窗）
+                    handleInspectionFileChange(file, fileList) {
+                        inspectionForm.attachments = fileList.map(f => ({
+                            name: f.name,
+                            url: (f.url) ? f.url : (f.raw ? URL.createObjectURL(f.raw) : '')
+                        }));
+                    },
+
+                    // 移除文件（新建检测记录弹窗）
+                    handleInspectionFileRemove(file, fileList) {
+                        inspectionForm.attachments = fileList.map(f => ({
+                            name: f.name,
+                            url: f.url || ''
+                        }));
+                    },
+
+                    // 查看检测记录（复用编辑弹窗，只读模式）
+                    viewInspectionRecord(record) {
+                        isViewingInspection.value = true;
+                        isEditingInspection.value = false;
+                        editingInspectionId.value = null;
+                        inspectionForm.id = record.id;
+                        inspectionForm.buildingId = record.buildingId;
+                        inspectionForm.type = record.type;
+                        inspectionForm.date = record.date;
+                        inspectionForm.result = record.result;
+                        inspectionForm.attachments = (record.attachments || []).map(a => ({ name: a.name, url: a.url || '' }));
+                        showInspectionDialog.value = true;
+                    },
+                    
+                    // 编辑检测记录（复用新建弹窗）
+                    editInspectionRecord(record) {
+                        // 编辑时确保不是只读
+                        isViewingInspection.value = false;
+                        isEditingInspection.value = true;
+                        editingInspectionId.value = record.id;
+                        inspectionForm.id = record.id;
+                        inspectionForm.buildingId = record.buildingId;
+                        inspectionForm.type = record.type;
+                        inspectionForm.date = record.date;
+                        inspectionForm.result = record.result;
+                        inspectionForm.attachments = (record.attachments || []).map(a => ({ name: a.name, url: a.url || '' }));
+                        showInspectionDialog.value = true;
+                    },
+                    
+                    // 删除检测记录
+                    deleteInspectionRecord(record) {
+                        ElMessageBox.confirm(
+                            `确定要删除这条${record.type === 'lightning' ? '防雷检测' : '沉降监测'}记录吗？`,
+                            '确认删除',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }
+                        ).then(() => {
+                            const index = inspectionRecords.value.findIndex(r => r.id === record.id);
+                            if (index > -1) {
+                                inspectionRecords.value.splice(index, 1);
+                                ElMessage.success('删除成功');
+                            }
+                        }).catch(() => {
+                            ElMessage.info('已取消删除');
+                        });
+                    },
+                     
+                     // 提交表单
+                     submitForm() {
+                         // 表单验证
+                         const requiredFields = ['name', 'code', 'area', 'type', 'landArea', 'buildingArea', 'height', 'floors', 'startDate', 'designLife', 'address', 'designUnit', 'constructionUnit', 'seismicIntensity', 'fireResistance', 'lightningProtection', 'department', 'responsible', 'phone', 'status'];
+                         
+                         for (let field of requiredFields) {
+                             if (!formData[field] && formData[field] !== 0) {
+                                 ElMessage.error(`请填写${getFieldLabel(field)}`);
+                                 return;
+                             }
+                         }
+                         
+                         submitting.value = true;
+                         
+                         // 模拟提交延迟
+                         setTimeout(() => {
+                             if (formMode.value === 'create') {
+                                 // 新建
+                                 const newItem = {
+                                     id: Date.now(),
+                                     ...formData,
+                                     lastInspection: '暂无'
+                                 };
+                                 tableData.value.unshift(newItem);
+                                 pagination.total = tableData.value.length;
+                                 ElMessage.success('新建成功');
+                             } else {
+                                 // 编辑
+                                 const index = tableData.value.findIndex(item => item.id === currentItem.value.id);
+                                 if (index > -1) {
+                                     tableData.value[index] = { ...tableData.value[index], ...formData };
+                                     ElMessage.success('编辑成功');
+                                 }
+                             }
+                             
+                             submitting.value = false;
+                             methods.goBackToList();
+                         }, 1500);
+                     },
+                     
+                     // 保存并新建
+                     submitAndNew() {
+                         methods.submitForm();
+                         // 提交成功后重置表单继续新建
+                         setTimeout(() => {
+                             if (!submitting.value) {
+                                 methods.showForm('create');
+                             }
+                         }, 1600);
+                     },
+                     
+                     // 切换区域折叠状态
+                     toggleSection(section) {
+                         collapsedSections[section] = !collapsedSections[section];
+                     },
+                     
+                     // 获取状态样式类
+                     getStatusClass(status) {
+                         const classMap = {
+                             'normal': 'status-tag status-normal',
+                             'maintenance': 'status-tag status-maintenance',
+                             'disabled': 'status-tag status-disabled'
+                         };
+                         return classMap[status] || 'status-tag';
+                     },
+                     
+                     // 获取状态文本
+                     getStatusText(status) {
+                         const textMap = {
+                             'normal': '正常使用',
+                             'maintenance': '维修中',
+                             'disabled': '停用'
+                         };
+                         return textMap[status] || status;
+                     },
+                     
+                     // 获取检测结果类型
+                     getInspectionResultType(result) {
+                         const typeMap = {
+                             '合格': 'success',
+                             '不合格': 'danger',
+                             '待检测': 'warning'
+                         };
+                         return typeMap[result] || '';
+                     },
+                     
+                     // 获取字段标签
+                     getFieldLabel(field) {
+                         const labelMap = {
+                             'name': '建筑物名称',
+                             'code': '建筑编号',
+                             'area': '所属区域',
+                             'type': '建筑类型',
+                             'landArea': '占地面积',
+                             'buildingArea': '建筑面积',
+                             'height': '建筑高度',
+                             'floors': '层数',
+                             'startDate': '启用日期',
+                             'designLife': '设计使用年限',
+                             'address': '详细地址',
+                             'designUnit': '设计单位',
+                             'constructionUnit': '施工单位',
+                             'seismicIntensity': '抗震设防烈度',
+                             'fireResistance': '耐火等级',
+                             'lightningProtection': '防雷等级',
+                             'department': '责任部门',
+                             'responsible': '责任人',
+                             'phone': '联系电话',
+                             'status': '使用状态'
+                         };
+                         return labelMap[field] || field;
+                     },
+                     
+                     // 处理选择变化
+                     handleSelectionChange(selection) {
+                         selectedRows.value = selection;
+                     },
+                     
+                     // 处理页面大小变化
+                     handleSizeChange(val) {
+                         pagination.pageSize = val;
+                         methods.searchData();
+                     },
+                     
+                     // 处理当前页变化
+                     handleCurrentChange(val) {
+                         pagination.currentPage = val;
+                         methods.searchData();
+                     },
+                     
+                     // 附件管理相关方法
+                     
+                     // 触发文件选择
+                     triggerFileUpload() {
+                         document.querySelector('input[type="file"]').click();
+                     },
+                     
+                     // 处理文件选择
+                     handleFileSelect(event) {
+                         const files = Array.from(event.target.files);
+                         methods.processFiles(files);
+                         // 清空input，允许重复选择同一文件
+                         event.target.value = '';
+                     },
+                     
+                     // 处理拖拽悬停
+                     handleDragOver(event) {
+                         event.preventDefault();
+                         isDragOver.value = true;
+                     },
+                     
+                     // 处理拖拽离开
+                     handleDragLeave(event) {
+                         event.preventDefault();
+                         isDragOver.value = false;
+                     },
+                     
+                     // 处理文件拖拽放置
+                     handleFileDrop(event) {
+                         event.preventDefault();
+                         isDragOver.value = false;
+                         const files = Array.from(event.dataTransfer.files);
+                         methods.processFiles(files);
+                     },
+                     
+                     // 处理文件列表
+                     processFiles(files) {
+                         files.forEach(file => {
+                             // 文件大小验证（50MB限制）
+                             if (file.size > 50 * 1024 * 1024) {
+                                 ElMessage.error(`文件 ${file.name} 超过50MB大小限制`);
+                                 return;
+                             }
+                             
+                             // 文件类型验证
+                             const allowedTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+                             const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                             if (!allowedTypes.includes(fileExtension)) {
+                                 ElMessage.error(`文件 ${file.name} 格式不支持`);
+                                 return;
+                             }
+                             
+                             // 创建响应式文件对象
+                             const fileObj = reactive({
+                                 id: fileIdCounter.value++,
+                                 name: file.name,
+                                 size: file.size,
+                                 type: methods.getFileType(file.name),
+                                 status: 'uploading',
+                                 progress: 0,
+                                 uploadTime: new Date().toLocaleString(),
+                                 file: file
+                             });
+                             
+                             uploadedFiles.value.push(fileObj);
+                             
+                             // 模拟上传过程
+                             methods.simulateUpload(fileObj);
+                         });
+                     },
+                     
+                     // 模拟文件上传
+                     simulateUpload(fileObj) {
+                         const uploadInterval = setInterval(() => {
+                             // 响应式对象的属性修改会自动触发视图更新
+                             const currentProgress = fileObj.progress + Math.random() * 15 + 5;
+                             fileObj.progress = Math.min(currentProgress, 100);
+                             
+                             if (fileObj.progress >= 100) {
+                                 fileObj.progress = 100;
+                                 fileObj.status = 'success';
+                                 clearInterval(uploadInterval);
+                                 
+                                 // 添加到附件数据库
+                                 const attachment = {
+                                     id: Date.now(),
+                                     buildingId: currentItem.value?.id || 0,
+                                     name: fileObj.name,
+                                     type: fileObj.type,
+                                     size: fileObj.size,
+                                     uploadTime: fileObj.uploadTime,
+                                     status: 'success',
+                                     url: `/mock/files/${fileObj.name}`
+                                 };
+                                 attachmentDatabase.value.push(attachment);
+                                 
+                                 ElMessage.success(`文件 ${fileObj.name} 上传成功`);
+                                 methods.logOperation('upload', `上传附件: ${fileObj.name}`);
+                             }
+                         }, 300);
+                     },
+                     
+                     // 获取文件类型
+                     getFileType(fileName) {
+                         const extension = fileName.split('.').pop().toLowerCase();
+                         if (['pdf'].includes(extension)) return 'pdf';
+                         if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension)) return 'image';
+                         if (['doc', 'docx'].includes(extension)) return 'doc';
+                         if (['xls', 'xlsx'].includes(extension)) return 'excel';
+                         return 'other';
+                     },
+                     
+                     // 获取文件类型样式类
+                     getFileTypeClass(type) {
+                         return `file-type-${type}`;
+                     },
+                     
+                     // 获取文件图标
+                     getFileIcon(type) {
+                         const iconMap = {
+                             'pdf': 'fas fa-file-pdf',
+                             'image': 'fas fa-file-image',
+                             'doc': 'fas fa-file-word',
+                             'excel': 'fas fa-file-excel',
+                             'other': 'fas fa-file'
+                         };
+                         return iconMap[type] || 'fas fa-file';
+                     },
+                     
+                     // 格式化文件大小
+                     formatFileSize(bytes) {
+                         if (bytes === 0) return '0 B';
+                         const k = 1024;
+                         const sizes = ['B', 'KB', 'MB', 'GB'];
+                         const i = Math.floor(Math.log(bytes) / Math.log(k));
+                         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                     },
+                     
+                     // 预览文件
+                     previewFile(file) {
+                         if (file.type === 'image') {
+                             // 图片预览
+                             ElMessageBox.alert(
+                                 `<img src="${file.url || URL.createObjectURL(file.file)}" style="max-width: 100%; max-height: 400px;" />`,
+                                 '图片预览',
+                                 {
+                                     dangerouslyUseHTMLString: true,
+                                     confirmButtonText: '关闭'
+                                 }
+                             );
+                         } else {
+                             ElMessage.info('该文件类型暂不支持预览');
+                         }
+                     },
+                     
+                     // 下载文件
+                     downloadFile(file) {
+                         // 模拟下载
+                         const link = document.createElement('a');
+                         link.href = file.url || URL.createObjectURL(file.file);
+                         link.download = file.name;
+                         document.body.appendChild(link);
+                         link.click();
+                         document.body.removeChild(link);
+                         
+                         ElMessage.success(`开始下载 ${file.name}`);
+                         methods.logOperation('download', `下载附件: ${file.name}`);
+                     },
+                     
+                     // 重试上传
+                     retryUpload(file) {
+                         file.status = 'uploading';
+                         file.progress = 0;
+                         methods.simulateUpload(file);
+                     },
+                     
+                     // 移除文件
+                     removeFile(file) {
+                         ElMessageBox.confirm(
+                             `确定要删除文件 ${file.name} 吗？`,
+                             '确认删除',
+                             {
+                                 confirmButtonText: '确定',
+                                 cancelButtonText: '取消',
+                                 type: 'warning'
+                             }
+                         ).then(() => {
+                             const index = uploadedFiles.value.findIndex(f => f.id === file.id);
+                             if (index > -1) {
+                                 uploadedFiles.value.splice(index, 1);
+                                 ElMessage.success('文件删除成功');
+                                 methods.logOperation('delete', `删除附件: ${file.name}`);
+                             }
+                         }).catch(() => {
+                             ElMessage.info('已取消删除');
+                         });
+                     },
+                     
+                     // 获取建筑物附件
+                     getBuildingAttachments(buildingId) {
+                         return attachmentDatabase.value.filter(att => att.buildingId === buildingId);
+                     },
+                     
+
+                     
+                     // 记录操作日志
+                     logOperation(action, description) {
+                         const log = {
+                             timestamp: new Date().toLocaleString(),
+                             action: action,
+                             description: description,
+                             user: '当前用户' // 实际应用中应该是真实用户信息
+                         };
+                         console.log('操作日志:', log);
+                         // 实际应用中这里应该发送到后端记录
+                     },
+                     
+                     // 查看建筑物附件
+                     viewAttachments(building) {
+                         const attachments = methods.getBuildingAttachments(building.id);
+                         if (attachments.length === 0) {
+                             ElMessage.info('该建筑物暂无附件');
+                             return;
+                         }
+                         
+                         // 显示附件对话框
+                         showAttachmentDialog.value = true;
+                         selectedBuildingAttachments.value = attachments;
+                         selectedBuildingName.value = building.name;
+                     },
+                     
+
+
+                 };
+                 
+                 // 返回响应式数据和方法
+                return {
+                    activeView,
+                     currentItem,
+                     showFormTab,
+                     formMode,
+                     loading,
+                     submitting,
+                     searchForm,
+                     pagination,
+                     selectedRows,
+                     collapsedSections,
+                     formData,
+                     formRules,
+                     inspectionRecords,
+                     tableData,
+                     uploadedFiles,
+                     isDragOver,
+                     fileIdCounter,
+                     attachmentDatabase,
+                     showAttachmentDialog,
+                     selectedBuildingAttachments,
+                     selectedBuildingName,
+                     showInspectionDialog,
+                     inspectionForm,
+                     inspectionFormRef,
+                     inspectionFormRules,
+                     resultOptions,
+                     isViewingInspection,
+                     isEditingInspection,
+                     ...methods
+                 };
+             }
+         });
+         
+         // 使用Element Plus
+         app.use(ElementPlus);
+         
+         // 挂载应用
+         app.mount('#app');
+     </script>
+
+ </body>
+   </html>
