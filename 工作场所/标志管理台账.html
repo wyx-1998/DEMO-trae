@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生产安全设施管理 - 标志管理台账</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary-color: #409EFF; --text-light: #606266; --el-color-primary: #409EFF; }
+        body { font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background-color: #f5f7fa; overflow-x: hidden; }
+        .app-container { height: 100vh; display: flex; flex-direction: column; }
+        .page-header { background: #ffffff; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .page-title { font-size: 20px; font-weight: 600; color: #303133; margin: 0; display: flex; align-items: center; gap: 12px; }
+        .page-title i { color: var(--primary-color); font-size: 24px; }
+        .main-content { flex: 1; padding: 24px; overflow-y: auto; }
+        .content-card { background: #ffffff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        
+        /* Tab导航 */
+        .tabs-wrap { padding: 12px 24px; border-bottom: 1px solid #e8e8e8; background: #ffffff; }
+        .el-tabs__header { margin: 0; }
+        .el-tabs--card > .el-tabs__header .el-tabs__item { height: 40px; line-height: 38px; padding: 0 20px; font-size: 14px; }
+        
+        .function-bar { padding: 20px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .function-left { display: flex; gap: 12px; flex-wrap: wrap; }
+        .search-area { padding: 24px; background: #ffffff; border-bottom: 1px solid #f0f0f0; }
+        .search-form { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+        .search-form .el-form-item { margin-bottom: 0; }
+        .pagination-bar { padding: 16px 24px; background: #f8f9fa; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; }
+        .sign-preview { width: 60px; height: 60px; border: 1px solid #dcdfe6; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #f5f7fa; color: #909399; font-size: 12px; }
+        .sign-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+        .action-buttons { display: flex; gap: 8px; }
+        .form-label { color: var(--text-light); font-size: 14px; }
+        .form-label.required::before { content: '*'; color: #F56C6C; margin-right: 4px; }
+        /* 详情弹窗只读字段样式 */
+        .detail-field { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+        .detail-field .form-label { width: 120px; flex-shrink: 0; line-height: 32px; text-align: right; color: var(--text-light); }
+        .detail-field .detail-value { flex: 1; padding: 6px 12px; background: #f5f7fa; border-radius: 4px; min-height: 32px; line-height: 20px; }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .form-grid-2 .detail-field { margin-bottom: 0; }
+        .el-button--primary { --el-button-bg-color: var(--primary-color); --el-button-border-color: var(--primary-color); }
+    </style>
+</head>
+<body>
+<div id="app" class="app-container">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-clipboard-list"></i> 生产安全设施管理 - 标志管理台账</h1>
+    </div>
+    
+    <div class="main-content">
+        <div class="content-card">
+            <!-- Tab导航 -->
+            <div class="tabs-wrap">
+                <el-tabs v-model="signTab" type="card">
+                    <el-tab-pane label="安全标志" name="safety"></el-tab-pane>
+                    <el-tab-pane label="设备标志" name="equipment"></el-tab-pane>
+                </el-tabs>
+            </div>
+            
+            <!-- 功能操作区 -->
+            <div class="function-bar">
+                <div class="function-left">
+                    <el-button type="primary" @click="goToNewPage">
+                        <i class="fas fa-plus"></i> 批量新建
+                    </el-button>
+                    <el-button @click="importData" type="success">
+                        <i class="fas fa-upload"></i> 导入
+                    </el-button>
+                    <el-button @click="exportData" type="warning">
+                        <i class="fas fa-download"></i> 导出
+                    </el-button>
+                    <el-button type="danger" @click="batchDelete" :disabled="selectedRows.length === 0">
+                        <i class="fas fa-trash"></i> 批量删除
+                    </el-button>
+                </div>
+            </div>
+
+            <!-- 安全标志 - 搜索区域 -->
+            <div v-if="signTab === 'safety'" class="search-area">
+                <el-form :inline="true" :model="safetySearchForm" class="search-form" label-position="left">
+                    <el-form-item label="标志名称">
+                        <el-input v-model="safetySearchForm.signName" placeholder="请输入标志名称" clearable style="width:200px" />
+                    </el-form-item>
+                    <el-form-item label="标志编号">
+                        <el-input v-model="safetySearchForm.signCode" placeholder="请输入标志编号" clearable style="width:200px" />
+                    </el-form-item>
+                    <el-form-item label="标志类别">
+                        <el-select v-model="safetySearchForm.category" placeholder="请选择" clearable style="width:200px">
+                            <el-option label="全部" value="" />
+                            <el-option label="禁止标志" value="禁止标志" />
+                            <el-option label="警告标志" value="警告标志" />
+                            <el-option label="指令标志" value="指令标志" />
+                            <el-option label="提示标志" value="提示标志" />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="区域名称">
+                        <el-input v-model="safetySearchForm.areaName" placeholder="请输入区域名称" clearable style="width:200px" />
+                    </el-form-item>
+                    <el-form-item label="所属部门">
+                        <el-select v-model="safetySearchForm.department" placeholder="请选择部门" clearable style="width:200px">
+                            <el-option label="生产部" value="生产部" />
+                            <el-option label="安全部" value="安全部" />
+                            <el-option label="设备部" value="设备部" />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="searchData"><i class="fas fa-search"></i> 查询</el-button>
+                        <el-button @click="resetSearch" type="info"><i class="fas fa-redo"></i> 重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+            
+            <!-- 设备标志 - 搜索区域 -->
+            <div v-if="signTab === 'equipment'" class="search-area">
+                <el-form :inline="true" :model="equipmentSearchForm" class="search-form" label-position="left">
+                    <el-form-item label="标志名称">
+                        <el-input v-model="equipmentSearchForm.signName" placeholder="请输入标志名称" clearable style="width:200px" />
+                    </el-form-item>
+                    <el-form-item label="标志编号">
+                        <el-input v-model="equipmentSearchForm.signCode" placeholder="请输入标志编号" clearable style="width:200px" />
+                    </el-form-item>
+                    <el-form-item label="所属部门">
+                        <el-select v-model="equipmentSearchForm.department" placeholder="请选择部门" clearable style="width:200px">
+                            <el-option label="生产部" value="生产部" />
+                            <el-option label="安全部" value="安全部" />
+                            <el-option label="设备部" value="设备部" />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="searchData"><i class="fas fa-search"></i> 查询</el-button>
+                        <el-button @click="resetSearch" type="info"><i class="fas fa-redo"></i> 重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+
+            <!-- 安全标志 - 表格区域 -->
+            <div v-if="signTab === 'safety'" class="table-area" style="padding: 24px;">
+                <el-table :data="currentSafetyTableData" style="width: 100%" @selection-change="handleSelectionChange" stripe border>
+                    <el-table-column type="selection" width="55"></el-table-column>
+                    <el-table-column label="标志图片" width="80">
+                        <template #default="scope">
+                            <div class="sign-preview">
+                                <img v-if="scope.row.imageUrl" :src="scope.row.imageUrl" :alt="scope.row.signName">
+                                <span v-else>无图片</span>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="signName" label="标志名称" min-width="120"></el-table-column>
+                    <el-table-column prop="signCode" label="标志编号" width="120"></el-table-column>
+                    <el-table-column prop="category" label="标志类别" width="100"></el-table-column>
+                    <el-table-column prop="signType" label="标志种类" width="100"></el-table-column>
+                    <el-table-column prop="useScene" label="使用场景" min-width="150"></el-table-column>
+                    <el-table-column prop="equipment" label="所属设备" min-width="120"></el-table-column>
+                    <el-table-column prop="department" label="管理部门" width="100"></el-table-column>
+                    <el-table-column prop="quantity" label="数量" width="80"></el-table-column>
+                    <el-table-column label="操作" width="200" fixed="right">
+                        <template #default="scope">
+                            <div class="action-buttons">
+                                <el-button size="small" type="primary" @click="viewDetail(scope.row)" title="查看">
+                                    <i class="fas fa-eye"></i>
+                                </el-button>
+                                <el-button size="small" type="warning" @click="editRow(scope.row)" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </el-button>
+                                <el-button size="small" type="danger" @click="deleteRow(scope.row)" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </el-button>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            
+            <!-- 设备标志 - 表格区域 -->
+            <div v-if="signTab === 'equipment'" class="table-area" style="padding: 24px;">
+                <el-table :data="currentEquipmentTableData" style="width: 100%" @selection-change="handleSelectionChange" stripe border>
+                    <el-table-column type="selection" width="55"></el-table-column>
+                    <el-table-column label="符号图片" width="80">
+                        <template #default="scope">
+                            <div class="sign-preview">
+                                <img v-if="scope.row.imageUrl" :src="scope.row.imageUrl" :alt="scope.row.signName">
+                                <span v-else>无图片</span>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="signName" label="标志名称" min-width="120"></el-table-column>
+                    <el-table-column prop="signCode" label="标志编号" width="120"></el-table-column>
+                    <el-table-column prop="meaning" label="含义" min-width="150"></el-table-column>
+                    <el-table-column prop="function" label="功能" min-width="150"></el-table-column>
+                    <el-table-column prop="equipment" label="所属设备" min-width="120"></el-table-column>
+                    <el-table-column prop="department" label="管理部门" width="100"></el-table-column>
+                    <el-table-column prop="quantity" label="数量" width="80"></el-table-column>
+                    <el-table-column label="操作" width="200" fixed="right">
+                        <template #default="scope">
+                            <div class="action-buttons">
+                                <el-button size="small" type="primary" @click="viewDetail(scope.row)" title="查看">
+                                    <i class="fas fa-eye"></i>
+                                </el-button>
+                                <el-button size="small" type="warning" @click="editRow(scope.row)" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </el-button>
+                                <el-button size="small" type="danger" @click="deleteRow(scope.row)" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </el-button>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+            <!-- 分页区域 -->
+            <div class="pagination-bar">
+                <el-pagination 
+                    background 
+                    size="small" 
+                    v-model:current-page="currentPage" 
+                    v-model:page-size="pageSize" 
+                    :page-sizes="[10,20,50,100]" 
+                    :total="getCurrentTotal()" 
+                    layout="total, ->, sizes, prev, pager, next, jumper" 
+                    @size-change="handleSizeChange" 
+                    @current-change="handleCurrentChange" 
+                />
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 - 安全标志 -->
+    <el-dialog v-model="showDetailDialog" :title="`${signTab === 'safety' ? '安全' : '设备'}标志详情`" width="740px">
+        <div class="dialog-content" v-if="detailData" style="padding: 0 24px 24px;">
+            <div class="detail-field">
+                <label class="form-label">{{ signTab === 'equipment' ? '符号图片' : '标志图片' }}</label>
+                <div class="detail-value">
+                    <div class="sign-preview" style="width: 120px; height: 120px;">
+                        <img v-if="detailData.imageUrl" :src="detailData.imageUrl" :alt="detailData.signName">
+                        <span v-else>无图片</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-grid-2">
+                <div class="detail-field">
+                    <label class="form-label">标志名称</label>
+                    <div class="detail-value">{{ detailData.signName }}</div>
+                </div>
+                <div class="detail-field">
+                    <label class="form-label">标志编号</label>
+                    <div class="detail-value">{{ detailData.signCode }}</div>
+                </div>
+                <!-- 安全标志特有字段 -->
+                <div v-if="signTab === 'safety'" class="detail-field">
+                    <label class="form-label">标志类别</label>
+                    <div class="detail-value">{{ detailData.category }}</div>
+                </div>
+                <div v-if="signTab === 'safety'" class="detail-field">
+                    <label class="form-label">标志种类</label>
+                    <div class="detail-value">{{ detailData.signType }}</div>
+                </div>
+                <div class="detail-field">
+                    <label class="form-label">所属设备</label>
+                    <div class="detail-value">{{ detailData.equipment || '—' }}</div>
+                </div>
+                <div class="detail-field">
+                    <label class="form-label">管理部门</label>
+                    <div class="detail-value">{{ detailData.department }}</div>
+                </div>
+                <div class="detail-field">
+                    <label class="form-label">数量</label>
+                    <div class="detail-value">{{ detailData.quantity }}</div>
+                </div>
+            </div>
+            <!-- 安全标志 - 使用场景 -->
+            <div v-if="signTab === 'safety'" class="detail-field">
+                <label class="form-label">使用场景</label>
+                <div class="detail-value">{{ detailData.useScene }}</div>
+            </div>
+            <!-- 设备标志 - 含义和功能 -->
+            <div v-if="signTab === 'equipment'" class="detail-field">
+                <label class="form-label">含义</label>
+                <div class="detail-value">{{ detailData.meaning }}</div>
+            </div>
+            <div v-if="signTab === 'equipment'" class="detail-field">
+                <label class="form-label">功能</label>
+                <div class="detail-value">{{ detailData.function }}</div>
+            </div>
+        </div>
+    </el-dialog>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+<script>
+const { createApp } = Vue; 
+const { ElMessage, ElMessageBox } = ElementPlus;
+
+createApp({
+  data() {
+    return {
+      signTab: 'safety',
+      safetySearchForm: { signName: '', signCode: '', category: '', areaName: '', department: '' },
+      equipmentSearchForm: { signName: '', signCode: '', department: '' },
+      
+      // 安全标志数据
+      safetyTableData: [
+        { id: 1, signName: '禁止吸烟', signCode: 'GB2894-001', category: '禁止标志', signType: '环境信息', useScene: '易燃易爆场所', equipment: 'A区生产设备', department: '生产部', quantity: 5, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=no%20smoking%20prohibition%20sign&image_size=square' },
+        { id: 2, signName: '必须戴安全帽', signCode: 'GB2894-002', category: '指令标志', signType: '机械安全', useScene: '建筑工地', equipment: 'B区机械设备', department: '安全部', quantity: 10, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=mandatory%20safety%20helmet%20sign&image_size=square' },
+        { id: 3, signName: '当心触电', signCode: 'GB2894-003', category: '警告标志', signType: '电气安全', useScene: '配电室', equipment: 'C区配电设备', department: '设备部', quantity: 3, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=electrical%20hazard%20warning%20sign&image_size=square' }
+      ],
+      
+      // 设备标志数据
+      equipmentTableData: [
+        { id: 1, signName: '消防栓', signCode: 'EQ001', meaning: '消防给水设备标识', function: '指示消防栓位置，便于紧急情况下快速找到', equipment: '消防系统', department: '安全部', quantity: 8, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=fire%20hydrant%20equipment%20sign&image_size=square' },
+        { id: 2, signName: '灭火器', signCode: 'EQ002', meaning: '灭火设备标识', function: '指示灭火器位置，便于火灾时快速取用', equipment: '消防箱', department: '安全部', quantity: 15, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=fire%20extinguisher%20sign&image_size=square' },
+        { id: 3, signName: '电源开关', signCode: 'EQ003', meaning: '电气控制设备标识', function: '指示电源开关位置，便于紧急断电操作', equipment: '配电柜', department: '设备部', quantity: 6, imageUrl: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=electrical%20switch%20sign&image_size=square' }
+      ],
+      
+      currentPage: 1,
+      pageSize: 20,
+      selectedRows: [],
+      showDetailDialog: false,
+      detailData: null
+    };
+  },
+  computed: {
+    currentSafetyTableData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.safetyTableData.slice(start, end);
+    },
+    currentEquipmentTableData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.equipmentTableData.slice(start, end);
+    }
+  },
+  methods: {
+    getCurrentTotal() {
+      return this.signTab === 'safety' ? this.safetyTableData.length : this.equipmentTableData.length;
+    },
+    goToNewPage() {
+      window.location.href = `标志管理台账-批量新建.html?type=${this.signTab}`;
+    },
+    searchData() { ElMessage.success('查询已执行'); },
+    resetSearch() { 
+      if (this.signTab === 'safety') {
+        this.safetySearchForm = { signName: '', signCode: '', category: '', areaName: '', department: '' };
+      } else {
+        this.equipmentSearchForm = { signName: '', signCode: '', department: '' };
+      }
+      ElMessage.info('搜索条件已重置'); 
+    },
+    importData() { ElMessage.info('导入功能开发中'); },
+    exportData() { ElMessage.success('导出功能已触发'); },
+    batchDelete() {
+      if (this.selectedRows.length === 0) { ElMessage.warning('请选择要删除的记录'); return; }
+      ElMessageBox.confirm(`确定要删除选中的 ${this.selectedRows.length} 条记录吗？`, '确认删除', { 
+        confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' 
+      }).then(() => { 
+        ElMessage.success('删除成功'); 
+        this.selectedRows = []; 
+      }).catch(() => { 
+        ElMessage.info('已取消删除'); 
+      });
+    },
+    handleSelectionChange(selection) { this.selectedRows = selection; },
+    viewDetail(row) { 
+      this.detailData = { ...row }; 
+      this.showDetailDialog = true; 
+    },
+    editRow(row) { 
+      ElMessage.info('编辑功能开发中'); 
+    },
+    deleteRow(row) {
+      ElMessageBox.confirm(`确定要删除标志"${row.signName}"吗？`, '确认删除', { 
+        confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' 
+      }).then(() => {
+        const data = this.signTab === 'safety' ? this.safetyTableData : this.equipmentTableData;
+        const index = data.findIndex(item => item.id === row.id);
+        if (index > -1) { 
+          data.splice(index, 1); 
+          ElMessage.success('删除成功'); 
+        }
+      }).catch(() => { 
+        ElMessage.info('已取消删除'); 
+      });
+    },
+    handleSizeChange(val) { this.pageSize = val; this.currentPage = 1; },
+    handleCurrentChange(val) { this.currentPage = val; }
+  }
+}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

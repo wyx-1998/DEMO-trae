@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照明设施管理</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 页面头部 */
+        .page-header {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title i {
+            color: #409EFF;
+            font-size: 24px;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* 功能操作区 */
+        .function-bar {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        /* 搜索区域 */
+        .search-area {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: end;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .search-form.collapsed {
+            max-height: 60px;
+        }
+        
+        .search-form.expanded {
+            max-height: 500px;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: center;
+        }
+        
+        .expand-btn {
+            margin-left: auto;
+            color: #409EFF;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+        }
+        
+        .expand-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .expand-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .expand-btn.expanded i {
+            transform: rotate(180deg);
+        }
+        
+        /* 表格区域 */
+        .table-area {
+            padding: 24px;
+        }
+        
+        .el-table {
+            border-radius: 0;
+        }
+        
+        .el-table th {
+            background-color: #fafafa;
+            color: #606266;
+            font-weight: 600;
+        }
+        
+        /* 分页区域 */
+        .pagination-area {
+            padding: 20px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pagination-info {
+            color: #909399;
+            font-size: 14px;
+        }
+        
+        /* 状态标签 */
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-complete {
+            background: #f0f9ff;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .status-incomplete {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        
+        .status-expired {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        /* 到期提醒样式 */
+        .due-warning {
+            color: #fa8c16;
+            font-weight: 600;
+        }
+        
+        .due-danger {
+            color: #f5222d;
+            font-weight: 600;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .function-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .function-left {
+                justify-content: center;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-lightbulb"></i>
+                照明设施管理（应急照明设施清册）
+            </h1>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <div class="content-card">
+                <!-- 功能操作区 -->
+                <div class="function-bar">
+                    <div class="function-left">
+                        <el-button type="primary" @click="showAddDialog = true">
+                            <i class="fas fa-plus"></i>
+                            新增
+                        </el-button>
+                        <el-button @click="importData">
+                            <i class="fas fa-upload"></i>
+                            批量导入
+                        </el-button>
+                        <el-button @click="exportData">
+                            <i class="fas fa-download"></i>
+                            导出
+                        </el-button>
+                        <el-button @click="printData">
+                            <i class="fas fa-print"></i>
+                            打印
+                        </el-button>
+                        <el-button type="danger" @click="batchDelete" :disabled="selectedRows.length === 0">
+                            <i class="fas fa-trash"></i>
+                            删除
+                        </el-button>
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-area">
+                    <div class="search-form" :class="searchExpanded ? 'expanded' : 'collapsed'">
+                        <el-form-item label="设施名称">
+                            <el-input v-model="searchForm.fixtureName" placeholder="请输入设施名称" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="设施类别">
+                            <el-select v-model="searchForm.fixtureType" placeholder="请选择设施类别" clearable style="width: 100%">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="应急照明" value="应急照明"></el-option>
+                                <el-option label="疏散指示" value="疏散指示"></el-option>
+                                <el-option label="组合灯" value="组合灯"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="安装地点">
+                            <el-input v-model="searchForm.installLocation" placeholder="请输入安装地点" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="所属部门">
+                            <el-select v-model="searchForm.ownerDept" placeholder="请选择所属部门" clearable style="width: 100%">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="生产部" value="生产部"></el-option>
+                                <el-option label="设备部" value="设备部"></el-option>
+                                <el-option label="安全部" value="安全部"></el-option>
+                                <el-option label="维修部" value="维修部"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="到期状态">
+                            <el-select v-model="searchForm.dueStatus" placeholder="请选择到期状态" clearable style="width: 100%">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="正常" value="normal"></el-option>
+                                <el-option label="即将到期" value="warning"></el-option>
+                                <el-option label="已逾期" value="expired"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="合规资料">
+                            <el-select v-model="searchForm.complianceDocs" placeholder="请选择合规状态" clearable style="width: 100%">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="齐全" value="complete"></el-option>
+                                <el-option label="缺失" value="missing"></el-option>
+                                <el-option label="过期" value="expired"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </div>
+                    <div class="search-buttons">
+                        <el-button type="primary" @click="searchData">
+                            <i class="fas fa-search"></i>
+                            查询
+                        </el-button>
+                        <el-button @click="resetSearch">
+                            <i class="fas fa-redo"></i>
+                            重置
+                        </el-button>
+                        <div class="expand-btn" :class="{ expanded: searchExpanded }" @click="toggleSearch">
+                            <span>{{ searchExpanded ? '收起' : '展开' }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="table-area">
+                    <el-table 
+                        :data="tableData" 
+                        style="width: 100%"
+                        @selection-change="handleSelectionChange"
+                        stripe
+                        border>
+                        <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column prop="fixtureName" label="设施名称" min-width="150" sortable></el-table-column>
+                        <el-table-column prop="fixtureType" label="设施类别" width="120">
+                            <template #default="scope">
+                                <el-tag>{{ scope.row.fixtureType }}</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="installLocation" label="安装地点" width="150"></el-table-column>
+                        <el-table-column prop="vendor" label="制造厂家" width="150"></el-table-column>
+                        <el-table-column prop="quantity" label="数量" width="80" sortable></el-table-column>
+                        <el-table-column prop="ownerDept" label="所属部门" width="120"></el-table-column>
+                        <el-table-column prop="commissionTime" label="投入使用时间" width="120" sortable></el-table-column>
+                        <el-table-column prop="maintCycleDays" label="维护周期(天)" width="120"></el-table-column>
+                        <el-table-column prop="nextDueDate" label="下次到期日" width="120" sortable>
+                            <template #default="scope">
+                                <span :class="getDueDateClass(scope.row.nextDueDate)">
+                                    {{ scope.row.nextDueDate }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="complianceDocsStatus" label="合规资料" width="100">
+                            <template #default="scope">
+                                <span :class="getComplianceClass(scope.row.complianceDocsStatus)">
+                                    {{ scope.row.complianceDocsStatus }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="150" fixed="right">
+                            <template #default="scope">
+                                <div class="action-buttons">
+                                    <el-button size="small" type="primary" @click="viewDetail(scope.row)" title="查看"><i class="fas fa-eye"></i></el-button>
+                                    <el-button size="small" type="warning" @click="editRow(scope.row)" title="编辑"><i class="fas fa-edit"></i></el-button>
+                                    <el-button size="small" type="danger" @click="deleteRow(scope.row)" title="删除"><i class="fas fa-trash"></i></el-button>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+
+                <!-- 分页区域 -->
+                <div class="pagination-area">
+                    <div class="pagination-info">
+                        共 {{ total }} 条记录，第 {{ currentPage }} / {{ Math.ceil(total / pageSize) }} 页
+                    </div>
+                    <el-pagination
+                        v-model:current-page="currentPage"
+                        v-model:page-size="pageSize"
+                        :page-sizes="[10, 20, 50, 100]"
+                        :total="total"
+                        layout="sizes, prev, pager, next, jumper"
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新建/编辑弹窗 -->
+        <el-dialog 
+            v-model="showAddDialog" 
+            :title="editingRow ? '编辑应急照明设施' : '新建应急照明设施'"
+            width="900px"
+            :before-close="handleClose">
+            <el-form :model="formData" label-width="160px">
+                <!-- 基本信息 -->
+                <el-divider content-position="left">基本信息</el-divider>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="设施名称" required>
+                            <el-input v-model="formData.fixtureName" placeholder="请输入设施名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="设施类别" required>
+                            <el-select v-model="formData.fixtureType" placeholder="请选择设施类别" style="width: 100%">
+                                <el-option label="应急照明" value="应急照明"></el-option>
+                                <el-option label="疏散指示" value="疏散指示"></el-option>
+                                <el-option label="组合灯" value="组合灯"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="型号/规格" required>
+                            <el-input v-model="formData.model" placeholder="请输入型号/规格"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="制造厂家" required>
+                            <el-input v-model="formData.vendor" placeholder="请输入制造厂家"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
+                <!-- 安装与位置 -->
+                <el-divider content-position="left">安装与位置</el-divider>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="安装地点" required>
+                            <el-input v-model="formData.installLocation" placeholder="请输入安装地点"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="安装高度(m)">
+                            <el-input-number v-model="formData.installHeightM" :min="0" :precision="2" style="width: 100%"></el-input-number>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="数量" required>
+                            <el-input-number v-model="formData.quantity" :min="1" style="width: 100%"></el-input-number>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="供电方式" required>
+                            <el-radio-group v-model="formData.powerMode">
+                                <el-radio label="集中供电">集中供电</el-radio>
+                                <el-radio label="自带电池">自带电池</el-radio>
+                                <el-radio label="组合">组合</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
+                <!-- 维护与合规 -->
+                <el-divider content-position="left">维护与合规</el-divider>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="投入使用时间" required>
+                            <el-date-picker 
+                                v-model="formData.commissionTime" 
+                                type="date" 
+                                placeholder="选择日期"
+                                style="width: 100%"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD"
+                                @change="calculateNextDueDate">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="维护周期(天)" required>
+                            <el-input-number 
+                                v-model="formData.maintCycleDays" 
+                                :min="7" 
+                                :max="365" 
+                                style="width: 100%"
+                                @change="calculateNextDueDate">
+                            </el-input-number>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="下次到期日" required>
+                            <el-date-picker 
+                                v-model="formData.nextDueDate" 
+                                type="date" 
+                                placeholder="选择日期"
+                                style="width: 100%"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="最低应急工作时间(分)" required>
+                            <el-input-number v-model="formData.minEmergRuntimeMin" :min="90" style="width: 100%"></el-input-number>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="光通量/亮度参数">
+                            <el-input v-model="formData.luminousSpec" placeholder="请输入光通量/亮度参数"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="疏散指示有效性" v-if="formData.fixtureType === '疏散指示'">
+                            <el-radio-group v-model="formData.evacSignCompliance">
+                                <el-radio label="合规">合规</el-radio>
+                                <el-radio label="不合规">不合规</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="12">
+                        <el-form-item label="所属部门" required>
+                            <el-select v-model="formData.ownerDept" placeholder="请选择所属部门" style="width: 100%">
+                                <el-option label="生产部" value="生产部"></el-option>
+                                <el-option label="设备部" value="设备部"></el-option>
+                                <el-option label="安全部" value="安全部"></el-option>
+                                <el-option label="维修部" value="维修部"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="责任人" required>
+                            <el-input v-model="formData.ownerUser" placeholder="请输入责任人"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="24">
+                        <el-form-item label="合规资料状态" required>
+                            <el-select v-model="formData.complianceDocsStatus" placeholder="请选择合规资料状态" style="width: 100%">
+                                <el-option label="齐全" value="齐全"></el-option>
+                                <el-option label="缺失" value="缺失"></el-option>
+                                <el-option label="过期" value="过期"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="handleClose">取消</el-button>
+                    <el-button type="primary" @click="saveData">保存</el-button>
+                </span>
+            </template>
+        </el-dialog>
+
+        <!-- 详情查看弹窗 -->
+        <el-dialog v-model="showDetailDialog" title="应急照明设施详情" width="900px">
+            <div v-if="detailData">
+                <el-descriptions title="基本信息" :column="2" border>
+                    <el-descriptions-item label="设施名称">{{ detailData.fixtureName }}</el-descriptions-item>
+                    <el-descriptions-item label="设施类别">
+                        <el-tag>{{ detailData.fixtureType }}</el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="型号/规格">{{ detailData.model }}</el-descriptions-item>
+                    <el-descriptions-item label="制造厂家">{{ detailData.vendor }}</el-descriptions-item>
+                </el-descriptions>
+                
+                <el-descriptions title="安装与位置" :column="2" border style="margin-top: 20px;">
+                    <el-descriptions-item label="安装地点">{{ detailData.installLocation }}</el-descriptions-item>
+                    <el-descriptions-item label="安装高度">{{ detailData.installHeightM }}m</el-descriptions-item>
+                    <el-descriptions-item label="数量">{{ detailData.quantity }}</el-descriptions-item>
+                    <el-descriptions-item label="供电方式">{{ detailData.powerMode }}</el-descriptions-item>
+                </el-descriptions>
+                
+                <el-descriptions title="维护与合规" :column="2" border style="margin-top: 20px;">
+                    <el-descriptions-item label="投入使用时间">{{ detailData.commissionTime }}</el-descriptions-item>
+                    <el-descriptions-item label="维护周期">{{ detailData.maintCycleDays }}天</el-descriptions-item>
+                    <el-descriptions-item label="下次到期日">
+                        <span :class="getDueDateClass(detailData.nextDueDate)">{{ detailData.nextDueDate }}</span>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="最低应急工作时间">{{ detailData.minEmergRuntimeMin }}分钟</el-descriptions-item>
+                    <el-descriptions-item label="光通量/亮度参数">{{ detailData.luminousSpec || '-' }}</el-descriptions-item>
+                    <el-descriptions-item label="疏散指示有效性" v-if="detailData.fixtureType === '疏散指示'">{{ detailData.evacSignCompliance || '-' }}</el-descriptions-item>
+                    <el-descriptions-item label="所属部门">{{ detailData.ownerDept }}</el-descriptions-item>
+                    <el-descriptions-item label="责任人">{{ detailData.ownerUser }}</el-descriptions-item>
+                    <el-descriptions-item label="合规资料状态">
+                        <span :class="getComplianceClass(detailData.complianceDocsStatus)">{{ detailData.complianceDocsStatus }}</span>
+                    </el-descriptions-item>
+                </el-descriptions>
+            </div>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 和 Element Plus -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            data() {
+                return {
+                    // 搜索展开状态
+                    searchExpanded: false,
+                    // 搜索表单
+                    searchForm: {
+                        fixtureName: '',
+                        fixtureType: '',
+                        installLocation: '',
+                        ownerDept: '',
+                        dueStatus: '',
+                        complianceDocs: ''
+                    },
+                    // 表格数据
+                    tableData: [
+                        {
+                            id: 1,
+                            fixtureName: '生产车间应急照明-A区',
+                            fixtureType: '应急照明',
+                            model: 'YJD-001',
+                            vendor: '飞利浦照明',
+                            installLocation: '生产车间A区',
+                            installHeightM: 3.5,
+                            quantity: 20,
+                            ownerDept: '生产部',
+                            commissionTime: '2023-01-15',
+                            powerMode: '集中供电',
+                            maintCycleDays: 30,
+                            nextDueDate: '2024-12-15',
+                            minEmergRuntimeMin: 90,
+                            luminousSpec: '500lm',
+                            ownerUser: '张三',
+                            complianceDocsStatus: '齐全'
+                        },
+                        {
+                            id: 2,
+                            fixtureName: '安全出口疏散指示灯',
+                            fixtureType: '疏散指示',
+                            model: 'SS-200',
+                            vendor: '欧司朗照明',
+                            installLocation: '办公楼各层安全出口',
+                            installHeightM: 2.2,
+                            quantity: 45,
+                            ownerDept: '安全部',
+                            commissionTime: '2023-03-20',
+                            powerMode: '自带电池',
+                            maintCycleDays: 90,
+                            nextDueDate: '2024-11-10',
+                            minEmergRuntimeMin: 90,
+                            luminousSpec: '≥15cd/m²',
+                            evacSignCompliance: '合规',
+                            ownerUser: '李四',
+                            complianceDocsStatus: '缺失'
+                        },
+                        {
+                            id: 3,
+                            fixtureName: '仓库应急照明系统',
+                            fixtureType: '组合灯',
+                            model: 'ZHD-300',
+                            vendor: '松下电器',
+                            installLocation: '仓库中央区域',
+                            installHeightM: 4.0,
+                            quantity: 15,
+                            ownerDept: '设备部',
+                            commissionTime: '2022-11-10',
+                            powerMode: '组合',
+                            maintCycleDays: 60,
+                            nextDueDate: '2024-11-05',
+                            minEmergRuntimeMin: 120,
+                            luminousSpec: '800lm',
+                            ownerUser: '王五',
+                            complianceDocsStatus: '过期'
+                        }
+                    ],
+                    // 分页
+                    currentPage: 1,
+                    pageSize: 20,
+                    total: 3,
+                    // 选中行
+                    selectedRows: [],
+                    // 弹窗控制
+                    showAddDialog: false,
+                    showDetailDialog: false,
+                    // 表单数据
+                    formData: {
+                        fixtureName: '',
+                        fixtureType: '',
+                        model: '',
+                        vendor: '',
+                        installLocation: '',
+                        installHeightM: null,
+                        quantity: 1,
+                        ownerDept: '',
+                        commissionTime: '',
+                        powerMode: '集中供电',
+                        maintCycleDays: 30,
+                        nextDueDate: '',
+                        minEmergRuntimeMin: 90,
+                        luminousSpec: '',
+                        evacSignCompliance: '',
+                        ownerUser: '',
+                        complianceDocsStatus: '齐全'
+                    },
+                    // 编辑状态
+                    editingRow: null,
+                    // 详情数据
+                    detailData: null
+                }
+            },
+            methods: {
+                // 切换搜索区域展开/收起
+                toggleSearch() {
+                    this.searchExpanded = !this.searchExpanded;
+                },
+                
+                // 计算下次到期日
+                calculateNextDueDate() {
+                    if (this.formData.commissionTime && this.formData.maintCycleDays) {
+                        const commissionDate = new Date(this.formData.commissionTime);
+                        const nextDue = new Date(commissionDate.getTime() + this.formData.maintCycleDays * 24 * 60 * 60 * 1000);
+                        this.formData.nextDueDate = nextDue.toISOString().split('T')[0];
+                    }
+                },
+                
+                // 获取到期日样式
+                getDueDateClass(dueDate) {
+                    const today = new Date();
+                    const due = new Date(dueDate);
+                    const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays < 0) {
+                        return 'due-danger'; // 已逾期
+                    } else if (diffDays <= 7) {
+                        return 'due-warning'; // 7天内到期
+                    }
+                    return '';
+                },
+                
+                // 获取合规资料状态样式
+                getComplianceClass(status) {
+                    switch (status) {
+                        case '齐全':
+                            return 'status-tag status-complete';
+                        case '缺失':
+                            return 'status-tag status-incomplete';
+                        case '过期':
+                            return 'status-tag status-expired';
+                        default:
+                            return 'status-tag';
+                    }
+                },
+                
+                // 搜索数据
+                searchData() {
+                    ElMessage.success('搜索功能已触发');
+                    // 这里应该调用后端API进行搜索
+                },
+                
+                // 重置搜索
+                resetSearch() {
+                    this.searchForm = {
+                        fixtureName: '',
+                        fixtureType: '',
+                        installLocation: '',
+                        ownerDept: '',
+                        dueStatus: '',
+                        complianceDocs: ''
+                    };
+                    ElMessage.info('搜索条件已重置');
+                },
+                
+                // 导入数据
+                importData() {
+                    ElMessage.info('批量导入功能开发中');
+                },
+                
+                // 导出数据
+                exportData() {
+                    ElMessage.success('导出功能已触发');
+                },
+                
+                // 打印
+                printData() {
+                    ElMessage.info('打印功能已触发');
+                },
+                
+                // 批量删除
+                batchDelete() {
+                    if (this.selectedRows.length === 0) {
+                        ElMessage.warning('请选择要删除的记录');
+                        return;
+                    }
+                    ElMessageBox.confirm(
+                        `确定要删除选中的 ${this.selectedRows.length} 条记录吗？`,
+                        '确认删除',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning',
+                        }
+                    ).then(() => {
+                        ElMessage.success('删除成功');
+                        this.selectedRows = [];
+                    }).catch(() => {
+                        ElMessage.info('已取消删除');
+                    });
+                },
+                
+                // 选择变化
+                handleSelectionChange(selection) {
+                    this.selectedRows = selection;
+                },
+                
+                // 查看详情
+                viewDetail(row) {
+                    this.detailData = { ...row };
+                    this.showDetailDialog = true;
+                },
+                
+                // 编辑行
+                editRow(row) {
+                    this.editingRow = row;
+                    this.formData = { ...row };
+                    this.showAddDialog = true;
+                },
+                
+                // 删除行
+                deleteRow(row) {
+                    ElMessageBox.confirm(
+                        `确定要删除设施"${row.fixtureName}"吗？`,
+                        '确认删除',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning',
+                        }
+                    ).then(() => {
+                        const index = this.tableData.findIndex(item => item.id === row.id);
+                        if (index > -1) {
+                            this.tableData.splice(index, 1);
+                            this.total--;
+                            ElMessage.success('删除成功');
+                        }
+                    }).catch(() => {
+                        ElMessage.info('已取消删除');
+                    });
+                },
+                
+                // 保存数据
+                saveData() {
+                    // 简单验证
+                    if (!this.formData.fixtureName || !this.formData.fixtureType || 
+                        !this.formData.model || !this.formData.vendor ||
+                        !this.formData.installLocation || !this.formData.ownerDept ||
+                        !this.formData.commissionTime || !this.formData.maintCycleDays ||
+                        !this.formData.nextDueDate || !this.formData.minEmergRuntimeMin ||
+                        !this.formData.ownerUser || !this.formData.complianceDocsStatus) {
+                        ElMessage.error('请填写所有必填字段');
+                        return;
+                    }
+
+                    if (this.editingRow) {
+                        // 编辑模式
+                        const index = this.tableData.findIndex(item => item.id === this.editingRow.id);
+                        if (index > -1) {
+                            this.tableData[index] = { ...this.formData, id: this.editingRow.id };
+                        }
+                        ElMessage.success('修改成功');
+                    } else {
+                        // 新增模式
+                        const newId = Math.max(...this.tableData.map(item => item.id)) + 1;
+                        this.tableData.push({ ...this.formData, id: newId });
+                        this.total++;
+                        ElMessage.success('新增成功');
+                    }
+                    
+                    this.handleClose();
+                },
+                
+                // 关闭弹窗
+                handleClose() {
+                    this.showAddDialog = false;
+                    this.editingRow = null;
+                    this.formData = {
+                        fixtureName: '',
+                        fixtureType: '',
+                        model: '',
+                        vendor: '',
+                        installLocation: '',
+                        installHeightM: null,
+                        quantity: 1,
+                        ownerDept: '',
+                        commissionTime: '',
+                        powerMode: '集中供电',
+                        maintCycleDays: 30,
+                        nextDueDate: '',
+                        minEmergRuntimeMin: 90,
+                        luminousSpec: '',
+                        evacSignCompliance: '',
+                        ownerUser: '',
+                        complianceDocsStatus: '齐全'
+                    };
+                },
+                
+                // 分页大小变化
+                handleSizeChange(val) {
+                    this.pageSize = val;
+                    this.currentPage = 1;
+                },
+                
+                // 当前页变化
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>
+
