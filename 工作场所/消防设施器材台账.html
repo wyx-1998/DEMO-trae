@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消防设施器材台账</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 页面头部 */
+        .page-header {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title i {
+            color: #F56C6C;
+            font-size: 24px;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* 功能操作区 */
+        .function-bar {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .function-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* 搜索区域 */
+        .search-area {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: end;
+        }
+        
+        @media (max-width: 1200px) {
+            .search-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        /* 表格区域 */
+        .table-area {
+            padding: 24px;
+        }
+        
+        .el-table {
+            border-radius: 0;
+        }
+        
+        .el-table th {
+            background-color: #fafafa;
+            color: #606266;
+            font-weight: 600;
+        }
+        
+        /* 分页区域 */
+        .pagination-area {
+            padding: 20px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pagination-info {
+            color: #909399;
+            font-size: 14px;
+        }
+        
+        /* 状态标签 */
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-normal {
+            background: #f0f9ff;
+            color: #1890ff;
+            border: 1px solid #d1ecf1;
+        }
+        
+        .status-fault {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        
+        .status-maintenance {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .status-disabled {
+            background: #fafafa;
+            color: #909399;
+            border: 1px solid #e8e8e8;
+        }
+        
+        .reminder-normal {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .reminder-near {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .reminder-overdue {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 详情页面样式 */
+        .detail-container {
+            padding: 24px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .detail-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .detail-section {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #fafafa;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-content {
+            padding: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        @media (max-width: 992px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-label {
+            width: 120px;
+            color: #606266;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            color: #303133;
+            flex: 1;
+        }
+        
+        /* 表单页面样式 */
+        .form-container {
+            padding: 24px;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .form-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .form-section {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .form-section-content {
+            padding: 20px;
+        }
+        
+        /* 表单标签右对齐 */
+        .el-form--label-right .el-form-item__label {
+            text-align: right;
+        }
+        
+        /* 详情页只读输入框置灰样式 */
+        .readonly-input .el-input__wrapper {
+            background-color: #f5f7fa;
+            box-shadow: 0 0 0 1px #dcdfe6 inset;
+        }
+        .readonly-input .el-input__inner {
+            color: #909399;
+        }
+        .readonly-input .el-input__wrapper:hover {
+            box-shadow: 0 0 0 1px #dcdfe6 inset;
+        }
+        
+        /* 折叠动画 */
+        .collapse-enter-active,
+        .collapse-leave-active {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .collapse-enter-from,
+        .collapse-leave-to {
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .collapse-enter-to,
+        .collapse-leave-from {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+            
+            .function-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .function-left,
+            .function-right {
+                justify-content: center;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            .info-label {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-fire-extinguisher"></i>
+                    消防设施器材台账
+                </h1>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <!-- 列表视图 -->
+                <div v-if="activeView === 'list'">
+                    <div class="content-card">
+                        <!-- 功能操作区 -->
+                        <div class="function-bar">
+                            <div class="function-left">
+                                <el-button type="primary" @click="showForm('create')">
+                                    <i class="fas fa-plus"></i>
+                                    新建
+                                </el-button>
+                                <el-button @click="importData">
+                                    <i class="fas fa-upload"></i>
+                                    导入
+                                </el-button>
+                                <el-button @click="exportData">
+                                    <i class="fas fa-download"></i>
+                                    导出
+                                </el-button>
+                                <el-button 
+                                    type="danger" 
+                                    :disabled="selectedRows.length === 0"
+                                    @click="batchDelete">
+                                    <i class="fas fa-trash"></i>
+                                    批量删除
+                                </el-button>
+                                <el-button type="warning" @click="openReminderConfig">
+                                    <i class="fas fa-bell"></i>
+                                    到期提醒配置
+                                </el-button>
+                            </div>
+                            <div class="function-right">
+                                <span class="pagination-info">
+                                    共 {{ pagination.total }} 条记录
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- 搜索区域 -->
+                        <div class="search-area">
+                            <div class="search-form">
+                                <el-form-item label="设施名称">
+                                    <el-input 
+                                        v-model="searchForm.name" 
+                                        placeholder="请输入设施名称"
+                                        clearable>
+                                    </el-input>
+                                </el-form-item>
+                                
+                                <el-form-item label="设施类别">
+                                    <el-select 
+                                        v-model="searchForm.category" 
+                                        placeholder="请选择设施类别"
+                                        clearable>
+                                        <el-option label="室外消火栓" value="室外消火栓"></el-option>
+                                        <el-option label="室内消火栓" value="室内消火栓"></el-option>
+                                        <el-option label="自动喷水灭火系统" value="自动喷水灭火系统"></el-option>
+                                        <el-option label="火灾自动报警系统" value="火灾自动报警系统"></el-option>
+                                        <el-option label="灭火器" value="灭火器"></el-option>
+                                        <el-option label="应急照明与疏散指示系统" value="应急照明与疏散指示系统"></el-option>
+                                        <el-option label="防烟排烟系统" value="防烟排烟系统"></el-option>
+                                        <el-option label="消防控制室设备" value="消防控制室设备"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                
+                                <el-form-item label="所属部门">
+                                    <el-select 
+                                        v-model="searchForm.department" 
+                                        placeholder="请选择所属部门"
+                                        clearable>
+                                        <el-option label="生产部" value="生产部"></el-option>
+                                        <el-option label="办公区" value="办公区"></el-option>
+                                        <el-option label="仓储部" value="仓储部"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                
+                                <template v-if="searchExpanded">
+                                    <el-form-item label="运行状态">
+                                        <el-select 
+                                            v-model="searchForm.status" 
+                                            placeholder="请选择运行状态"
+                                            clearable>
+                                            <el-option label="正常运行" value="normal"></el-option>
+                                            <el-option label="故障" value="fault"></el-option>
+                                            <el-option label="维修中" value="maintenance"></el-option>
+                                            <el-option label="停用" value="disabled"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    
+                                    <el-form-item label="投用日期">
+                                        <el-date-picker
+                                            v-model="searchForm.dateRange"
+                                            type="daterange"
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            format="YYYY-MM-DD"
+                                            value-format="YYYY-MM-DD">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </template>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                                <el-button 
+                                    link 
+                                    type="primary" 
+                                    @click="searchExpanded = !searchExpanded"
+                                    style="padding: 0;">
+                                    <i :class="searchExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                                    {{ searchExpanded ? '收起' : '展开' }}
+                                </el-button>
+                            </div>
+                            
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="searchData" :loading="loading">
+                                    <i class="fas fa-search"></i>
+                                    搜索
+                                </el-button>
+                                <el-button @click="resetSearch">
+                                    <i class="fas fa-redo"></i>
+                                    重置
+                                </el-button>
+                            </div>
+                        </div>
+                        
+                        <!-- 表格区域 -->
+                        <div class="table-area">
+                            <el-table 
+                                :data="tableData" 
+                                v-loading="loading"
+                                @selection-change="handleSelectionChange"
+                                stripe
+                                border>
+                                <el-table-column type="selection" width="55"></el-table-column>
+                                <el-table-column prop="code" label="设施编号" width="120"></el-table-column>
+                                <el-table-column prop="name" label="设施名称" min-width="150"></el-table-column>
+                                <el-table-column prop="category" label="设施类别" width="140"></el-table-column>
+                                <el-table-column prop="model" label="型号" width="120"></el-table-column>
+                                <el-table-column prop="location" label="安装位置" width="120"></el-table-column>
+                                <el-table-column prop="department" label="所属部门" width="100"></el-table-column>
+                                <el-table-column prop="startDate" label="投用日期" width="110"></el-table-column>
+                                <el-table-column prop="status" label="运行状态" width="100">
+                                    <template #default="scope">
+                                        <span :class="getStatusClass(scope.row.status)">
+                                            {{ getStatusText(scope.row.status) }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="nextCheckDate" label="下次检查日期" width="120"></el-table-column>
+                                <el-table-column prop="reminderStatus" label="状态标识" width="90">
+                                    <template #default="scope">
+                                        <span :class="getReminderClass(scope.row.reminderStatus)">
+                                            {{ getReminderText(scope.row.reminderStatus) }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作" width="280" fixed="right">
+                                    <template #default="scope">
+                                        <div class="action-buttons">
+                                            <el-button size="small" type="primary" @click="viewDetail(scope.row)" title="查看">
+                                                <i class="fas fa-eye"></i>
+                                            </el-button>
+                                            <el-button size="small" type="warning" @click="editItem(scope.row)" title="编辑">
+                                                <i class="fas fa-edit"></i>
+                                            </el-button>
+                                            <el-button size="small" type="success" @click="generateQRCode(scope.row)" title="生成二维码">
+                                                <i class="fas fa-qrcode"></i>
+                                            </el-button>
+                                            <el-button size="small" type="info" @click="viewCheckRecords(scope.row)" title="检查记录">
+                                                <i class="fas fa-clipboard-list"></i>
+                                            </el-button>
+                                            <el-button size="small" type="danger" @click="deleteItem(scope.row)" title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </el-button>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        
+                        <!-- 分页区域 -->
+                        <div class="pagination-area">
+                            <div class="pagination-info">
+                                显示第 {{ (pagination.currentPage - 1) * pagination.pageSize + 1 }} 到 
+                                {{ Math.min(pagination.currentPage * pagination.pageSize, pagination.total) }} 条，
+                                共 {{ pagination.total }} 条记录
+                            </div>
+                            <el-pagination
+                                v-model:current-page="pagination.currentPage"
+                                v-model:page-size="pagination.pageSize"
+                                :page-sizes="[10, 20, 50, 100]"
+                                :total="pagination.total"
+                                layout="sizes, prev, pager, next, jumper"
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 详情视图 -->
+                <div v-if="activeView === 'detail' && currentItem">
+                    <div class="content-card">
+                        <div class="detail-container">
+                            <div class="detail-header">
+                                <div class="detail-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ currentItem.name }} - 详细信息
+                                </div>
+                                <div class="detail-actions">
+                                    <el-button @click="goBackToList">
+                                        <i class="fas fa-arrow-left"></i>
+                                        返回列表
+                                    </el-button>
+                                    <el-button type="primary" @click="editItem(currentItem)">
+                                        <i class="fas fa-edit"></i>
+                                        编辑
+                                    </el-button>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-sections">
+                                <!-- 基础信息 -->
+                                <div class="detail-section">
+                                    <div class="section-header" @click="toggleSection('basic')">
+                                        <div class="section-title">
+                                            <i class="fas fa-info-circle"></i>
+                                            基础信息
+                                        </div>
+                                        <i :class="collapsedSections.basic ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                    </div>
+                                    <transition name="collapse">
+                                        <div v-show="!collapsedSections.basic" class="section-content">
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <span class="info-label">设施编号：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.code" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">设施名称：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.name" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">设施类别：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.category" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">设备类型：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.equipmentType" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">型号：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.model" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">规格参数：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.specs" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">生产厂家：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.manufacturer" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">安装位置：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.location" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">所属部门：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.department" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">投用日期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.startDate" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">责任人：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.responsible" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">运行状态：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="getStatusText(currentItem.status)" readonly /></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </div>
+                                
+                                <!-- 检查周期配置 -->
+                                <div class="detail-section">
+                                    <div class="section-header" @click="toggleSection('checkCycle')">
+                                        <div class="section-title">
+                                            <i class="fas fa-clock"></i>
+                                            检查周期配置
+                                        </div>
+                                        <i :class="collapsedSections.checkCycle ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                    </div>
+                                    <transition name="collapse">
+                                        <div v-show="!collapsedSections.checkCycle" class="section-content">
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <span class="info-label">例行检查周期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.routineCheckCycle || '每月'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">功能试验周期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.functionTestCycle || '每季度'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">维保周期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.maintenanceCycle || '每年'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">提前提醒天数：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.reminderDays || '7'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">上次检查日期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.lastCheckDate || '暂无'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">下次检查日期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.nextCheckDate" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">检查开始日期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.checkStartDate || '暂无'" readonly /></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="info-label">检查结束日期：</span>
+                                                    <div class="info-value"><el-input class="readonly-input" :model-value="currentItem.checkEndDate || '暂无'" readonly /></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 表单视图 -->
+                <div v-if="activeView === 'form'">
+                    <div class="content-card">
+                        <div class="form-container">
+                            <div class="form-header">
+                                <div class="form-title">
+                                    <i class="fas fa-edit"></i>
+                                    {{ formMode === 'create' ? '新建消防设施' : '编辑消防设施' }}
+                                </div>
+                                <div class="form-actions">
+                                    <el-button @click="goBackToList">
+                                        <i class="fas fa-arrow-left"></i>
+                                        返回
+                                    </el-button>
+                                </div>
+                            </div>
+                            
+                            <el-form 
+                                :model="formData" 
+                                :rules="formRules" 
+                                ref="formRef"
+                                label-width="140px"
+                                label-position="right">
+                                
+                                <div class="form-sections">
+                                    <!-- 基础信息 -->
+                                    <div class="form-section">
+                                        <div class="section-header" @click="toggleSection('formBasic')">
+                                            <div class="section-title">
+                                                <i class="fas fa-info-circle"></i>
+                                                基础信息
+                                            </div>
+                                            <i :class="collapsedSections.formBasic ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                        </div>
+                                        <transition name="collapse">
+                                            <div v-show="!collapsedSections.formBasic" class="form-section-content">
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="设施编号" prop="code">
+                                                            <el-input v-model="formData.code" placeholder="系统自动生成" disabled></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="设施名称" prop="name">
+                                                            <el-input v-model="formData.name" placeholder="请输入设施名称"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="设施类别" prop="category">
+                                                            <el-select v-model="formData.category" placeholder="请选择设施类别" style="width: 100%" @change="handleCategoryChange">
+                                                                <el-option label="室外消火栓" value="室外消火栓"></el-option>
+                                                                <el-option label="室内消火栓" value="室内消火栓"></el-option>
+                                                                <el-option label="自动喷水灭火系统" value="自动喷水灭火系统"></el-option>
+                                                                <el-option label="火灾自动报警系统" value="火灾自动报警系统"></el-option>
+                                                                <el-option label="灭火器" value="灭火器"></el-option>
+                                                                <el-option label="应急照明与疏散指示系统" value="应急照明与疏散指示系统"></el-option>
+                                                                <el-option label="防烟排烟系统" value="防烟排烟系统"></el-option>
+                                                                <el-option label="消防控制室设备" value="消防控制室设备"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="设备类型" prop="equipmentType">
+                                                            <el-select v-model="formData.equipmentType" placeholder="请选择设备类型" style="width: 100%" :disabled="!formData.category">
+                                                                <el-option 
+                                                                    v-for="type in equipmentTypeOptions" 
+                                                                    :key="type.value" 
+                                                                    :label="type.label" 
+                                                                    :value="type.value">
+                                                                </el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="型号" prop="model">
+                                                            <el-input v-model="formData.model" placeholder="请输入型号"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="规格参数" prop="specs">
+                                                            <el-input v-model="formData.specs" placeholder="请输入规格参数"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="生产厂家" prop="manufacturer">
+                                                            <el-input v-model="formData.manufacturer" placeholder="请输入生产厂家"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="安装位置" prop="location">
+                                                            <el-input v-model="formData.location" placeholder="请输入安装位置"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="所属部门" prop="department">
+                                                            <el-select v-model="formData.department" placeholder="请选择所属部门" style="width: 100%">
+                                                                <el-option label="生产部" value="生产部"></el-option>
+                                                                <el-option label="办公区" value="办公区"></el-option>
+                                                                <el-option label="仓储部" value="仓储部"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="投用日期" prop="startDate">
+                                                            <el-date-picker 
+                                                                v-model="formData.startDate" 
+                                                                type="date" 
+                                                                placeholder="选择日期"
+                                                                format="YYYY-MM-DD"
+                                                                value-format="YYYY-MM-DD"
+                                                                style="width: 100%">
+                                                            </el-date-picker>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="责任人" prop="responsible">
+                                                            <el-input v-model="formData.responsible" placeholder="请输入责任人"></el-input>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="运行状态" prop="status">
+                                                            <el-select v-model="formData.status" placeholder="请选择运行状态" style="width: 100%">
+                                                                <el-option label="正常运行" value="normal"></el-option>
+                                                                <el-option label="故障" value="fault"></el-option>
+                                                                <el-option label="维修中" value="maintenance"></el-option>
+                                                                <el-option label="停用" value="disabled"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                    
+                                    <!-- 检查周期配置 -->
+                                    <div class="form-section">
+                                        <div class="section-header" @click="toggleSection('formCheckCycle')">
+                                            <div class="section-title">
+                                                <i class="fas fa-clock"></i>
+                                                检查周期配置
+                                            </div>
+                                            <i :class="collapsedSections.formCheckCycle ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                                        </div>
+                                        <transition name="collapse">
+                                            <div v-show="!collapsedSections.formCheckCycle" class="form-section-content">
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="例行检查周期" prop="routineCheckCycle">
+                                                            <el-select v-model="formData.routineCheckCycle" placeholder="请选择周期" style="width: 100%">
+                                                                <el-option label="每日" value="每日"></el-option>
+                                                                <el-option label="每周" value="每周"></el-option>
+                                                                <el-option label="每月" value="每月"></el-option>
+                                                                <el-option label="每季度" value="每季度"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="功能试验周期" prop="functionTestCycle">
+                                                            <el-select v-model="formData.functionTestCycle" placeholder="请选择周期" style="width: 100%">
+                                                                <el-option label="每月" value="每月"></el-option>
+                                                                <el-option label="每季度" value="每季度"></el-option>
+                                                                <el-option label="每半年" value="每半年"></el-option>
+                                                                <el-option label="每年" value="每年"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="维保周期" prop="maintenanceCycle">
+                                                            <el-select v-model="formData.maintenanceCycle" placeholder="请选择周期" style="width: 100%">
+                                                                <el-option label="每半年" value="每半年"></el-option>
+                                                                <el-option label="每年" value="每年"></el-option>
+                                                            </el-select>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                                <el-row :gutter="20">
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="提前提醒天数" prop="reminderDays">
+                                                            <el-input-number v-model="formData.reminderDays" :min="1" :max="30" style="width: 100%"></el-input-number>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="检查开始日期" prop="checkStartDate">
+                                                            <el-date-picker 
+                                                                v-model="formData.checkStartDate" 
+                                                                type="date" 
+                                                                placeholder="选择检查开始日期"
+                                                                format="YYYY-MM-DD"
+                                                                value-format="YYYY-MM-DD"
+                                                                style="width: 100%">
+                                                            </el-date-picker>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                    <el-col :xs="24" :sm="8">
+                                                        <el-form-item label="检查结束日期" prop="checkEndDate">
+                                                            <el-date-picker 
+                                                                v-model="formData.checkEndDate" 
+                                                                type="date" 
+                                                                placeholder="选择检查结束日期"
+                                                                format="YYYY-MM-DD"
+                                                                value-format="YYYY-MM-DD"
+                                                                style="width: 100%">
+                                                            </el-date-picker>
+                                                        </el-form-item>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                </div>
+                                
+                                <!-- 表单操作按钮 -->
+                                <div style="text-align: center; margin-top: 30px;">
+                                    <el-button @click="goBackToList">取消</el-button>
+                                    <el-button type="primary" @click="submitForm" :loading="submitting">
+                                        {{ formMode === 'create' ? '保存' : '更新' }}
+                                    </el-button>
+                                    <el-button v-if="formMode === 'create'" type="success" @click="submitAndNew" :loading="submitting">
+                                        保存并新建
+                                    </el-button>
+                                </div>
+                            </el-form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 二维码弹窗 -->
+        <el-dialog 
+            v-model="qrCodeDialogVisible" 
+            title="设备二维码" 
+            width="500px"
+            :close-on-click-modal="false">
+            <div style="text-align: center; padding: 20px;">
+                <div style="margin-bottom: 20px;">
+                    <div style="margin-bottom: 10px;"><strong>设备编号：</strong>{{ currentQRItem?.code }}</div>
+                    <div style="margin-bottom: 10px;"><strong>设备名称：</strong>{{ currentQRItem?.name }}</div>
+                    <div style="margin-bottom: 10px;"><strong>设备类别：</strong>{{ currentQRItem?.category }}</div>
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; padding: 20px; background: #f5f7fa; border-radius: 8px; margin: 20px 0;">
+                    <div style="width: 200px; height: 200px; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 2px solid #dcdfe6; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #909399;">
+                            <i class="fas fa-qrcode" style="font-size: 80px; color: #409eff;"></i>
+                            <div style="margin-top: 10px;">二维码</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="qrCodeDialogVisible = false">关闭</el-button>
+                <el-button type="primary" @click="printQRCode">打印</el-button>
+                <el-button type="success" @click="downloadQRCode">下载</el-button>
+            </template>
+        </el-dialog>
+        
+        <!-- 到期提醒配置弹窗 -->
+        <el-dialog 
+            v-model="reminderConfigDialogVisible" 
+            title="到期提醒配置" 
+            width="800px"
+            :close-on-click-modal="false">
+            <el-form :model="reminderConfig" label-width="150px" label-position="right">
+                <el-form-item label="默认提前提醒天数">
+                    <el-input-number v-model="reminderConfig.defaultReminderDays" :min="1" :max="30" style="width: 100%"></el-input-number>
+                    <div style="font-size: 12px; color: #909399; margin-top: 5px;">设置在检查到期前多少天开始提醒</div>
+                </el-form-item>
+                
+                <el-form-item label="提醒方式">
+                    <el-checkbox-group v-model="reminderConfig.reminderMethods">
+                        <el-checkbox label="system">系统消息</el-checkbox>
+                        <el-checkbox label="email">邮件通知</el-checkbox>
+                        <el-checkbox label="sms">短信通知</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                
+                <el-form-item label="提醒对象">
+                    <el-select v-model="reminderConfig.reminderTargets" multiple placeholder="请选择提醒对象" style="width: 100%">
+                        <el-option label="责任人" value="responsible"></el-option>
+                        <el-option label="部门负责人" value="departmentHead"></el-option>
+                        <el-option label="安全管理员" value="safetyManager"></el-option>
+                        <el-option label="系统管理员" value="systemAdmin"></el-option>
+                    </el-select>
+                </el-form-item>
+                
+                <el-form-item label="提醒时间">
+                    <el-time-picker
+                        v-model="reminderConfig.reminderTime"
+                        placeholder="选择提醒时间"
+                        format="HH:mm"
+                        value-format="HH:mm"
+                        style="width: 100%">
+                    </el-time-picker>
+                </el-form-item>
+                
+                <el-form-item label="是否启用自动提醒">
+                    <el-switch v-model="reminderConfig.autoReminder"></el-switch>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="reminderConfigDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveReminderConfig">保存配置</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 和 Element Plus -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    
+    <script>
+        const { createApp, ref, reactive } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+        
+        const app = createApp({
+            setup() {
+                // 当前活动视图
+                const activeView = ref('list');
+                
+                // 当前项目和表单状态
+                const currentItem = ref(null);
+                const formMode = ref('create');
+                const loading = ref(false);
+                const submitting = ref(false);
+                
+                // 搜索表单
+                const searchForm = reactive({
+                    name: '',
+                    category: '',
+                    department: '',
+                    status: '',
+                    dateRange: []
+                });
+                
+                // 搜索展开状态
+                const searchExpanded = ref(false);
+                
+                // 二维码弹窗
+                const qrCodeDialogVisible = ref(false);
+                const currentQRItem = ref(null);
+                
+                // 到期提醒配置弹窗
+                const reminderConfigDialogVisible = ref(false);
+                const reminderConfig = reactive({
+                    defaultReminderDays: 7,
+                    reminderMethods: ['system'],
+                    reminderTargets: ['responsible'],
+                    reminderTime: '09:00',
+                    autoReminder: true
+                });
+                
+                // 设备类型选项映射（根据设施类别联动）
+                const equipmentTypeMap = {
+                    '室外消火栓': [
+                        { label: '地上式', value: '地上式' },
+                        { label: '地下式', value: '地下式' },
+                        { label: '墙壁式', value: '墙壁式' }
+                    ],
+                    '室内消火栓': [
+                        { label: '单阀单出口', value: '单阀单出口' },
+                        { label: '单阀双出口', value: '单阀双出口' },
+                        { label: '双阀双出口', value: '双阀双出口' }
+                    ],
+                    '自动喷水灭火系统': [
+                        { label: '湿式系统', value: '湿式系统' },
+                        { label: '干式系统', value: '干式系统' },
+                        { label: '预作用系统', value: '预作用系统' },
+                        { label: '雨淋系统', value: '雨淋系统' }
+                    ],
+                    '火灾自动报警系统': [
+                        { label: '区域报警系统', value: '区域报警系统' },
+                        { label: '集中报警系统', value: '集中报警系统' },
+                        { label: '控制中心报警系统', value: '控制中心报警系统' }
+                    ],
+                    '灭火器': [
+                        { label: '手提式干粉灭火器', value: '手提式干粉灭火器' },
+                        { label: '推车式干粉灭火器', value: '推车式干粉灭火器' },
+                        { label: '手提式泡沫灭火器', value: '手提式泡沫灭火器' },
+                        { label: '手提式二氧化碳灭火器', value: '手提式二氧化碳灭火器' },
+                        { label: '水基型灭火器', value: '水基型灭火器' }
+                    ],
+                    '应急照明与疏散指示系统': [
+                        { label: '应急照明灯', value: '应急照明灯' },
+                        { label: '疏散指示标志', value: '疏散指示标志' },
+                        { label: '应急照明控制器', value: '应急照明控制器' }
+                    ],
+                    '防烟排烟系统': [
+                        { label: '正压送风机', value: '正压送风机' },
+                        { label: '排烟风机', value: '排烟风机' },
+                        { label: '防火阀', value: '防火阀' },
+                        { label: '排烟阀', value: '排烟阀' }
+                    ],
+                    '消防控制室设备': [
+                        { label: '火灾报警控制器', value: '火灾报警控制器' },
+                        { label: '消防联动控制器', value: '消防联动控制器' },
+                        { label: '消防控制室图形显示装置', value: '消防控制室图形显示装置' },
+                        { label: '消防电话总机', value: '消防电话总机' }
+                    ]
+                };
+                
+                // 设备类型选项（计算属性）
+                const equipmentTypeOptions = ref([]);
+                
+                // 分页信息
+                const pagination = reactive({
+                    currentPage: 1,
+                    pageSize: 20,
+                    total: 0
+                });
+                
+                // 选中的行
+                const selectedRows = ref([]);
+                
+                // 折叠状态
+                const collapsedSections = reactive({
+                    basic: false,
+                    checkCycle: false,
+                    formBasic: false,
+                    formCheckCycle: false
+                });
+                
+                // 表单数据
+                const formData = reactive({
+                    code: '',
+                    name: '',
+                    category: '',
+                    equipmentType: '',
+                    model: '',
+                    specs: '',
+                    manufacturer: '',
+                    location: '',
+                    department: '',
+                    startDate: '',
+                    responsible: '',
+                    status: 'normal',
+                    routineCheckCycle: '每月',
+                    functionTestCycle: '每季度',
+                    maintenanceCycle: '每年',
+                    reminderDays: 7,
+                    checkStartDate: '',
+                    checkEndDate: ''
+                });
+                
+                // 表单验证规则
+                const formRules = {
+                    name: [{ required: true, message: '请输入设施名称', trigger: 'blur' }],
+                    category: [{ required: true, message: '请选择设施类别', trigger: 'change' }],
+                    model: [{ required: true, message: '请输入型号', trigger: 'blur' }],
+                    manufacturer: [{ required: true, message: '请输入生产厂家', trigger: 'blur' }],
+                    location: [{ required: true, message: '请输入安装位置', trigger: 'blur' }],
+                    department: [{ required: true, message: '请选择所属部门', trigger: 'change' }],
+                    startDate: [{ required: true, message: '请选择投用日期', trigger: 'change' }],
+                    responsible: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
+                    status: [{ required: true, message: '请选择运行状态', trigger: 'change' }]
+                };
+                
+                // 模拟数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        code: 'XH001',
+                        name: '1号楼室外消火栓',
+                        category: '室外消火栓',
+                        equipmentType: '地上式',
+                        model: 'SS100',
+                        specs: 'DN100',
+                        manufacturer: '某某消防设备厂',
+                        location: '1号楼东侧',
+                        department: '生产部',
+                        startDate: '2020-01-15',
+                        responsible: '张三',
+                        status: 'normal',
+                        routineCheckCycle: '每月',
+                        functionTestCycle: '每季度',
+                        maintenanceCycle: '每年',
+                        reminderDays: 7,
+                        lastCheckDate: '2024-11-01',
+                        nextCheckDate: '2024-12-01',
+                        reminderStatus: 'normal'
+                    },
+                    {
+                        id: 2,
+                        code: 'MHQ001',
+                        name: '办公区干粉灭火器',
+                        category: '灭火器',
+                        equipmentType: '手提式干粉灭火器',
+                        model: 'MFZ/ABC4',
+                        specs: '4kg',
+                        manufacturer: '某某消防器材公司',
+                        location: '办公楼2层走廊',
+                        department: '办公区',
+                        startDate: '2021-03-20',
+                        responsible: '李四',
+                        status: 'normal',
+                        routineCheckCycle: '每月',
+                        functionTestCycle: '每年',
+                        maintenanceCycle: '每年',
+                        reminderDays: 7,
+                        lastCheckDate: '2024-10-25',
+                        nextCheckDate: '2024-11-25',
+                        reminderStatus: 'overdue'
+                    },
+                    {
+                        id: 3,
+                        code: 'BJ001',
+                        name: '火灾自动报警系统主机',
+                        category: '火灾自动报警系统',
+                        equipmentType: '集中报警系统',
+                        model: 'JB-QB-GST5000',
+                        specs: '128回路',
+                        manufacturer: '某某报警设备公司',
+                        location: '消防控制室',
+                        department: '生产部',
+                        startDate: '2020-05-10',
+                        responsible: '王五',
+                        status: 'normal',
+                        routineCheckCycle: '每日',
+                        functionTestCycle: '每月',
+                        maintenanceCycle: '每年',
+                        reminderDays: 7,
+                        lastCheckDate: '2024-11-05',
+                        nextCheckDate: '2024-11-20',
+                        reminderStatus: 'near'
+                    }
+                ]);
+                
+                // 更新分页总数
+                pagination.total = tableData.value.length;
+                
+                // 方法定义
+                const methods = {
+                    // 搜索数据
+                    searchData() {
+                        loading.value = true;
+                        setTimeout(() => {
+                            loading.value = false;
+                            ElMessage.success('搜索完成');
+                        }, 1000);
+                    },
+                    
+                    // 重置搜索
+                    resetSearch() {
+                        Object.keys(searchForm).forEach(key => {
+                            if (Array.isArray(searchForm[key])) {
+                                searchForm[key] = [];
+                            } else {
+                                searchForm[key] = '';
+                            }
+                        });
+                        ElMessage.info('搜索条件已重置');
+                    },
+                    
+                    // 显示表单
+                    showForm(mode, item = null) {
+                        formMode.value = mode;
+                        activeView.value = 'form';
+                        
+                        if (mode === 'edit' && item) {
+                            currentItem.value = item;
+                            Object.keys(formData).forEach(key => {
+                                if (item[key] !== undefined) {
+                                    formData[key] = item[key];
+                                }
+                            });
+                        } else {
+                            Object.keys(formData).forEach(key => {
+                                if (Array.isArray(formData[key])) {
+                                    formData[key] = [];
+                                } else if (typeof formData[key] === 'number') {
+                                    formData[key] = key === 'reminderDays' ? 7 : null;
+                                } else {
+                                    formData[key] = '';
+                                }
+                            });
+                            formData.status = 'normal';
+                            formData.routineCheckCycle = '每月';
+                            formData.functionTestCycle = '每季度';
+                            formData.maintenanceCycle = '每年';
+                            formData.reminderDays = 7;
+                            equipmentTypeOptions.value = [];
+                        }
+                        
+                        // 如果是编辑模式，需要设置设备类型选项
+                        if (mode === 'edit' && item && item.category) {
+                            methods.handleCategoryChange(item.category);
+                        }
+                    },
+                    
+                    // 查看详情
+                    viewDetail(item) {
+                        currentItem.value = item;
+                        activeView.value = 'detail';
+                    },
+                    
+                    // 编辑项目
+                    editItem(item) {
+                        methods.showForm('edit', item);
+                    },
+                    
+                    // 删除项目
+                    deleteItem(item) {
+                        ElMessageBox.confirm(
+                            `确定要删除设施"${item.name}"吗？`,
+                            '确认删除',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning',
+                            }
+                        ).then(() => {
+                            const index = tableData.value.findIndex(d => d.id === item.id);
+                            if (index > -1) {
+                                tableData.value.splice(index, 1);
+                                pagination.total = tableData.value.length;
+                                ElMessage.success('删除成功');
+                            }
+                        }).catch(() => {
+                            ElMessage.info('已取消删除');
+                        });
+                    },
+                    
+                    // 批量删除
+                    batchDelete() {
+                        if (selectedRows.value.length === 0) {
+                            ElMessage.warning('请选择要删除的记录');
+                            return;
+                        }
+                        
+                        ElMessageBox.confirm(
+                            `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+                            '确认批量删除',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning',
+                            }
+                        ).then(() => {
+                            const selectedIds = selectedRows.value.map(row => row.id);
+                            tableData.value = tableData.value.filter(item => !selectedIds.includes(item.id));
+                            pagination.total = tableData.value.length;
+                            selectedRows.value = [];
+                            ElMessage.success(`成功删除 ${selectedIds.length} 条记录`);
+                        }).catch(() => {
+                            ElMessage.info('已取消删除');
+                        });
+                    },
+                    
+                    // 导入数据
+                    importData() {
+                        ElMessage.info('导入功能开发中');
+                    },
+                    
+                    // 导出数据
+                    exportData() {
+                        ElMessage.info('导出功能开发中');
+                    },
+                    
+                    // 返回列表
+                    goBackToList() {
+                        activeView.value = 'list';
+                        currentItem.value = null;
+                    },
+                    
+                    // 提交表单
+                    submitForm() {
+                        submitting.value = true;
+                        
+                        setTimeout(() => {
+                            if (formMode.value === 'create') {
+                                const newItem = {
+                                    id: Date.now(),
+                                    ...formData,
+                                    code: 'AUTO' + Date.now(),
+                                    nextCheckDate: '2024-12-15',
+                                    reminderStatus: 'normal'
+                                };
+                                tableData.value.unshift(newItem);
+                                pagination.total = tableData.value.length;
+                                ElMessage.success('新建成功');
+                            } else {
+                                const index = tableData.value.findIndex(item => item.id === currentItem.value.id);
+                                if (index > -1) {
+                                    tableData.value[index] = { ...tableData.value[index], ...formData };
+                                    ElMessage.success('编辑成功');
+                                }
+                            }
+                            
+                            submitting.value = false;
+                            methods.goBackToList();
+                        }, 1500);
+                    },
+                    
+                    // 保存并新建
+                    submitAndNew() {
+                        methods.submitForm();
+                        setTimeout(() => {
+                            if (!submitting.value) {
+                                methods.goBackToList();
+                            }
+                        }, 1600);
+                    },
+                    
+                    // 切换区域折叠状态
+                    toggleSection(section) {
+                        collapsedSections[section] = !collapsedSections[section];
+                    },
+                    
+                    // 获取状态样式类
+                    getStatusClass(status) {
+                        const classMap = {
+                            'normal': 'status-tag status-normal',
+                            'fault': 'status-tag status-fault',
+                            'maintenance': 'status-tag status-maintenance',
+                            'disabled': 'status-tag status-disabled'
+                        };
+                        return classMap[status] || 'status-tag';
+                    },
+                    
+                    // 获取状态文本
+                    getStatusText(status) {
+                        const textMap = {
+                            'normal': '正常运行',
+                            'fault': '故障',
+                            'maintenance': '维修中',
+                            'disabled': '停用'
+                        };
+                        return textMap[status] || status;
+                    },
+                    
+                    // 获取提醒状态样式类
+                    getReminderClass(status) {
+                        const classMap = {
+                            'normal': 'status-tag reminder-normal',
+                            'near': 'status-tag reminder-near',
+                            'overdue': 'status-tag reminder-overdue'
+                        };
+                        return classMap[status] || 'status-tag';
+                    },
+                    
+                    // 获取提醒状态文本
+                    getReminderText(status) {
+                        const textMap = {
+                            'normal': '正常',
+                            'near': '临近',
+                            'overdue': '逾期'
+                        };
+                        return textMap[status] || status;
+                    },
+                    
+                    // 处理选择变化
+                    handleSelectionChange(selection) {
+                        selectedRows.value = selection;
+                    },
+                    
+                    // 处理页面大小变化
+                    handleSizeChange(val) {
+                        pagination.pageSize = val;
+                        methods.searchData();
+                    },
+                    
+                    // 处理当前页变化
+                    handleCurrentChange(val) {
+                        pagination.currentPage = val;
+                        methods.searchData();
+                    },
+                    
+                    // 处理设施类别变化
+                    handleCategoryChange(category) {
+                        formData.equipmentType = '';
+                        if (category && equipmentTypeMap[category]) {
+                            equipmentTypeOptions.value = equipmentTypeMap[category];
+                        } else {
+                            equipmentTypeOptions.value = [];
+                        }
+                    },
+                    
+                    // 生成二维码
+                    generateQRCode(item) {
+                        currentQRItem.value = item;
+                        qrCodeDialogVisible.value = true;
+                    },
+                    
+                    // 打印二维码
+                    printQRCode() {
+                        ElMessage.success('二维码打印功能开发中');
+                    },
+                    
+                    // 下载二维码
+                    downloadQRCode() {
+                        ElMessage.success('二维码下载功能开发中');
+                    },
+                    
+                    // 查看检查记录
+                    viewCheckRecords(item) {
+                        ElMessage.info(`查看"${item.name}"的检查记录功能开发中`);
+                    },
+                    
+                    // 打开提醒配置
+                    openReminderConfig() {
+                        reminderConfigDialogVisible.value = true;
+                    },
+                    
+                    // 保存提醒配置
+                    saveReminderConfig() {
+                        // 这里可以保存到后端
+                        ElMessage.success('提醒配置保存成功');
+                        reminderConfigDialogVisible.value = false;
+                    }
+                };
+                
+                return {
+                    activeView,
+                    currentItem,
+                    formMode,
+                    loading,
+                    submitting,
+                    searchForm,
+                    searchExpanded,
+                    pagination,
+                    selectedRows,
+                    collapsedSections,
+                    formData,
+                    formRules,
+                    tableData,
+                    equipmentTypeOptions,
+                    equipmentTypeMap,
+                    qrCodeDialogVisible,
+                    currentQRItem,
+                    reminderConfigDialogVisible,
+                    reminderConfig,
+                    ...methods
+                };
+            }
+        });
+        
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>
+

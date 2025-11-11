@@ -1,0 +1,3047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查与试验管理</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        /* 功能操作区 */
+        .function-bar {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .function-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* 搜索区域 */
+        .search-area {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(220px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+        
+        .search-form.search-form-collapsed {
+            grid-template-columns: repeat(3, minmax(220px, 1fr));
+        }
+        
+        .search-form .search-item-basic {
+            order: 0;
+        }
+        
+        .search-form .search-item-advanced {
+            order: 1;
+        }
+        
+        @media (max-width: 1200px) {
+            .search-form {
+                grid-template-columns: repeat(2, minmax(220px, 1fr));
+            }
+            
+            .search-form.search-form-collapsed {
+                grid-template-columns: repeat(2, minmax(220px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .search-form,
+            .search-form.search-form-collapsed {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        /* 表格区域 */
+        .table-area {
+            padding: 24px;
+        }
+        
+        .el-table {
+            border-radius: 0;
+        }
+        
+        .el-table th {
+            background-color: #fafafa;
+            color: #606266;
+            font-weight: 600;
+        }
+        
+        /* 分页区域 */
+        .pagination-area {
+            padding: 20px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pagination-info {
+            color: #909399;
+            font-size: 14px;
+        }
+        
+        /* 状态标签 */
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .status-executing {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        
+        .status-completed {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .status-rectification {
+            background: #fff7e6;
+            color: #d46b08;
+            border: 1px solid #ffd591;
+        }
+        
+        .status-overdue {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+            
+            .function-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .function-left,
+            .function-right {
+                justify-content: center;
+            }
+        }
+
+        /* 执行视图样式 */
+        .execution-view {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px 24px;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: #409EFF;
+        }
+
+        .projects-table {
+            margin-bottom: 16px;
+        }
+        
+        .projects-operations {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: flex-end;
+        }
+        
+        .projects-operations-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .projects-operations-right {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .selected-checklist-tag {
+            background: #ecf5ff;
+            color: #409EFF;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+        }
+
+        .checklist-dialog .el-dialog__body {
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
+
+        .checklist-dialog .el-table {
+            margin-top: 4px;
+        }
+        
+        .checklist-dialog .el-radio__label {
+            display: none;
+        }
+
+        .execution-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .execution-actions {
+                flex-direction: column;
+            }
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .detail-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .detail-title i {
+            color: #409EFF;
+            font-size: 20px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .detail-actions .el-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #303133;
+            font-weight: 500;
+        }
+
+        .upload-hint,
+        .upload-tip {
+            font-size: 12px;
+            color: #909399;
+        }
+
+        .attachment-uploader {
+            width: 100%;
+        }
+
+        .function-test-banner {
+            background: #fff7e6;
+            border-left: 4px solid #faad14;
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .function-test-banner i {
+            color: #fa8c16;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .function-test-banner strong {
+            color: #d46b08;
+        }
+
+        .function-test-summary {
+            display: grid;
+            gap: 12px;
+            font-size: 13px;
+            color: #7f5c00;
+            line-height: 1.6;
+        }
+
+        .function-field-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .function-conclusion-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .function-conclusion-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .function-conclusion-title i {
+            color: #409EFF;
+        }
+
+        .function-test-tag {
+            background: #fff2cc;
+            color: #d48806;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .function-measurement {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .function-measurement .el-input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <!-- 列表视图 -->
+                <div v-if="activeView === 'list'">
+                    <div class="content-card">
+                        <!-- 功能操作区 -->
+                        <div class="function-bar">
+                            <div class="function-left">
+                                <el-button type="primary" @click="showCreateTaskDialog">
+                                    <i class="fas fa-plus"></i>
+                                    新建检查任务
+                                </el-button>
+                                <el-button type="success" @click="showBatchGenerateDialog">
+                                    <i class="fas fa-tasks"></i>
+                                    批量生成任务
+                                </el-button>
+                                <el-button @click="autoGenerateTasks">
+                                    <i class="fas fa-magic"></i>
+                                    任务自动生成
+                                </el-button>
+                                <el-button @click="exportData">
+                                    <i class="fas fa-download"></i>
+                                    导出
+                                </el-button>
+                            </div>
+                            <div class="function-right">
+                                <span class="pagination-info">
+                                    共 {{ pagination.total }} 条记录
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- 搜索区域 -->
+                        <div class="search-area">
+                            <div class="search-form" :class="{ 'search-form-collapsed': !searchExpanded }">
+                                <el-form-item class="search-item-basic" label="设施类别">
+                                    <el-select 
+                                        v-model="searchForm.category" 
+                                        placeholder="请选择设施类别"
+                                        clearable>
+                                        <el-option label="室外消火栓" value="室外消火栓"></el-option>
+                                        <el-option label="室内消火栓" value="室内消火栓"></el-option>
+                                        <el-option label="自动喷水灭火系统" value="自动喷水灭火系统"></el-option>
+                                        <el-option label="火灾自动报警系统" value="火灾自动报警系统"></el-option>
+                                        <el-option label="灭火器" value="灭火器"></el-option>
+                                        <el-option label="应急照明与疏散指示系统" value="应急照明与疏散指示系统"></el-option>
+                                        <el-option label="防烟排烟系统" value="防烟排烟系统"></el-option>
+                                        <el-option label="消防控制室设备" value="消防控制室设备"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                
+                                <el-form-item class="search-item-basic" label="检查类型">
+                                    <el-select 
+                                        v-model="searchForm.checkType" 
+                                        placeholder="请选择检查类型"
+                                        clearable>
+                                        <el-option label="例行检查" value="routine"></el-option>
+                                        <el-option label="功能试验" value="function"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                
+                                <el-form-item class="search-item-basic" label="任务状态">
+                                    <el-select 
+                                        v-model="searchForm.taskStatus" 
+                                        placeholder="请选择任务状态"
+                                        clearable>
+                                        <el-option 
+                                            v-for="item in taskStatusOptions"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                
+                                <el-form-item class="search-item-advanced" label="计划日期范围" v-if="searchExpanded">
+                                    <el-date-picker
+                                        v-model="searchForm.dateRange"
+                                        type="daterange"
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        format="YYYY-MM-DD"
+                                        value-format="YYYY-MM-DD">
+                                    </el-date-picker>
+                                </el-form-item>
+                                
+                                <el-form-item class="search-item-advanced" label="责任人" v-if="searchExpanded">
+                                    <el-input 
+                                        v-model="searchForm.responsible" 
+                                        placeholder="请输入责任人"
+                                        clearable>
+                                    </el-input>
+                                </el-form-item>
+                            </div>
+                            
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="searchData" :loading="loading">
+                                    <i class="fas fa-search"></i>
+                                    搜索
+                                </el-button>
+                                <el-button @click="resetSearch">
+                                    <i class="fas fa-redo"></i>
+                                    重置
+                                </el-button>
+                                <el-button type="text" @click="toggleSearchExpanded">
+                                    <i :class="searchExpandIcon"></i>
+                                    {{ searchExpandText }}
+                                </el-button>
+                            </div>
+                        </div>
+                        
+                        <!-- 表格区域 -->
+                        <div class="table-area">
+                            <el-table 
+                                :data="paginatedTableData" 
+                                v-loading="loading"
+                                stripe
+                                border>
+                                <el-table-column prop="taskCode" label="任务编号" width="140"></el-table-column>
+                                <el-table-column prop="checkType" label="检查类型" width="110">
+                                    <template #default="scope">
+                                        <el-tag :type="scope.row.checkType === 'routine' ? 'primary' : 'success'">
+                                            {{ scope.row.checkType === 'routine' ? '例行检查' : '功能试验' }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="facilityName" label="设施名称" min-width="150"></el-table-column>
+                                <el-table-column prop="category" label="设施类别" width="140"></el-table-column>
+                                <el-table-column prop="location" label="安装位置" width="120"></el-table-column>
+                                <el-table-column prop="planDate" label="计划检查日期" width="120"></el-table-column>
+                                <el-table-column prop="responsible" label="检查责任人" width="100"></el-table-column>
+                                <el-table-column label="任务状态" width="150">
+                                    <template #default="scope">
+                                        <span :class="scope.row.statusClass">
+                                            {{ scope.row.statusText }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="逾期天数" width="100">
+                                    <template #default="scope">
+                                        <span v-if="scope.row.statusKey === 'pending-overdue' || scope.row.statusKey === 'executing-overdue' || scope.row.statusKey === 'completed-overdue'" style="color: #f5222d; font-weight: 600;">
+                                            {{ scope.row.overdueDisplay }} 天
+                                        </span>
+                                        <span v-else>-</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作" width="280" fixed="right">
+                                    <template #default="scope">
+                                        <div class="action-buttons">
+                                            <el-button 
+                                            v-if="scope.row.taskStatus === 'pending' || scope.row.taskStatus === 'executing' || scope.row.taskStatus === 'pending-overdue' || scope.row.taskStatus === 'executing-overdue'"
+                                                size="small" 
+                                                type="primary" 
+                                                @click="executeCheck(scope.row)" 
+                                                title="执行检查">
+                                                <i class="fas fa-play"></i>
+                                            </el-button>
+                                            <el-button 
+                                                size="small" 
+                                                type="info" 
+                                                @click="viewTaskDetail(scope.row)" 
+                                                title="查看">
+                                                <i class="fas fa-eye"></i>
+                                            </el-button>
+                                            <el-button 
+                                                v-if="scope.row.taskStatus === 'pending'"
+                                                size="small" 
+                                                type="danger" 
+                                                @click="deleteTask(scope.row)" 
+                                                title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </el-button>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        
+                        <!-- 分页区域 -->
+                        <div class="pagination-area">
+                            <div class="pagination-info">
+                                显示第 {{ pagination.total === 0 ? 0 : (pagination.currentPage - 1) * pagination.pageSize + 1 }} 到 
+                                {{ Math.min(pagination.currentPage * pagination.pageSize, pagination.total) }} 条，
+                                共 {{ pagination.total }} 条记录
+                            </div>
+                            <el-pagination
+                                v-model:current-page="pagination.currentPage"
+                                v-model:page-size="pagination.pageSize"
+                                :page-sizes="[10, 20, 50, 100]"
+                                :total="pagination.total"
+                                layout="sizes, prev, pager, next, jumper"
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if="activeView === 'execute'">
+                    <div v-if="currentTask" class="execution-view">
+                        <div class="detail-header">
+                            <div class="detail-title">
+                                <i class="fas fa-clipboard-check"></i>
+                                执行检查 - {{ currentTask.taskCode }}
+                                    <span v-if="isFunctionCheck" class="function-test-tag">功能试验</span>
+                            </div>
+                            <div class="detail-actions">
+                                <el-button @click="goBackToList" :disabled="!currentTask">
+                                    <i class="fas fa-list"></i>
+                                    返回列表
+                                </el-button>
+                                <el-button @click="goBackToDetail" :disabled="!currentTask">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回详情
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                任务与设施信息
+                            </div>
+                            <div class="function-test-banner" v-if="isFunctionCheck">
+                                <i class="fas fa-flask"></i>
+                                <div class="function-test-summary">
+                                    <strong>功能试验提示：</strong>
+                                    <span>请按照试验方案准备联动设备、测量仪器与安全防护措施，确保数据记录完整可追溯。</span>
+                                    <span v-if="currentTask.testReference">参考标准：{{ currentTask.testReference }}</span>
+                                </div>
+                            </div>
+                            <el-descriptions
+                                :column="3"
+                                border
+                                size="large">
+                                <el-descriptions-item label="任务编号">
+                                    {{ currentTask.taskCode }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="检查类型">
+                                    {{ currentTask.checkType === 'routine' ? '例行检查' : '功能试验' }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="计划日期">
+                                    {{ currentTask.planDate }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="设施名称">
+                                    {{ currentTask.facilityName }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="设施类别">
+                                    {{ currentTask.category }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="安装位置">
+                                    {{ currentTask.location }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="责任人">
+                                    {{ currentTask.responsible }}
+                                </el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验目标">
+                                    {{ currentTask.testObjective || '—' }}
+                                </el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验负责人">
+                                    {{ currentTask.testSupervisor || currentTask.responsible || '—' }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="当前状态">
+                                    {{ currentTaskStatus.text }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="逾期提醒">
+                                    <span v-if="currentTaskStatus.key === 'overdue' || currentTaskStatus.key === 'completed-overdue'" style="color: #f5222d; font-weight: 600;">
+                                        已逾期 {{ currentTaskStatus.overdue }} 天
+                                    </span>
+                                    <span v-else>—</span>
+                                </el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-clipboard-list"></i>
+                                检查与试验记录
+                            </div>
+                            <el-form
+                                ref="executionFormRef"
+                                :model="executionForm"
+                                :rules="executionRules"
+                                label-width="140px">
+                                <el-form-item v-if="isFunctionCheck" label="试验过程说明">
+                                    <el-input
+                                        v-model="executionForm.testGuidance"
+                                        type="textarea"
+                                        :rows="3"
+                                        placeholder="填写本次试验步骤、准备情况或异常说明">
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label="执行日期" prop="inspectionDate">
+                                    <el-date-picker
+                                        v-model="executionForm.inspectionDate"
+                                        type="date"
+                                        placeholder="选择执行日期"
+                                        format="YYYY-MM-DD"
+                                        value-format="YYYY-MM-DD"
+                                        style="width: 100%;">
+                                    </el-date-picker>
+                                </el-form-item>
+                                <el-form-item label="执行人员" prop="executor">
+                                    <el-input
+                                        v-model="executionForm.executor"
+                                        placeholder="请输入执行人姓名">
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label="现场位置记录">
+                                    <el-input
+                                        v-model="executionForm.location"
+                                        placeholder="可填写GPS定位或二维码扫描结果">
+                                    </el-input>
+                                </el-form-item>
+
+                                <el-divider></el-divider>
+                                <div class="section-title" style="margin-bottom: 12px;">
+                                    <i class="fas fa-list-check"></i>
+                                    检查项目
+                                </div>
+                                <div class="projects-operations">
+                                    <div class="projects-operations-left">
+                                        <el-button
+                                            type="primary"
+                                            @click="openChecklistDialog">
+                                            <i class="fas fa-file-import"></i>
+                                            {{ isFunctionCheck ? '导入功能试验模板' : '选择并导入检查表' }}
+                                        </el-button>
+                                        <el-button
+                                            type="success"
+                                            @click="setAllQualified"
+                                            :disabled="executionForm.projects.length === 0">
+                                            <i class="fas fa-check"></i>
+                                            全部符合
+                                        </el-button>
+                                        <span v-if="selectedChecklistName" class="selected-checklist-tag">
+                                            已应用：{{ selectedChecklistName }}
+                                        </span>
+                                        <el-button
+                                            @click="resetProjects"
+                                            :disabled="executionForm.projects.length === 0">
+                                            <i class="fas fa-eraser"></i>
+                                            清空项目
+                                        </el-button>
+                                    </div>
+                                    <div class="projects-operations-right">
+                                        <el-button
+                                            type="primary"
+                                            @click="addEmptyProject">
+                                            <i class="fas fa-plus"></i>
+                                            新增检查项
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <el-table
+                                    class="projects-table"
+                                    :data="executionForm.projects"
+                                    border
+                                    size="small">
+                                    <el-table-column label="序号" width="70" align="center" type="index"></el-table-column>
+                                    <el-table-column label="检查内容" min-width="200">
+                                        <template #default="scope">
+                                            <el-input
+                                                v-model="scope.row.name"
+                                                placeholder="请输入检查内容">
+                                            </el-input>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="检查标准" min-width="220">
+                                        <template #default="scope">
+                                            <el-input
+                                                v-model="scope.row.standard"
+                                                placeholder="请输入检查标准">
+                                            </el-input>
+                                        </template>
+                                    </el-table-column>
+                                        <el-table-column v-if="isFunctionCheck" label="判定标准" min-width="180">
+                                            <template #default="scope">
+                                                <el-input
+                                                    v-model="scope.row.threshold"
+                                                    placeholder="请填写判定标准或阈值">
+                                                </el-input>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column v-if="isFunctionCheck" label="测量值" min-width="180">
+                                            <template #default="scope">
+                                                <div class="function-measurement">
+                                                    <el-input
+                                                        v-model="scope.row.value"
+                                                        placeholder="记录实测数据">
+                                                    </el-input>
+                                                    <el-input
+                                                        v-model="scope.row.unit"
+                                                        placeholder="单位"
+                                                        style="max-width: 90px;">
+                                                    </el-input>
+                                                </div>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="检查结果" width="220">
+                                        <template #default="scope">
+                                            <el-radio-group
+                                                v-model="scope.row.result"
+                                                @change="handleProjectResultChange()">
+                                                <el-radio label="符合">符合</el-radio>
+                                                <el-radio label="不符合">不符合</el-radio>
+                                                <el-radio label="不涉及">不涉及</el-radio>
+                                            </el-radio-group>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="备注" min-width="200">
+                                        <template #default="scope">
+                                            <el-input
+                                                v-model="scope.row.remark"
+                                                placeholder="请输入备注">
+                                            </el-input>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="现场图片" width="160">
+                                        <template #default="scope">
+                                            <el-upload
+                                                action="#"
+                                                :auto-upload="false"
+                                                :limit="5"
+                                                :file-list="scope.row.pictures"
+                                                :on-change="(file, fileList) => handlePictureChange(file, fileList, scope.row)"
+                                                :on-remove="(file, fileList) => handlePictureChange(file, fileList, scope.row)">
+                                                <el-button size="small">上传图片</el-button>
+                                            </el-upload>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="操作" width="200" fixed="right">
+                                        <template #default="scope">
+                                            <div class="action-buttons">
+                                                <el-button
+                                                    v-if="scope.row.result === '不符合'"
+                                                    type="warning"
+                                                    size="small"
+                                                    @click="registerIssue(scope.row)">
+                                                    登记问题
+                                                </el-button>
+                                                <el-button
+                                                    type="danger"
+                                                    size="small"
+                                                    plain
+                                                    @click="removeProject(scope.$index)">
+                                                    删除
+                                                </el-button>
+                                            </div>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+
+                                <el-alert
+                                    v-if="hasUnqualifiedProjects"
+                                    title="存在不符合项目，请及时登记问题并安排整改。"
+                                    type="warning"
+                                    show-icon
+                                    :closable="false"
+                                    style="margin-bottom: 16px;">
+                                </el-alert>
+
+                                <el-form-item label="现场附件">
+                                    <div class="upload-wrapper">
+                                        <div class="upload-text">上传现场照片、报告等附件</div>
+                                        <div class="upload-hint">支持 jpg/png/pdf，最多 5 个附件，单个不超过 10MB</div>
+                                        <el-upload
+                                            class="attachment-uploader"
+                                            action="#"
+                                            :auto-upload="false"
+                                            :limit="5"
+                                            accept=".jpg,.jpeg,.png,.pdf"
+                                            :file-list="executionForm.attachments"
+                                            :on-change="handleAttachmentChange"
+                                            :on-remove="handleAttachmentRemove">
+                                            <el-button type="primary" size="small">
+                                                <i class="fas fa-upload"></i>
+                                                上传附件
+                                            </el-button>
+                                            <template #tip>
+                                                <div class="upload-tip">如需替换可先删除已上传文件</div>
+                                            </template>
+                                        </el-upload>
+                                    </div>
+                                </el-form-item>
+                                <el-form-item label="现场签字" prop="signature">
+                                    <el-input
+                                        v-model="executionForm.signature"
+                                        type="textarea"
+                                        :rows="2"
+                                        placeholder="此处可接入签名板，当前用文本占位">
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label="补充说明">
+                                    <el-input
+                                        v-model="executionForm.remarks"
+                                        type="textarea"
+                                        :rows="3"
+                                        placeholder="填写其他说明或后续建议">
+                                    </el-input>
+                                </el-form-item>
+                                <div v-if="isFunctionCheck" class="function-conclusion-card">
+                                    <div class="function-conclusion-title">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        功能试验结论
+                                    </div>
+                                    <div class="function-field-group">
+                                        <el-form-item label="试验结论" prop="testConclusion">
+                                            <el-select
+                                                v-model="executionForm.testConclusion"
+                                                placeholder="请选择试验结论">
+                                                <el-option
+                                                    v-for="item in functionConclusionOptions"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="复测计划">
+                                            <el-input
+                                                v-model="executionForm.retestPlan"
+                                                placeholder="如需复测，请填写计划时间或安排">
+                                            </el-input>
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </el-form>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-tools"></i>
+                                操作
+                            </div>
+                            <div class="execution-actions">
+                                <el-button @click="goBackToList" :disabled="!currentTask">
+                                    <i class="fas fa-list"></i>
+                                    返回列表
+                                </el-button>
+                                <el-button @click="goBackToDetail" :disabled="!currentTask">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回详情
+                                </el-button>
+                                <el-button @click="saveExecutionDraft">
+                                    <i class="fas fa-save"></i>
+                                    保存草稿
+                                </el-button>
+                                <el-button type="primary" @click="submitExecution" :loading="submitting">
+                                    <i class="fas fa-paper-plane"></i>
+                                    提交结果
+                                </el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <el-empty v-else description="请选择要执行的检查任务"></el-empty>
+                </div>
+                <div v-else-if="activeView === 'detail'">
+                    <div v-if="currentTask" class="execution-view">
+                        <div class="detail-header">
+                            <div class="detail-title">
+                                <i class="fas fa-file-alt"></i>
+                                检查任务详情 - {{ currentTask.taskCode }}
+                                    <span v-if="isFunctionCheck" class="function-test-tag">功能试验</span>
+                            </div>
+                            <div class="detail-actions">
+                                <el-button @click="goBackToList">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回列表
+                                </el-button>
+                                <el-button 
+                                    v-if="detailCanExecute"
+                                    type="primary" 
+                                    @click="executeCheck(currentTask)">
+                                    <i class="fas fa-play"></i>
+                                    执行检查
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                任务信息
+                            </div>
+                            <el-descriptions :column="3" border size="large">
+                                <el-descriptions-item label="任务编号">{{ currentTask.taskCode }}</el-descriptions-item>
+                                <el-descriptions-item label="检查类型">{{ currentTask.checkType === 'routine' ? '例行检查' : '功能试验' }}</el-descriptions-item>
+                                <el-descriptions-item label="计划日期">{{ currentTask.planDate }}</el-descriptions-item>
+                                <el-descriptions-item label="计划完成">{{ currentTask.plannedEndDate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="开始日期">{{ currentTask.startDate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="完成日期">{{ currentTask.endDate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="当前状态">{{ currentTaskStatus.text }}</el-descriptions-item>
+                                <el-descriptions-item label="设施名称">{{ currentTask.facilityName }}</el-descriptions-item>
+                                <el-descriptions-item label="设施类别">{{ currentTask.category }}</el-descriptions-item>
+                                <el-descriptions-item label="安装位置">{{ currentTask.location }}</el-descriptions-item>
+                                <el-descriptions-item label="检查责任人">{{ currentTask.responsible }}</el-descriptions-item>
+                                <el-descriptions-item label="备注">{{ currentTask.description || '-' }}</el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验目标">{{ currentTask.testObjective || '-' }}</el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验负责人">{{ currentTask.testSupervisor || currentTask.responsible || '-' }}</el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="参考标准">{{ currentTask.testReference || (selectedChecklistName || '-') }}</el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-clipboard-check"></i>
+                                检查执行情况
+                            </div>
+                            <el-descriptions :column="3" border size="large">
+                                <el-descriptions-item label="开始日期">{{ currentTask.startDate || '—' }}</el-descriptions-item>
+                                <el-descriptions-item label="完成日期">{{ currentTask.endDate || '—' }}</el-descriptions-item>
+                                <el-descriptions-item label="最近更新">{{ currentTask.updatedAt || '—' }}</el-descriptions-item>
+                                <el-descriptions-item label="所用检查表">
+                                    {{ selectedChecklistName || '未选择' }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="检查项目数量">{{ detailProjects.length }}</el-descriptions-item>
+                                <el-descriptions-item label="不符合项目">{{ detailUnqualifiedCount }}</el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验结论">
+                                    <el-tag :type="getConclusionTagType(currentTask.testConclusion || '')">
+                                        {{ functionConclusionText(currentTask.testConclusion) }}
+                                    </el-tag>
+                                </el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="复测计划">
+                                    {{ currentTask.retestPlan || '—' }}
+                                </el-descriptions-item>
+                                <el-descriptions-item v-if="isFunctionCheck" label="试验过程说明">
+                                    {{ currentTask.testGuidance || '—' }}
+                                </el-descriptions-item>
+                            </el-descriptions>
+                            <el-alert
+                                v-if="detailUnqualifiedCount > 0"
+                                type="warning"
+                                show-icon
+                                :closable="false"
+                                title="存在不符合项目，请尽快登记隐患并安排整改。"
+                                style="margin-top: 16px;">
+                            </el-alert>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-list-check"></i>
+                                当前检查明细
+                            </div>
+                            <el-empty v-if="!detailHasProjects" description="当前任务尚未记录检查项目"></el-empty>
+                            <el-table
+                                v-else
+                                :data="detailProjects"
+                                border
+                                size="small"
+                                class="projects-table">
+                                <el-table-column type="index" label="序号" width="70"></el-table-column>
+                                <el-table-column prop="name" label="检查内容" min-width="200"></el-table-column>
+                                <el-table-column prop="standard" label="检查标准" min-width="220"></el-table-column>
+                                <el-table-column v-if="isFunctionCheck" prop="threshold" label="判定标准" min-width="200"></el-table-column>
+                                <el-table-column v-if="isFunctionCheck" label="测量值" min-width="180">
+                                    <template #default="scope">
+                                        <span v-if="scope.row.value">{{ scope.row.value }}</span>
+                                        <span v-else>—</span>
+                                        <span v-if="scope.row.unit" style="margin-left: 4px; color: #909399;">{{ scope.row.unit }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="检查结果" width="140">
+                                    <template #default="scope">
+                                        <el-tag :type="getCheckResultTagType(scope.row.result)">
+                                            {{ scope.row.result || '-' }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="remark" label="备注" min-width="200"></el-table-column>
+                                <el-table-column label="现场图片" width="160">
+                                    <template #default="scope">
+                                        <span v-if="scope.row.pictures && scope.row.pictures.length">{{ scope.row.pictures.length }} 张</span>
+                                        <span v-else>—</span>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        <div class="section-card" v-if="detailHasHazards">
+                            <div class="section-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                隐患联动
+                            </div>
+                            <el-table :data="detailHazards" border size="small">
+                                <el-table-column type="index" width="60" label="序号"></el-table-column>
+                                <el-table-column prop="code" label="隐患编号" width="160"></el-table-column>
+                                <el-table-column prop="level" label="隐患等级" width="120">
+                                    <template #default="scope">
+                                        <el-tag :type="scope.row.level === '重大隐患' ? 'danger' : 'warning'">
+                                            {{ scope.row.level }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="status" label="状态" width="120"></el-table-column>
+                                <el-table-column prop="owner" label="整改责任人" width="140"></el-table-column>
+                                <el-table-column prop="createdAt" label="创建时间" width="140"></el-table-column>
+                                <el-table-column prop="deadline" label="整改期限" width="140"></el-table-column>
+                                <el-table-column prop="description" label="隐患描述" min-width="220"></el-table-column>
+                                <el-table-column label="操作" width="120">
+                                    <template #default="scope">
+                                        <el-button type="primary" link size="small" @click="viewHazardDetail(scope.row)">
+                                            查看
+                                        </el按钮>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        <el-alert
+                            v-else-if="detailNeedHazardAlert"
+                            type="warning"
+                            show-icon
+                            :closable="false"
+                            title="存在不符合项目但尚未登记隐患，请及时创建并安排整改。"
+                            style="margin-top: 16px;">
+                        </el-alert>
+                        <div class="section-card" v-if="currentTask.attachments && currentTask.attachments.length">
+                            <div class="section-title">
+                                <i class="fas a-paperclip"></i>
+                                附件
+                            </div>
+                            <el-table :data="currentTask.attachments" size="small" border>
+                                <el-table-column type="index" width="60" label="序号"></el-table-column>
+                                <el-table-column prop="name" label="文件名称" min-width="200"></el-table-column>
+                                <el-table-column prop="size" label="大小" width="120">
+                                    <template #default="scope">
+                                        {{ scope.row.size ? `${(scope.row.size / 1024).toFixed(1)} KB` : '-' }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作" width="120">
+                                    <template #default="scope">
+                                        <el-button type="primary" link size="small">
+                                            下载
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                        <div class="section-card" v-else>
+                            <div class="section-title">
+                                <i class="fas fa-paperclip"></i>
+                                附件
+                            </div>
+                            <el-empty description="暂无附件"></el-empty>
+                        </div>
+                    </div>
+                    <el-empty v-else description="暂无任务详情"></el-empty>
+                </div>
+                <div v-else-if="activeView === 'history'">
+                    <div v-if="historyRecord" class="execution-view">
+                        <div class="detail-header">
+                            <div class="detail-title">
+                                <i class="fas fa-history"></i>
+                                检查历史记录详情 - {{ historyRecord.recordId || '未命名记录' }}
+                            </div>
+                            <div class="detail-actions">
+                                <el-button @click="goBackFromHistory">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回
+                                </el-button>
+                                <el-button 
+                                    v-if="historyNeedsHazard"
+                                    type="warning"
+                                    @click="createHazardFromHistory(historyRecord)">
+                                    <i class="fas fa-bug"></i>
+                                    创建隐患记录
+                                </el-button>
+                                <el-button 
+                                    v-else-if="historyHasHazard"
+                                    type="primary"
+                                    @click="viewHazardDetail(historyRecord)">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    查看隐患详情
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                任务与设施信息
+                            </div>
+                            <el-descriptions :column="3" border size="large">
+                                <el-descriptions-item label="任务编号">{{ historyRecord.task?.taskCode || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="检查类型">{{ getCheckTypeText(historyRecord.task?.checkType || historyRecord.checkType) }}</el-descriptions-item>
+                                <el-descriptions-item label="任务状态">{{ historyRecord.task?.statusText || getTaskStatusText(historyRecord.task || {}) }}</el-descriptions-item>
+                                <el-descriptions-item label="计划检查日期">{{ historyRecord.task?.planDate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="检查责任人">{{ historyRecord.task?.responsible || historyRecord.inspector || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="任务描述">{{ historyRecord.task?.description || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="设施编号">{{ historyRecord.task?.facilityCode || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="设施名称">{{ historyRecord.task?.facilityName || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="设施类别">{{ historyRecord.task?.category || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="安装位置">{{ historyRecord.task?.location || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="所属部门">{{ historyRecord.task?.department || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="设施责任人">{{ historyRecord.task?.facilityManager || '-' }}</el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-clipboard-check"></i>
+                                检查记录概览
+                            </div>
+                            <el-descriptions :column="3" border size="large">
+                                <el-descriptions-item label="检查记录编号">{{ historyRecord.recordId || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="实际检查日期">{{ historyRecord.checkDate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="检查人">{{ historyRecord.inspector || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="提交时间">{{ historyRecord.submittedAt || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="综合结论">
+                                    <el-tag :type="getConclusionTagType(historyRecord.conclusion)">
+                                        {{ historyRecord.conclusion || '-' }}
+                                    </el-tag>
+                                </el-descriptions-item>
+                                <el-descriptions-item label="备注">{{ historyRecord.remarks || '-' }}</el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-list-check"></i>
+                                检查项目明细
+                            </div>
+                            <el-table :data="historyRecord.checkItems || []" border size="small" class="projects-table">
+                                <el-table-column type="index" label="序号" width="70"></el-table-column>
+                                <el-table-column prop="name" label="检查项目" min-width="200"></el-table-column>
+                                <el-table-column prop="standard" label="检查标准/要求" min-width="240"></el-table-column>
+                                <el-table-column v-if="isFunctionCheck" prop="threshold" label="判定标准" min-width="200"></el-table-column>
+                                <el-table-column v-if="isFunctionCheck" label="测量值" min-width="180">
+                                    <template #default="scope">
+                                        <span v-if="scope.row.value">{{ scope.row.value }}</span>
+                                        <span v-else>—</span>
+                                        <span v-if="scope.row.unit" style="margin-left: 4px; color: #909399;">{{ scope.row.unit }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="检查结果" width="140">
+                                    <template #default="scope">
+                                        <el-tag :type="getCheckResultTagType(scope.row.result)">
+                                            {{ scope.row.result || '-' }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="value" label="参数/数值" width="140"></el-table-column>
+                                <el-table-column prop="remark" label="问题描述" min-width="220"></el-table-column>
+                            </el-table>
+                            <el-alert 
+                                v-if="historyNeedsHazard"
+                                type="warning"
+                                show-icon
+                                :closable="false"
+                                title="检查结论存在问题，建议立即创建隐患记录并安排整改。"
+                                style="margin-top: 16px;">
+                            </el-alert>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                现场记录
+                            </div>
+                            <el-descriptions :column="2" border size="large" style="margin-bottom: 16px;">
+                                <el-descriptions-item label="二维码扫描时间">{{ historyRecord.qrInfo?.scannedAt || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="扫码人员">{{ historyRecord.qrInfo?.operator || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="扫码位置">{{ historyRecord.qrInfo?.location || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="GPS坐标">{{ historyRecord.gps?.coordinate || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="位置描述">{{ historyRecord.gps?.address || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="签到时间">{{ historyRecord.checkInAt || historyRecord.qrInfo?.scannedAt || '-' }}</el-descriptions-item>
+                            </el-descriptions>
+                            <div class="upload-wrapper">
+                                <div class="upload-text">现场照片/视频</div>
+                                <el-empty v-if="!historyRecord.attachments || historyRecord.attachments.length === 0" description="暂无附件"></el-empty>
+                                <el-table v-else :data="historyRecord.attachments" size="small" border>
+                                    <el-table-column type="index" width="60" label="序号"></el-table-column>
+                                    <el-table-column prop="name" label="文件名称" min-width="200"></el-table-column>
+                                    <el-table-column prop="size" label="大小" width="120">
+                                        <template #default="scope">
+                                            {{ scope.row.size ? `${(scope.row.size / 1024).toFixed(1)} KB` : '-' }}
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                            <div class="upload-wrapper" style="margin-top: 16px;">
+                                <div class="upload-text">检查人签名</div>
+                                <el-empty v-if="!historyRecord.signatureUrl" description="暂无签名记录"></el-empty>
+                                <img v-else :src="historyRecord.signatureUrl" alt="检查人签名" style="width: 240px; border: 1px solid #ebeef5; border-radius: 4px; padding: 12px; background: #fff;">
+                            </div>
+                        </div>
+
+                        <div class="section-card" v-if="historyHasHazard">
+                            <div class="section-title">
+                                <i class="fas fa-exclamation-circle"></i>
+                                隐患联动
+                            </div>
+                            <el-descriptions :column="2" border size="large">
+                                <el-descriptions-item label="隐患编号">{{ historyRecord.hazard?.code || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="隐患等级">{{ historyRecord.hazard?.level || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="当前状态">{{ historyRecord.hazard?.status || '-' }}</el-descriptions-item>
+                                <el-descriptions-item label="隐患描述">{{ historyRecord.hazard?.description || '-' }}</el-descriptions-item>
+                            </el-descriptions>
+                            <div class="execution-actions" style="margin-top: 16px;">
+                                <el-button type="primary" @click="viewHazardDetail(historyRecord)">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    查看隐患详情
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-tools"></i>
+                                操作
+                            </div>
+                            <div class="execution-actions">
+                                <el-button @click="goBackFromHistory">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回
+                                </el-button>
+                                <el-button 
+                                    v-if="historyNeedsHazard"
+                                    type="warning"
+                                    @click="createHazardFromHistory(historyRecord)">
+                                    <i class="fas fa-bug"></i>
+                                    创建隐患记录
+                                </el-button>
+                                <el-button 
+                                    v-if="historyHasHazard"
+                                    type="primary"
+                                    @click="viewHazardDetail(historyRecord)">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    查看隐患详情
+                                </el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <el-empty v-else description="暂无历史记录"></el-empty>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 新建检查任务弹窗 -->
+        <el-dialog 
+            v-model="createTaskDialogVisible" 
+            title="新建检查任务" 
+            width="800px"
+            :close-on-click-modal="false">
+            <el-form :model="taskForm" :rules="taskFormRules" ref="taskFormRef" label-width="140px">
+                <el-form-item label="设施选择" prop="facilityId">
+                    <el-select 
+                        v-model="taskForm.facilityId" 
+                        placeholder="请选择设施（支持搜索）"
+                        filterable
+                        style="width: 100%"
+                        @change="handleFacilityChange">
+                        <el-option 
+                            v-for="facility in facilityOptions" 
+                            :key="facility.id" 
+                            :label="`${facility.name} (${facility.code})`" 
+                            :value="facility.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                
+                <el-form-item label="检查类型" prop="checkType">
+                    <el-radio-group v-model="taskForm.checkType">
+                        <el-radio label="routine">例行检查</el-radio>
+                        <el-radio label="function">功能试验</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                
+                <el-form-item label="计划检查日期" prop="planDate">
+                    <el-date-picker 
+                        v-model="taskForm.planDate" 
+                        type="date" 
+                        placeholder="选择日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
+                        :disabled-date="disabledDate"
+                        style="width: 100%">
+                    </el-date-picker>
+                </el-form-item>
+                
+                <el-form-item label="检查责任人" prop="responsible">
+                    <el-select 
+                        v-model="taskForm.responsible" 
+                        placeholder="请选择检查责任人（支持搜索）"
+                        filterable
+                        style="width: 100%">
+                        <el-option 
+                            v-for="person in responsibleOptions" 
+                            :key="person.id" 
+                            :label="`${person.name} - ${person.department}`" 
+                            :value="person.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                
+                <el-form-item label="任务描述">
+                    <el-input 
+                        v-model="taskForm.description" 
+                        type="textarea" 
+                        :rows="3"
+                        placeholder="请输入任务描述或备注">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="createTaskDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveTask" :loading="submitting">保存</el-button>
+                <el-button type="success" @click="saveAndExecute" :loading="submitting">保存并执行</el-button>
+            </template>
+        </el-dialog>
+        
+        <!-- 批量生成任务弹窗 -->
+        <el-dialog 
+            v-model="batchGenerateDialogVisible" 
+            title="批量生成检查任务" 
+            width="1200px"
+            :close-on-click-modal="false">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- 设施筛选区 -->
+                <el-card shadow="never">
+                    <template #header>
+                        <span>设施筛选</span>
+                    </template>
+                    <el-form :model="batchForm" label-width="120px">
+                        <el-row :gutter="20">
+                            <el-col :span="8">
+                                <el-form-item label="设施类别">
+                                    <el-select 
+                                        v-model="batchForm.categories" 
+                                        multiple
+                                        placeholder="请选择设施类别"
+                                        style="width: 100%">
+                                        <el-option label="室外消火栓" value="室外消火栓"></el-option>
+                                        <el-option label="室内消火栓" value="室内消火栓"></el-option>
+                                        <el-option label="自动喷水灭火系统" value="自动喷水灭火系统"></el-option>
+                                        <el-option label="火灾自动报警系统" value="火灾自动报警系统"></el-option>
+                                        <el-option label="灭火器" value="灭火器"></el-option>
+                                        <el-option label="应急照明与疏散指示系统" value="应急照明与疏散指示系统"></el-option>
+                                        <el-option label="防烟排烟系统" value="防烟排烟系统"></el-option>
+                                        <el-option label="消防控制室设备" value="消防控制室设备"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="所属部门">
+                                    <el-select 
+                                        v-model="batchForm.departments" 
+                                        multiple
+                                        placeholder="请选择所属部门"
+                                        style="width: 100%">
+                                        <el-option label="生产部" value="生产部"></el-option>
+                                        <el-option label="办公区" value="办公区"></el-option>
+                                        <el-option label="仓储部" value="仓储部"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="运行状态">
+                                    <el-select 
+                                        v-model="batchForm.status" 
+                                        placeholder="请选择运行状态"
+                                        style="width: 100%">
+                                        <el-option label="正常运行" value="normal"></el-option>
+                                        <el-option label="故障" value="fault"></el-option>
+                                        <el-option label="维修中" value="maintenance"></el-option>
+                                        <el-option label="停用" value="disabled"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-button type="primary" @click="filterFacilities">筛选设施</el-button>
+                        <span style="margin-left: 16px; color: #606266;">
+                            符合条件的设施：{{ filteredFacilities.length }} 个
+                        </span>
+                    </el-form>
+                </el-card>
+                
+                <!-- 批量配置区 -->
+                <el-card shadow="never">
+                    <template #header>
+                        <span>批量配置</span>
+                    </template>
+                    <el-form :model="batchForm" label-width="120px">
+                        <el-row :gutter="20">
+                            <el-col :span="8">
+                                <el-form-item label="检查类型" required>
+                                    <el-radio-group v-model="batchForm.checkType">
+                                        <el-radio label="routine">例行检查</el-radio>
+                                        <el-radio label="function">功能试验</el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="计划检查日期" required>
+                                    <el-date-picker 
+                                        v-model="batchForm.planDate" 
+                                        type="date" 
+                                        placeholder="选择日期"
+                                        format="YYYY-MM-DD"
+                                        value-format="YYYY-MM-DD"
+                                        :disabled-date="disabledDate"
+                                        style="width: 100%">
+                                    </el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="检查责任人" required>
+                                    <el-select 
+                                        v-model="batchForm.responsible" 
+                                        placeholder="请选择检查责任人"
+                                        filterable
+                                        style="width: 100%">
+                                        <el-option 
+                                            v-for="person in responsibleOptions" 
+                                            :key="person.id" 
+                                            :label="`${person.name} - ${person.department}`" 
+                                            :value="person.id">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                </el-card>
+                
+                <!-- 设施选择区 -->
+                <el-card shadow="never">
+                    <template #header>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>设施列表</span>
+                            <div>
+                                <el-button size="small" @click="selectAllFacilities">全选</el-button>
+                                <el-button size="small" @click="clearAllFacilities">取消全选</el-button>
+                                <span style="margin-left: 16px; color: #606266;">
+                                    已选择：{{ selectedFacilities.length }} 个
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                    <el-table 
+                        :data="filteredFacilities" 
+                        @selection-change="handleFacilitySelection"
+                        max-height="300">
+                        <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column prop="code" label="设施编号" width="120"></el-table-column>
+                        <el-table-column prop="name" label="设施名称" min-width="150"></el-table-column>
+                        <el-table-column prop="category" label="设施类别" width="140"></el-table-column>
+                        <el-table-column prop="location" label="安装位置" width="120"></el-table-column>
+                        <el-table-column prop="department" label="所属部门" width="100"></el-table-column>
+                        <el-table-column prop="status" label="运行状态" width="100">
+                            <template #default="scope">
+                                <el-tag :type="getStatusTagType(scope.row.status)">
+                                    {{ getStatusText(scope.row.status) }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+            </div>
+            <template #footer>
+                <el-button @click="batchGenerateDialogVisible = false">取消</el-button>
+                <el-button type="info" @click="previewTasks">预览</el-button>
+                <el-button type="primary" @click="generateTasks" :loading="submitting">生成任务</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 检查表选择弹窗 -->
+        <el-dialog
+            v-model="checklistDialogVisible"
+            title="选择标准检查表"
+            width="760px"
+            class="checklist-dialog">
+            <el-table
+                :data="standardChecklists"
+                highlight-current-row
+                @row-click="handleChecklistRowClick">
+                <el-table-column width="60" align="center">
+                    <template #default="scope">
+                        <el-radio
+                            v-model="checklistSelection"
+                            :label="scope.row.id">
+                            &nbsp;
+                        </el-radio>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="code" label="检查表编号" width="160"></el-table-column>
+                <el-table-column prop="name" label="安全检查表名称" min-width="200"></el-table-column>
+                <el-table-column prop="checklistType" label="安全检查表类型" width="160"></el-table-column>
+                <el-table-column label="检查项总数量" width="140">
+                    <template #default="scope">
+                        {{ scope.row.items ? scope.row.items.length : scope.row.itemCount }} 项
+                    </template>
+                </el-table-column>
+                <el-table-column prop="department" label="创建部门" width="140"></el-table-column>
+                <el-table-column prop="updatedBy" label="更新人" width="120"></el-table-column>
+                <el-table-column prop="summary" label="检查表说明" min-width="240"></el-table-column>
+            </el-table>
+            <template #footer>
+                <el-button @click="checklistDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmImportChecklist">
+                    确认导入
+                </el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 和 Element Plus -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    
+    <script>
+        const { createApp, ref, reactive, computed, watch } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        /**
+         * 统一生成检查项目对象，避免字段缺失导致渲染异常
+         * @param {Object} data 原始检查项数据
+         * @returns {Object}
+         */
+        const createProject = (data = {}) => ({
+            name: data.name || '',
+            standard: data.standard || '',
+            result: data.result || '符合',
+            threshold: data.threshold || '',
+            value: data.value || '',
+            unit: data.unit || '',
+            remark: data.remark || '',
+            pictures: data.pictures ? [...data.pictures] : []
+        });
+        
+        const app = createApp({
+            setup() {
+                // 当前活动视图
+                const activeView = ref('list');
+                
+                // 加载状态
+                const loading = ref(false);
+                const submitting = ref(false);
+                
+                // 弹窗控制
+                const createTaskDialogVisible = ref(false);
+                const batchGenerateDialogVisible = ref(false);
+                const searchExpanded = ref(false);
+                
+                const taskStatusOptions = [
+                    { label: '未开始', value: 'pending' },
+                    { label: '执行中', value: 'executing' },
+                    { label: '已完成', value: 'completed' },
+                    { label: '未开始-超期', value: 'pending-overdue' },
+                    { label: '执行中-超期', value: 'executing-overdue' }
+                ];
+                
+                // 搜索表单
+                const searchForm = reactive({
+                    checkType: '',
+                    taskStatus: '',
+                    category: '',
+                    dateRange: [],
+                    responsible: ''
+                });
+                
+                // 分页信息
+                const pagination = reactive({
+                    currentPage: 1,
+                    pageSize: 20,
+                    total: 0
+                });
+                
+                // 任务表单
+                const taskForm = reactive({
+                    facilityId: '',
+                    checkType: 'routine',
+                    planDate: '',
+                    responsible: '',
+                    description: ''
+                });
+                
+                const taskFormRules = {
+                    facilityId: [{ required: true, message: '请选择设施', trigger: 'change' }],
+                    checkType: [{ required: true, message: '请选择检查类型', trigger: 'change' }],
+                    planDate: [{ required: true, message: '请选择计划检查日期', trigger: 'change' }],
+                    responsible: [{ required: true, message: '请选择检查责任人', trigger: 'change' }]
+                };
+                
+                // 批量生成表单
+                const batchForm = reactive({
+                    categories: [],
+                    departments: [],
+                    status: 'normal',
+                    checkType: 'routine',
+                    planDate: '',
+                    responsible: ''
+                });
+                
+                const executionFormRef = ref(null);
+                const currentTask = ref(null);
+                const historyRecord = ref(null);
+                
+                const executionForm = reactive({
+                    inspectionDate: '',
+                    executor: '',
+                    location: '',
+                    projects: [],
+                    attachments: [],
+                    signature: '',
+                    remarks: '',
+                    testGuidance: '',
+                    testConclusion: '',
+                    retestPlan: ''
+                });
+                
+                const executionRules = {
+                    inspectionDate: [{ required: true, message: '请选择执行日期', trigger: 'change' }],
+                    executor: [{ required: true, message: '请输入执行人员', trigger: 'blur' }],
+                    signature: [{ required: true, message: '请输入现场签字', trigger: 'blur' }]
+                };
+
+                const functionConclusionOptions = [
+                    { label: '试验通过', value: 'pass' },
+                    { label: '需复测', value: 'retest' },
+                    { label: '试验未完成', value: 'incomplete' },
+                    { label: '试验失败', value: 'fail' }
+                ];
+
+                // 模拟数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        taskCode: 'TASK202411001',
+                        checkType: 'routine',
+                        facilityName: '1号楼室外消火栓',
+                        category: '室外消火栓',
+                        location: '1号楼东侧',
+                        planDate: '2024-11-15',
+                        plannedEndDate: '2024-11-18',
+                        startDate: '',
+                        endDate: '',
+                        responsible: '张三',
+                        taskStatus: 'pending',
+                        overdueDays: 0,
+                        selectedChecklistId: 'hydrant_routine',
+                        attachments: [
+                            { name: '现场照片-栓体.jpg', size: 512000 },
+                            { name: '出水试验视频.mp4', size: 2048000 }
+                        ],
+                        projects: [
+                            { name: '栓体外观与防护', standard: '外观完好无破损，防护设施可靠', result: '符合', remark: '', pictures: [] },
+                            { name: '启闭与密封性能', standard: '启闭灵活，无渗漏、滴水', result: '符合', remark: '', pictures: [] },
+                            { name: '出水试验', standard: '出水顺畅，流量压力符合设计要求', result: '符合', remark: '', pictures: [] },
+                            { name: '消火栓箱组件', standard: '箱门完好、软管喷嘴齐全，卷盘转动灵活', result: '符合', remark: '', pictures: [] }
+                        ],
+                        historyRecords: [
+                            {
+                                recordId: 'HIS20241023001',
+                                checkDate: '2024-10-23',
+                                inspector: '张三',
+                                submittedAt: '2024-10-23 15:20',
+                                conclusion: '合格',
+                                remarks: '现场外观完好，水压符合要求。',
+                                attachments: [
+                                    { name: '现场照片1.jpg', size: 512000 },
+                                    { name: '现场照片2.jpg', size: 420000 }
+                                ],
+                                signatureUrl: '',
+                                qrInfo: {
+                                    scannedAt: '2024-10-23 14:58',
+                                    operator: '张三',
+                                    location: '东侧消防通道'
+                                },
+                                gps: {
+                                    coordinate: '34.34321, 108.93987',
+                                    address: '陕西省西安市高新区科技八路'
+                                },
+                                checkItems: [
+                                    { name: '栓体外观与防护', standard: '外观完好无破损，防护设施可靠', result: '符合', remark: '' },
+                                    { name: '启闭与密封性能', standard: '启闭灵活，无渗漏、滴水', result: '符合', remark: '' },
+                                    { name: '出水试验', standard: '出水顺畅，流量压力符合设计要求', result: '符合', remark: '' },
+                                    { name: '消火栓箱组件', standard: '箱门完好、软管喷嘴齐全，卷盘转动灵活', result: '符合', remark: '' }
+                                ],
+                                hazard: null
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        taskCode: 'TASK202411002',
+                        checkType: 'function',
+                        facilityName: '办公区干粉灭火器',
+                        category: '灭火器',
+                        location: '办公楼2层走廊',
+                        planDate: '2024-11-10',
+                        plannedEndDate: '2024-11-12',
+                        startDate: '2024-11-08',
+                        endDate: '',
+                        responsible: '李四',
+                        taskStatus: 'overdue',
+                        overdueDays: 5,
+                        selectedChecklistId: 'extinguisher_routine',
+                        testObjective: '确认灭火器压力与配置状态满足使用要求',
+                        testReference: 'GB 4351.1-2005 手提式灭火器性能与结构要求',
+                        testSupervisor: '李四',
+                        testConclusion: 'retest',
+                        retestPlan: '2024-11-12 完成压力补充后复测',
+                        testGuidance: '抽检4台灭火器，核对压力、封签及放置情况。',
+                        attachments: [
+                            { name: '灭火器检测报告.pdf', size: 245760 },
+                            { name: '现场照片-压力表.jpg', size: 368000 }
+                        ],
+                        projects: [
+                            { name: '筒体与铭牌', standard: '筒体完好无锈蚀、凹陷，铭牌清晰', threshold: '外观完好无锈蚀', value: '', unit: '', result: '符合', remark: '', pictures: [] },
+                            { name: '压力表读数', standard: '压力表指针位于绿色工作区', threshold: '绿色区 1.2-1.4MPa', value: '0.9, 1.0', unit: 'MPa', result: '不符合', remark: '两台压力偏低', pictures: [] },
+                            { name: '封签与保险', standard: '铅封完整、安全销牢固', threshold: '封签完好', value: '', unit: '', result: '符合', remark: '', pictures: [] },
+                            { name: '配置位置', standard: '摆放位置正确、标识明显、便于取用', threshold: '位置正确可取用', value: '', unit: '', result: '符合', remark: '', pictures: [] }
+                        ],
+                        hazards: [
+                            {
+                                id: 'HZ20240913015',
+                                code: 'HD20240913015',
+                                level: '一般隐患',
+                                status: '整改中',
+                                description: '办公区两台干粉灭火器压力不足，需要补充充装。',
+                                createdAt: '2024-09-13',
+                                deadline: '2024-09-20',
+                                owner: '李四'
+                            }
+                        ],
+                        historyRecords: [
+                            {
+                                recordId: 'HIS20240912007',
+                                checkDate: '2024-09-12',
+                                inspector: '李四',
+                                submittedAt: '2024-09-12 11:05',
+                                conclusion: '一般问题',
+                                remarks: '发现部分灭火器压力偏低，需尽快充装。',
+                                attachments: [
+                                    { name: '压力异常照片.jpg', size: 390000 }
+                                ],
+                                signatureUrl: '',
+                                qrInfo: {
+                                    scannedAt: '2024-09-12 10:32',
+                                    operator: '李四',
+                                    location: '办公楼2层走廊'
+                                },
+                                gps: {
+                                    coordinate: '34.34111, 108.94021',
+                                    address: '陕西省西安市高新区科技六路'
+                                },
+                                checkItems: [
+                                    { name: '筒体与铭牌', standard: '筒体完好无锈蚀、凹陷，铭牌清晰', threshold: '外观完好无锈蚀', value: '', unit: '', result: '符合', remark: '' },
+                                    { name: '压力表读数', standard: '压力表指针位于绿色工作区', threshold: '绿色区 1.2-1.4MPa', value: '0.9, 1.0', unit: 'MPa', result: '不符合', remark: '两台压力偏低' },
+                                    { name: '封签与保险', standard: '铅封完整、安全销牢固', threshold: '封签完好', value: '', unit: '', result: '符合', remark: '' },
+                                    { name: '配置位置', standard: '摆放位置正确、标识明显、便于取用', threshold: '位置正确可取用', value: '', unit: '', result: '符合', remark: '' }
+                                ],
+                                hazard: {
+                                    code: 'HD20240913015',
+                                    level: '一般隐患',
+                                    status: '整改中',
+                                    description: '办公区两台干粉灭火器压力不足，需要补充充装。'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        taskCode: 'TASK202411003',
+                        checkType: 'routine',
+                        facilityName: '火灾自动报警系统主机',
+                        category: '火灾自动报警系统',
+                        location: '消防控制室',
+                        planDate: '2024-11-20',
+                        plannedEndDate: '2024-11-25',
+                        startDate: '2024-11-19',
+                        endDate: '2024-11-20',
+                        responsible: '王五',
+                        taskStatus: 'executing',
+                        overdueDays: 0,
+                        selectedChecklistId: 'alarm_routine',
+                        attachments: [
+                            { name: '主机运行截图.png', size: 325000 },
+                            { name: '烟感延迟记录.xlsx', size: 156000 }
+                        ],
+                        projects: [
+                            { name: '主机运行状态', standard: '主机运行正常，无故障信息', result: '符合', remark: '', pictures: [] },
+                            { name: '电源与备电', standard: '主电、备用电源供电正常，切换可靠', result: '符合', remark: '', pictures: [] },
+                            { name: '探测器抽检', standard: '抽检≥10%，响应及时，复位正常', result: '不符合', remark: '西侧走廊烟感响应延迟', pictures: [] },
+                            { name: '联动接口', standard: '与消防联动控制设备通讯正常', result: '符合', remark: '', pictures: [] }
+                        ],
+                        historyRecords: []
+                    },
+                    {
+                        id: 4,
+                        taskCode: 'TASK202501015',
+                        checkType: 'routine',
+                        facilityName: '2号楼室内消火栓',
+                        category: '室内消火栓',
+                        location: '2号楼一层大厅',
+                        planDate: '2025-11-20',
+                        plannedEndDate: '2025-11-25',
+                        startDate: '',
+                        endDate: '',
+                        responsible: '赵六',
+                        taskStatus: 'pending',
+                        overdueDays: 0,
+                        selectedChecklistId: 'hydrant_routine',
+                        attachments: [
+                            { name: '室内消火栓巡检照片.jpg', size: 482000 }
+                        ],
+                        projects: [
+                            { name: '室内栓体外观', standard: '外观完好无破损、标识清晰', result: '符合', remark: '', pictures: [] },
+                            { name: '栓门与卷盘', standard: '箱门完好、卷盘转动灵活', result: '符合', remark: '', pictures: [] },
+                            { name: '启闭测试', standard: '启闭顺畅，无渗漏', result: '符合', remark: '', pictures: [] },
+                            { name: '水压测试', standard: '动压≥0.20MPa', result: '符合', remark: '', pictures: [] }
+                        ],
+                        historyRecords: []
+                    },
+                    {
+                        id: 5,
+                        taskCode: 'TASK202501021',
+                        checkType: 'function',
+                        facilityName: '消防泵房联动控制柜',
+                        category: '消防控制室设备',
+                        location: '泵房控制室',
+                        planDate: '2025-11-05',
+                        plannedEndDate: '2025-11-15',
+                        startDate: '2025-11-05',
+                        endDate: '',
+                        responsible: '孙琪',
+                        taskStatus: 'executing',
+                        overdueDays: 0,
+                        selectedChecklistId: '',
+                        testObjective: '验证消防泵房联动控制逻辑有效性',
+                        testReference: 'GB 25201-2010 建筑消防设施的维护管理',
+                        testSupervisor: '孙琪',
+                        testConclusion: '',
+                        retestPlan: '',
+                        testGuidance: '',
+                        attachments: [
+                            { name: '联动试验记录.pdf', size: 278000 }
+                        ],
+                        projects: [
+                            { name: '联动自检', standard: '自检通过，无故障', threshold: '自检状态正常', value: '', unit: '', result: '符合', remark: '', pictures: [] },
+                            { name: '启动试验', standard: '各联动设备启动正常', threshold: '所有设备按次序启动', value: '', unit: '', result: '执行中', remark: '', pictures: [] },
+                            { name: '反馈信号', standard: '反馈信号正确返回', threshold: '反馈信号在5秒内返回', value: '', unit: 's', result: '符合', remark: '', pictures: [] },
+                            { name: '记录登记', standard: '记录齐全，签字确认', threshold: '资料完整', value: '', unit: '', result: '待完成', remark: '', pictures: [] }
+                        ],
+                        hazards: [
+                            {
+                                id: 'HZ20241103008',
+                                code: 'HD20241103008',
+                                level: '重大隐患',
+                                status: '待整改',
+                                description: '消防泵房联动试验未完成，需立即安排整改并复测。',
+                                createdAt: '2025-11-06',
+                                deadline: '2025-11-12',
+                                owner: '孙琪'
+                            }
+                        ],
+                        historyRecords: []
+                    }
+                ]);
+
+                const formatDate = (date) => {
+                    if (!date) return '';
+                    const d = new Date(date);
+                    if (Number.isNaN(d.getTime())) return date;
+                    const month = `${d.getMonth() + 1}`.padStart(2, '0');
+                    const day = `${d.getDate()}`.padStart(2, '0');
+                    return `${d.getFullYear()}-${month}-${day}`;
+                };
+
+                const msPerDay = 24 * 60 * 60 * 1000;
+
+                const computeTimelineStatus = (task) => {
+                    const now = new Date();
+                    const start = task.startDate ? new Date(task.startDate) : null;
+                    const end = task.endDate ? new Date(task.endDate) : null;
+                    const deadline = task.plannedEndDate ? new Date(task.plannedEndDate) : (task.planDate ? new Date(task.planDate) : null);
+
+                    if (!start) {
+                        if (deadline && deadline < now) {
+                            return { key: 'pending-overdue', text: '未开始-超期' };
+                        }
+                        return { key: 'pending', text: '未开始' };
+                    }
+
+                    if (!end) {
+                        if (deadline && deadline < now) {
+                            return { key: 'executing-overdue', text: '执行中-超期' };
+                        }
+                        return { key: 'executing', text: '执行中' };
+                    }
+
+                    if (deadline && new Date(end) > deadline) {
+                        return { key: 'completed-overdue', text: '已完成(超期)' };
+                    }
+
+                    return { key: 'completed', text: '已完成' };
+                };
+
+                const getOverdueDays = (task) => {
+                    const deadlineStr = task.plannedEndDate || task.planDate;
+                    if (!deadlineStr) return 0;
+                    const deadline = new Date(deadlineStr);
+                    if (Number.isNaN(deadline.getTime())) return 0;
+                    const compare = task.endDate ? new Date(task.endDate) : new Date();
+                    const diff = Math.floor((compare.getTime() - deadline.getTime()) / msPerDay);
+                    return diff > 0 ? diff : 0;
+                };
+
+                const getTaskStatusText = (task) => computeTimelineStatus(task).text;
+                const getTaskStatusKey = (task) => computeTimelineStatus(task).key;
+                const getTaskStatusClass = (task) => {
+                    const key = getTaskStatusKey(task);
+                    switch (key) {
+                        case 'pending':
+                            return 'status-tag status-pending';
+                        case 'pending-overdue':
+                            return 'status-tag status-overdue';
+                        case 'executing':
+                            return 'status-tag status-executing';
+                        case 'executing-overdue':
+                            return 'status-tag status-overdue';
+                        case 'completed':
+                            return 'status-tag status-completed';
+                        case 'completed-overdue':
+                            return 'status-tag status-overdue';
+                        default:
+                            return 'status-tag';
+                    }
+                };
+
+                const refreshTaskDerivedFields = (task) => {
+                    if (!task) return;
+                    const statusKey = getTaskStatusKey(task);
+                    const overdue = getOverdueDays(task);
+                    task.taskStatus = statusKey;
+                    task.overdueDays = overdue;
+                };
+
+                const filteredTableData = computed(() => {
+                    if (!tableData.value || tableData.value.length === 0) return [];
+                    return tableData.value.filter(item => {
+                        if (searchForm.checkType && item.checkType !== searchForm.checkType) return false;
+                        if (searchForm.taskStatus && getTaskStatusKey(item) !== searchForm.taskStatus) return false;
+                        if (searchForm.category && item.category !== searchForm.category) return false;
+                        if (searchForm.responsible && (!item.responsible || !item.responsible.includes(searchForm.responsible))) return false;
+                        if (Array.isArray(searchForm.dateRange) && searchForm.dateRange.length === 2) {
+                            const [start, end] = searchForm.dateRange;
+                            if (start && item.planDate < start) return false;
+                            if (end && item.planDate > end) return false;
+                        }
+                        return true;
+                    });
+                });
+
+                const enrichedTableData = computed(() => filteredTableData.value.map(item => {
+                    const statusKey = getTaskStatusKey(item);
+                    return {
+                        ...item,
+                        statusKey,
+                        statusText: getTaskStatusText(item),
+                        statusClass: getTaskStatusClass(item),
+                        overdueDisplay: getOverdueDays(item)
+                    };
+                }));
+
+                const paginatedTableData = computed(() => {
+                    const start = (pagination.currentPage - 1) * pagination.pageSize;
+                    return enrichedTableData.value.slice(start, start + pagination.pageSize);
+                });
+
+                watch(filteredTableData, (list) => {
+                    pagination.total = list.length;
+                    const maxPage = list.length === 0 ? 1 : Math.ceil(list.length / pagination.pageSize);
+                    if (pagination.currentPage > maxPage) {
+                        pagination.currentPage = maxPage;
+                    }
+                }, { immediate: true });
+
+                const standardChecklists = ref([
+                    {
+                        id: 'hydrant_routine',
+                        code: 'CHK-HY-RT-001',
+                        name: '室外消火栓例行检查表',
+                        checklistType: '设施例检',
+                        itemCount: 4,
+                        department: '安全管理部',
+                        updatedBy: '王强',
+                        category: '室外消火栓',
+                        checkType: 'routine',
+                        reference: 'GB 50974-2014 消防给水及消火栓系统技术规范',
+                        summary: '适用于室外消火栓日常巡检，关注外观、启闭、出水等关键项',
+                        items: [
+                            createProject({ name: '栓体外观与防护', standard: '外观完好无破损，防护设施可靠', result: '符合' }),
+                            createProject({ name: '启闭与密封性能', standard: '启闭灵活，无渗漏、滴水', result: '符合' }),
+                            createProject({ name: '出水试验', standard: '出水顺畅，流量压力符合设计要求', result: '符合' }),
+                            createProject({ name: '消火栓箱组件', standard: '箱门完好、软管喷嘴齐全，卷盘转动灵活', result: '符合' })
+                        ]
+                    },
+                    {
+                        id: 'hydrant_function',
+                        code: 'CHK-HY-FN-001',
+                        name: '室外消火栓功能试验表',
+                        checklistType: '设施功能试验',
+                        itemCount: 3,
+                        department: '设备维护部',
+                        updatedBy: '赵敏',
+                        category: '室外消火栓',
+                        checkType: 'function',
+                        reference: 'GB 25201-2010 建筑消防设施的维护管理',
+                        summary: '验证室外消火栓功能性能，重点核对水压与持续供水能力',
+                        items: [
+                            createProject({ name: '静压测试', standard: '静压 ≥0.28 MPa', threshold: '≥0.28', unit: 'MPa', result: '符合' }),
+                            createProject({ name: '动压测试', standard: '动压 ≥0.20 MPa', threshold: '≥0.20', unit: 'MPa', result: '符合' }),
+                            createProject({ name: '连续供水能力', standard: '持续放水5分钟水压稳定', threshold: '5分钟压力稳定', unit: '', result: '符合' })
+                        ]
+                    },
+                    {
+                        id: 'alarm_routine',
+                        code: 'CHK-AL-RT-001',
+                        name: '火灾自动报警系统例行检查表',
+                        checklistType: '系统巡检',
+                        itemCount: 4,
+                        department: '消防控制室',
+                        updatedBy: '李娜',
+                        category: '火灾自动报警系统',
+                        checkType: 'routine',
+                        reference: 'GB 50116-2013 火灾自动报警系统设计规范',
+                        summary: '用于火灾自动报警系统日常巡检，涵盖主机、电源、探测器与联动接口状态',
+                        items: [
+                            createProject({ name: '主机运行状态', standard: '主机运行正常，无故障信息', result: '符合' }),
+                            createProject({ name: '电源与备电', standard: '主电、备用电源供电正常，切换可靠', result: '符合' }),
+                            createProject({ name: '探测器抽检', standard: '抽检≥10%，响应及时，复位正常', result: '符合' }),
+                            createProject({ name: '联动接口', standard: '与消防联动控制设备通讯正常', result: '符合' })
+                        ]
+                    },
+                    {
+                        id: 'alarm_function',
+                        code: 'CHK-AL-FN-001',
+                        name: '火灾自动报警系统功能试验表',
+                        checklistType: '联动试验',
+                        itemCount: 4,
+                        department: '消防控制室',
+                        updatedBy: '李娜',
+                        category: '火灾自动报警系统',
+                        checkType: 'function',
+                        reference: 'GB 25201-2010 建筑消防设施的维护管理',
+                        summary: '针对报警系统联动功能开展测试，覆盖手报、探测器联动、故障自检等',
+                        items: [
+                            createProject({ name: '手报装置测试', standard: '按下后报警信号及时定位，声光提示正常', threshold: '响应时间 ≤5s', unit: 's', result: '符合' }),
+                            createProject({ name: '探测器联动', standard: '触发探测器后关联联动设备动作正确', threshold: '全部联动动作', unit: '', result: '符合' }),
+                            createProject({ name: '故障自检', standard: '模拟断路短路后主机能记录并提示', threshold: '记录并报警', unit: '', result: '符合' }),
+                            createProject({ name: '信号传输', standard: '报警信号上传消防控制室/监测平台正常', threshold: '信号完整', unit: '', result: '符合' })
+                        ]
+                    },
+                    {
+                        id: 'extinguisher_routine',
+                        code: 'CHK-EX-RT-001',
+                        name: '灭火器例行检查表',
+                        checklistType: '器材巡检',
+                        itemCount: 4,
+                        department: '后勤保障部',
+                        updatedBy: '陈飞',
+                        category: '灭火器',
+                        checkType: 'routine',
+                        reference: 'GB 4351.1-2005 手提式灭火器性能与结构要求',
+                        summary: '用于灭火器日常巡检，聚焦筒体、压力、封签与放置位置',
+                        items: [
+                            createProject({ name: '筒体与铭牌', standard: '筒体完好无锈蚀、凹陷，铭牌清晰', result: '符合' }),
+                            createProject({ name: '压力表读数', standard: '压力表指针位于绿色工作区', result: '符合' }),
+                            createProject({ name: '封签与保险', standard: '铅封完整、安全销牢固', result: '符合' }),
+                            createProject({ name: '配置位置', standard: '摆放位置正确、标识明显、便于取用', result: '符合' })
+                        ]
+                    }
+                ]);
+                
+                const selectedChecklist = ref('');
+                const checklistDialogVisible = ref(false);
+                const checklistSelection = ref('');
+                const selectedChecklistName = computed(() => {
+                    const activeId = selectedChecklist.value || currentTask.value?.selectedChecklistId;
+                    if (!activeId) return '';
+                    const checklist = standardChecklists.value.find(item => item.id === activeId);
+                    return checklist ? checklist.name : '';
+                });
+                
+                const inspectionTemplates = {
+                    '室外消火栓': [
+                        createProject({ name: '外观完好与标识', standard: '无破损、标识清晰完好', result: '符合' }),
+                        createProject({ name: '阀门启闭灵活', standard: '手动启闭顺畅，无卡涩、无漏水', result: '符合' }),
+                        createProject({ name: '水压测试', standard: '静压≥0.28MPa，动压≥0.20MPa', result: '符合' })
+                    ],
+                    '火灾自动报警系统': [
+                        createProject({ name: '主机运行状态', standard: '主机运行正常，显示无故障', result: '符合' }),
+                        createProject({ name: '探测器抽检', standard: '抽检不少于10%，报警正常响应', result: '符合' }),
+                        createProject({ name: '联动试验', standard: '报警后联动设备按设计动作', result: '符合' })
+                    ],
+                    default: [
+                        createProject({ name: '外观及标识', standard: '设施完好、标识齐全', result: '符合' }),
+                        createProject({ name: '功能测试', standard: '按说明书逐项动作测试', result: '符合' }),
+                        createProject({ name: '记录与附件', standard: '记录完整，附件齐全', result: '符合' })
+                    ]
+                };
+                
+                const hasUnqualifiedProjects = computed(() => executionForm.projects.some(item => item.result === '不符合'));
+
+                const isFunctionCheck = computed(() => {
+                    if (currentTask.value && currentTask.value.checkType === 'function') return true;
+                    if (historyRecord.value && historyRecord.value.checkType === 'function') return true;
+                    if (historyRecord.value?.task && historyRecord.value.task.checkType === 'function') return true;
+                    return false;
+                });
+
+                executionRules.testConclusion = [
+                    {
+                        validator: (_rule, value, callback) => {
+                            if (!isFunctionCheck.value) {
+                                callback();
+                                return;
+                            }
+                            if (!value) {
+                                callback(new Error('请选择试验结论'));
+                                return;
+                            }
+                            callback();
+                        },
+                        trigger: 'change'
+                    }
+                ];
+
+                const functionConclusionText = (value) => {
+                    const map = {
+                        pass: '试验通过',
+                        retest: '需复测',
+                        incomplete: '试验未完成',
+                        fail: '试验失败'
+                    };
+                    if (!value) return '—';
+                    return map[value] || value;
+                };
+
+                const currentTaskStatus = computed(() => {
+                    if (!currentTask.value) {
+                        return { key: '', text: '', overdue: 0 };
+                    }
+                    return {
+                        key: getTaskStatusKey(currentTask.value),
+                        text: getTaskStatusText(currentTask.value),
+                        overdue: getOverdueDays(currentTask.value)
+                    };
+                });
+                
+                const historyHasHazard = computed(() => !!historyRecord.value?.hazard);
+                const historyNeedsHazard = computed(() => {
+                    if (!historyRecord.value) return false;
+                    return historyRecord.value.conclusion && historyRecord.value.conclusion !== '合格' && !historyRecord.value.hazard;
+                });
+
+                const detailProjects = computed(() => currentTask.value?.projects || []);
+                const detailHasProjects = computed(() => detailProjects.value.length > 0);
+                const detailUnqualifiedCount = computed(() => detailProjects.value.filter(item => item.result === '不符合').length);
+                const detailAttachments = computed(() => currentTask.value?.attachments || []);
+                const detailHasAttachments = computed(() => detailAttachments.value.length > 0);
+                const detailHazards = computed(() => currentTask.value?.hazards || []);
+                const detailHasHazards = computed(() => detailHazards.value.length > 0);
+                const detailNeedHazardAlert = computed(() => detailUnqualifiedCount.value > 0 && !detailHasHazards.value);
+                const detailCanExecute = computed(() => {
+                    const status = currentTaskStatus.value.key || currentTask.value?.taskStatus;
+                    return ['pending', 'executing', 'overdue'].includes(status);
+                });
+                const searchExpandText = computed(() => searchExpanded.value ? '收起高级条件' : '展开高级条件');
+                const searchExpandIcon = computed(() => searchExpanded.value ? 'fas fa-chevron-up' : 'fas fa-chevron-down');
+
+                const openHiddenDangerModule = (project) => {
+                    const suffix = '（参考隐患登记）';
+                    const message = project?.name ? `进入登记问题页面：${project.name} ${suffix}` : `进入登记问题页面 ${suffix}`;
+                    ElMessage.info(message);
+                };
+                
+                const registerIssue = (project) => {
+                    openHiddenDangerModule(project);
+                };
+                
+                const resetExecutionForm = () => {
+                    executionForm.inspectionDate = '';
+                    executionForm.executor = '';
+                    executionForm.location = '';
+                    executionForm.attachments = [];
+                    executionForm.signature = '';
+                    executionForm.remarks = '';
+                    executionForm.projects = [];
+                    selectedChecklist.value = '';
+                    checklistDialogVisible.value = false;
+                    checklistSelection.value = '';
+                    executionForm.testGuidance = '';
+                    executionForm.testConclusion = '';
+                    executionForm.retestPlan = '';
+                };
+                
+                const loadExecutionTemplate = (task) => {
+                    resetExecutionForm();
+                    if (task.projects && task.projects.length) {
+                        executionForm.projects = task.projects.map(item => createProject(item));
+                    } else {
+                        const matchedChecklist = standardChecklists.value.find(item => item.category === task.category && item.checkType === task.checkType);
+                        if (matchedChecklist) {
+                            executionForm.projects = matchedChecklist.items.map(item => createProject(item));
+                            selectedChecklist.value = matchedChecklist.id;
+                            checklistSelection.value = matchedChecklist.id;
+                            task.selectedChecklistId = matchedChecklist.id;
+                        } else {
+                            const template = inspectionTemplates[task.category] || inspectionTemplates.default;
+                            executionForm.projects = template.map(item => createProject(item));
+                            checklistSelection.value = '';
+                        }
+                    }
+                    executionForm.executor = task.responsible || '';
+                    executionForm.inspectionDate = task.planDate || '';
+                    executionForm.location = task.location || '';
+                    executionForm.attachments = task.attachments ? [...task.attachments] : [];
+                    executionForm.testGuidance = task.testGuidance || '';
+                    executionForm.testConclusion = task.testConclusion || '';
+                    executionForm.retestPlan = task.retestPlan || '';
+                    if (task.selectedChecklistId) {
+                        selectedChecklist.value = task.selectedChecklistId;
+                        checklistSelection.value = task.selectedChecklistId;
+                     }
+                     refreshTaskDerivedFields(task);
+                    syncTaskToTable(task);
+                };
+                
+                const syncTaskToTable = (task) => {
+                    refreshTaskDerivedFields(task);
+                    const index = tableData.value.findIndex(item => item.id === task.id);
+                    if (index > -1) {
+                        tableData.value[index] = { ...tableData.value[index], ...task };
+                    }
+                };
+                
+                // 设施选项
+                const facilityOptions = ref([
+                    { id: 1, code: 'XH001', name: '1号楼室外消火栓', category: '室外消火栓', location: '1号楼东侧', department: '生产部' },
+                    { id: 2, code: 'MHQ001', name: '办公区干粉灭火器', category: '灭火器', location: '办公楼2层走廊', department: '办公区' },
+                    { id: 3, code: 'BJ001', name: '火灾自动报警系统主机', category: '火灾自动报警系统', location: '消防控制室', department: '生产部' }
+                ]);
+                
+                // 责任人选项
+                const responsibleOptions = ref([
+                    { id: 1, name: '张三', department: '生产部' },
+                    { id: 2, name: '李四', department: '办公区' },
+                    { id: 3, name: '王五', department: '生产部' }
+                ]);
+                
+                // 筛选后的设施列表
+                const filteredFacilities = ref([]);
+                const selectedFacilities = ref([]);
+                
+                tableData.value.forEach(refreshTaskDerivedFields);
+                pagination.total = tableData.value.length;
+                
+                // 方法定义
+                const methods = {
+                    // 搜索数据
+                    searchData() {
+                        pagination.currentPage = 1;
+                    },
+                    
+                    getConclusionTagType(conclusion) {
+                        const map = {
+                            '合格': 'success',
+                            '一般问题': 'warning',
+                            '重大隐患': 'danger',
+                            pass: 'success',
+                            retest: 'warning',
+                            incomplete: 'info',
+                            fail: 'danger'
+                        };
+                        return map[conclusion] || 'info';
+                    },
+                    
+                    getCheckResultTagType(result) {
+                        const map = {
+                            '符合': 'success',
+                            '不符合': 'danger',
+                            '不涉及': 'info'
+                        };
+                        return map[result] || 'info';
+                    },
+                    
+                    // 重置搜索
+                    resetSearch() {
+                        Object.keys(searchForm).forEach(key => {
+                            if (Array.isArray(searchForm[key])) {
+                                searchForm[key] = [];
+                            } else {
+                                searchForm[key] = '';
+                            }
+                        });
+                        searchExpanded.value = false;
+                        ElMessage.info('搜索条件已重置');
+                        pagination.currentPage = 1;
+                    },
+                    
+                    toggleSearchExpanded() {
+                        searchExpanded.value = !searchExpanded.value;
+                    },
+                    
+                    // 返回列表
+                    goBackToList() {
+                        activeView.value = 'list';
+                        currentTask.value = null;
+                        resetExecutionForm();
+                    },
+                    
+                    // 获取流程当前步
+                    getProcessActiveIndex() {
+                        return 0;
+                    },
+                    
+                    // 获取流程状态文本
+                    getProcessStatusText() {
+                        return '';
+                    },
+                    
+                    // 处理检查项目判定变更
+                    handleProjectResultChange() {
+                        if (currentTask.value) {
+                            currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                            syncTaskToTable(currentTask.value);
+                        }
+                    },
+                    
+                    // 打开检查表选择弹窗
+                    openChecklistDialog() {
+                        if (standardChecklists.value.length === 0) {
+                            ElMessage.info('暂无可用的标准检查表');
+                            return;
+                        }
+                        checklistDialogVisible.value = true;
+                        checklistSelection.value = selectedChecklist.value || standardChecklists.value[0].id;
+                    },
+                    
+                    // 确认导入检查表
+                    confirmImportChecklist() {
+                        if (!checklistSelection.value) {
+                            ElMessage.warning('请选择标准检查表');
+                            return;
+                        }
+                        selectedChecklist.value = checklistSelection.value;
+                        methods.importChecklist();
+                    },
+                    
+                    // 行点击联动单选
+                    
+                    // 表格行选择
+                    handleChecklistRowClick(row) {
+                        checklistSelection.value = row.id;
+                    },
+                    
+                    // 导入标准检查表
+                    importChecklist() {
+                        if (!selectedChecklist.value) {
+                            ElMessage.info('请选择标准检查表');
+                            return;
+                        }
+                        const checklist = standardChecklists.value.find(item => item.id === selectedChecklist.value);
+                        if (!checklist) {
+                            ElMessage.warning('未找到对应的标准检查表');
+                            return;
+                        }
+                        executionForm.projects = checklist.items.map(item => createProject(item));
+                        checklistDialogVisible.value = false;
+                        checklistSelection.value = checklist.id;
+                        ElMessage.success(`已导入【${checklist.name}】`);
+                        methods.handleProjectResultChange();
+                    },
+                    
+                    // 新增空白检查项
+                    addEmptyProject() {
+                        const project = createProject();
+                        executionForm.projects.push(project);
+                        if (currentTask.value) {
+                            currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                        }
+                    },
+                    
+                    // 设置全部符合
+                    setAllQualified() {
+                        if (executionForm.projects.length === 0) return;
+                        executionForm.projects.forEach(item => {
+                            item.result = '符合';
+                        });
+                        if (currentTask.value) {
+                            currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                            syncTaskToTable(currentTask.value);
+                         }
+                        methods.handleProjectResultChange();
+                        ElMessage.success('已将全部检查项设为符合');
+                    },
+                    
+                    // 处理图片选择
+                    handlePictureChange(_file, fileList, project) {
+                        project.pictures = [...fileList];
+                        if (currentTask.value) {
+                            currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                            syncTaskToTable(currentTask.value);
+                         }
+                     },
+                    
+                    // 删除检查项目
+                    removeProject(index) {
+                        if (index < 0 || index >= executionForm.projects.length) {
+                            return;
+                        }
+                        ElMessageBox.confirm(
+                            '确定要删除该检查项目吗？',
+                            '提示',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }
+                        ).then(() => {
+                            executionForm.projects.splice(index, 1);
+                            if (currentTask.value) {
+                                currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                                syncTaskToTable(currentTask.value);
+                            }
+                            ElMessage.success('已删除检查项目');
+                            methods.handleProjectResultChange();
+                        }).catch(() => {});
+                    },
+                    
+                    // 清空检查项目
+                    resetProjects() {
+                        if (executionForm.projects.length === 0) {
+                            return;
+                        }
+                        ElMessageBox.confirm(
+                            '清空后需要重新选择或新增检查项目，是否继续？',
+                            '确认清空',
+                            {
+                                confirmButtonText: '清空',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }
+                        ).then(() => {
+                            executionForm.projects.splice(0, executionForm.projects.length);
+                            selectedChecklist.value = '';
+                            checklistSelection.value = '';
+                            if (currentTask.value) {
+                                currentTask.value.projects = [];
+                                currentTask.value.selectedChecklistId = '';
+                                syncTaskToTable(currentTask.value);
+                            }
+                            ElMessage.success('检查项目已清空');
+                            methods.handleProjectResultChange();
+                        }).catch(() => {});
+                    },
+                    
+                    // 保存草稿
+                    saveExecutionDraft() {
+                        if (!currentTask.value) {
+                            ElMessage.info('暂无选中的检查任务');
+                            return;
+                        }
+                        if (!currentTask.value.startDate) {
+                            const today = formatDate(new Date());
+                            currentTask.value.startDate = today;
+                        }
+                        currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                        currentTask.value.attachments = [...executionForm.attachments];
+                        currentTask.value.selectedChecklistId = selectedChecklist.value || currentTask.value.selectedChecklistId || '';
+                        currentTask.value.testGuidance = executionForm.testGuidance;
+                        currentTask.value.testConclusion = executionForm.testConclusion;
+                        currentTask.value.retestPlan = executionForm.retestPlan;
+                        refreshTaskDerivedFields(currentTask.value);
+                        syncTaskToTable(currentTask.value);
+                        ElMessage.success('草稿已保存');
+                    },
+                    
+                    // 提交执行结果
+                    submitExecution() {
+                        if (!executionFormRef.value) {
+                            ElMessage.warning('表单未就绪');
+                            return;
+                        }
+                        executionFormRef.value.validate((valid) => {
+                            if (!valid) {
+                                ElMessage.warning('请完善必填项后再提交');
+                                return;
+                            }
+                            if (isFunctionCheck.value && !executionForm.testConclusion) {
+                                ElMessage.warning('功能试验需填写试验结论');
+                                return;
+                            }
+                            submitting.value = true;
+                            setTimeout(() => {
+                                submitting.value = false;
+                                if (!currentTask.value) {
+                                    ElMessage.success('检查结果已保存');
+                                    return;
+                                }
+                                const today = formatDate(new Date());
+                                if (!currentTask.value.startDate) {
+                                    currentTask.value.startDate = today;
+                                }
+                                currentTask.value.endDate = today;
+                                currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                                currentTask.value.attachments = [...executionForm.attachments];
+                                currentTask.value.selectedChecklistId = selectedChecklist.value || currentTask.value.selectedChecklistId || '';
+                                currentTask.value.testGuidance = executionForm.testGuidance;
+                                currentTask.value.testConclusion = executionForm.testConclusion;
+                                currentTask.value.retestPlan = executionForm.retestPlan;
+                                refreshTaskDerivedFields(currentTask.value);
+                                syncTaskToTable(currentTask.value);
+                                if (hasUnqualifiedProjects.value) {
+                                    ElMessage.warning('检查结果已提交，存在不符合项，请尽快登记问题');
+                                } else {
+                                    ElMessage.success('检查结果已提交');
+                                }
+                            }, 600);
+                        });
+                    },
+                    
+                    // 归档
+                    archiveResult() {
+                        // 已移除归档逻辑
+                     },
+                    
+                    // 显示新建任务弹窗
+                    showCreateTaskDialog() {
+                        createTaskDialogVisible.value = true;
+                        // 重置表单
+                        Object.keys(taskForm).forEach(key => {
+                            if (key === 'checkType') {
+                                taskForm[key] = 'routine';
+                            } else {
+                                taskForm[key] = '';
+                            }
+                        });
+                    },
+                    
+                    // 显示批量生成弹窗
+                    showBatchGenerateDialog() {
+                        batchGenerateDialogVisible.value = true;
+                        filteredFacilities.value = [];
+                        selectedFacilities.value = [];
+                    },
+                    
+                    // 处理设施变化
+                    handleFacilityChange(facilityId) {
+                        const facility = facilityOptions.value.find(f => f.id === facilityId);
+                        if (facility) {
+                            // 可以自动填充一些信息
+                        }
+                    },
+                    
+                    // 禁用过去的日期
+                    disabledDate(time) {
+                        return time.getTime() < Date.now() - 8.64e7;
+                    },
+                    
+                    // 保存任务
+                    saveTask() {
+                        // 表单验证和保存逻辑
+                        ElMessage.success('检查任务创建成功');
+                        createTaskDialogVisible.value = false;
+                    },
+                    
+                    // 保存并执行
+                    saveAndExecute() {
+                        methods.saveTask();
+                        ElMessage.info('跳转到检查执行页面');
+                    },
+                    
+                    // 筛选设施
+                    filterFacilities() {
+                        filteredFacilities.value = facilityOptions.value.filter(f => {
+                            if (batchForm.status && f.status !== batchForm.status) return false;
+                            return true;
+                        });
+                        ElMessage.success(`找到 ${filteredFacilities.value.length} 个符合条件的设施`);
+                    },
+                    
+                    // 全选设施
+                    selectAllFacilities() {
+                        selectedFacilities.value = [...filteredFacilities.value];
+                    },
+                    
+                    // 取消全选
+                    clearAllFacilities() {
+                        selectedFacilities.value = [];
+                    },
+                    
+                    // 处理设施选择
+                    handleFacilitySelection(selection) {
+                        selectedFacilities.value = selection;
+                    },
+                    
+                    // 预览任务
+                    previewTasks() {
+                        if (selectedFacilities.value.length === 0) {
+                            ElMessage.warning('请先选择要生成任务的设施');
+                            return;
+                        }
+                        ElMessage.info(`预览：将为 ${selectedFacilities.value.length} 个设施生成检查任务`);
+                    },
+                    
+                    // 生成任务
+                    generateTasks() {
+                        if (selectedFacilities.value.length === 0) {
+                            ElMessage.warning('请先选择要生成任务的设施');
+                            return;
+                        }
+                        submitting.value = true;
+                        setTimeout(() => {
+                            selectedFacilities.value.forEach((facility, idx) => {
+                                const newTask = {
+                                    id: Date.now() + idx,
+                                    taskCode: `TASK${formatDate(new Date()).replace(/-/g, '')}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+                                    checkType: batchForm.checkType,
+                                    facilityName: facility.name,
+                                    category: facility.category,
+                                    location: facility.location,
+                                    planDate: batchForm.planDate || formatDate(new Date()),
+                                    plannedEndDate: batchForm.planDate || formatDate(new Date()),
+                                    startDate: '',
+                                    endDate: '',
+                                    responsible: batchForm.responsible ? responsibleOptions.value.find(r => r.id === batchForm.responsible)?.name || '' : '',
+                                    taskStatus: 'pending',
+                                    overdueDays: 0,
+                                    selectedChecklistId: '',
+                                    attachments: [],
+                                    projects: []
+                                };
+                                refreshTaskDerivedFields(newTask);
+                                tableData.value.unshift(newTask);
+                            });
+                            pagination.total = tableData.value.length;
+                            submitting.value = false;
+                            batchGenerateDialogVisible.value = false;
+                            ElMessage.success(`成功为 ${selectedFacilities.value.length} 个设施生成检查任务`);
+                            selectedFacilities.value = [];
+                        }, 1500);
+                    },
+                    
+                    // 自动生成任务
+                    autoGenerateTasks() {
+                        ElMessageBox.confirm(
+                            '确定要执行任务自动生成吗？系统将根据设施的检查周期配置自动生成检查任务。',
+                            '确认操作',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'info',
+                            }
+                        ).then(() => {
+                            loading.value = true;
+                            setTimeout(() => {
+                                loading.value = false;
+                                ElMessage.success('任务自动生成完成');
+                            }, 2000);
+                        }).catch(() => {});
+                    },
+                    
+                    // 执行检查
+                    executeCheck(row) {
+                        currentTask.value = { ...row };
+                        if (!currentTask.value.attachments) {
+                            currentTask.value.attachments = row.attachments ? [...row.attachments] : [];
+                        }
+                        refreshTaskDerivedFields(currentTask.value);
+                        activeView.value = 'execute';
+                        loadExecutionTemplate(currentTask.value);
+                        ElMessage.info(`进入检查执行页面：${row.taskCode}`);
+                    },
+                    
+                    // 查看任务详情
+                    viewTaskDetail(row) {
+                        currentTask.value = { ...row };
+                        if (!currentTask.value.attachments) {
+                            currentTask.value.attachments = row.attachments ? [...row.attachments] : [];
+                        }
+                        refreshTaskDerivedFields(currentTask.value);
+                        syncTaskToTable(currentTask.value);
+                        activeView.value = 'detail';
+                    },
+                    
+                    // 查看设施
+                    viewFacility(row) {
+                        ElMessage.info(`查看设施：${row.facilityName}`);
+                    },
+                    
+                    // 查看历史记录
+                    viewHistory(row) {
+                        const records = row.historyRecords || [];
+                        if (records.length === 0) {
+                            ElMessage.info('暂无历史检查记录');
+                            return;
+                        }
+                        const record = { ...records[0] };
+                        record.task = { ...row };
+                        record.checkType = row.checkType || record.checkType;
+                        historyRecord.value = record;
+                        activeView.value = 'history';
+                    },
+                    
+                    // 删除任务
+                    deleteTask(row) {
+                        ElMessageBox.confirm(
+                            `确定要删除检查任务"${row.taskCode}"吗？`,
+                            '确认删除',
+                            {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning',
+                            }
+                        ).then(() => {
+                            const index = tableData.value.findIndex(d => d.id === row.id);
+                            if (index > -1) {
+                                tableData.value.splice(index, 1);
+                                pagination.total = tableData.value.length;
+                                ElMessage.success('删除成功');
+                            }
+                        }).catch(() => {});
+                    },
+                    
+                    // 导出数据
+                    exportData() {
+                        ElMessage.info('导出功能开发中');
+                    },
+                    
+                    // 获取状态样式类
+                    getStatusClass(task) {
+                        return getTaskStatusClass(task);
+                    },
+                    
+                    // 获取状态文本
+                    getStatusText(task) {
+                        return getTaskStatusText(task);
+                    },
+                    
+                    // 获取状态标签类型
+                    getStatusTagType(status) {
+                        const typeMap = {
+                            'normal': 'success',
+                            'fault': 'danger',
+                            'maintenance': 'warning',
+                            'disabled': 'info'
+                        };
+                        return typeMap[status] || '';
+                    },
+                    
+                    // 检查类型文本
+                    getCheckTypeText(type) {
+                        const map = {
+                            routine: '例行检查',
+                            function: '功能试验'
+                        };
+                        return map[type] || type;
+                    },
+                    
+                    // 处理页面大小变化
+                    handleSizeChange(val) {
+                        pagination.pageSize = val;
+                        pagination.currentPage = 1;
+                    },
+                    
+                    // 处理当前页变化
+                    handleCurrentChange(val) {
+                        pagination.currentPage = val;
+                    },
+                    
+                    // 处理附件上传
+                    handleAttachmentChange(file, fileList) {
+                        executionForm.attachments = [...fileList];
+                        if (currentTask.value) {
+                            currentTask.value.attachments = [...fileList];
+                            refreshTaskDerivedFields(currentTask.value);
+                            syncTaskToTable(currentTask.value);
+                        }
+                    },
+                    
+                    // 处理附件删除
+                    handleAttachmentRemove(file, fileList) {
+                        executionForm.attachments = [...fileList];
+                        if (currentTask.value) {
+                            currentTask.value.attachments = [...fileList];
+                            refreshTaskDerivedFields(currentTask.value);
+                            syncTaskToTable(currentTask.value);
+                        }
+                    },
+                    
+                    // 返回详情
+                    goBackToDetail() {
+                        if (!currentTask.value) {
+                            activeView.value = 'list';
+                            return;
+                        }
+                        refreshTaskDerivedFields(currentTask.value);
+                        syncTaskToTable(currentTask.value);
+                        activeView.value = 'detail';
+                    },
+                    
+                    // 历史记录返回
+                    goBackFromHistory() {
+                        const fallback = currentTask.value ? 'detail' : 'list';
+                        historyRecord.value = null;
+                        activeView.value = fallback;
+                    },
+                    
+                    // 历史记录创建隐患
+                    createHazardFromHistory(record) {
+                        if (!record) {
+                            ElMessage.info('未找到检查记录信息');
+                            return;
+                        }
+                        ElMessage.info(`创建隐患记录：${record.recordId || '未命名记录'}`);
+                    },
+                    
+                    // 查看隐患详情
+                    viewHazardDetail(record) {
+                        if (!record) {
+                            ElMessage.info('暂无关联隐患');
+                            return;
+                        }
+                        if (record.hazard) {
+                            ElMessage.info(`查看隐患详情：${record.hazard.code}`);
+                            return;
+                        }
+                        if (record.code) {
+                            ElMessage.info(`查看隐患详情：${record.code}`);
+                            return;
+                        }
+                        ElMessage.info('暂无关联隐患');
+                    }
+                };
+                
+                return {
+                    activeView,
+                    loading,
+                    submitting,
+                    searchForm,
+                    pagination,
+                    tableData,
+                    filteredTableData,
+                    paginatedTableData,
+                    createTaskDialogVisible,
+                    batchGenerateDialogVisible,
+                    taskForm,
+                    taskFormRules,
+                    batchForm,
+                    facilityOptions,
+                    responsibleOptions,
+                    filteredFacilities,
+                    selectedFacilities,
+                    currentTask,
+                    historyRecord,
+                    executionForm,
+                    executionFormRef,
+                    executionRules,
+                    hasUnqualifiedProjects,
+                    standardChecklists,
+                    selectedChecklist,
+                    selectedChecklistName,
+                    checklistDialogVisible,
+                    checklistSelection,
+                    taskStatusOptions,
+                    searchExpanded,
+                    searchExpandText,
+                    searchExpandIcon,
+                    functionConclusionOptions,
+                    functionConclusionText,
+                    isFunctionCheck,
+                    openHiddenDangerModule,
+                    registerIssue,
+                    currentTaskStatus,
+                    getTaskStatusKey,
+                    getTaskStatusText,
+                    getOverdueDays,
+                    historyHasHazard,
+                    historyNeedsHazard,
+                    detailProjects,
+                    detailHasProjects,
+                    detailUnqualifiedCount,
+                    detailAttachments,
+                    detailHasAttachments,
+                    detailHazards,
+                    detailHasHazards,
+                    detailNeedHazardAlert,
+                    detailCanExecute,
+                    toggleSearchExpanded: methods.toggleSearchExpanded,
+                    createHazardFromHistory: methods.createHazardFromHistory,
+                    viewHazardDetail: methods.viewHazardDetail,
+                    goBackFromHistory: methods.goBackFromHistory,
+                    ...methods
+                };
+            }
+        });
+        
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>
+

@@ -651,6 +651,20 @@
                                     <template #title>照明设施管理</template>
                                 </el-menu-item>
                             </el-sub-menu>
+                            <el-sub-menu index="fire-safety-management">
+                                <template #title>
+                                    <i class="fas fa-fire-extinguisher"></i>
+                                    <span>消防安全管理</span>
+                                </template>
+                                <el-menu-item index="fire-facility-ledger">
+                                    <i class="fas fa-list-alt"></i>
+                                    <template #title>消防设施器材台账</template>
+                                </el-menu-item>
+                                <el-menu-item index="check-inspection-management">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <template #title>检查与试验管理</template>
+                                </el-menu-item>
+                            </el-sub-menu>
                         </template>
                         
                     </el-menu>
@@ -788,7 +802,7 @@
                         <!-- 建（构）筑物管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'building-management'">
                             <iframe 
-                                src="./工作场所/建构筑物管理.html" 
+                                src="./工作场所/建构筑物管理/index.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -797,7 +811,7 @@
                         <!-- 生产安全设施管理 - 标准标志库 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-standard-library'">
                             <iframe 
-                                src="./工作场所/标准标志库.html" 
+                                src="./工作场所/生产安全设施管理/标准标志库.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -806,7 +820,7 @@
                         <!-- 生产安全设施管理 - 标志管理台账 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-sign-ledger'">
                             <iframe 
-                                src="./工作场所/标志管理台账.html" 
+                                src="./工作场所/生产安全设施管理/标志管理台账.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -815,7 +829,7 @@
                         <!-- 生产安全设施管理 - 安全防护设施配置台账 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-protection-ledger'">
                             <iframe 
-                                src="./工作场所/安全防护设施配置台账.html" 
+                                src="./工作场所/生产安全设施管理/安全防护设施配置台账.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -824,7 +838,7 @@
                         <!-- 通风设施管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'ventilation-management'">
                             <iframe 
-                                src="./工作场所/通风设施管理.html" 
+                                src="./工作场所/通风与照明管理/通风设施管理.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -833,12 +847,31 @@
                         <!-- 照明设施管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'lighting-management'">
                             <iframe 
-                                src="./工作场所/照明设施管理.html" 
+                                src="./工作场所/通风与照明管理/照明设施管理.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
                         
+                        <!-- 消防设施器材台账页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'fire-facility-ledger'">
+                            <iframe 
+                                src="./工作场所/消防安全管理/消防设施器材台账.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+                        <!-- 检查与试验管理页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'check-inspection-management'">
+                            <iframe 
+                                src="./工作场所/消防安全管理/检查与试验管理.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+
                         <!-- 其他页面的默认内容 -->
                         <div class="content-wrapper" v-else>
                             <div class="page-header">
@@ -933,7 +966,9 @@
                     'safety-sign-ledger': { title: '标志管理台账', icon: 'fas fa-file-alt' },
                     'safety-protection-ledger': { title: '安全防护设施配置台账', icon: 'fas fa-shield-alt' },
                     'ventilation-management': { title: '通风设施管理', icon: 'fas fa-wind' },
-                    'lighting-management': { title: '照明设施管理', icon: 'fas fa-lightbulb' }
+                    'lighting-management': { title: '照明设施管理', icon: 'fas fa-lightbulb' },
+                    'fire-facility-ledger': { title: '消防设施器材台账', icon: 'fas fa-list-alt' },
+                    'check-inspection-management': { title: '检查与试验管理', icon: 'fas fa-clipboard-check' }
                 };
                 
                 // 方法

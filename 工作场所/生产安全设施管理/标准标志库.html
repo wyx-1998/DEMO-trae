@@ -36,11 +36,19 @@
                 --shadow: 0 2px 12px rgba(0,0,0,0.5);
             }
         }
+        
+        /* 修复下拉框样式 */
+        .el-select-dropdown { z-index: 9999 !important; }
+        .el-select-dropdown .el-select-dropdown__item { 
+            padding: 0 20px; 
+            line-height: 34px; 
+            font-size: 14px;
+        }
+        .el-select-dropdown .el-select-dropdown__item.is-hovering { background-color: #f5f7fa; }
+        .el-select-dropdown .el-select-dropdown__item.is-selected { color: var(--primary-color); font-weight: 600; }
+        .el-popper { z-index: 9999 !important; }
         body { font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background-color: var(--bg-page); color: var(--text-primary); overflow-x: hidden; }
         .app-container { height: 100vh; display: flex; flex-direction: column; }
-        .page-header { background: var(--bg-card); padding: 20px var(--gap-lg); border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .page-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 12px; }
-        .page-title i { color: var(--primary-color); font-size: 24px; }
         .main-content { flex: 1; padding: var(--gap-lg); overflow-y: auto; }
         .content-card { background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
         /* Tab 导航容器 */
@@ -100,9 +108,12 @@
         .form-item-horizontal .form-label { width: 100px; flex-shrink: 0; line-height: 32px; text-align: right; }
         .form-item-horizontal .form-control { flex: 1; }
         /* 2列网格布局 */
-        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; }
         .form-grid-2 .form-item-horizontal { margin-bottom: 0; }
         .form-full-width { grid-column: 1 / -1; }
+        /* Element Plus表单项间距优化 */
+        .el-form .el-form-item { margin-bottom: 0; }
+        .el-form .el-form-item__label { text-align: right !important; justify-content: flex-end !important; }
         /* 详情弹窗只读字段样式 */
         .detail-field { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
         .detail-field .form-label { width: 120px; flex-shrink: 0; line-height: 32px; text-align: right; color: var(--text-secondary); }
@@ -112,9 +123,6 @@
     </head>
 <body>
     <div id="app" class="app-container">
-        <div class="page-header">
-            <h1 class="page-title"><i class="fas fa-database"></i> 生产安全设施管理 - 标准标志库</h1>
-        </div>
         <div class="main-content">
             <div class="content-card">
                 <!-- 子导航：分页式 Tab 导航 -->
@@ -143,18 +151,18 @@
                         </el-form-item>
                         <el-form-item label="标志类别">
                             <el-select v-model="standardSearchForm.category" placeholder="请选择" clearable style="width:200px">
-                                <el-option label="全部" value="" />
-                                <el-option label="禁止标志" value="禁止标志" />
-                                <el-option label="警告标志" value="警告标志" />
-                                <el-option label="指令标志" value="指令标志" />
-                                <el-option label="提示标志" value="提示标志" />
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="禁止标志" value="禁止标志"></el-option>
+                                <el-option label="警告标志" value="警告标志"></el-option>
+                                <el-option label="指令标志" value="指令标志"></el-option>
+                                <el-option label="提示标志" value="提示标志"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="标志种类">
                             <el-select v-model="standardSearchForm.type" placeholder="请选择" clearable style="width:200px">
-                                <el-option label="全部" value="" />
-                                <el-option label="环境信息" value="环境信息" />
-                                <el-option label="局部信息" value="局部信息" />
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="环境信息" value="环境信息"></el-option>
+                                <el-option label="局部信息" value="局部信息"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item>
@@ -250,10 +258,10 @@
                         <label class="form-label required">标志类别</label>
                         <div class="form-control">
                             <el-select v-model="standardFormData.category" placeholder="请选择" style="width: 100%;">
-                                <el-option label="禁止标志" value="禁止标志" />
-                                <el-option label="警告标志" value="警告标志" />
-                                <el-option label="指令标志" value="指令标志" />
-                                <el-option label="提示标志" value="提示标志" />
+                                <el-option label="禁止标志" value="禁止标志"></el-option>
+                                <el-option label="警告标志" value="警告标志"></el-option>
+                                <el-option label="指令标志" value="指令标志"></el-option>
+                                <el-option label="提示标志" value="提示标志"></el-option>
                             </el-select>
                         </div>
                     </div>
@@ -261,8 +269,8 @@
                         <label class="form-label required">标志种类</label>
                         <div class="form-control">
                             <el-select v-model="standardFormData.type" placeholder="请选择" style="width: 100%;">
-                                <el-option label="环境信息" value="环境信息" />
-                                <el-option label="局部信息" value="局部信息" />
+                                <el-option label="环境信息" value="环境信息"></el-option>
+                                <el-option label="局部信息" value="局部信息"></el-option>
                             </el-select>
                         </div>
                     </div>
@@ -328,50 +336,46 @@
         </el-dialog>
 
         <!-- 详情弹窗 -->
-        <el-dialog v-model="showStandardDetailDialog" :title="`${standardTab === 'safety' ? '安全' : '设备'}标志详情`" width="740px">
-            <div class="dialog-content" v-if="standardDetailData" style="padding: 0 24px 24px;">
-                <div class="detail-field">
-                    <label class="form-label">{{ standardTab === 'equipment' ? '符号图片' : '标志图片' }}</label>
-                    <div class="detail-value">
-                        <div class="sign-preview" style="width: 120px; height: 120px;">
-                            <img v-if="standardDetailData.imageUrl" :src="standardDetailData.imageUrl" :alt="standardDetailData.signName">
-                            <span v-else>无图片</span>
-                        </div>
+        <el-dialog v-model="showStandardDetailDialog" :title="`${standardTab === 'safety' ? '安全' : '设备'}标志详情`" width="900px">
+            <div v-if="standardDetailData">
+                <!-- 图片预览 -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="sign-preview" style="width: 120px; height: 120px; margin: 0 auto;">
+                        <img v-if="standardDetailData.imageUrl" :src="standardDetailData.imageUrl" :alt="standardDetailData.signName">
+                        <span v-else>无图片</span>
                     </div>
                 </div>
-                <div class="form-grid-2">
-                    <div class="detail-field">
-                        <label class="form-label">标志名称</label>
-                        <div class="detail-value">{{ standardDetailData.signName }}</div>
-                    </div>
-                    <div class="detail-field">
-                        <label class="form-label">标志编号</label>
-                        <div class="detail-value">{{ standardDetailData.signCode }}</div>
-                    </div>
-                    <!-- 安全标志字段 -->
-                    <div v-if="standardTab === 'safety'" class="detail-field">
-                        <label class="form-label">标志类别</label>
-                        <div class="detail-value">{{ standardDetailData.category }}</div>
-                    </div>
-                    <div v-if="standardTab === 'safety'" class="detail-field">
-                        <label class="form-label">标志种类</label>
-                        <div class="detail-value">{{ standardDetailData.type }}</div>
-                    </div>
-                </div>
-                <!-- 使用场景 (全宽) -->
-                <div v-if="standardTab === 'safety' && standardDetailData.useScene" class="detail-field">
-                    <label class="form-label">使用场景</label>
-                    <div class="detail-value">{{ standardDetailData.useScene }}</div>
-                </div>
-                <!-- 设备标志字段 (全宽) -->
-                <div v-if="standardTab === 'equipment' && standardDetailData.meaning" class="detail-field">
-                    <label class="form-label">含义</label>
-                    <div class="detail-value">{{ standardDetailData.meaning }}</div>
-                </div>
-                <div v-if="standardTab === 'equipment' && standardDetailData.function" class="detail-field">
-                    <label class="form-label">功能</label>
-                    <div class="detail-value">{{ standardDetailData.function }}</div>
-                </div>
+                
+                <!-- 安全标志详情 -->
+                <template v-if="standardTab === 'safety'">
+                    <el-descriptions title="基本信息" :column="2" border>
+                        <el-descriptions-item label="标志名称">{{ standardDetailData.signName }}</el-descriptions-item>
+                        <el-descriptions-item label="标志编号">{{ standardDetailData.signCode }}</el-descriptions-item>
+                        <el-descriptions-item label="标志类别">
+                            <el-tag>{{ standardDetailData.category }}</el-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item label="标志种类">
+                            <el-tag type="success">{{ standardDetailData.type }}</el-tag>
+                        </el-descriptions-item>
+                    </el-descriptions>
+                    
+                    <el-descriptions title="使用场景" :column="1" border style="margin-top: 20px;">
+                        <el-descriptions-item label="使用场景">{{ standardDetailData.useScene || '—' }}</el-descriptions-item>
+                    </el-descriptions>
+                </template>
+                
+                <!-- 设备标志详情 -->
+                <template v-if="standardTab === 'equipment'">
+                    <el-descriptions title="基本信息" :column="2" border>
+                        <el-descriptions-item label="标志名称">{{ standardDetailData.signName }}</el-descriptions-item>
+                        <el-descriptions-item label="标志编号">{{ standardDetailData.signCode }}</el-descriptions-item>
+                    </el-descriptions>
+                    
+                    <el-descriptions title="功能说明" :column="1" border style="margin-top: 20px;">
+                        <el-descriptions-item label="含义">{{ standardDetailData.meaning || '—' }}</el-descriptions-item>
+                        <el-descriptions-item label="功能">{{ standardDetailData.function || '—' }}</el-descriptions-item>
+                    </el-descriptions>
+                </template>
             </div>
         </el-dialog>
 

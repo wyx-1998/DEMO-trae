@@ -29,29 +29,6 @@
             flex-direction: column;
         }
         
-        /* 页面头部 */
-        .page-header {
-            background: #ffffff;
-            padding: 20px 24px;
-            border-bottom: 1px solid #e8e8e8;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-        
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #303133;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title i {
-            color: #409EFF;
-            font-size: 24px;
-        }
-        
         /* 主要内容区域 */
         .main-content {
             flex: 1;
@@ -93,49 +70,15 @@
         
         .search-form {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             align-items: end;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .search-form.collapsed {
-            max-height: 60px;
-        }
-        
-        .search-form.expanded {
-            max-height: 500px;
         }
         
         .search-buttons {
             display: flex;
             gap: 12px;
             margin-top: 16px;
-            align-items: center;
-        }
-        
-        .expand-btn {
-            margin-left: auto;
-            color: #409EFF;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 14px;
-        }
-        
-        .expand-btn:hover {
-            opacity: 0.8;
-        }
-        
-        .expand-btn i {
-            transition: transform 0.3s ease;
-        }
-        
-        .expand-btn.expanded i {
-            transform: rotate(180deg);
         }
         
         /* 表格区域 */
@@ -204,6 +147,24 @@
             font-weight: 600;
         }
         
+        /* 操作按钮区域 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-start;
+            white-space: nowrap;
+        }
+        
+        .action-buttons .el-button {
+            margin: 0;
+            padding: 5px 8px;
+        }
+        
+        .action-buttons .el-button i {
+            font-size: 14px;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .function-bar {
@@ -223,14 +184,6 @@
 </head>
 <body>
     <div id="app" class="app-container">
-        <!-- 页面头部 -->
-        <div class="page-header">
-            <h1 class="page-title">
-                <i class="fas fa-lightbulb"></i>
-                照明设施管理（应急照明设施清册）
-            </h1>
-        </div>
-
         <!-- 主要内容区域 -->
         <div class="main-content">
             <div class="content-card">
@@ -262,7 +215,7 @@
 
                 <!-- 搜索区域 -->
                 <div class="search-area">
-                    <div class="search-form" :class="searchExpanded ? 'expanded' : 'collapsed'">
+                    <div class="search-form">
                         <el-form-item label="设施名称">
                             <el-input v-model="searchForm.fixtureName" placeholder="请输入设施名称" clearable></el-input>
                         </el-form-item>
@@ -286,22 +239,6 @@
                                 <el-option label="维修部" value="维修部"></el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="到期状态">
-                            <el-select v-model="searchForm.dueStatus" placeholder="请选择到期状态" clearable style="width: 100%">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="正常" value="normal"></el-option>
-                                <el-option label="即将到期" value="warning"></el-option>
-                                <el-option label="已逾期" value="expired"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="合规资料">
-                            <el-select v-model="searchForm.complianceDocs" placeholder="请选择合规状态" clearable style="width: 100%">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="齐全" value="complete"></el-option>
-                                <el-option label="缺失" value="missing"></el-option>
-                                <el-option label="过期" value="expired"></el-option>
-                            </el-select>
-                        </el-form-item>
                     </div>
                     <div class="search-buttons">
                         <el-button type="primary" @click="searchData">
@@ -312,10 +249,6 @@
                             <i class="fas fa-redo"></i>
                             重置
                         </el-button>
-                        <div class="expand-btn" :class="{ expanded: searchExpanded }" @click="toggleSearch">
-                            <span>{{ searchExpanded ? '收起' : '展开' }}</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
                     </div>
                 </div>
 
@@ -334,27 +267,14 @@
                                 <el-tag>{{ scope.row.fixtureType }}</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="installLocation" label="安装地点" width="150"></el-table-column>
+                        <el-table-column prop="model" label="型号/规格" width="120"></el-table-column>
                         <el-table-column prop="vendor" label="制造厂家" width="150"></el-table-column>
+                        <el-table-column prop="installLocation" label="安装地点" width="150"></el-table-column>
+                        <el-table-column prop="installHeightM" label="安装高度(m)" width="120"></el-table-column>
                         <el-table-column prop="quantity" label="数量" width="80" sortable></el-table-column>
+                        <el-table-column prop="powerMode" label="供电方式" width="120"></el-table-column>
                         <el-table-column prop="ownerDept" label="所属部门" width="120"></el-table-column>
-                        <el-table-column prop="commissionTime" label="投入使用时间" width="120" sortable></el-table-column>
-                        <el-table-column prop="maintCycleDays" label="维护周期(天)" width="120"></el-table-column>
-                        <el-table-column prop="nextDueDate" label="下次到期日" width="120" sortable>
-                            <template #default="scope">
-                                <span :class="getDueDateClass(scope.row.nextDueDate)">
-                                    {{ scope.row.nextDueDate }}
-                                </span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="complianceDocsStatus" label="合规资料" width="100">
-                            <template #default="scope">
-                                <span :class="getComplianceClass(scope.row.complianceDocsStatus)">
-                                    {{ scope.row.complianceDocsStatus }}
-                                </span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作" width="150" fixed="right">
+                        <el-table-column label="操作" width="160" fixed="right">
                             <template #default="scope">
                                 <div class="action-buttons">
                                     <el-button size="small" type="primary" @click="viewDetail(scope.row)" title="查看"><i class="fas fa-eye"></i></el-button>
@@ -452,69 +372,6 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-                
-                <!-- 维护与合规 -->
-                <el-divider content-position="left">维护与合规</el-divider>
-                <el-row :gutter="20">
-                    <el-col :span="12">
-                        <el-form-item label="投入使用时间" required>
-                            <el-date-picker 
-                                v-model="formData.commissionTime" 
-                                type="date" 
-                                placeholder="选择日期"
-                                style="width: 100%"
-                                format="YYYY-MM-DD"
-                                value-format="YYYY-MM-DD"
-                                @change="calculateNextDueDate">
-                            </el-date-picker>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="维护周期(天)" required>
-                            <el-input-number 
-                                v-model="formData.maintCycleDays" 
-                                :min="7" 
-                                :max="365" 
-                                style="width: 100%"
-                                @change="calculateNextDueDate">
-                            </el-input-number>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="12">
-                        <el-form-item label="下次到期日" required>
-                            <el-date-picker 
-                                v-model="formData.nextDueDate" 
-                                type="date" 
-                                placeholder="选择日期"
-                                style="width: 100%"
-                                format="YYYY-MM-DD"
-                                value-format="YYYY-MM-DD">
-                            </el-date-picker>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="最低应急工作时间(分)" required>
-                            <el-input-number v-model="formData.minEmergRuntimeMin" :min="90" style="width: 100%"></el-input-number>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="12">
-                        <el-form-item label="光通量/亮度参数">
-                            <el-input v-model="formData.luminousSpec" placeholder="请输入光通量/亮度参数"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="疏散指示有效性" v-if="formData.fixtureType === '疏散指示'">
-                            <el-radio-group v-model="formData.evacSignCompliance">
-                                <el-radio label="合规">合规</el-radio>
-                                <el-radio label="不合规">不合规</el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <el-form-item label="所属部门" required>
@@ -523,22 +380,6 @@
                                 <el-option label="设备部" value="设备部"></el-option>
                                 <el-option label="安全部" value="安全部"></el-option>
                                 <el-option label="维修部" value="维修部"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="责任人" required>
-                            <el-input v-model="formData.ownerUser" placeholder="请输入责任人"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="24">
-                        <el-form-item label="合规资料状态" required>
-                            <el-select v-model="formData.complianceDocsStatus" placeholder="请选择合规资料状态" style="width: 100%">
-                                <el-option label="齐全" value="齐全"></el-option>
-                                <el-option label="缺失" value="缺失"></el-option>
-                                <el-option label="过期" value="过期"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -566,25 +407,10 @@
                 
                 <el-descriptions title="安装与位置" :column="2" border style="margin-top: 20px;">
                     <el-descriptions-item label="安装地点">{{ detailData.installLocation }}</el-descriptions-item>
-                    <el-descriptions-item label="安装高度">{{ detailData.installHeightM }}m</el-descriptions-item>
+                    <el-descriptions-item label="安装高度">{{ detailData.installHeightM || '-' }}m</el-descriptions-item>
                     <el-descriptions-item label="数量">{{ detailData.quantity }}</el-descriptions-item>
                     <el-descriptions-item label="供电方式">{{ detailData.powerMode }}</el-descriptions-item>
-                </el-descriptions>
-                
-                <el-descriptions title="维护与合规" :column="2" border style="margin-top: 20px;">
-                    <el-descriptions-item label="投入使用时间">{{ detailData.commissionTime }}</el-descriptions-item>
-                    <el-descriptions-item label="维护周期">{{ detailData.maintCycleDays }}天</el-descriptions-item>
-                    <el-descriptions-item label="下次到期日">
-                        <span :class="getDueDateClass(detailData.nextDueDate)">{{ detailData.nextDueDate }}</span>
-                    </el-descriptions-item>
-                    <el-descriptions-item label="最低应急工作时间">{{ detailData.minEmergRuntimeMin }}分钟</el-descriptions-item>
-                    <el-descriptions-item label="光通量/亮度参数">{{ detailData.luminousSpec || '-' }}</el-descriptions-item>
-                    <el-descriptions-item label="疏散指示有效性" v-if="detailData.fixtureType === '疏散指示'">{{ detailData.evacSignCompliance || '-' }}</el-descriptions-item>
                     <el-descriptions-item label="所属部门">{{ detailData.ownerDept }}</el-descriptions-item>
-                    <el-descriptions-item label="责任人">{{ detailData.ownerUser }}</el-descriptions-item>
-                    <el-descriptions-item label="合规资料状态">
-                        <span :class="getComplianceClass(detailData.complianceDocsStatus)">{{ detailData.complianceDocsStatus }}</span>
-                    </el-descriptions-item>
                 </el-descriptions>
             </div>
         </el-dialog>
@@ -601,16 +427,12 @@
         createApp({
             data() {
                 return {
-                    // 搜索展开状态
-                    searchExpanded: false,
                     // 搜索表单
                     searchForm: {
                         fixtureName: '',
                         fixtureType: '',
                         installLocation: '',
-                        ownerDept: '',
-                        dueStatus: '',
-                        complianceDocs: ''
+                        ownerDept: ''
                     },
                     // 表格数据
                     tableData: [
@@ -623,15 +445,8 @@
                             installLocation: '生产车间A区',
                             installHeightM: 3.5,
                             quantity: 20,
-                            ownerDept: '生产部',
-                            commissionTime: '2023-01-15',
                             powerMode: '集中供电',
-                            maintCycleDays: 30,
-                            nextDueDate: '2024-12-15',
-                            minEmergRuntimeMin: 90,
-                            luminousSpec: '500lm',
-                            ownerUser: '张三',
-                            complianceDocsStatus: '齐全'
+                            ownerDept: '生产部'
                         },
                         {
                             id: 2,
@@ -642,16 +457,8 @@
                             installLocation: '办公楼各层安全出口',
                             installHeightM: 2.2,
                             quantity: 45,
-                            ownerDept: '安全部',
-                            commissionTime: '2023-03-20',
                             powerMode: '自带电池',
-                            maintCycleDays: 90,
-                            nextDueDate: '2024-11-10',
-                            minEmergRuntimeMin: 90,
-                            luminousSpec: '≥15cd/m²',
-                            evacSignCompliance: '合规',
-                            ownerUser: '李四',
-                            complianceDocsStatus: '缺失'
+                            ownerDept: '安全部'
                         },
                         {
                             id: 3,
@@ -662,15 +469,8 @@
                             installLocation: '仓库中央区域',
                             installHeightM: 4.0,
                             quantity: 15,
-                            ownerDept: '设备部',
-                            commissionTime: '2022-11-10',
                             powerMode: '组合',
-                            maintCycleDays: 60,
-                            nextDueDate: '2024-11-05',
-                            minEmergRuntimeMin: 120,
-                            luminousSpec: '800lm',
-                            ownerUser: '王五',
-                            complianceDocsStatus: '过期'
+                            ownerDept: '设备部'
                         }
                     ],
                     // 分页
@@ -691,16 +491,8 @@
                         installLocation: '',
                         installHeightM: null,
                         quantity: 1,
-                        ownerDept: '',
-                        commissionTime: '',
                         powerMode: '集中供电',
-                        maintCycleDays: 30,
-                        nextDueDate: '',
-                        minEmergRuntimeMin: 90,
-                        luminousSpec: '',
-                        evacSignCompliance: '',
-                        ownerUser: '',
-                        complianceDocsStatus: '齐全'
+                        ownerDept: ''
                     },
                     // 编辑状态
                     editingRow: null,
@@ -709,47 +501,6 @@
                 }
             },
             methods: {
-                // 切换搜索区域展开/收起
-                toggleSearch() {
-                    this.searchExpanded = !this.searchExpanded;
-                },
-                
-                // 计算下次到期日
-                calculateNextDueDate() {
-                    if (this.formData.commissionTime && this.formData.maintCycleDays) {
-                        const commissionDate = new Date(this.formData.commissionTime);
-                        const nextDue = new Date(commissionDate.getTime() + this.formData.maintCycleDays * 24 * 60 * 60 * 1000);
-                        this.formData.nextDueDate = nextDue.toISOString().split('T')[0];
-                    }
-                },
-                
-                // 获取到期日样式
-                getDueDateClass(dueDate) {
-                    const today = new Date();
-                    const due = new Date(dueDate);
-                    const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
-                    
-                    if (diffDays < 0) {
-                        return 'due-danger'; // 已逾期
-                    } else if (diffDays <= 7) {
-                        return 'due-warning'; // 7天内到期
-                    }
-                    return '';
-                },
-                
-                // 获取合规资料状态样式
-                getComplianceClass(status) {
-                    switch (status) {
-                        case '齐全':
-                            return 'status-tag status-complete';
-                        case '缺失':
-                            return 'status-tag status-incomplete';
-                        case '过期':
-                            return 'status-tag status-expired';
-                        default:
-                            return 'status-tag';
-                    }
-                },
                 
                 // 搜索数据
                 searchData() {
@@ -763,9 +514,7 @@
                         fixtureName: '',
                         fixtureType: '',
                         installLocation: '',
-                        ownerDept: '',
-                        dueStatus: '',
-                        complianceDocs: ''
+                        ownerDept: ''
                     };
                     ElMessage.info('搜索条件已重置');
                 },
@@ -853,9 +602,7 @@
                     if (!this.formData.fixtureName || !this.formData.fixtureType || 
                         !this.formData.model || !this.formData.vendor ||
                         !this.formData.installLocation || !this.formData.ownerDept ||
-                        !this.formData.commissionTime || !this.formData.maintCycleDays ||
-                        !this.formData.nextDueDate || !this.formData.minEmergRuntimeMin ||
-                        !this.formData.ownerUser || !this.formData.complianceDocsStatus) {
+                        !this.formData.quantity || !this.formData.powerMode) {
                         ElMessage.error('请填写所有必填字段');
                         return;
                     }
@@ -890,16 +637,8 @@
                         installLocation: '',
                         installHeightM: null,
                         quantity: 1,
-                        ownerDept: '',
-                        commissionTime: '',
                         powerMode: '集中供电',
-                        maintCycleDays: 30,
-                        nextDueDate: '',
-                        minEmergRuntimeMin: 90,
-                        luminousSpec: '',
-                        evacSignCompliance: '',
-                        ownerUser: '',
-                        complianceDocsStatus: '齐全'
+                        ownerDept: ''
                     };
                 },
                 

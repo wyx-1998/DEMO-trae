@@ -29,29 +29,6 @@
             flex-direction: column;
         }
         
-        /* 页面头部 */
-        .page-header {
-            background: #ffffff;
-            padding: 20px 24px;
-            border-bottom: 1px solid #e8e8e8;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-        
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #303133;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title i {
-            color: #409EFF;
-            font-size: 24px;
-        }
-        
         /* 主要内容区域 */
         .main-content {
             flex: 1;
@@ -177,6 +154,12 @@
         }
         
         .status-normal {
+            background: #f0f9ff;
+            color: #1890ff;
+            border: 1px solid #d1ecf1;
+        }
+        
+        .status-enabled {
             background: #f0f9ff;
             color: #1890ff;
             border: 1px solid #d1ecf1;
@@ -827,14 +810,6 @@
 <body>
     <div id="app">
         <div class="app-container">
-            <!-- 页面头部 -->
-            <div class="page-header">
-                <h1 class="page-title">
-                    <i class="fas fa-building"></i>
-                    建（构）筑物管理
-                </h1>
-            </div>
-            
             <!-- 主要内容 -->
             <div class="main-content">
                 <!-- 列表视图 -->
@@ -979,27 +954,6 @@
                                                 <span :class="getStatusClass(scope.row.status)">
                                                     {{ scope.row.status === 'enabled' ? '启用' : '弃用' }}
                                                 </span>
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="附件" width="100">
-                                            <template #default="scope">
-                                                <div class="attachment-count" style="display: flex; align-items: center; gap: 8px;">
-                                                    <span class="count-badge" v-if="getBuildingAttachments(scope.row.id).length > 0">
-                                                        <i class="fas fa-paperclip"></i>
-                                                        {{ getBuildingAttachments(scope.row.id).length }}
-                                                    </span>
-                                                    <span v-else class="no-attachment">
-                                                        <i class="fas fa-minus"></i>
-                                                    </span>
-                                                    <el-button 
-                                                        v-if="getBuildingAttachments(scope.row.id).length > 0"
-                                                        size="small" 
-                                                        type="primary" 
-                                                        @click="viewAttachments(scope.row)"
-                                                        title="查看附件">
-                                                        <i class="fas fa-eye"></i>
-                                                    </el-button>
-                                                </div>
                                             </template>
                                         </el-table-column>
                                         <el-table-column prop="lastVersionDate" label="最新版本日期" width="130"></el-table-column>
@@ -1560,7 +1514,7 @@
                 </el-form-item>
                 <el-form-item label="检测结果" prop="result">
                     <el-select v-model="inspectionForm.result" placeholder="请选择检测结果" style="width: 100%" :disabled="isViewingInspection">
-                        <el-option v-for="opt in resultOptions" :key="opt" :label="opt" :value="opt" />
+                        <el-option v-for="opt in resultOptions" :key="opt" :label="opt" :value="opt"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="检测附件">
@@ -1756,39 +1710,42 @@
                  
                  
                  
-                 // 模拟数据
-                 const tableData = ref([
-                     {
-                         id: 1,
-                         versionNumber: 'V1.0',
-                         name: '生产车间A栋',
-                         location: '工业园区东区',
-                         structure: '钢框架',
-                         landArea: 2500,
-                         startDate: '2020-03-15',
-                         status: 'enabled'
-                     },
-                     {
-                         id: 2,
-                         versionNumber: 'V1.1',
-                         name: '办公楼',
-                         location: '工业园区中心区',
-                         structure: '框架',
-                         landArea: 1200,
-                         startDate: '2019-08-20',
-                         status: 'enabled'
-                     },
-                     {
-                         id: 3,
-                         versionNumber: 'V1.0',
-                         name: '仓库B栋',
-                         location: '工业园区西区',
-                         structure: '底框-砌体',
-                         landArea: 1800,
-                         startDate: '2021-06-10',
-                         status: 'disabled'
-                     }
-                 ]);
+                // 模拟数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        versionNumber: 'V1.0',
+                        name: '生产车间A栋',
+                        location: '工业园区东区',
+                        structure: '钢框架',
+                        landArea: 2500,
+                        startDate: '2020-03-15',
+                        status: 'enabled',
+                        lastVersionDate: '2024-03-15'
+                    },
+                    {
+                        id: 2,
+                        versionNumber: 'V1.1',
+                        name: '办公楼',
+                        location: '工业园区中心区',
+                        structure: '框架',
+                        landArea: 1200,
+                        startDate: '2019-08-20',
+                        status: 'enabled',
+                        lastVersionDate: '2024-10-20'
+                    },
+                    {
+                        id: 3,
+                        versionNumber: 'V1.0',
+                        name: '仓库B栋',
+                        location: '工业园区西区',
+                        structure: '底框-砌体',
+                        landArea: 1800,
+                        startDate: '2021-06-10',
+                        status: 'disabled',
+                        lastVersionDate: '2023-12-10'
+                    }
+                ]);
                  
                  // 更新分页总数
                  pagination.total = tableData.value.length;
@@ -2144,15 +2101,16 @@
                          collapsedSections[section] = !collapsedSections[section];
                      },
                      
-                     // 获取状态样式类
-                     getStatusClass(status) {
-                         const classMap = {
-                             'normal': 'status-tag status-normal',
-                             'maintenance': 'status-tag status-maintenance',
-                             'disabled': 'status-tag status-disabled'
-                         };
-                         return classMap[status] || 'status-tag';
-                     },
+                    // 获取状态样式类
+                    getStatusClass(status) {
+                        const classMap = {
+                            'enabled': 'status-tag status-enabled',
+                            'normal': 'status-tag status-normal',
+                            'maintenance': 'status-tag status-maintenance',
+                            'disabled': 'status-tag status-disabled'
+                        };
+                        return classMap[status] || 'status-tag';
+                    },
                      
                      // 获取状态文本
                      getStatusText(status) {

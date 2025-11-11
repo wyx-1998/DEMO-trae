@@ -10,10 +10,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary-color: #409EFF; --text-light: #606266; --el-color-primary: #409EFF; }
         body { font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background-color: #f5f7fa; overflow-x: hidden; }
+        
+        /* 修复下拉框样式 */
+        .el-select-dropdown { z-index: 9999 !important; }
+        .el-select-dropdown .el-select-dropdown__item { 
+            padding: 0 20px; 
+            line-height: 34px; 
+            font-size: 14px;
+        }
+        .el-select-dropdown .el-select-dropdown__item.is-hovering { background-color: #f5f7fa; }
+        .el-select-dropdown .el-select-dropdown__item.is-selected { color: var(--primary-color); font-weight: 600; }
+        .el-popper { z-index: 9999 !important; }
         .app-container { height: 100vh; display: flex; flex-direction: column; }
-        .page-header { background: #ffffff; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .page-title { font-size: 20px; font-weight: 600; color: #303133; margin: 0; display: flex; align-items: center; gap: 12px; }
-        .page-title i { color: var(--primary-color); font-size: 24px; }
         .main-content { flex: 1; padding: 24px; overflow-y: auto; }
         .content-card { background: #ffffff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
         
@@ -37,17 +45,17 @@
         .detail-field { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
         .detail-field .form-label { width: 120px; flex-shrink: 0; line-height: 32px; text-align: right; color: var(--text-light); }
         .detail-field .detail-value { flex: 1; padding: 6px 12px; background: #f5f7fa; border-radius: 4px; min-height: 32px; line-height: 20px; }
-        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; }
         .form-grid-2 .detail-field { margin-bottom: 0; }
+        .form-full-width { grid-column: 1 / -1; }
+        /* Element Plus表单项间距优化 */
+        .el-form .el-form-item { margin-bottom: 0; }
+        .el-form .el-form-item__label { text-align: right !important; justify-content: flex-end !important; }
         .el-button--primary { --el-button-bg-color: var(--primary-color); --el-button-border-color: var(--primary-color); }
     </style>
 </head>
 <body>
 <div id="app" class="app-container">
-    <div class="page-header">
-        <h1 class="page-title"><i class="fas fa-clipboard-list"></i> 生产安全设施管理 - 标志管理台账</h1>
-    </div>
-    
     <div class="main-content">
         <div class="content-card">
             <!-- Tab导航 -->
@@ -79,19 +87,19 @@
             <!-- 安全标志 - 搜索区域 -->
             <div v-if="signTab === 'safety'" class="search-area">
                 <el-form :inline="true" :model="safetySearchForm" class="search-form" label-position="left">
-                    <el-form-item label="标志名称">
+                        <el-form-item label="标志名称">
                         <el-input v-model="safetySearchForm.signName" placeholder="请输入标志名称" clearable style="width:200px" />
-                    </el-form-item>
+                        </el-form-item>
                     <el-form-item label="标志编号">
                         <el-input v-model="safetySearchForm.signCode" placeholder="请输入标志编号" clearable style="width:200px" />
-                    </el-form-item>
-                    <el-form-item label="标志类别">
+                        </el-form-item>
+                        <el-form-item label="标志类别">
                         <el-select v-model="safetySearchForm.category" placeholder="请选择" clearable style="width:200px">
-                            <el-option label="全部" value="" />
-                            <el-option label="禁止标志" value="禁止标志" />
-                            <el-option label="警告标志" value="警告标志" />
-                            <el-option label="指令标志" value="指令标志" />
-                            <el-option label="提示标志" value="提示标志" />
+                            <el-option label="全部" value=""></el-option>
+                            <el-option label="禁止标志" value="禁止标志"></el-option>
+                            <el-option label="警告标志" value="警告标志"></el-option>
+                            <el-option label="指令标志" value="指令标志"></el-option>
+                            <el-option label="提示标志" value="提示标志"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="区域名称">
@@ -99,18 +107,18 @@
                     </el-form-item>
                     <el-form-item label="所属部门">
                         <el-select v-model="safetySearchForm.department" placeholder="请选择部门" clearable style="width:200px">
-                            <el-option label="生产部" value="生产部" />
-                            <el-option label="安全部" value="安全部" />
-                            <el-option label="设备部" value="设备部" />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" @click="searchData"><i class="fas fa-search"></i> 查询</el-button>
-                        <el-button @click="resetSearch" type="info"><i class="fas fa-redo"></i> 重置</el-button>
-                    </el-form-item>
-                </el-form>
-            </div>
-            
+                            <el-option label="生产部" value="生产部"></el-option>
+                            <el-option label="安全部" value="安全部"></el-option>
+                            <el-option label="设备部" value="设备部"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="searchData"><i class="fas fa-search"></i> 查询</el-button>
+                            <el-button @click="resetSearch" type="info"><i class="fas fa-redo"></i> 重置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
             <!-- 设备标志 - 搜索区域 -->
             <div v-if="signTab === 'equipment'" class="search-area">
                 <el-form :inline="true" :model="equipmentSearchForm" class="search-form" label-position="left">
@@ -122,9 +130,9 @@
                     </el-form-item>
                     <el-form-item label="所属部门">
                         <el-select v-model="equipmentSearchForm.department" placeholder="请选择部门" clearable style="width:200px">
-                            <el-option label="生产部" value="生产部" />
-                            <el-option label="安全部" value="安全部" />
-                            <el-option label="设备部" value="设备部" />
+                            <el-option label="生产部" value="生产部"></el-option>
+                            <el-option label="安全部" value="安全部"></el-option>
+                            <el-option label="设备部" value="设备部"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item>
@@ -210,7 +218,7 @@
             </div>
 
             <!-- 分页区域 -->
-            <div class="pagination-bar">
+<div class="pagination-bar">
                 <el-pagination 
                     background 
                     size="small" 
@@ -222,68 +230,143 @@
                     @size-change="handleSizeChange" 
                     @current-change="handleCurrentChange" 
                 />
-            </div>
+</div>
         </div>
     </div>
 
-    <!-- 详情弹窗 - 安全标志 -->
-    <el-dialog v-model="showDetailDialog" :title="`${signTab === 'safety' ? '安全' : '设备'}标志详情`" width="740px">
-        <div class="dialog-content" v-if="detailData" style="padding: 0 24px 24px;">
-            <div class="detail-field">
-                <label class="form-label">{{ signTab === 'equipment' ? '符号图片' : '标志图片' }}</label>
-                <div class="detail-value">
-                    <div class="sign-preview" style="width: 120px; height: 120px;">
-                        <img v-if="detailData.imageUrl" :src="detailData.imageUrl" :alt="detailData.signName">
-                        <span v-else>无图片</span>
-                    </div>
+    <!-- 详情弹窗 -->
+    <el-dialog v-model="showDetailDialog" :title="`${signTab === 'safety' ? '安全' : '设备'}标志详情`" width="900px">
+        <div v-if="detailData">
+            <!-- 图片预览 -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="sign-preview" style="width: 120px; height: 120px; margin: 0 auto;">
+                    <img v-if="detailData.imageUrl" :src="detailData.imageUrl" :alt="detailData.signName">
+                    <span v-else>无图片</span>
                 </div>
             </div>
-            <div class="form-grid-2">
-                <div class="detail-field">
-                    <label class="form-label">标志名称</label>
-                    <div class="detail-value">{{ detailData.signName }}</div>
-                </div>
-                <div class="detail-field">
-                    <label class="form-label">标志编号</label>
-                    <div class="detail-value">{{ detailData.signCode }}</div>
-                </div>
-                <!-- 安全标志特有字段 -->
-                <div v-if="signTab === 'safety'" class="detail-field">
-                    <label class="form-label">标志类别</label>
-                    <div class="detail-value">{{ detailData.category }}</div>
-                </div>
-                <div v-if="signTab === 'safety'" class="detail-field">
-                    <label class="form-label">标志种类</label>
-                    <div class="detail-value">{{ detailData.signType }}</div>
-                </div>
-                <div class="detail-field">
-                    <label class="form-label">所属设备</label>
-                    <div class="detail-value">{{ detailData.equipment || '—' }}</div>
-                </div>
-                <div class="detail-field">
-                    <label class="form-label">管理部门</label>
-                    <div class="detail-value">{{ detailData.department }}</div>
-                </div>
-                <div class="detail-field">
-                    <label class="form-label">数量</label>
-                    <div class="detail-value">{{ detailData.quantity }}</div>
-                </div>
-            </div>
-            <!-- 安全标志 - 使用场景 -->
-            <div v-if="signTab === 'safety'" class="detail-field">
-                <label class="form-label">使用场景</label>
-                <div class="detail-value">{{ detailData.useScene }}</div>
-            </div>
-            <!-- 设备标志 - 含义和功能 -->
-            <div v-if="signTab === 'equipment'" class="detail-field">
-                <label class="form-label">含义</label>
-                <div class="detail-value">{{ detailData.meaning }}</div>
-            </div>
-            <div v-if="signTab === 'equipment'" class="detail-field">
-                <label class="form-label">功能</label>
-                <div class="detail-value">{{ detailData.function }}</div>
-            </div>
+            
+            <!-- 安全标志详情 -->
+            <template v-if="signTab === 'safety'">
+                <el-descriptions title="基本信息" :column="2" border>
+                    <el-descriptions-item label="标志名称">{{ detailData.signName }}</el-descriptions-item>
+                    <el-descriptions-item label="标志编号">{{ detailData.signCode }}</el-descriptions-item>
+                    <el-descriptions-item label="标志类别">
+                        <el-tag>{{ detailData.category }}</el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="标志种类">
+                        <el-tag type="success">{{ detailData.signType }}</el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="所属设备">{{ detailData.equipment || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="管理部门">{{ detailData.department }}</el-descriptions-item>
+                    <el-descriptions-item label="数量">{{ detailData.quantity }}</el-descriptions-item>
+                </el-descriptions>
+                
+                <el-descriptions title="使用场景" :column="1" border style="margin-top: 20px;">
+                    <el-descriptions-item label="使用场景">{{ detailData.useScene || '—' }}</el-descriptions-item>
+                </el-descriptions>
+            </template>
+            
+            <!-- 设备标志详情 -->
+            <template v-if="signTab === 'equipment'">
+                <el-descriptions title="基本信息" :column="2" border>
+                    <el-descriptions-item label="标志名称">{{ detailData.signName }}</el-descriptions-item>
+                    <el-descriptions-item label="标志编号">{{ detailData.signCode }}</el-descriptions-item>
+                    <el-descriptions-item label="所属设备">{{ detailData.equipment || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="管理部门">{{ detailData.department }}</el-descriptions-item>
+                    <el-descriptions-item label="数量">{{ detailData.quantity }}</el-descriptions-item>
+                </el-descriptions>
+                
+                <el-descriptions title="功能说明" :column="1" border style="margin-top: 20px;">
+                    <el-descriptions-item label="含义">{{ detailData.meaning || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="功能">{{ detailData.function || '—' }}</el-descriptions-item>
+                </el-descriptions>
+            </template>
         </div>
+    </el-dialog>
+
+    <!-- 编辑弹窗 -->
+    <el-dialog v-model="showEditDialog" :title="`编辑${signTab === 'safety' ? '安全' : '设备'}标志`" width="800px">
+        <el-form v-if="editFormData" label-width="120px" label-position="right">
+            <!-- 安全标志编辑表单 -->
+            <div v-if="signTab === 'safety'" class="form-grid-2">
+                <el-form-item label="标志名称" class="form-full-width">
+                    <el-input v-model="editFormData.signName" placeholder="请输入标志名称" />
+                </el-form-item>
+                <el-form-item label="标志编号">
+                    <el-input v-model="editFormData.signCode" placeholder="请输入标志编号" />
+                </el-form-item>
+                <el-form-item label="标志类别">
+                    <el-select v-model="editFormData.category" placeholder="请选择" style="width: 100%;">
+                        <el-option label="禁止标志" value="禁止标志"></el-option>
+                        <el-option label="警告标志" value="警告标志"></el-option>
+                        <el-option label="指令标志" value="指令标志"></el-option>
+                        <el-option label="提示标志" value="提示标志"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="标志种类">
+                    <el-select v-model="editFormData.signType" placeholder="请选择" style="width: 100%;">
+                        <el-option label="环境信息" value="环境信息"></el-option>
+                        <el-option label="机械安全" value="机械安全"></el-option>
+                        <el-option label="电气安全" value="电气安全"></el-option>
+                        <el-option label="消防安全" value="消防安全"></el-option>
+                        <el-option label="局部信息" value="局部信息"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="所属设备">
+                    <el-input v-model="editFormData.equipment" placeholder="请输入所属设备" />
+                </el-form-item>
+                <el-form-item label="管理部门">
+                    <el-select v-model="editFormData.department" placeholder="请选择" style="width: 100%;">
+                        <el-option label="生产部" value="生产部"></el-option>
+                        <el-option label="安全部" value="安全部"></el-option>
+                        <el-option label="设备部" value="设备部"></el-option>
+                        <el-option label="技术部" value="技术部"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="数量">
+                    <el-input-number v-model="editFormData.quantity" :min="1" :max="999" style="width: 100%;" />
+                </el-form-item>
+                <el-form-item label="使用场景" class="form-full-width">
+                    <el-input v-model="editFormData.useScene" type="textarea" :rows="3" placeholder="请输入使用场景" />
+                </el-form-item>
+            </div>
+            
+            <!-- 设备标志编辑表单 -->
+            <div v-if="signTab === 'equipment'" class="form-grid-2">
+                <el-form-item label="标志名称" class="form-full-width">
+                    <el-input v-model="editFormData.signName" placeholder="请输入标志名称" />
+                </el-form-item>
+                <el-form-item label="标志编号">
+                    <el-input v-model="editFormData.signCode" placeholder="请输入标志编号" />
+                </el-form-item>
+                <el-form-item label="所属设备">
+                    <el-input v-model="editFormData.equipment" placeholder="请输入所属设备" />
+                </el-form-item>
+                <el-form-item label="管理部门">
+                    <el-select v-model="editFormData.department" placeholder="请选择" style="width: 100%;">
+                        <el-option label="生产部" value="生产部"></el-option>
+                        <el-option label="安全部" value="安全部"></el-option>
+                        <el-option label="设备部" value="设备部"></el-option>
+                        <el-option label="技术部" value="技术部"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="数量">
+                    <el-input-number v-model="editFormData.quantity" :min="1" :max="999" style="width: 100%;" />
+                </el-form-item>
+                <el-form-item label="含义" class="form-full-width">
+                    <el-input v-model="editFormData.meaning" type="textarea" :rows="2" placeholder="请输入含义" />
+                </el-form-item>
+                <el-form-item label="功能" class="form-full-width">
+                    <el-input v-model="editFormData.function" type="textarea" :rows="2" placeholder="请输入功能" />
+                </el-form-item>
+            </div>
+        </el-form>
+        <template #footer>
+            <el-button @click="showEditDialog = false">取消</el-button>
+            <el-button type="primary" @click="saveEdit">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+        </template>
     </el-dialog>
 </div>
 
@@ -318,7 +401,9 @@ createApp({
       pageSize: 20,
       selectedRows: [],
       showDetailDialog: false,
-      detailData: null
+      detailData: null,
+      showEditDialog: false,
+      editFormData: null
     };
   },
   computed: {
@@ -368,7 +453,34 @@ createApp({
       this.showDetailDialog = true; 
     },
     editRow(row) { 
-      ElMessage.info('编辑功能开发中'); 
+      this.editFormData = { ...row }; 
+      this.showEditDialog = true; 
+    },
+    saveEdit() {
+      // 验证必填字段
+      if (!this.editFormData.signName) {
+        ElMessage.warning('请输入标志名称');
+        return;
+      }
+      if (!this.editFormData.signCode) {
+        ElMessage.warning('请输入标志编号');
+        return;
+      }
+      if (!this.editFormData.department) {
+        ElMessage.warning('请选择管理部门');
+        return;
+      }
+      
+      // 更新数据
+      const data = this.signTab === 'safety' ? this.safetyTableData : this.equipmentTableData;
+      const index = data.findIndex(item => item.id === this.editFormData.id);
+      if (index > -1) {
+        data.splice(index, 1, { ...this.editFormData });
+        ElMessage.success('保存成功');
+        this.showEditDialog = false;
+      } else {
+        ElMessage.error('数据更新失败');
+      }
     },
     deleteRow(row) {
       ElMessageBox.confirm(`确定要删除标志"${row.signName}"吗？`, '确认删除', { 

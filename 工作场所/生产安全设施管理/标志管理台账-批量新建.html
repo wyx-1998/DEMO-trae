@@ -4,19 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>批量新建标志台账</title>
-    <!-- v4.0 - 使用FontAwesome图标替代el-checkbox，彻底解决包裹问题 -->
+    <!-- v4.2 - 修复下拉框问题：将自闭合el-option改为完整闭合标签 -->
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary-color: #409EFF; --text-light: #606266; --el-color-primary: #409EFF; }
         body { font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif; background-color: #f5f7fa; overflow-x: hidden; }
+        
+        /* 修复下拉框样式 */
+        .el-select-dropdown { z-index: 9999 !important; }
+        .el-select-dropdown .el-select-dropdown__item { 
+            padding: 0 20px; 
+            line-height: 34px; 
+            font-size: 14px;
+        }
+        .el-select-dropdown .el-select-dropdown__item.is-hovering { background-color: #f5f7fa; }
+        .el-select-dropdown .el-select-dropdown__item.is-selected { color: var(--primary-color); font-weight: 600; }
+        .el-popper { z-index: 9999 !important; }
         .app-container { height: 100vh; display: flex; flex-direction: column; }
-        .page-header { background: #ffffff; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .page-title { font-size: 20px; font-weight: 600; color: #303133; margin: 0; display: flex; align-items: center; gap: 12px; }
-        .page-title i { color: var(--primary-color); font-size: 24px; }
-        .page-title .back-btn { font-size: 16px; color: #909399; cursor: pointer; transition: color 0.3s; }
-        .page-title .back-btn:hover { color: var(--primary-color); }
         .main-content { flex: 1; padding: 24px; overflow-y: auto; }
         .content-card { background: #ffffff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; max-width: 1200px; margin: 0 auto; }
         
@@ -200,14 +206,6 @@
 </head>
 <body>
 <div id="app" class="app-container">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-arrow-left back-btn" @click="goBack" title="返回"></i>
-            <i class="fas fa-clipboard-list"></i> 批量新建{{ signTypeText }}台账
-            <span class="type-badge">{{ signTypeText }}</span>
-        </h1>
-    </div>
-    
     <div class="main-content">
         <div class="content-card">
             <!-- 步骤指示器 -->
@@ -234,10 +232,10 @@
                     <div>
                         <label class="form-item-label required">管理部门</label>
                         <el-select v-model="baseInfo.department" placeholder="请选择管理部门" style="width: 100%;">
-                            <el-option label="生产部" value="生产部" />
-                            <el-option label="安全部" value="安全部" />
-                            <el-option label="设备部" value="设备部" />
-                            <el-option label="技术部" value="技术部" />
+                            <el-option label="生产部" value="生产部"></el-option>
+                            <el-option label="安全部" value="安全部"></el-option>
+                            <el-option label="设备部" value="设备部"></el-option>
+                            <el-option label="技术部" value="技术部"></el-option>
                         </el-select>
                     </div>
                     <div>
@@ -426,11 +424,11 @@
                 </el-form-item>
                 <el-form-item v-if="signType === 'safety'">
                     <el-select v-model="standardCategoryFilter" placeholder="标志类别" clearable style="width: 140px;">
-                        <el-option label="全部" value="" />
-                        <el-option label="禁止标志" value="禁止标志" />
-                        <el-option label="警告标志" value="警告标志" />
-                        <el-option label="指令标志" value="指令标志" />
-                        <el-option label="提示标志" value="提示标志" />
+                        <el-option label="全部" value=""></el-option>
+                        <el-option label="禁止标志" value="禁止标志"></el-option>
+                        <el-option label="警告标志" value="警告标志"></el-option>
+                        <el-option label="指令标志" value="指令标志"></el-option>
+                        <el-option label="提示标志" value="提示标志"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -510,17 +508,17 @@
                 <div>
                     <label class="form-item-label required">标志类别</label>
                     <el-select v-model="editingSign.category" :disabled="!!editingSign.standardSignId" style="width: 100%;">
-                        <el-option label="禁止标志" value="禁止标志" />
-                        <el-option label="警告标志" value="警告标志" />
-                        <el-option label="指令标志" value="指令标志" />
-                        <el-option label="提示标志" value="提示标志" />
+                        <el-option label="禁止标志" value="禁止标志"></el-option>
+                        <el-option label="警告标志" value="警告标志"></el-option>
+                        <el-option label="指令标志" value="指令标志"></el-option>
+                        <el-option label="提示标志" value="提示标志"></el-option>
                     </el-select>
                 </div>
                 <div>
                     <label class="form-item-label required">标志种类</label>
                     <el-select v-model="editingSign.signType" :disabled="!!editingSign.standardSignId" style="width: 100%;">
-                        <el-option label="环境信息" value="环境信息" />
-                        <el-option label="局部信息" value="局部信息" />
+                        <el-option label="环境信息" value="环境信息"></el-option>
+                        <el-option label="局部信息" value="局部信息"></el-option>
                     </el-select>
                 </div>
                 <div>
