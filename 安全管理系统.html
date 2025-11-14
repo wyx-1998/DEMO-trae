@@ -599,10 +599,20 @@
                                 <i class="fas fa-calendar-alt"></i>
                                 <template #title>安全会议管理</template>
                             </el-menu-item>
-                            <el-menu-item index="meeting-tasks">
-                                <i class="fas fa-tasks"></i>
-                                <template #title>会议后任务管理</template>
-                            </el-menu-item>
+                            <el-sub-menu index="meeting-tasks">
+                                <template #title>
+                                    <i class="fas fa-tasks"></i>
+                                    <span>会议后任务管理</span>
+                                </template>
+                                <el-menu-item index="meeting-task-assign">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <template #title>任务下发</template>
+                                </el-menu-item>
+                                <el-menu-item index="meeting-task-execute">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <template #title>任务执行</template>
+                                </el-menu-item>
+                            </el-sub-menu>
                         </template>
                         
                         <!-- 风险分析模块菜单 -->
@@ -775,7 +785,7 @@
                         <!-- 安全会议管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'meeting-management'">
                             <iframe 
-                                src="./安全会议/安全会议管理.html" 
+                                src="./安全会议new/安全会议管理.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -784,7 +794,25 @@
                         <!-- 新建安全会议页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'create-meeting'">
                             <iframe 
-                                src="./安全会议/新建安全会议.html" 
+                                src="./安全会议new/新建安全会议.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+                        <!-- 会议后任务管理 - 任务下发 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'meeting-task-assign'">
+                            <iframe 
+                                src="./安全会议new/任务下发.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+                        <!-- 会议后任务管理 - 任务执行 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'meeting-task-execute'">
+                            <iframe 
+                                src="./安全会议new/任务执行.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -959,6 +987,8 @@
                     'dashboard-analysis': { title: '分析看板', icon: 'el-icon-data-analysis' },
                     'meeting-management': { title: '安全会议管理', icon: 'el-icon-date' },
                     'meeting-tasks': { title: '会议后任务管理', icon: 'el-icon-s-order' },
+                    'meeting-task-assign': { title: '任务下发', icon: 'fas fa-paper-plane' },
+                    'meeting-task-execute': { title: '任务执行', icon: 'fas fa-clipboard-check' },
                     'create-meeting': { title: '新建安全会议', icon: 'el-icon-plus' },
                     'risk-dashboard': { title: '风险分析看板', icon: 'el-icon-data-line' },
                     'building-management': { title: '建（构）筑物管理', icon: 'fas fa-building' },

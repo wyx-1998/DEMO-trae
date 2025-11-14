@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务执行详情</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body { background: #f5f7fa; }
+    .page-container { width: 100%; margin: 0; padding: 16px 24px 120px; }
+    .form-container { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1); overflow: hidden; }
+    .form-section { border-bottom: 1px solid #ebeef5; }
+    .form-section:last-child { border-bottom: none; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; padding: 20px 24px; border-bottom: 1px solid #ebeef5; cursor: pointer; transition: all 0.3s ease; }
+    .section-title { font-size: 16px; font-weight: 600; color: #303133; display: flex; align-items:center; gap: 8px; }
+    .section-title i { color: #3366CC; margin-right: 8px; }
+    .module-toggle { color: #909399; transition: transform 0.3s ease; }
+    .module-toggle.collapsed { transform: rotate(-90deg); }
+    .section-body { padding: 24px; transition: all 0.3s ease; }
+    .section-body.collapsed { display: none; }
+    .fixed-actions { position: fixed; left: 0; right: 0; bottom: 0; background: #fafbfc; border-top: 1px solid #ebeef5; padding: 24px; display: flex; justify-content: flex-end; gap: 12px; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.1); }
+    .inline-actions { display:flex; align-items:center; gap:8px; }
+    .doc-link { color:#409EFF; cursor:pointer; }
+  </style>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="page-container">
+      <div class="form-container" id="formContainer">
+
+        <!-- 基本信息（仅查看） -->
+        <div class="form-section">
+          <div class="section-header" @click="toggleModule('basic')">
+            <div class="section-title"><i class="fa-solid fa-circle-info"></i> 基本信息（仅查看）</div>
+            <i :class="['fas','fa-chevron-down','module-toggle', { collapsed: moduleCollapsed.basic }]" ></i>
+          </div>
+          <div class="section-body" :class="{ collapsed: moduleCollapsed.basic }">
+            <el-form :model="form" label-width="140px">
+              <el-row :gutter="16">
+                <el-col :span="8">
+                  <el-form-item label="任务编号">
+                    <el-input v-model="form.code" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="关联会议">
+                    <el-input v-model="form.meeting" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="任务名称">
+                    <el-input v-model="form.name" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="16">
+                <el-col :span="8">
+                  <el-form-item label="详细描述">
+                    <el-input type="textarea" :rows="4" v-model="form.description" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="截止日期">
+                    <div class="inline-actions">
+                      <el-date-picker v-model="form.deadline" type="date" disabled></el-date-picker>
+                      <el-button type="text" icon="el-icon-time" @click="openDelayDialog()">延期申请</el-button>
+                    </div>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="延期申请单据编号">
+                    <el-link v-if="form.delayCode" class="doc-link" @click="openDelayDialog()">{{ form.delayCode }}</el-link>
+                    <span v-else style="color:#c0c4cc">暂无</span>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </div>
+        </div>
+
+        <!-- 完成情况 -->
+        <div class="form-section">
+          <div class="section-header" @click="toggleModule('complete')">
+            <div class="section-title"><i class="fa-solid fa-clipboard-check"></i> 完成情况</div>
+            <i :class="['fas','fa-chevron-down','module-toggle', { collapsed: moduleCollapsed.complete }]" ></i>
+          </div>
+          <div class="section-body" :class="{ collapsed: moduleCollapsed.complete }">
+            <el-form :model="completeForm" label-width="140px">
+              <el-form-item label="完成情况描述">
+                <el-input type="textarea" :rows="6" v-model="completeForm.description" placeholder="请输入完成情况描述（长文本）"></el-input>
+              </el-form-item>
+              <el-form-item label="附件（非必填）">
+                <el-upload action="#" :file-list="completeForm.files" :auto-upload="false" :on-change="(file,fl)=>{completeForm.files=fl}">
+                  <el-button size="small" type="primary">选择文件</el-button>
+                  <div slot="tip" class="upload-hint">支持 doc、pdf、jpg 等格式，大小不超过 20MB</div>
+                </el-upload>
+              </el-form-item>
+              <el-form-item label="关联模块">
+                <el-select v-model="completeForm.module" placeholder="选择模块" style="width:260px">
+                  <el-option label="教育培训" value="教育培训" />
+                  <el-option label="隐患排查" value="隐患排查" />
+                  <el-option label="应急管理" value="应急管理" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="关联模块业务单据">
+                <el-input v-model="completeForm.bizDoc" placeholder="输入或选择业务单据编号"></el-input>
+                <div style="margin-top:8px;color:#909399">支持点击业务单据打开查看详情页面（示例跳转）</div>
+                <div style="margin-top:6px">
+                  <el-link v-if="completeForm.bizDoc" class="doc-link" @click="openBizDoc(completeForm.bizDoc)">{{ completeForm.bizDoc }}</el-link>
+                </div>
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 底部操作按钮 -->
+      <div class="fixed-actions">
+        <el-button @click="handleClose">关闭</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
+        <el-button type="success" @click="handleSubmit">提交审批</el-button>
+      </div>
+    </div>
+
+    <!-- 延期申请弹窗（移动到 Vue 根节点内） -->
+    <el-dialog title="延期申请" :visible.sync="delayDialogVisible" width="520px">
+      <el-form :model="delayForm" label-width="120px">
+        <el-form-item label="编号">
+          <el-input v-model="delayForm.code" disabled placeholder="自动生成"></el-input>
+        </el-form-item>
+        <el-form-item label="当前截止日期">
+          <el-date-picker v-model="delayForm.currentDeadline" type="date" disabled></el-date-picker>
+        </el-form-item>
+        <el-form-item label="希望延期至" required>
+          <el-date-picker v-model="delayForm.expectedDate" type="date" placeholder="选择日期"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="延期原因" required>
+          <el-input type="textarea" :rows="4" v-model="delayForm.reason" placeholder="请输入延期原因"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delayDialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="submitDelay">提交审批</el-button>
+      </span>
+    </el-dialog>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          isViewMode: new URLSearchParams(location.search).get('mode') === 'view',
+          moduleCollapsed: { basic: false, complete: false },
+          form: { code:'', meeting:'', name:'', description:'', deadline:'', delayCode:'' },
+          completeForm: { description:'', files:[], module:'', bizDoc:'' },
+          delayDialogVisible: false,
+          delayForm: { code:'', currentDeadline:'', expectedDate:'', reason:'' }
+        }
+      },
+      methods: {
+        toggleModule(key) { this.$set(this.moduleCollapsed, key, !this.moduleCollapsed[key]); },
+        openDelayDialog() {
+          this.delayForm = { code: `DELAY-${this.form.code}`, currentDeadline: this.form.deadline, expectedDate: '', reason: '' };
+          this.delayDialogVisible = true;
+        },
+        submitDelay() {
+          if (!this.delayForm.expectedDate || !this.delayForm.reason) { this.$message.error('请填写延期日期与原因'); return; }
+          this.form.delayCode = this.delayForm.code;
+          this.$message.success('已提交延期审批（示例）');
+          this.delayDialogVisible = false;
+        },
+        openBizDoc(doc) { this.$alert(`打开业务单据 ${doc} 的详情页面（示例）`, '查看单据'); },
+        handleClose() { window.history.back(); },
+        handleSave() { this.$message.success('已保存（示例）'); },
+        handleSubmit() { this.$message.success('已提交审批（示例）'); }
+      },
+      created() {
+        const qs = new URLSearchParams(location.search);
+        const id = qs.get('id') || 'TD2024100101';
+        const meeting = qs.get('meeting') || '安全生产会议';
+        const name = qs.get('name') || '隐患整改任务';
+        const deadline = qs.get('deadline') || '2024-10-15';
+        this.form = { code:id, meeting, name, description:'根据会议决定完成整改任务并上传凭证', deadline, delayCode:'' };
+        const openDelay = qs.get('openDelay');
+        if (openDelay === 'true') {
+          this.openDelayDialog();
+        }
+        if (this.isViewMode) {
+          // 查看模式下，完成情况可编辑但基本信息只读
+        }
+      }
+    })
+  </script>
+</body>
+</html>

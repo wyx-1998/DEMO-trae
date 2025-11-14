@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>安全会议管理（New）</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body { background: #f5f7fa; }
+    .page-container { width: 100%; margin: 0; padding: 16px 24px; }
+    .page-header { background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .page-title { font-size: 20px; font-weight: 600; color: #303133; display: flex; align-items: center; gap: 10px; }
+    .search-form { background: #fff; padding: 16px; margin: 14px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .button-group { margin: 14px 0; display: flex; gap: 10px; }
+    .operation-col .el-button { margin: 0 4px; }
+    .qr-preview { display: grid; grid-template-columns: 360px 1fr; gap: 16px; }
+    .qr-card { background: #fff; border: 1px solid #ebeef5; border-radius: 8px; padding: 16px; }
+    .qr-title { font-weight: 600; color: #303133; margin-bottom: 8px; }
+    .qr-meta { font-size: 12px; color: #606266; margin-top: 8px; line-height: 1.6; }
+    .sheet-preview { background: #fff; border: 1px solid #ebeef5; border-radius: 8px; padding: 16px; }
+    .sheet-title { font-weight: 600; color: #303133; margin-bottom: 8px; }
+    .tabs-wrap { background: #fff; padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  </style>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="page-container">
+      <div class="page-header">
+        <div class="page-title"><i class="fa-solid fa-handshake"></i> 安全会议管理</div>
+        <div>
+          <el-button type="primary" icon="el-icon-plus" @click="handleCreate">新建</el-button>
+          <el-button type="danger" icon="el-icon-delete" :disabled="multipleSelection.length===0" @click="confirmBatchDelete">批量删除</el-button>
+        </div>
+      </div>
+
+      <div class="tabs-wrap">
+        <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+          <el-tab-pane label="待参加" name="pending"></el-tab-pane>
+          <el-tab-pane label="与我有关" name="mine"></el-tab-pane>
+          <el-tab-pane label="全部会议" name="all"></el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <div class="search-form">
+        <el-form :model="searchForm" :inline="true" label-width="100px">
+          <el-form-item label="会议名称">
+            <el-input v-model="searchForm.meetingName" placeholder="请输入会议名称" clearable></el-input>
+          </el-form-item>
+          <el-form-item label="会议类型">
+            <el-select v-model="searchForm.meetingType" placeholder="请选择会议类型" clearable style="min-width:220px">
+              <el-option v-for="opt in meetingTypeOptions" :key="opt" :label="opt" :value="opt" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="会议级别">
+            <el-select v-model="searchForm.meetingLevel" placeholder="请选择会议级别" clearable style="min-width:180px">
+              <el-option v-for="opt in meetingLevelOptions" :key="opt" :label="opt" :value="opt" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="会议时间">
+            <el-date-picker v-model="searchForm.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始日期时间" end-placeholder="结束日期时间" value-format="yyyy-MM-dd HH:mm" style="min-width:360px" />
+          </el-form-item>
+          <el-form-item label="主持人/组织人">
+            <el-input v-model="searchForm.hostOrganizer" placeholder="请输入主持人/组织人" clearable></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+            <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <el-table :data="filteredData" style="width: 100%" stripe border @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column prop="code" label="会议编号" width="140" sortable></el-table-column>
+        <el-table-column prop="name" label="会议名称" min-width="160" sortable></el-table-column>
+        <el-table-column prop="type" label="会议类型" width="180" sortable></el-table-column>
+        <el-table-column prop="level" label="会议级别" width="120" sortable></el-table-column>
+        <el-table-column label="会议时间" min-width="220">
+          <template slot-scope="scope">
+            {{ scope.row.startTime }} 至 {{ scope.row.endTime }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="place" label="会议地点" min-width="160"></el-table-column>
+        <el-table-column prop="hostOrganizer" label="主持人/组织人" width="160"></el-table-column>
+        <el-table-column label="操作" width="260" fixed="right" class-name="operation-col">
+          <template slot-scope="scope">
+            <el-button type="text" icon="el-icon-view" @click="handleView(scope.row)">查看</el-button>
+            <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button type="text" icon="el-icon-camera" @click="openQrPreview(scope.row)">二维码</el-button>
+            <el-button type="text" icon="el-icon-download" @click="downloadSignInSheet(scope.row)">下载签到表</el-button>
+            <el-button type="text" icon="el-icon-delete" style="color:#F56C6C" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div style="margin-top: 14px; display:flex; justify-content:flex-end;">
+        <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize" layout="total, prev, pager, next" :total="filteredData.length"></el-pagination>
+      </div>
+
+      <!-- 二维码与签到表预览弹窗 -->
+      <el-dialog title="会议签到预览" :visible.sync="qrDialogVisible" width="80%">
+        <div class="qr-preview">
+          <div class="qr-card">
+            <div class="qr-title">会议二维码</div>
+            <canvas id="qrCanvas" width="320" height="320" style="border:1px solid #ebeef5;border-radius:8px;"></canvas>
+            <div class="qr-meta">
+              <div>会议名称：{{ currentMeeting.name }}</div>
+              <div>会议时间：{{ currentMeeting.startTime }} 至 {{ currentMeeting.endTime }}</div>
+              <div>会议地点：{{ currentMeeting.place }}</div>
+            </div>
+            <div style="margin-top:12px;">
+              <el-button type="primary" icon="el-icon-download" @click="downloadQrImage">下载签到二维码</el-button>
+            </div>
+          </div>
+          <div class="sheet-preview">
+            <div class="sheet-title">会议签到表预览</div>
+            <el-table :data="previewAttendees" border height="280">
+              <el-table-column prop="name" label="姓名" width="120"></el-table-column>
+              <el-table-column prop="company" label="所属企业" width="160"></el-table-column>
+              <el-table-column prop="department" label="所属部门" width="160"></el-table-column>
+              <el-table-column prop="attendStatus" label="参会情况" width="120"></el-table-column>
+              <el-table-column prop="signStatus" label="签到情况" width="140"></el-table-column>
+              <el-table-column prop="signTime" label="签到时间" width="160"></el-table-column>
+              <el-table-column prop="signature" label="签名"></el-table-column>
+            </el-table>
+            <div style="margin-top:12px;">
+              <el-button type="primary" icon="el-icon-download" @click="downloadSignInSheet(currentMeeting)">下载签到表</el-button>
+            </div>
+          </div>
+        </div>
+      </el-dialog>
+
+      <!-- 批量删除确认弹窗 -->
+      <el-dialog title="批量删除" :visible.sync="batchDeleteVisible" width="420px">
+        <span>确认删除选中的 {{ multipleSelection.length }} 条会议记录？此操作不可恢复。</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="batchDeleteVisible=false">取消</el-button>
+          <el-button type="danger" @click="batchDelete">删除</el-button>
+        </span>
+      </el-dialog>
+
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          activeTab: 'all',
+          searchForm: { meetingName: '', meetingType: '', meetingLevel: '', dateRange: [], hostOrganizer: '' },
+          meetingTypeOptions: ['年度安全工作会议','安全生产管理委员会','安全生产会议','安全监督网络会议','专题会议','防汛工作例会'],
+          meetingLevelOptions: ['公司级','部门级','班组级'],
+          tableData: [],
+          multipleSelection: [],
+          pageSize: 10,
+          currentPage: 1,
+          qrDialogVisible: false,
+          batchDeleteVisible: false,
+          currentMeeting: {},
+          previewAttendees: [
+            { name:'张三', company:'中建材集团', department:'安全部', attendStatus:'已参会', signStatus:'已扫码签到', signTime:'2024-08-20 09:03', signature:'签名已留存' },
+            { name:'李四', company:'中建材集团', department:'生产部', attendStatus:'未参会', signStatus:'未签到', signTime:'', signature:'' },
+            { name:'王五', company:'中建材集团', department:'设备部', attendStatus:'已参会', signStatus:'已签到表签到', signTime:'2024-08-20 09:12', signature:'签名已留存' }
+          ]
+        }
+      },
+      computed: {
+        filteredData() {
+          let data = this.tableData.slice();
+          // tab 过滤
+          if (this.activeTab === 'pending') {
+            const now = new Date();
+            data = data.filter(m => new Date(m.startTime) > now || (m.status && m.status.includes('待参加')));
+          } else if (this.activeTab === 'mine') {
+            data = data.filter(m => m.relatedToMe === true);
+          }
+          // 搜索过滤
+          if (this.searchForm.meetingName) data = data.filter(d => d.name.includes(this.searchForm.meetingName));
+          if (this.searchForm.meetingType) data = data.filter(d => d.type === this.searchForm.meetingType);
+          if (this.searchForm.meetingLevel) data = data.filter(d => d.level === this.searchForm.meetingLevel);
+          if (this.searchForm.hostOrganizer) data = data.filter(d => (d.hostOrganizer||'').includes(this.searchForm.hostOrganizer));
+          if (this.searchForm.dateRange && this.searchForm.dateRange.length === 2) {
+            const [start, end] = this.searchForm.dateRange;
+            data = data.filter(d => d.startTime >= start && d.endTime <= end);
+          }
+          // 分页截取（仅用于显示上页数字，实际 Element 会控制分页组件）
+          return data;
+        }
+      },
+      methods: {
+        initMock() {
+          const stored = localStorage.getItem('安全会议列表');
+          if (stored) {
+            this.tableData = JSON.parse(stored);
+            return;
+          }
+          const sample = [
+            { code:'SM2024082001', name:'年度安全工作会议', type:'年度安全工作会议', level:'公司级', startTime:'2024-08-20 09:00', endTime:'2024-08-20 11:00', place:'总部A楼会议室', hostOrganizer:'王主管', relatedToMe:true },
+            { code:'SM2024091502', name:'安全生产管理委员会', type:'安全生产管理委员会', level:'公司级', startTime:'2024-09-15 14:00', endTime:'2024-09-15 16:00', place:'总部B楼会议室', hostOrganizer:'李主任', relatedToMe:false },
+            { code:'SM2024100103', name:'安全生产会议', type:'安全生产会议', level:'部门级', startTime:'2024-10-01 10:00', endTime:'2024-10-01 12:00', place:'材料事业部会议室', hostOrganizer:'张经理', relatedToMe:true },
+            { code:'SM2024100504', name:'安全监督网络会议', type:'安全监督网络会议', level:'公司级', startTime:'2024-10-05 09:30', endTime:'2024-10-05 10:30', place:'线上会议', hostOrganizer:'王主管', relatedToMe:false },
+            { code:'SM2024101805', name:'专题会议-防火专项', type:'专题会议', level:'班组级', startTime:'2024-10-18 15:00', endTime:'2024-10-18 17:00', place:'生产一线班组会议室', hostOrganizer:'赵班长', relatedToMe:true },
+            { code:'SM2024110206', name:'防汛工作例会', type:'防汛工作例会', level:'部门级', startTime:'2024-11-02 09:00', endTime:'2024-11-02 10:00', place:'工程事业部会议室', hostOrganizer:'钱主任', relatedToMe:false }
+          ];
+          this.tableData = sample;
+          localStorage.setItem('安全会议列表', JSON.stringify(sample));
+        },
+        handleSearch() {
+          this.currentPage = 1;
+        },
+        handleReset() {
+          this.searchForm = { meetingName:'', meetingType:'', meetingLevel:'', dateRange:[], hostOrganizer:'' };
+        },
+        handleTabClick() {
+          this.currentPage = 1;
+        },
+        handleSelectionChange(val) {
+          this.multipleSelection = val;
+        },
+        handleCurrentChange(page) { this.currentPage = page; },
+        handleCreate() {
+          window.location.href = './新建安全会议.html';
+        },
+        handleView(row) {
+          window.location.href = `./新建安全会议.html?mode=view&id=${encodeURIComponent(row.code)}`;
+        },
+        handleEdit(row) {
+          window.location.href = `./新建安全会议.html?id=${encodeURIComponent(row.code)}`;
+        },
+        openQrPreview(meeting) {
+          this.currentMeeting = meeting;
+          this.qrDialogVisible = true;
+          this.$nextTick(() => this.drawQr(meeting));
+        },
+        drawQr(meeting) {
+          const canvas = document.getElementById('qrCanvas');
+          const ctx = canvas.getContext('2d');
+          // 占位二维码绘制（非真实QR，仅用于预览）
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 2;
+          // 外框
+          ctx.strokeRect(10, 10, 300, 300);
+          // 三个定位方块
+          const drawBox = (x, y) => {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x, y, 60, 60);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x+12, y+12, 36, 36);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x+24, y+24, 12, 12);
+          };
+          drawBox(20, 20); drawBox(230, 20); drawBox(20, 230);
+          // 随机点阵
+          for (let i = 0; i < 1200; i++) {
+            const x = 20 + Math.random()*280;
+            const y = 20 + Math.random()*280;
+            const size = Math.random() > 0.5 ? 2 : 3;
+            ctx.fillStyle = Math.random() > 0.5 ? '#000' : '#555';
+            ctx.fillRect(x, y, size, size);
+          }
+          // 文本提示
+          ctx.fillStyle = '#000';
+          ctx.font = '14px Arial';
+          ctx.fillText(`会议: ${meeting.name}`, 20, 310);
+        },
+        downloadQrImage() {
+          const canvas = document.getElementById('qrCanvas');
+          const a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = `${this.currentMeeting.name}-签到二维码.png`;
+          a.click();
+        },
+        downloadSignInSheet(meeting) {
+          const headers = ['姓名','所属企业','所属部门','参会情况','签到情况','签到时间','签名'];
+          const rows = this.previewAttendees.map(r => [r.name, r.company, r.department, r.attendStatus, r.signStatus, r.signTime, r.signature]);
+          const csv = [headers.join(','), ...rows.map(r => r.map(v => '"'+(v||'')+'"').join(','))].join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', `${(meeting && meeting.name) || '会议'}-签到表.csv`);
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        confirmBatchDelete() { this.batchDeleteVisible = true; },
+        batchDelete() {
+          const ids = new Set(this.multipleSelection.map(m => m.code));
+          this.tableData = this.tableData.filter(m => !ids.has(m.code));
+          localStorage.setItem('安全会议列表', JSON.stringify(this.tableData));
+          this.batchDeleteVisible = false;
+          this.multipleSelection = [];
+          this.$message.success('已删除选中会议');
+        },
+        deleteRow(index, row) {
+          this.$confirm(`确认删除会议 \"${row.name}\"?`, '提示', { type: 'warning' })
+            .then(() => {
+              this.tableData.splice(index, 1);
+              localStorage.setItem('安全会议列表', JSON.stringify(this.tableData));
+              this.$message.success('删除成功');
+            })
+            .catch(() => {});
+        }
+      },
+      mounted() { this.initMock(); }
+    });
+  </script>
+  </body>
+  </html>

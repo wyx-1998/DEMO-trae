@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务执行</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body { background: #f5f7fa; }
+    .page-container { width: 100%; margin: 0; padding: 16px 24px; }
+    .page-header { background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .page-title { font-size: 20px; font-weight: 600; color: #303133; display: flex; align-items: center; gap: 10px; }
+    .search-form { background: #fff; padding: 16px; margin: 14px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .operation-col .el-button { margin: 0 4px; }
+    [v-cloak] { display: none; }
+  </style>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="page-container">
+      <div class="page-header">
+        <div class="page-title"><i class="fa-solid fa-clipboard-check"></i> 任务执行</div>
+        <div>
+          <el-button type="danger" icon="el-icon-delete" :disabled="multipleSelection.length===0" @click="confirmBatchDelete">批量删除</el-button>
+        </div>
+      </div>
+
+      <!-- 状态子标签 -->
+      <div class="search-form">
+        <el-tabs v-model="executeStatus" @tab-click="handleExecuteStatus">
+          <el-tab-pane label="待完成" name="todo"></el-tab-pane>
+          <el-tab-pane label="审批中" name="approving"></el-tab-pane>
+          <el-tab-pane label="已完成" name="done"></el-tab-pane>
+          <el-tab-pane label="全部" name="all"></el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <!-- 搜索表单 -->
+      <div class="search-form">
+        <el-form :model="searchExecute" :inline="true" label-width="100px">
+          <el-form-item label="子主题">
+            <el-input v-model="searchExecute.subtopic" placeholder="请输入子主题" clearable></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+            <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <!-- 列表：任务执行 -->
+      <el-table :data="filteredExecute" style="width: 100%" stripe border @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column prop="code" label="任务编号" width="140" sortable></el-table-column>
+        <el-table-column prop="name" label="任务名称" min-width="160" sortable></el-table-column>
+        <el-table-column prop="meeting" label="关联会议" min-width="180"></el-table-column>
+        <el-table-column prop="deadline" label="截止时间" width="160" sortable></el-table-column>
+        <el-table-column label="完成情况" width="160">
+          <template slot-scope="scope">
+            <el-tag :type="executeTag(scope.row.status)">{{ scope.row.status }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="240" fixed="right" class-name="operation-col">
+          <template slot-scope="scope">
+            <el-button type="text" icon="el-icon-view" @click="viewExecute(scope.row)">查看</el-button>
+            <el-button type="text" icon="el-icon-edit" @click="editExecute(scope.row)">编辑</el-button>
+            <el-button type="text" icon="el-icon-time" @click="openDelayDialog(scope.row)">延期申请</el-button>
+            <el-button type="text" icon="el-icon-delete" style="color:#F56C6C" @click="deleteExecute(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div style="margin-top: 14px; display:flex; justify-content:flex-end;">
+        <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize" layout="total, prev, pager, next" :total="filteredExecute.length"></el-pagination>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          executeStatus: 'all',
+          searchExecute: { subtopic: '' },
+          executeData: [],
+          multipleSelection: [],
+          pageSize: 10,
+          currentPage: 1
+        }
+      },
+      computed: {
+        filteredExecute() {
+          let data = this.executeData.slice();
+          // 状态过滤
+          if (this.executeStatus === 'todo') data = data.filter(d => d.status === '待完成');
+          else if (this.executeStatus === 'approving') data = data.filter(d => d.status === '审批中');
+          else if (this.executeStatus === 'done') data = data.filter(d => d.status === '已完成');
+          // all 不过滤
+          // 搜索过滤
+          if (this.searchExecute.subtopic) data = data.filter(d => (d.subtopic||'').includes(this.searchExecute.subtopic));
+          return data;
+        }
+      },
+      methods: {
+        initMock() {
+          this.executeData = [
+            { code:'TD2024100101', name:'隐患整改任务', meeting:'安全生产会议', deadline:'2024-10-15', status:'待完成' },
+            { code:'TD2024100202', name:'应急演练准备', meeting:'安全监督网络会议', deadline:'2024-10-20', status:'审批中' },
+            { code:'TD2024100404', name:'设备检修跟进', meeting:'专题会议', deadline:'2024-10-30', status:'已完成' },
+            { code:'TD2024100505', name:'防汛物资排查', meeting:'防汛工作例会', deadline:'2024-11-05', status:'待完成' }
+          ];
+        },
+        handleExecuteStatus() { this.currentPage = 1; },
+        handleSearch() { this.currentPage = 1; },
+        handleReset() { this.searchExecute = { subtopic:'' }; },
+        handleSelectionChange(val) { this.multipleSelection = val; },
+        handleCurrentChange(page) { this.currentPage = page; },
+        executeTag(st) { return st==='已完成' ? 'success' : (st==='审批中'?'warning':(st==='待完成'?'danger':'info')); },
+        // 按钮与跳转
+        confirmBatchDelete() { this.$message.warning('示例环境：批量删除未真正执行'); },
+        viewExecute(row) { window.location.href = `./任务执行详情.html?mode=view&id=${encodeURIComponent(row.code)}`; },
+        editExecute(row) { window.location.href = `./任务执行详情.html?id=${encodeURIComponent(row.code)}`; },
+        deleteExecute(index, row) { this.$confirm(`确认删除任务 ${row.name}？`, '提示', { type:'warning' }).then(()=>{ this.executeData.splice(index,1); }); },
+        openDelayDialog(row) {
+          window.location.href = `./任务执行详情.html?id=${encodeURIComponent(row.code)}&openDelay=true&deadline=${encodeURIComponent(row.deadline)}&meeting=${encodeURIComponent(row.meeting)}&name=${encodeURIComponent(row.name)}`;
+        }
+      },
+      created() { this.initMock(); }
+    })
+  </script>
+</body>
+</html>
