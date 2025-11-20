@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>危险化学品信息库 - 查看</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif;background:#f5f7fa}
+    .app-container{min-height:100vh;display:flex;flex-direction:column}
+    .page{max-width:1200px;margin:0 auto;padding:24px;width:100%}
+    .content-card{background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
+    .form-container{padding:24px}
+    .form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f0f0f0}
+    .form-title{font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:10px}
+    .action-bar{display:flex;gap:12px}
+    .form-sections{display:flex;flex-direction:column;gap:24px}
+    .form-section{border:1px solid #e8e8e8;border-radius:8px;overflow:hidden}
+    .section-header{background:#fafafa;padding:14px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
+    .section-title{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}
+    .section-subtitle{font-size:13px;color:#909399}
+    .form-section-content{padding:20px}
+    .msds-toolbar{display:flex;gap:12px}
+    .msds-text{padding:4px 0;color:#303133;font-size:14px;line-height:1.6}
+    .msds-card-header{display:flex;justify-content:space-between;align-items:center;width:100%}
+    .msds-card-header span{font-weight:600;color:#303133}
+  </style>
+</head>
+<body>
+<div id="app" class="app-container">
+  <div class="page">
+    <div class="content-card">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="form-title"><i class="fas fa-eye"></i> 化学品标准信息详情</div>
+          <div class="action-bar">
+            <el-button size="small" @click="goBack" plain><i class="fas fa-arrow-left" style="margin-right:6px"></i>返回</el-button>
+          </div>
+        </div>
+            <div class="form-sections">
+              <div class="form-section">
+                <div class="section-header">
+                  <div class="section-title"><i class="fas fa-info-circle"></i> 基本标识</div>
+                  <div class="section-subtitle">CAS：{{ data.cas || '—' }}</div>
+                </div>
+                <div class="form-section-content">
+                  <el-descriptions :column="2" border>
+        <el-descriptions-item label="化学品名称">{{ data.name }}</el-descriptions-item>
+        <el-descriptions-item label="英文名">{{ data.englishName || '—' }}</el-descriptions-item>
+        <el-descriptions-item label="别名">{{ data.alias || '—' }}</el-descriptions-item>
+        <el-descriptions-item label="CAS">{{ data.cas }}</el-descriptions-item>
+        <el-descriptions-item label="分子式">{{ data.formula || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="危险性分类" :span="2">{{ data.hazards || '—' }}</el-descriptions-item>
+                  </el-descriptions>
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="section-header">
+                  <div class="section-title"><i class="fas fa-flask"></i> 理化特性</div>
+                </div>
+                <div class="form-section-content">
+                  <el-descriptions :column="3" border>
+                    <el-descriptions-item label="闪点(℃)">{{ data.flashPoint || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="密度(g/cm³)">{{ data.density || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="分子量">{{ data.mw || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="物理状态">{{ data.physicalState || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="颜色">{{ data.color || '—' }}</el-descriptions-item>
+                    <el-descriptions-item label="气味">{{ data.odor || '—' }}</el-descriptions-item>
+                  </el-descriptions>
+                </div>
+              </div>
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title"><i class="fas fa-file-alt"></i> MSDS（16章）</div>
+              <div class="msds-toolbar">
+                <el-button size="small" @click="expandAll"><i class="fas fa-plus-square" style="margin-right:4px"></i>展开全部</el-button>
+                <el-button size="small" @click="collapseAll"><i class="fas fa-minus-square" style="margin-right:4px"></i>折叠全部</el-button>
+              </div>
+            </div>
+            <div class="form-section-content">
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第1章：化学品及企业标识</span><el-button link size="small" @click="toggle('c1')">{{ open.c1 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c1">
+          <div class="msds-text"><b>产品名称：</b><span v-html="fmt(data.msds?.chapter1?.product || data.name)"></span></div>
+          <div class="msds-text"><b>推荐用途：</b><span v-html="fmt(data.msds?.chapter1?.use)"></span></div>
+          <div class="msds-text"><b>供应商：</b><span v-html="fmt(data.msds?.chapter1?.supplier)"></span></div>
+          <div class="msds-text"><b>地址：</b><span v-html="fmt(data.msds?.chapter1?.address)"></span></div>
+          <div class="msds-text"><b>联系电话：</b><span v-html="fmt(data.msds?.chapter1?.phone)"></span></div>
+          <div class="msds-text"><b>紧急电话：</b><span v-html="fmt(data.msds?.chapter1?.emergency)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第2章：危险性概述</span><el-button link size="small" @click="toggle('c2')">{{ open.c2 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c2">
+          <div class="msds-text"><b>GHS分类：</b><span v-html="fmt(data.msds?.chapter2?.ghs)"></span></div>
+          <div class="msds-text"><b>象形图：</b>
+            <template v-if="data.msds?.chapter2?.pictograms">
+              <img :src="data.msds.chapter2.pictograms" style="width: 60px; height: 60px; object-fit: contain;" />
+            </template>
+            <template v-else>—</template>
+          </div>
+          <div class="msds-text"><b>信号词：</b><span v-html="fmt(data.msds?.chapter2?.signalWord)"></span></div>
+          <div class="msds-text"><b>危险说明(H)：</b><span v-html="fmt(data.msds?.chapter2?.h)"></span></div>
+          <div class="msds-text"><b>防范说明(P)：</b><span v-html="fmt(data.msds?.chapter2?.p)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第3章：成分/组成信息</span><el-button link size="small" @click="toggle('c3')">{{ open.c3 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c3">
+          <div v-if="(data.msds?.chapter3?.components||[]).length===0" class="msds-text">—</div>
+          <el-table v-else :data="data.msds.chapter3.components" style="width:100%" size="small" border>
+            <el-table-column prop="name" label="化学名称"></el-table-column>
+            <el-table-column prop="cas" label="CAS号"></el-table-column>
+            <el-table-column prop="concentration" label="含量(%)"></el-table-column>
+          </el-table>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第4章：急救措施</span><el-button link size="small" @click="toggle('c4')">{{ open.c4 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c4">
+          <div class="msds-text"><b>吸入：</b><span v-html="fmt(data.msds?.chapter4?.inhale)"></span></div>
+          <div class="msds-text"><b>皮肤接触：</b><span v-html="fmt(data.msds?.chapter4?.skin)"></span></div>
+          <div class="msds-text"><b>眼睛接触：</b><span v-html="fmt(data.msds?.chapter4?.eye)"></span></div>
+          <div class="msds-text"><b>摄入：</b><span v-html="fmt(data.msds?.chapter4?.ingest)"></span></div>
+          <div class="msds-text"><b>重要症状：</b><span v-html="fmt(data.msds?.chapter4?.symptoms)"></span></div>
+          <div class="msds-text"><b>特殊治疗：</b><span v-html="fmt(data.msds?.chapter4?.treatment)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第5章：消防措施</span><el-button link size="small" @click="toggle('c5')">{{ open.c5 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c5">
+          <div class="msds-text"><b>适用灭火剂：</b><span v-html="fmt(data.msds?.chapter5?.agent)"></span></div>
+          <div class="msds-text"><b>不适用灭火剂：</b><span v-html="fmt(data.msds?.chapter5?.noagent)"></span></div>
+          <div class="msds-text"><b>特殊危害：</b><span v-html="fmt(data.msds?.chapter5?.hazard)"></span></div>
+          <div class="msds-text"><b>消防员防护：</b><span v-html="fmt(data.msds?.chapter5?.protect)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第6章：泄漏应急处理</span><el-button link size="small" @click="toggle('c6')">{{ open.c6 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c6">
+          <div class="msds-text"><b>个人防护：</b><span v-html="fmt(data.msds?.chapter6?.pp)"></span></div>
+          <div class="msds-text"><b>环境防护：</b><span v-html="fmt(data.msds?.chapter6?.env)"></span></div>
+          <div class="msds-text"><b>清除方法：</b><span v-html="fmt(data.msds?.chapter6?.clean)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第7章：操作处置与储存</span><el-button link size="small" @click="toggle('c7')">{{ open.c7 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c7">
+          <div class="msds-text"><b>操作注意：</b><span v-html="fmt(data.msds?.chapter7?.op)"></span></div>
+          <div class="msds-text"><b>储存条件：</b><span v-html="fmt(data.msds?.chapter7?.store)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第8章：接触控制/个体防护</span><el-button link size="small" @click="toggle('c8')">{{ open.c8 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c8">
+          <div class="msds-text"><b>工程控制：</b><span v-html="fmt(data.msds?.chapter8?.ec)"></span></div>
+          <div class="msds-text"><b>个体防护装备：</b><span v-html="fmt(data.msds?.chapter8?.ppe)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第9章：理化特性</span><el-button link size="small" @click="toggle('c9')">{{ open.c9 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c9">
+          <div class="msds-text"><b>外观性状：</b><span v-html="fmt(data.msds?.chapter9?.appearance)"></span></div>
+          <div class="msds-text"><b>pH值：</b><span v-html="fmt(data.msds?.chapter9?.ph)"></span></div>
+          <div class="msds-text"><b>闪点：</b><span v-html="fmt(data.msds?.chapter9?.fp)"></span></div>
+          <div class="msds-text"><b>蒸气压：</b><span v-html="fmt(data.msds?.chapter9?.vp)"></span></div>
+          <div class="msds-text"><b>蒸气密度：</b><span v-html="fmt(data.msds?.chapter9?.vd)"></span></div>
+          <div class="msds-text"><b>相对密度：</b><span v-html="fmt(data.msds?.chapter9?.d)"></span></div>
+          <div class="msds-text"><b>溶解性：</b><span v-html="fmt(data.msds?.chapter9?.sol)"></span></div>
+          <div class="msds-text"><b>自燃温度：</b><span v-html="fmt(data.msds?.chapter9?.sa)"></span></div>
+          <div class="msds-text"><b>黏度：</b><span v-html="fmt(data.msds?.chapter9?.vis)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第10章：稳定性和反应性</span><el-button link size="small" @click="toggle('c10')">{{ open.c10 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c10">
+          <div class="msds-text"><b>反应性：</b><span v-html="fmt(data.msds?.chapter10?.react)"></span></div>
+          <div class="msds-text"><b>化学稳定性：</b><span v-html="fmt(data.msds?.chapter10?.stable)"></span></div>
+          <div class="msds-text"><b>危险反应可能性：</b><span v-html="fmt(data.msds?.chapter10?.danger)"></span></div>
+          <div class="msds-text"><b>避免条件：</b><span v-html="fmt(data.msds?.chapter10?.avoid)"></span></div>
+          <div class="msds-text"><b>禁配物：</b><span v-html="fmt(data.msds?.chapter10?.incompat)"></span></div>
+          <div class="msds-text"><b>危害分解产物：</b><span v-html="fmt(data.msds?.chapter10?.decompose)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第11章：毒理学信息</span><el-button link size="small" @click="toggle('c11')">{{ open.c11 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c11">
+          <div class="msds-text"><b>暴露途径：</b><span v-html="fmt(data.msds?.chapter11?.route)"></span></div>
+          <div class="msds-text"><b>急性毒性：</b><span v-html="fmt(data.msds?.chapter11?.acute)"></span></div>
+          <div class="msds-text"><b>刺激性/致敏性：</b><span v-html="fmt(data.msds?.chapter11?.irritation)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第12章：生态学信息</span><el-button link size="small" @click="toggle('c12')">{{ open.c12 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c12">
+          <div class="msds-text"><b>生态毒性：</b><span v-html="fmt(data.msds?.chapter12?.eco)"></span></div>
+          <div class="msds-text"><b>持久性与降解性：</b><span v-html="fmt(data.msds?.chapter12?.persistent)"></span></div>
+          <div class="msds-text"><b>生物累积性：</b><span v-html="fmt(data.msds?.chapter12?.bioacc)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第13章：废弃处置</span><el-button link size="small" @click="toggle('c13')">{{ open.c13 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c13">
+          <div class="msds-text"><b>处置方法：</b><span v-html="fmt(data.msds?.chapter13?.disp)"></span></div>
+          <div class="msds-text"><b>包装处置：</b><span v-html="fmt(data.msds?.chapter13?.pack)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第14章：运输信息</span><el-button link size="small" @click="toggle('c14')">{{ open.c14 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c14">
+          <div class="msds-text"><b>UN编号：</b><span v-html="fmt(data.msds?.chapter14?.un)"></span></div>
+          <div class="msds-text"><b>运输名称：</b><span v-html="fmt(data.msds?.chapter14?.name)"></span></div>
+          <div class="msds-text"><b>危险性类别：</b><span v-html="fmt(data.msds?.chapter14?.class)"></span></div>
+          <div class="msds-text"><b>包装类别：</b><span v-html="fmt(data.msds?.chapter14?.pack)"></span></div>
+          <div class="msds-text"><b>环境危害：</b><span v-html="fmt(data.msds?.chapter14?.env)"></span></div>
+          <div class="msds-text"><b>特殊注意：</b><span v-html="fmt(data.msds?.chapter14?.sp)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第15章：法规信息</span><el-button link size="small" @click="toggle('c15')">{{ open.c15 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c15">
+          <div class="msds-text"><b>适用法规：</b><span v-html="fmt(data.msds?.chapter15?.laws)"></span></div>
+        </div>
+      </el-card>
+      <el-card shadow="never" style="margin-bottom:12px"><template #header><div class="msds-card-header"><span>第16章：其他信息</span><el-button link size="small" @click="toggle('c16')">{{ open.c16 ? '收起' : '展开' }}</el-button></div></template>
+        <div v-show="open.c16">
+          <div class="msds-text"><b>编制日期：</b><span v-html="fmt(data.msds?.chapter16?.date)"></span></div>
+          <div class="msds-text"><b>修订日期：</b><span v-html="fmt(data.msds?.chapter16?.revision)"></span></div>
+          <div class="msds-text"><b>参考文献：</b><span v-html="fmt(data.msds?.chapter16?.refs)"></span></div>
+          <div class="msds-text"><b>修订说明：</b><span v-html="fmt(data.msds?.chapter16?.note)"></span></div>
+        </div>
+      </el-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+<script>
+const { createApp } = Vue;
+const createEmptyMsds = () => ({
+  chapter1:{ product:'', use:'', supplier:'', address:'', phone:'', emergency:'' },
+  chapter2:{ ghs:'', pictograms:'', signalWord:'', h:'', p:'' },
+  chapter3:{ components:[] },
+  chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
+  chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
+  chapter6:{ pp:'', env:'', clean:'' },
+  chapter7:{ op:'', store:'' },
+  chapter8:{ ec:'', ppe:'' },
+  chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
+  chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
+  chapter11:{ route:'', acute:'', irritation:'' },
+  chapter12:{ eco:'', persistent:'', bioacc:'' },
+  chapter13:{ disp:'', pack:'' },
+  chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
+  chapter15:{ laws:'' },
+  chapter16:{ date:'', revision:'', refs:'', note:'' }
+});
+const mergeMsds = (partial={}) => {
+  const result=createEmptyMsds();
+  const assign=(t,s)=>{
+    Object.keys(s||{}).forEach(k=>{
+      if(s[k] && typeof s[k]==='object' && !Array.isArray(s[k])){
+        if(!t[k] || typeof t[k]!=='object') t[k]={};
+        assign(t[k],s[k]);
+      }else{
+        t[k]=s[k];
+      }
+    });
+  };
+  assign(result,partial);
+  return result;
+};
+const DATASET=[
+  { name:'1-氟-2,4-二硝基苯', englishName:'1-fluoro-2,4-dinitrobenzene', alias:'2,4-二硝基-1-氟苯', cas:'70-34-8', un:'', hazards:'', hazardCategory:'皮肤腐蚀/刺激 类别2; 皮肤致敏物 类别1', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:mergeMsds({ chapter1:{ product:'1-氟-2,4-二硝基苯' }, chapter2:{ ghs:'皮肤腐蚀/刺激 类别2; 皮肤致敏物 类别1' } }) },
+  { name:'氟', englishName:'fluorine', alias:'', cas:'7782-41-4', un:'', hazards:'', hazardCategory:'氧化性气体 类别1; 高压气体; 急性毒性-吸入 类别2', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:mergeMsds({ chapter1:{ product:'氟' }, chapter2:{ ghs:'氧化性气体 类别1; 高压气体; 急性毒性-吸入 类别2' } }) },
+  { name:'氟化氢[无水]', englishName:'hydrogen fluoride, anhydrous', alias:'', cas:'7664-39-3', un:'', hazards:'', hazardCategory:'急性毒性-经口 类别2; 急性毒性-经皮 类别1; 急性毒性-吸入 类别2; 皮肤腐蚀/刺激 类别1A; 严重眼损伤/眼刺激 类别1', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:mergeMsds({ chapter1:{ product:'氟化氢[无水]' }, chapter2:{ ghs:'急性毒性-经口 类别2; 急性毒性-经皮 类别1; 急性毒性-吸入 类别2; 皮肤腐蚀/刺激 类别1A; 严重眼损伤/眼刺激 类别1' } }) }
+];
+function getParam(key){ const u=new URL(window.location.href); return u.searchParams.get(key); }
+function normalizeCAS(s){ return String(s||'').trim(); }
+createApp({
+  data(){
+    return {
+      data:{ name:'',englishName:'',alias:'',cas:'',hazards:'',signalWord:'',pictograms:'',hCodes:'',pCodes:'', msds:createEmptyMsds() },
+      open:{ c1:true,c2:true,c3:true,c4:true,c5:true,c6:true,c7:true,c8:true,c9:true,c10:true,c11:true,c12:true,c13:true,c14:true,c15:true,c16:true }
+    };
+  },
+  mounted(){
+    let fromSession=null;
+    try{ const s=sessionStorage.getItem('CHEM_VIEW_ROW'); if(s){ fromSession=JSON.parse(s)||null; sessionStorage.removeItem('CHEM_VIEW_ROW'); } }catch(e){}
+    if(fromSession){
+      this.data={ ...fromSession, msds: mergeMsds(fromSession.msds||{}) };
+    } else {
+      const cas=getParam('cas');
+      const c=normalizeCAS(cas||'');
+      const row=DATASET.find(d=>normalizeCAS(d.cas)===c) || (DATASET[0]||{});
+      this.data={ ...row, msds: mergeMsds(row.msds||{}) };
+    }
+  },
+  methods:{
+    goBack(){ window.history.back(); },
+    expandAll(){ Object.keys(this.open).forEach(k=>this.open[k]=true); },
+    collapseAll(){ Object.keys(this.open).forEach(k=>this.open[k]=false); },
+    toggle(key){ this.open[key]=!this.open[key]; },
+    escapeHtml(s){ return String(s||'').replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); },
+    fmt(s){ if(!s) return '—'; const esc=this.escapeHtml(s); return esc.replace(/\n/g,'<br/>'); }
+  }
+}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

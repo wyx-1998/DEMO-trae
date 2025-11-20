@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安智通 · 我的应用</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* 主题色：克制使用 */
+            --color-brand: #3366cc;
+            --color-brand-light: #e3f2fd;
+            
+            /* 功能色：语义明确 */
+            --color-success: #00b042;
+            --color-warning: #ff943e;
+            --color-error: #f25643;
+            
+            /* 文字层级：三级即可 */
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            
+            /* 背景：简单纯净 */
+            --bg-page: #f5f7fa;
+            --bg-card: #ffffff;
+            
+            /* 间距：基于8px栅格 */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 20px;
+            --spacing-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 520px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+            background: var(--bg-page);
+        }
+
+        /* 顶部横幅 */
+        .top-banner {
+            background: var(--color-brand);
+            border-radius: 0 0 20px 20px;
+            padding: 16px var(--spacing-md);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .top-left i {
+            font-size: 18px;
+        }
+
+        .top-right {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: 18px;
+        }
+
+        .top-right i {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .top-right i:active {
+            opacity: 0.7;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: var(--spacing-sm);
+            line-height: 1.5;
+        }
+
+        /* 主内容区 */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .module-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
+            background: var(--color-brand);
+        }
+
+        /* 功能宫格 */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--spacing-md) var(--spacing-sm);
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: var(--spacing-xs);
+            border-radius: 12px;
+        }
+
+        .icon-item:active {
+            transform: scale(0.95);
+        }
+
+        .icon-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .icon-surface {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease;
+        }
+
+        .icon-item:active .icon-surface {
+            transform: scale(0.95);
+        }
+
+        .icon-item span {
+            font-size: 12px;
+            color: var(--text-primary);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            display: flex;
+            justify-content: space-around;
+            padding: var(--spacing-xs) 0;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            min-width: 44px;
+            min-height: 44px;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--color-brand);
+        }
+
+        .nav-item:active {
+            opacity: 0.7;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 480px) {
+            .icon-grid {
+                gap: var(--spacing-sm) var(--spacing-xs);
+            }
+            
+            .icon-surface {
+                width: 52px;
+                height: 52px;
+                font-size: 22px;
+            }
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="app">
+        <header class="top-banner">
+            <div class="top-actions">
+                <div class="top-left">
+                    <i class="fas fa-qrcode"></i>
+                    <span>{{ companyName }}</span>
+                </div>
+                <div class="top-right">
+                    <i class="fas fa-search" @click="handleSearch"></i>
+                    <i class="fas fa-th-large" @click="handleMore"></i>
+                </div>
+            </div>
+            <div class="hint-text">
+                您好，{{ userName }}！今日还有 {{ highlight.todo }} 项待处理任务。
+            </div>
+        </header>
+
+        <main>
+            <section
+                v-for="group in moduleGroups"
+                :key="group.id"
+                class="module-section"
+            >
+                <h3 class="section-title">{{ group.title }}</h3>
+                <div class="icon-grid">
+                    <div
+                        v-for="module in group.modules"
+                        :key="module.id"
+                        class="icon-item"
+                        :class="{ disabled: module.comingSoon }"
+                        @click="openModule(module)"
+                    >
+                        <div
+                            class="icon-surface"
+                            :style="{
+                                background: module.color || '#3366cc'
+                            }"
+                        >
+                            <i :class="module.icon"></i>
+                        </div>
+                        <span>{{ module.title }}</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" @click="switchTab('message')">
+                <i class="fas fa-comments"></i>
+                <span>消息</span>
+            </div>
+            <div class="nav-item active" @click="switchTab('app')">
+                <i class="fas fa-th-large"></i>
+                <span>我的应用</span>
+            </div>
+            <div class="nav-item" @click="switchTab('mine')">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </nav>
+
+        <div class="toast" :class="{ show: toast.show }">{{ toast.message }}</div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, reactive } = Vue;
+
+        createApp({
+            setup() {
+                const userName = ref('巡检员');
+                const companyName = ref('XXX 公司');
+                const highlight = reactive({
+                    todo: 6
+                });
+
+                const toast = reactive({
+                    show: false,
+                    message: ''
+                });
+
+                const showToast = (message) => {
+                    toast.message = message;
+                    toast.show = true;
+                    setTimeout(() => {
+                        toast.show = false;
+                    }, 2000);
+                };
+
+                const moduleGroups = ref([
+                    {
+                        id: 'workbench',
+                        title: '工作台',
+                        modules: [
+                            {
+                                id: 'pending-approval',
+                                title: '待办审批',
+                                icon: 'fas fa-file-pen',
+                                color: '#3366cc',
+                                comingSoon: true
+                            },
+                            {
+                                id: 'approved',
+                                title: '已办审批',
+                                icon: 'fas fa-file-circle-check',
+                                color: '#ff943e',
+                                comingSoon: true
+                            },
+                            {
+                                id: 'todo-task',
+                                title: '待办任务',
+                                icon: 'fas fa-user-check',
+                                color: '#ff943e',
+                                comingSoon: true
+                            },
+                            {
+                                id: 'notify',
+                                title: '消息提醒',
+                                icon: 'fas fa-bullhorn',
+                                color: '#00b042',
+                                comingSoon: true
+                            }
+                        ]
+                    },
+                    {
+                        id: 'workplace',
+                        title: '工作场所',
+                        modules: [
+                            {
+                                id: 'ledger',
+                                title: '消防设施台账',
+                                icon: 'fas fa-list-check',
+                                color: '#3366cc',
+                                href: './消防设施台账.html',
+                                comingSoon: false
+                            },
+                            {
+                                id: 'inspection',
+                                title: '消防设施检查',
+                                icon: 'fas fa-clipboard-list',
+                                color: '#ff943e',
+                                href: './检查与试验.html',
+                                comingSoon: false
+                            }
+                        ]
+                    }
+                ]);
+
+                const openModule = (module) => {
+                    if (module.comingSoon) {
+                        showToast('功能开发中，敬请期待');
+                        return;
+                    }
+                    if (module?.href) {
+                        window.location.href = module.href;
+                    }
+                };
+
+                const switchTab = (tab) => {
+                    if (tab === 'message' || tab === 'mine') {
+                        showToast('功能开发中，敬请期待');
+                    }
+                };
+
+                const handleSearch = () => {
+                    showToast('搜索功能开发中');
+                };
+
+                const handleMore = () => {
+                    showToast('更多功能开发中');
+                };
+
+                return {
+                    userName,
+                    companyName,
+                    highlight,
+                    moduleGroups,
+                    toast,
+                    openModule,
+                    switchTab,
+                    handleSearch,
+                    handleMore
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

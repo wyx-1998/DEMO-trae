@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 防缓存设置 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- 静态修复方案 - 确保Plus组件可用 -->
+  <script>
+  // 简单的静态修复 - 页面打开时自动执行
+  window.addEventListener('load', function() {
+    console.log('页面加载完成 - 开始静态修复...');
+
+    // 确保ElementPlus对象存在时立即修复
+    let checkCount = 0;
+    const checkAndFix = function() {
+      checkCount++;
+      if (window.ElementPlus && window.Vue) {
+        // 如果ElementPlus.Plus不存在，创建它
+        if (!ElementPlus.Plus) {
+          ElementPlus.Plus = Vue.defineComponent({
+            name: 'Plus',
+            template: '<span>+</span>'
+          });
+        }
+        console.log('Plus组件修复完成');
+        return true;
+      } else if (checkCount < 10) {
+        // 最多重试10次
+        setTimeout(checkAndFix, 200);
+        return false;
+      }
+      return false;
+    };
+
+    // 立即开始检查
+    checkAndFix();
+  });
+  </script>
+
+  <title>危险化学品信息库 - 新建</title>
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>" type="image/svg+xml">
+  <!-- 使用替代的CDN资源 -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif;background:#f5f7fa;color:#303133}
+    .app-container{min-height:100vh;display:flex;flex-direction:column}
+    .page{max-width:1200px;margin:0 auto;padding:24px;width:100%}
+    .content-card{background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
+    .form-container{padding:24px}
+    .form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f0f0f0}
+    .form-title{font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:10px}
+    .form-sections{display:flex;flex-direction:column;gap:24px}
+    .form-section{border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;background:#fff}
+    .section-header{background:#fafafa;padding:14px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
+    .section-title{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}
+    .section-title-actions{display:flex;align-items:center;gap:8px}
+    .form-section-content{padding:20px}
+    .msds-collapse{background:#fff}
+    .msds-collapse .el-collapse-item__header{font-weight:600}
+    .chapter-hint{font-size:13px;color:#909399;margin-bottom:12px}
+    .footer-bar{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
+    .el-select,.el-input,.el-textarea{width:100%}
+    .el-button--primary{--el-button-bg-color:#409EFF;--el-button-border-color:#409EFF}
+    .el-icon-plus {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      font-size: 28px;
+      color: #8c939d;
+      cursor: pointer;
+    }
+
+    /* 修复ElementPlus下拉菜单显示问题 - 简化版 */
+    .el-select-dropdown {
+      z-index: 9999 !important;
+      position: absolute !important;
+      opacity: 1 !important;
+      background: #ffffff !important;
+    }
+
+    .el-popper {
+      z-index: 9999 !important;
+      opacity: 1 !important;
+    }
+
+    /* 确保下拉菜单不被隐藏 */
+    body > .el-popper:last-child {
+      z-index: 10000 !important;
+      opacity: 1 !important;
+    }
+
+    /* 下拉菜单基础样式 */
+    .el-select-dropdown {
+      border: 1px solid #e4e7ed !important;
+      border-radius: 4px !important;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
+      background: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    /* 确保所有下拉菜单元素完全不透明 */
+    .el-select-dropdown,
+    .el-select-dropdown *,
+    .el-popper,
+    .el-popper *,
+    .el-select-dropdown__item,
+    .el-select-dropdown__item *,
+    .el-select-dropdown__item:hover,
+    .el-select-dropdown__item:hover *,
+    .el-select-dropdown__item.selected,
+    .el-select-dropdown__item.selected * {
+      opacity: 1 !important;
+    }
+
+    /* 选择器触发器样式 */
+    .el-select .el-input__wrapper,
+    .el-select .el-input__inner {
+      background: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    /* 增强选择器样式 */
+    .enhanced-select {
+      position: relative;
+    }
+
+    .enhanced-select .el-input__wrapper {
+      border-radius: 6px !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .enhanced-select .el-input__wrapper:hover {
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2) !important;
+      border-color: #409EFF !important;
+    }
+
+    .enhanced-select .el-input__wrapper.is-focus {
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2) !important;
+      border-color: #409EFF !important;
+    }
+
+    /* 危险性分类下拉菜单自定义样式 */
+    .hazard-dropdown-custom {
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #EBEEF5 !important;
+    }
+
+    .hazard-dropdown-custom .el-select-dropdown__list {
+      padding: 8px !important;
+    }
+
+    .hazard-option-content {
+      display: flex !important;
+      align-items: center !important;
+      padding: 8px 12px !important;
+      border-radius: 4px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .hazard-option-content:hover {
+      background-color: #F5F7FA !important;
+    }
+
+    .hazard-option-selected {
+      background-color: #ECF5FF !important;
+      border-left: 3px solid #409EFF !important;
+    }
+
+    .hazard-option-selected .hazard-option-content {
+      background-color: #ECF5FF !important;
+    }
+
+    /* 信号词下拉菜单自定义样式 */
+    .signal-word-dropdown-custom {
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #EBEEF5 !important;
+      min-width: 320px !important;
+    }
+
+    .signal-word-dropdown-custom .el-select-dropdown__list {
+      padding: 8px !important;
+    }
+
+    .signal-word-option-content {
+      display: flex !important;
+      align-items: center !important;
+      padding: 12px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease !important;
+      gap: 12px !important;
+    }
+
+    .signal-word-option-content:hover {
+      background-color: #F5F7FA !important;
+    }
+
+    .signal-word-option-selected {
+      background-color: #ECF5FF !important;
+      border-left: 3px solid #409EFF !important;
+    }
+
+    .signal-word-option-selected .signal-word-option-content {
+      background-color: #ECF5FF !important;
+    }
+
+    .signal-word-icon {
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 16px !important;
+      color: white !important;
+      flex-shrink: 0 !important;
+    }
+
+    .signal-word-icon.danger {
+      background: linear-gradient(135deg, #F56C6C, #E03A3A) !important;
+      box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3) !important;
+    }
+
+    .signal-word-icon.warning {
+      background: linear-gradient(135deg, #E6A23C, #D48A1B) !important;
+      box-shadow: 0 2px 8px rgba(230, 162, 60, 0.3) !important;
+    }
+
+    .signal-word-icon.caution {
+      background: linear-gradient(135deg, #409EFF, #3A8EE6) !important;
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3) !important;
+    }
+
+    .signal-word-icon.notice {
+      background: linear-gradient(135deg, #909399, #707377) !important;
+      box-shadow: 0 2px 8px rgba(144, 147, 153, 0.3) !important;
+    }
+
+    .signal-word-icon.attention {
+      background: linear-gradient(135deg, #67C23A, #529B2E) !important;
+      box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3) !important;
+    }
+
+    .signal-word-icon.alarm {
+      background: linear-gradient(135deg, #FF5722, #E64A19) !important;
+      box-shadow: 0 2px 8px rgba(255, 87, 34, 0.3) !important;
+    }
+
+    .signal-word-info {
+      flex: 1 !important;
+      min-width: 0 !important;
+    }
+
+    .signal-word-label {
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      color: #303133 !important;
+      margin-bottom: 4px !important;
+    }
+
+    .signal-word-description {
+      font-size: 12px !important;
+      color: #909399 !important;
+      line-height: 1.4 !important;
+    }
+
+    /* 信号词状态指示器 */
+    .signal-word-status-danger {
+      color: #F56C6C !important;
+      background-color: #FEF0F0 !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #F56C6C !important;
+    }
+
+    .signal-word-status-warning {
+      color: #E6A23C !important;
+      background-color: #FDF6EC !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #E6A23C !important;
+    }
+
+    .signal-word-status-caution {
+      color: #409EFF !important;
+      background-color: #ECF5FF !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #409EFF !important;
+    }
+
+    .signal-word-status-notice {
+      color: #909399 !important;
+      background-color: #F4F4F5 !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #909399 !important;
+    }
+
+    .signal-word-status-attention {
+      color: #67C23A !important;
+      background-color: #F0F9FF !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #67C23A !important;
+    }
+
+    .signal-word-status-alarm {
+      color: #FF5722 !important;
+      background-color: #FFF3E0 !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      border-left: 3px solid #FF5722 !important;
+    }
+
+    /* 化学品通用下拉菜单样式 - 参考建构筑物管理样式 */
+    .chemical-dropdown-custom {
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #EBEEF5 !important;
+      background: #ffffff !important;
+    }
+
+    .chemical-dropdown-custom .el-select-dropdown__list {
+      padding: 8px !important;
+    }
+
+    .chemical-dropdown-custom .el-select-dropdown__item {
+      padding: 0 !important;
+      margin: 2px 0 !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .chemical-dropdown-custom .el-select-dropdown__item:hover {
+      background-color: #F5F7FA !important;
+    }
+
+    .chemical-dropdown-custom .el-select-dropdown__item.selected {
+      background-color: #ECF5FF !important;
+      color: #409EFF !important;
+      font-weight: 600 !important;
+    }
+
+    .chemical-option-content {
+      display: flex !important;
+      align-items: center !important;
+      padding: 10px 16px !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+    }
+
+    .chemical-option-content:hover {
+      background-color: transparent !important;
+    }
+
+    /* 状态标签样式 - 参考建构筑物管理 */
+    .status-tag {
+      padding: 4px 12px !important;
+      border-radius: 12px !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+    }
+
+    .status-normal {
+      background: #f0f9ff !important;
+      color: #1890ff !important;
+      border: 1px solid #d1ecf1 !important;
+    }
+
+    .status-enabled {
+      background: #f0f9ff !important;
+      color: #1890ff !important;
+      border: 1px solid #d1ecf1 !important;
+    }
+
+    .status-warning {
+      background: #fff7e6 !important;
+      color: #fa8c16 !important;
+      border: 1px solid #ffd591 !important;
+    }
+
+    .status-disabled {
+      background: #fff1f0 !important;
+      color: #f5222d !important;
+      border: 1px solid #ffccc7 !important;
+    }
+
+    .status-success {
+      background: #f6ffed !important;
+      color: #52c41a !important;
+      border: 1px solid #b7eb8f !important;
+    }
+
+    /* 增强选择器样式 - 参考建构筑物管理 */
+    .enhanced-select .el-input__inner {
+      border-radius: 6px !important;
+      font-size: 14px !important;
+      color: #303133 !important;
+    }
+
+    .enhanced-select .el-input__wrapper {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+      border: 1px solid #DCDFE6 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .enhanced-select .el-input__wrapper:hover {
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2) !important;
+      border-color: #409EFF !important;
+    }
+
+    .enhanced-select .el-input__wrapper.is-focus {
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2) !important;
+      border-color: #409EFF !important;
+    }
+
+    /* 表单区域样式 - 参考建构筑物管理 */
+    .form-section {
+      border: 1px solid #e8e8e8 !important;
+      border-radius: 8px !important;
+      overflow: hidden !important;
+      background: #fff !important;
+      margin-bottom: 24px !important;
+    }
+
+    .section-header {
+      background: #fafafa !important;
+      padding: 14px 20px !important;
+      border-bottom: 1px solid #e8e8e8 !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+
+    .section-title {
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      color: #333 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    /* 增强标签样式 */
+    .el-select .el-select__tags .el-tag {
+      border-radius: 4px !important;
+      margin: 2px !important;
+      background-color: #ECF5FF !important;
+      border-color: #B3D8FF !important;
+      color: #409EFF !important;
+    }
+
+    .el-select .el-select__tags .el-tag .el-tag__close {
+      color: #409EFF !important;
+    }
+
+    .el-select .el-select__tags .el-tag .el-tag__close:hover {
+      color: #FFFFFF !important;
+      background-color: #409EFF !important;
+    }
+
+    /* 加载动画 */
+    .el-select-dropdown__loading {
+      text-align: center !important;
+      padding: 20px !important;
+      color: #909399 !important;
+    }
+
+    .el-select-dropdown__loading i {
+      font-size: 24px !important;
+      margin-bottom: 8px !important;
+      display: block !important;
+      animation: rotate 1s linear infinite !important;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* 空状态样式 */
+    .el-select-dropdown__empty {
+      padding: 20px !important;
+      text-align: center !important;
+      color: #909399 !important;
+    }
+
+    .el-select-dropdown__empty i {
+      font-size: 24px !important;
+      margin-bottom: 8px !important;
+      display: block !important;
+    }
+
+    /* 运输相关下拉菜单样式 */
+    .transport-dropdown-custom {
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #EBEEF5 !important;
+      background: #ffffff !important;
+      min-width: 380px !important;
+    }
+
+    .transport-dropdown-custom .el-select-dropdown__list {
+      padding: 8px !important;
+    }
+
+    .transport-dropdown-custom .el-select-dropdown__item {
+      padding: 0 !important;
+      margin: 2px 0 !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .transport-dropdown-custom .el-select-dropdown__item:hover {
+      background-color: #F5F7FA !important;
+    }
+
+    .transport-dropdown-custom .el-select-dropdown__item.selected {
+      background-color: #ECF5FF !important;
+      color: #409EFF !important;
+      font-weight: 600 !important;
+    }
+
+    .transport-option-content {
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 12px 16px !important;
+      font-size: 14px !important;
+      line-height: 1.5 !important;
+    }
+
+    .transport-un-code {
+      font-weight: 600 !important;
+      color: #303133 !important;
+      font-size: 15px !important;
+    }
+
+    .transport-un-name {
+      color: #606266 !important;
+      font-size: 13px !important;
+      margin-top: 2px !important;
+    }
+
+    .transport-un-class {
+      color: #909399 !important;
+      font-size: 12px !important;
+      margin-top: 2px !important;
+    }
+
+    .transport-class-option {
+      display: flex !important;
+      align-items: center !important;
+      padding: 12px 16px !important;
+      gap: 12px !important;
+    }
+
+    .transport-class-icon {
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 16px !important;
+      color: white !important;
+      font-weight: 600 !important;
+      flex-shrink: 0 !important;
+    }
+
+    .transport-class-icon.class-1 { background: linear-gradient(135deg, #FF5722, #E64A19) !important; }
+    .transport-class-icon.class-2 { background: linear-gradient(135deg, #409EFF, #3A8EE6) !important; }
+    .transport-class-icon.class-3 { background: linear-gradient(135deg, #F56C6C, #E03A3A) !important; }
+    .transport-class-icon.class-4 { background: linear-gradient(135deg, #E6A23C, #D48A1B) !important; }
+    .transport-class-icon.class-5 { background: linear-gradient(135deg, #67C23A, #529B2E) !important; }
+    .transport-class-icon.class-6 { background: linear-gradient(135deg, #722ED1, #531DAB) !important; }
+    .transport-class-icon.class-7 { background: linear-gradient(135deg, #FF4D4F, #CF1322) !important; }
+    .transport-class-icon.class-8 { background: linear-gradient(135deg, #FA8C16, #D46B08) !important; }
+    .transport-class-icon.class-9 { background: linear-gradient(135deg, #9C27B0, #7B1FA2) !important; }
+
+    .transport-class-info {
+      flex: 1 !important;
+      min-width: 0 !important;
+    }
+
+    .transport-class-label {
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      color: #303133 !important;
+      margin-bottom: 4px !important;
+    }
+
+    .transport-class-desc {
+      font-size: 12px !important;
+      color: #909399 !important;
+      line-height: 1.4 !important;
+    }
+
+    .pack-class-option {
+      display: flex !important;
+      align-items: center !important;
+      padding: 12px 16px !important;
+      gap: 12px !important;
+    }
+
+    .pack-class-icon {
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: white !important;
+      flex-shrink: 0 !important;
+    }
+
+    .pack-class-icon.pack-class-i { background: linear-gradient(135deg, #F56C6C, #E03A3A) !important; }
+    .pack-class-icon.pack-class-ii { background: linear-gradient(135deg, #E6A23C, #D48A1B) !important; }
+    .pack-class-icon.pack-class-iii { background: linear-gradient(135deg, #67C23A, #529B2E) !important; }
+
+    .pack-class-info {
+      flex: 1 !important;
+      min-width: 0 !important;
+    }
+
+    .pack-class-label {
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      color: #303133 !important;
+      margin-bottom: 4px !important;
+    }
+
+    .pack-class-desc {
+      font-size: 12px !important;
+      color: #909399 !important;
+      line-height: 1.4 !important;
+    }
+
+  </style>
+</head>
+<body>
+<div id="app" class="app-container">
+  <div class="page">
+    <div class="content-card">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="form-title"><i class="fas fa-pen-to-square"></i> 新建化学品标准信息</div>
+        </div>
+        <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
+          <div class="form-sections">
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-info-circle"></i> 基本标识</div>
+                <div class="section-title-actions">
+                  <el-button link size="small" @click="toggleSection('basic')">{{ sectionOpen.basic ? '收起' : '展开' }}</el-button>
+                </div>
+              </div>
+              <div class="form-section-content" v-show="sectionOpen.basic">
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="化学品名称" prop="name"><el-input v-model="form.name" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="英文名" prop="englishName"><el-input v-model="form.englishName" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="别名"><el-input v-model="form.alias" /></el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="CAS号" prop="cas"><el-input v-model="form.cas" placeholder="XXXXX-XX-X" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="分子式"><el-input v-model="form.formula" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="危险性分类" prop="hazards">
+                      <el-select
+                          v-model="form.hazards"
+                          placeholder="请选择危险性分类"
+                          multiple
+                          clearable>
+                          <el-option label="爆炸物" value="爆炸物"></el-option>
+                          <el-option label="易燃气体" value="易燃气体"></el-option>
+                          <el-option label="易燃液体" value="易燃液体"></el-option>
+                          <el-option label="易燃固体" value="易燃固体"></el-option>
+                          <el-option label="自反应物质/混合物" value="自反应物质/混合物"></el-option>
+                          <el-option label="自燃液体" value="自燃液体"></el-option>
+                          <el-option label="自燃固体" value="自燃固体"></el-option>
+                          <el-option label="遇水放出易燃气体物质" value="遇水放出易燃气体物质"></el-option>
+                          <el-option label="氧化性气体" value="氧化性气体"></el-option>
+                          <el-option label="氧化性液体" value="氧化性液体"></el-option>
+                          <el-option label="氧化性固体" value="氧化性固体"></el-option>
+                          <el-option label="有机过氧化物" value="有机过氧化物"></el-option>
+                          <el-option label="腐蚀性物质" value="腐蚀性物质"></el-option>
+                          <el-option label="高压气体" value="高压气体"></el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-flask"></i> 理化特性</div>
+                <div class="section-title-actions">
+                  <el-button link size="small" @click="toggleSection('physical')">{{ sectionOpen.physical ? '收起' : '展开' }}</el-button>
+                </div>
+              </div>
+              <div class="form-section-content" v-show="sectionOpen.physical">
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="物理状态">
+                        <el-select
+                            v-model="form.physicalState"
+                            placeholder="请选择物理状态"
+                            clearable>
+                            <el-option label="固态" value="solid"></el-option>
+                            <el-option label="液态" value="liquid"></el-option>
+                            <el-option label="气态" value="gas"></el-option>
+                            <el-option label="等离子态" value="plasma"></el-option>
+                        </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="颜色">
+                        <el-select
+                            v-model="form.color"
+                            placeholder="请选择颜色"
+                            clearable>
+                            <el-option label="无色" value="colorless"></el-option>
+                            <el-option label="白色" value="white"></el-option>
+                            <el-option label="黑色" value="black"></el-option>
+                            <el-option label="红色" value="red"></el-option>
+                            <el-option label="蓝色" value="blue"></el-option>
+                            <el-option label="黄色" value="yellow"></el-option>
+                            <el-option label="绿色" value="green"></el-option>
+                        </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="气味">
+                        <el-select
+                            v-model="form.odor"
+                            placeholder="请选择气味"
+                            clearable>
+                            <el-option label="无臭" value="odorless"></el-option>
+                            <el-option label="刺激性" value="irritating"></el-option>
+                            <el-option label="芳香" value="aromatic"></el-option>
+                            <el-option label="腐败" value="putrid"></el-option>
+                        </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="闪点(℃)"><el-input v-model="form.flashPoint" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="密度(g/cm³)"><el-input v-model="form.density" /></el-form-item>
+                  </el-col>
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="分子量"><el-input v-model="form.mw" /></el-form-item>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-file-alt"></i> MSDS 快速录入</div>
+                <div class="section-title-actions">
+                  <el-button link size="small" @click="toggleSection('msds')">{{ sectionOpen.msds ? '收起' : '展开' }}</el-button>
+                </div>
+              </div>
+              <div class="form-section-content" v-show="sectionOpen.msds">
+                <p class="chapter-hint">以下 16 章字段遵循国标 SDS 结构，可按需折叠。</p>
+                <el-collapse v-model="activeMsdsPanels" class="msds-collapse">
+                  <el-collapse-item name="c1" title="第1章：化学品及企业标识">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="产品名称" prop="msds.chapter1.product"><el-input v-model="form.msds.chapter1.product" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="推荐用途" prop="msds.chapter1.use"><el-input v-model="form.msds.chapter1.use" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="供应商" prop="msds.chapter1.supplier"><el-input v-model="form.msds.chapter1.supplier" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="地址" prop="msds.chapter1.address"><el-input v-model="form.msds.chapter1.address" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="联系电话" prop="msds.chapter1.phone"><el-input v-model="form.msds.chapter1.phone" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="应急电话" prop="msds.chapter1.emergency"><el-input v-model="form.msds.chapter1.emergency" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c2" title="第2章：危险性概述">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="GHS分类" prop="msds.chapter2.ghs"><el-input v-model="form.msds.chapter2.ghs" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="信号词" prop="msds.chapter2.signalWord">
+                        <el-select
+                            v-model="form.msds.chapter2.signalWord"
+                            placeholder="请选择信号词"
+                            clearable>
+                            <el-option label="Danger（严重危害）" value="Danger"></el-option>
+                            <el-option label="Warning（一般危害）" value="Warning"></el-option>
+                            <el-option label="Caution（注意）" value="Caution"></el-option>
+                            <el-option label="Notice（提示）" value="Notice"></el-option>
+                            <el-option label="Attention（关注）" value="Attention"></el-option>
+                            <el-option label="Alarm（告警/报警）" value="Alarm"></el-option>
+                        </el-select>
+                      </el-form-item></el-col>
+                    </el-row>
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="象形图上传" prop="msds.chapter2.pictograms">
+                        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+                          <el-upload
+                            action="#"
+                            list-type="picture-card"
+                            :auto-upload="false"
+                            :limit="1"
+                            :file-list="msdsPictogramFileList"
+                            @change="handleMsdsPictogramChange"
+                            style="margin-bottom: 4px;"
+                          >
+                            <div class="el-icon-plus">+</div>
+                          </el-upload>
+                          <div style="font-size: 12px; color: #909399; line-height: 1.4;">支持jpg/png/gif格式，大小不超过2MB</div>
+                        </div>
+                      </el-form-item></el-col>
+                    </el-row>
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="危险说明(H)" prop="msds.chapter2.h"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.h" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="防范说明(P)" prop="msds.chapter2.p"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.p" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c3" title="第3章：成分/组成信息">
+                    <el-table :data="form.msds.chapter3.components" border size="small" style="width:100%">
+                      <el-table-column label="化学名称">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.name" placeholder="化学名称" />
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="CAS号" width="220">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.cas" placeholder="CAS号" />
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="含量(%)" width="160">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.concentration" placeholder="例如 95" />
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="操作" width="100">
+                        <template #default="scope">
+                          <el-button type="danger" link size="small" @click="removeComponent(scope.$index)">删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <div style="margin-top:12px">
+                      <el-button type="primary" plain @click="addComponentRow()"><i class="fas fa-plus" style="margin-right:4px"></i>新增成分行</el-button>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="c4" title="第4章：急救措施">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="吸入" prop="msds.chapter4.inhale"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.inhale" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="皮肤接触" prop="msds.chapter4.skin"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.skin" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="眼睛接触" prop="msds.chapter4.eye"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.eye" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="摄入" prop="msds.chapter4.ingest"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.ingest" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="重要症状" prop="msds.chapter4.symptoms"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.symptoms" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="特殊治疗" prop="msds.chapter4.treatment"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.treatment" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c5" title="第5章：消防措施">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="适用灭火剂" prop="msds.chapter5.agent"><el-input v-model="form.msds.chapter5.agent" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="不适用灭火剂" prop="msds.chapter5.noagent"><el-input v-model="form.msds.chapter5.noagent" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="特殊危害" prop="msds.chapter5.hazard"><el-input type="textarea" :rows="2" v-model="form.msds.chapter5.hazard" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="消防员防护" prop="msds.chapter5.protect"><el-input type="textarea" :rows="2" v-model="form.msds.chapter5.protect" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c6" title="第6章：泄漏应急处理">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="个人防护" prop="msds.chapter6.pp"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.pp" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="环境防护" prop="msds.chapter6.env"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.env" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="清除方法" prop="msds.chapter6.clean"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.clean" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c7" title="第7章：操作处置与储存">
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="操作注意" prop="msds.chapter7.op"><el-input type="textarea" :rows="2" v-model="form.msds.chapter7.op" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="储存条件" prop="msds.chapter7.store"><el-input type="textarea" :rows="2" v-model="form.msds.chapter7.store" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="工程控制" prop="msds.chapter8.ec"><el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ec" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="个体防护装备" prop="msds.chapter8.ppe"><el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ppe" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c9" title="第9章：理化特性">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="外观性状" prop="msds.chapter9.appearance"><el-input v-model="form.msds.chapter9.appearance" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="pH值" prop="msds.chapter9.ph"><el-input v-model="form.msds.chapter9.ph" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="闪点" prop="msds.chapter9.fp"><el-input v-model="form.msds.chapter9.fp" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="蒸气压" prop="msds.chapter9.vp"><el-input v-model="form.msds.chapter9.vp" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="蒸气密度" prop="msds.chapter9.vd"><el-input v-model="form.msds.chapter9.vd" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="相对密度" prop="msds.chapter9.d"><el-input v-model="form.msds.chapter9.d" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="溶解性" prop="msds.chapter9.sol"><el-input v-model="form.msds.chapter9.sol" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="自燃温度" prop="msds.chapter9.sa"><el-input v-model="form.msds.chapter9.sa" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="黏度" prop="msds.chapter9.vis"><el-input v-model="form.msds.chapter9.vis" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c10" title="第10章：稳定性和反应性">
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="反应性" prop="msds.chapter10.react"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.react" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="化学稳定性" prop="msds.chapter10.stable"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.stable" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="危险反应可能性" prop="msds.chapter10.danger"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.danger" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="避免条件" prop="msds.chapter10.avoid"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.avoid" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="禁配物" prop="msds.chapter10.incompat"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.incompat" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="危害分解产物" prop="msds.chapter10.decompose"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.decompose" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c11" title="第11章：毒理学信息">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="暴露途径" prop="msds.chapter11.route"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.route" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="急性毒性" prop="msds.chapter11.acute"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.acute" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="刺激/致敏性" prop="msds.chapter11.irritation"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.irritation" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c12" title="第12章：生态学信息">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12"><el-form-item label="生态毒性" prop="msds.chapter12.eco"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.eco" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="持久性与降解性" prop="msds.chapter12.persistent"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.persistent" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="生物累积性" prop="msds.chapter12.bioacc"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.bioacc" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c13" title="第13章：废弃处置">
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="处置方法" prop="msds.chapter13.disp"><el-input type="textarea" :rows="2" v-model="form.msds.chapter13.disp" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="包装处置" prop="msds.chapter13.pack"><el-input type="textarea" :rows="2" v-model="form.msds.chapter13.pack" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c14" title="第14章：运输信息">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12">
+                        <el-form-item label="UN编号" prop="msds.chapter14.un">
+                            <el-select
+                                v-model="form.msds.chapter14.un"
+                                placeholder="请选择UN编号"
+                                clearable>
+                                <el-option label="UN1263 涂料(第3类)" value="UN1263"></el-option>
+                                <el-option label="UN1170 乙醇溶液(第3类)" value="UN1170"></el-option>
+                                <el-option label="UN1987 醇类，未另作规定的(第3类)" value="UN1987"></el-option>
+                                <el-option label="UN1090 丙酮(第3类)" value="UN1090"></el-option>
+                                <el-option label="UN1830 硫酸(第8类)" value="UN1830"></el-option>
+                                <el-option label="UN1789 盐酸(第8类)" value="UN1789"></el-option>
+                                <el-option label="UN1791 次氯酸盐溶液(第8类)" value="UN1791"></el-option>
+                                <el-option label="UN2014 过氧化氢溶液(第5.1类)" value="UN2014"></el-option>
+                                <el-option label="UN1044 灭火器(第2类)" value="UN1044"></el-option>
+                                <el-option label="UN1950 气雾剂(第2类)" value="UN1950"></el-option>
+                            </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="运输名称" prop="msds.chapter14.name"><el-input v-model="form.msds.chapter14.name" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12">
+                        <el-form-item label="危险性类别" prop="msds.chapter14.class">
+                            <el-select
+                                v-model="form.msds.chapter14.class"
+                                placeholder="请选择危险性类别"
+                                clearable>
+                                <el-option label="第1类 - 爆炸物" value="第1类"></el-option>
+                                <el-option label="第2类 - 气体" value="第2类"></el-option>
+                                <el-option label="第3类 - 易燃液体" value="第3类"></el-option>
+                                <el-option label="第4类 - 易燃固体" value="第4类"></el-option>
+                                <el-option label="第5类 - 氧化性物质" value="第5类"></el-option>
+                                <el-option label="第6类 - 毒性物质" value="第6类"></el-option>
+                                <el-option label="第7类 - 放射性物质" value="第7类"></el-option>
+                                <el-option label="第8类 - 腐蚀性物质" value="第8类"></el-option>
+                                <el-option label="第9类 - 杂项危险物质" value="第9类"></el-option>
+                            </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12">
+                        <el-form-item label="包装类别" prop="msds.chapter14.pack">
+                            <el-select
+                                v-model="form.msds.chapter14.pack"
+                                placeholder="请选择包装类别"
+                                clearable>
+                                <el-option label="I类包装 - 高风险物质" value="I"></el-option>
+                                <el-option label="II类包装 - 中等风险物质" value="II"></el-option>
+                                <el-option label="III类包装 - 低风险物质" value="III"></el-option>
+                            </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="环境危害" prop="msds.chapter14.env"><el-input v-model="form.msds.chapter14.env" /></el-form-item></el-col>
+                      <el-col :xs="24" :sm="12"><el-form-item label="特殊注意" prop="msds.chapter14.sp"><el-input v-model="form.msds.chapter14.sp" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c15" title="第15章：法规信息">
+                    <el-row :gutter="16">
+                      <el-col :span="24"><el-form-item label="适用法规" prop="msds.chapter15.laws"><el-input type="textarea" :rows="2" v-model="form.msds.chapter15.laws" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                  <el-collapse-item name="c16" title="第16章：其他信息">
+                    <el-row :gutter="16">
+                      <el-col :xs="24" :sm="12">
+                        <el-form-item label="编制日期" prop="msds.chapter16.date">
+                            <el-date-picker
+                                v-model="form.msds.chapter16.date"
+                                type="date"
+                                placeholder="选择日期"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD"
+                                style="width: 100%">
+                            </el-date-picker>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12">
+                        <el-form-item label="修订日期" prop="msds.chapter16.revision">
+                            <el-date-picker
+                                v-model="form.msds.chapter16.revision"
+                                type="date"
+                                placeholder="选择日期"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD"
+                                style="width: 100%">
+                            </el-date-picker>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="24"><el-form-item label="参考文献" prop="msds.chapter16.refs"><el-input type="textarea" :rows="2" v-model="form.msds.chapter16.refs" /></el-form-item></el-col>
+                      <el-col :span="24"><el-form-item label="修订说明" prop="msds.chapter16.note"><el-input type="textarea" :rows="2" v-model="form.msds.chapter16.note" /></el-form-item></el-col>
+                    </el-row>
+                  </el-collapse-item>
+                </el-collapse>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bar">
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" :loading="saving" @click="submit"><i class="fas fa-save" style="margin-right:6px"></i>提交</el-button>
+          </div>
+        </el-form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 使用替代的CDN资源 -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.full.js"></script>
+<script>
+const { createApp } = Vue;
+const { ElMessage } = ElementPlus;
+
+// 确保ElementPlus完全加载
+console.log('ElementPlus加载检查：', {
+  ElementPlusAvailable: typeof ElementPlus !== 'undefined',
+  VueAvailable: typeof Vue !== 'undefined',
+  ElMessageAvailable: typeof ElementPlus !== 'undefined' && ElementPlus.ElMessage
+});
+
+// 确保Plus组件在Vue应用创建前可用
+if (typeof ElementPlus !== 'undefined' && !ElementPlus.Plus) {
+  // 创建简单的Plus组件
+  ElementPlus.Plus = {
+    name: 'Plus',
+    render() {
+      return Vue.h('span', '+');
+    }
+  };
+}
+const createEmptyMsds = () => ({
+  chapter1:{ product:'', use:'', supplier:'', address:'', phone:'', emergency:'' },
+  chapter2:{ ghs:'', pictograms:'', signalWord:'', h:'', p:'' },
+  chapter3:{ components:[] },
+  chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
+  chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
+  chapter6:{ pp:'', env:'', clean:'' },
+  chapter7:{ op:'', store:'' },
+  chapter8:{ ec:'', ppe:'' },
+  chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
+  chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
+  chapter11:{ route:'', acute:'', irritation:'' },
+  chapter12:{ eco:'', persistent:'', bioacc:'' },
+  chapter13:{ disp:'', pack:'' },
+  chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
+  chapter15:{ laws:'' },
+  chapter16:{ date:'', revision:'', refs:'', note:'' }
+});
+createApp({
+  data(){
+    return {
+      hazardOptions:['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'],
+      filteredHazardOptions:['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'],
+      signalWordOptions:[
+        { label:'Danger（严重危害）', value:'Danger' },
+        { label:'Warning（一般危害）', value:'Warning' },
+        { label:'Caution（注意）', value:'Caution' },
+        { label:'Notice（提示）', value:'Notice' },
+        { label:'Attention（关注）', value:'Attention' },
+        { label:'Alarm（告警/报警）', value:'Alarm' }
+      ],
+      filteredSignalWordOptions:[
+        { label:'Danger（严重危害）', value:'Danger' },
+        { label:'Warning（一般危害）', value:'Warning' },
+        { label:'Caution（注意）', value:'Caution' },
+        { label:'Notice（提示）', value:'Notice' },
+        { label:'Attention（关注）', value:'Attention' },
+        { label:'Alarm（告警/报警）', value:'Alarm' }
+      ],
+      // 运输相关下拉选项
+      unNumberOptions:[
+        { value:'UN1263', name:'涂料', class:'第3类' },
+        { value:'UN1170', name:'乙醇溶液', class:'第3类' },
+        { value:'UN1987', name:'醇类，未另作规定的', class:'第3类' },
+        { value:'UN1090', name:'丙酮', class:'第3类' },
+        { value:'UN1830', name:'硫酸', class:'第8类' },
+        { value:'UN1789', name:'盐酸', class:'第8类' },
+        { value:'UN1791', name:'次氯酸盐溶液', class:'第8类' },
+        { value:'UN2014', name:'过氧化氢溶液', class:'第5.1类' },
+        { value:'UN1044', name:'灭火器', class:'第2类' },
+        { value:'UN1950', name:'气雾剂', class:'第2类' }
+      ],
+      transportClassOptions:[
+        { value:'第1类', label:'第1类 - 爆炸物', description:'具有整体爆炸危险的物质和物品' },
+        { value:'第2类', label:'第2类 - 气体', description:'压缩、液化或加压溶解的气体' },
+        { value:'第3类', label:'第3类 - 易燃液体', description:'易燃液体和液体退敏爆炸物' },
+        { value:'第4类', label:'第4类 - 易燃固体', description:'易燃固体、自燃物质和遇水放出易燃气体的物质' },
+        { value:'第5类', label:'第5类 - 氧化性物质', description:'氧化性物质和有机过氧化物' },
+        { value:'第6类', label:'第6类 - 毒性物质', description:'毒性物质和感染性物质' },
+        { value:'第7类', label:'第7类 - 放射性物质', description:'放射性物质' },
+        { value:'第8类', label:'第8类 - 腐蚀性物质', description:'腐蚀性物质' },
+        { value:'第9类', label:'第9类 - 杂项危险物质', description:'杂项危险物质和物品' }
+      ],
+      form:{
+        name:'',englishName:'',alias:'',cas:'',formula:'',
+        hazards:[], // 从危险性与标签中移除signalWord, pictograms, hCodes, pCodes，避免与MSDS第二章重复
+        flashPoint:'',density:'',mw:'',
+        physicalState:'',color:'',odor:'', // 新增物理性质字段
+        msds:createEmptyMsds()
+      },
+      rules:{
+        name:[{required:true,message:'请输入名称',trigger:'blur'}],
+        englishName:[{required:true,message:'请输入英文名',trigger:'blur'}],
+        cas:[
+          {required:true,message:'请输入CAS',trigger:'blur'},
+          {validator:(rule,value,cb)=>{ if(!value){ cb(); return; } const ok=/^\d{2,7}-\d{2}-\d$/.test(value); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}
+        ],
+      },
+      sectionOpen:{ basic:true, hazard:true, physical:true, msds:true },
+      activeMsdsPanels:['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13','c14','c15','c16'],
+      saving:false,
+      pictogramFileList:[],
+      msdsPictogramFileList:[]
+    };
+  },
+  methods:{
+    toggleSection(key){ this.sectionOpen[key]=!this.sectionOpen[key]; },
+    addComponentRow(){ this.form.msds.chapter3.components.push({ name:'', cas:'', concentration:'' }); },
+    removeComponent(index){ this.form.msds.chapter3.components.splice(index,1); },
+
+    // 危险性分类下拉菜单相关方法
+    filterHazardOptions(query) {
+      if (!query) {
+        this.filteredHazardOptions = [...this.hazardOptions];
+        return;
+      }
+      const searchQuery = query.toLowerCase();
+      this.filteredHazardOptions = this.hazardOptions.filter(option =>
+        option.toLowerCase().includes(searchQuery)
+      );
+    },
+
+    onHazardDropdownVisible(visible) {
+      if (visible) {
+        console.log('危险性分类下拉菜单已打开');
+        // 重置过滤选项
+        this.filteredHazardOptions = [...this.hazardOptions];
+      }
+    },
+
+    onHazardRemove(tag) {
+      console.log('移除危险性分类:', tag);
+      this.$nextTick(() => {
+        this.$message({
+          message: `已移除危险性分类: ${tag}`,
+          type: 'info',
+          duration: 2000
+        });
+      });
+    },
+
+    onHazardClear() {
+      console.log('清除所有危险性分类');
+      this.$nextTick(() => {
+        this.$message({
+          message: '已清除所有危险性分类',
+          type: 'success',
+          duration: 2000
+        });
+      });
+    },
+
+    // 信号词下拉菜单相关方法
+    filterSignalWordOptions(query) {
+      if (!query) {
+        this.filteredSignalWordOptions = [...this.signalWordOptions];
+        return;
+      }
+      const searchQuery = query.toLowerCase();
+      this.filteredSignalWordOptions = this.signalWordOptions.filter(option =>
+        option.label.toLowerCase().includes(searchQuery) ||
+        option.value.toLowerCase().includes(searchQuery)
+      );
+    },
+
+    onSignalWordDropdownVisible(visible) {
+      if (visible) {
+        console.log('信号词下拉菜单已打开');
+        // 重置过滤选项
+        this.filteredSignalWordOptions = [...this.signalWordOptions];
+
+        // 调试信号词选择器
+        this.debugSignalWord();
+      }
+    },
+
+    onSignalWordChange(value) {
+      console.log('信号词已更改:', value);
+      if (value) {
+        const option = this.signalWordOptions.find(opt => opt.value === value);
+        if (option) {
+          this.$nextTick(() => {
+            this.$message({
+              message: `已选择信号词: ${option.label}`,
+              type: 'success',
+              duration: 3000
+            });
+          });
+        }
+      }
+    },
+
+    getSignalWordIcon(signalWord) {
+      const iconMap = {
+        'Danger': 'fas fa-radiation',
+        'Warning': 'fas fa-exclamation-triangle',
+        'Caution': 'fas fa-exclamation-circle',
+        'Notice': 'fas fa-info-circle',
+        'Attention': 'fas fa-eye',
+        'Alarm': 'fas fa-bell'
+      };
+      return iconMap[signalWord] || 'fas fa-question-circle';
+    },
+
+    getSignalWordIconClass(signalWord) {
+      return signalWord.toLowerCase();
+    },
+
+    getSignalWordDescription(signalWord) {
+      const descriptionMap = {
+        'Danger': '表示严重的危险，可能导致死亡或严重伤害',
+        'Warning': '表示潜在的危险情况，可能导致伤害',
+        'Caution': '表示需要注意的情况，可能导致轻微伤害',
+        'Notice': '表示重要的信息或提醒',
+        'Attention': '表示需要特别关注的情况',
+        'Alarm': '表示紧急情况或警报'
+      };
+      return descriptionMap[signalWord] || '未知信号词';
+    },
+
+    getSignalWordLabel(signalWord) {
+      const option = this.signalWordOptions.find(opt => opt.value === signalWord);
+      return option ? option.label : signalWord;
+    },
+
+    getSignalWordStatusClass() {
+      if (!this.form.signalWord) return '';
+      return `signal-word-status-${this.form.signalWord.toLowerCase()}`;
+    },
+
+    // 获取信号词的严重程度级别（用于排序或显示）
+    getSignalWordSeverity(signalWord) {
+      const severityMap = {
+        'Danger': 6,
+        'Alarm': 5,
+        'Warning': 4,
+        'Caution': 3,
+        'Attention': 2,
+        'Notice': 1
+      };
+      return severityMap[signalWord] || 0;
+    },
+
+    // 运输类别图标相关方法
+    getTransportClassIcon(classValue) {
+      const classNumber = classValue.replace('第', '').replace('类', '');
+      return `class-${classNumber}`;
+    },
+
+    getTransportClassIconClass(classValue) {
+      const iconMap = {
+        '第1类': 'fas fa-bomb',
+        '第2类': 'fas fa-wind',
+        '第3类': 'fas fa-fire',
+        '第4类': 'fas fa-fire-alt',
+        '第5类': 'fas fa-atom',
+        '第6类': 'fas fa-skull-crossbones',
+        '第7类': 'fas fa-radiation',
+        '第8类': 'fas fa-flask',
+        '第9类': 'fas fa-question-circle'
+      };
+      return iconMap[classValue] || 'fas fa-question-circle';
+    },
+
+    handlePictogramChange(file, fileList){
+
+      // 等待下拉菜单渲染
+      setTimeout(() => {
+        const dropdowns = document.querySelectorAll('.el-select-dropdown, .el-popper, .el-popper__arrow');
+        console.log(`找到 ${dropdowns.length} 个相关元素`);
+
+        dropdowns.forEach((dropdown, index) => {
+          const rect = dropdown.getBoundingClientRect();
+          console.log(`元素 ${index}:`, {
+            tagName: dropdown.tagName,
+            className: dropdown.className,
+            id: dropdown.id,
+            position: window.getComputedStyle(dropdown).position,
+            display: window.getComputedStyle(dropdown).display,
+            visibility: window.getComputedStyle(dropdown).visibility,
+            opacity: window.getComputedStyle(dropdown).opacity,
+            zIndex: window.getComputedStyle(dropdown).zIndex,
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            isInViewport: rect.top < window.innerHeight && rect.bottom > 0 && rect.left < window.innerWidth && rect.right > 0
+          });
+        });
+
+        // 检查是否有被隐藏的父元素
+        const signalSelect = this.$refs.signalWordSelect;
+        if (signalSelect && signalSelect.$el) {
+          let parent = signalSelect.$el.parentElement;
+          let level = 0;
+          while (parent && level < 5) {
+            const style = window.getComputedStyle(parent);
+            console.log(`父元素层级 ${level}:`, {
+              tagName: parent.tagName,
+              className: parent.className,
+              overflow: style.overflow,
+              position: style.position,
+              zIndex: style.zIndex,
+              display: style.display,
+              visibility: style.visibility
+            });
+            if (style.overflow === 'hidden' || style.display === 'none' || style.visibility === 'hidden') {
+              console.warn(`⚠️ 父元素 ${level} 可能隐藏了下拉菜单！`);
+            }
+            parent = parent.parentElement;
+            level++;
+          }
+        }
+      }, 1000);
+    },
+
+    // 调试信号词选择器
+    debugSignalWord() {
+      console.log('=== 信号词选择器调试 ===');
+      console.log('当前信号词值：', this.form.signalWord);
+      console.log('信号词选项：', [
+        { label: 'Danger（严重危害）', value: 'Danger' },
+        { label: 'Warning（一般危害）', value: 'Warning' },
+        { label: 'Caution（注意）', value: 'Caution' },
+        { label: 'Notice（提示）', value: 'Notice' },
+        { label: 'Attention（关注）', value: 'Attention' },
+        { label: 'Alarm（告警/报警）', value: 'Alarm' }
+      ]);
+
+      // 强制打开下拉菜单进行测试
+      this.$nextTick(() => {
+        const signalSelect = this.$refs.signalWordSelect;
+        if (signalSelect) {
+          console.log('找到信号词选择器引用：', signalSelect);
+
+          // 尝试多种方式打开下拉菜单
+          console.log('尝试打开下拉菜单...');
+
+          // 方式1：设置visible属性
+          if (signalSelect.visible !== undefined) {
+            signalSelect.visible = true;
+            console.log('方式1：设置visible = true');
+          }
+
+          // 方式2：触发点击事件
+          const selectWrapper = signalSelect.$el?.querySelector('.el-select__wrapper');
+          if (selectWrapper) {
+            selectWrapper.click();
+            console.log('方式2：触发点击事件');
+          }
+
+          // 方式3：检查DOM中是否有下拉菜单被创建
+          setTimeout(() => {
+            const dropdowns = document.querySelectorAll('.el-select-dropdown, .el-popper');
+            console.log(`方式3：找到 ${dropdowns.length} 个下拉菜单元素`);
+
+            dropdowns.forEach((dropdown, index) => {
+              const isHidden = dropdown.style.display === 'none';
+              console.log(`下拉菜单 ${index}:`, {
+                className: dropdown.className,
+                style: dropdown.style.cssText,
+                textContent: dropdown.textContent.trim().substring(0, 100),
+                parentElement: dropdown.parentElement.tagName,
+                isHidden: isHidden,
+                hasOptions: dropdown.querySelectorAll('.el-option, .el-select-dropdown__item').length
+              });
+
+              // 检查下拉菜单内容
+              const options = dropdown.querySelectorAll('.el-select-dropdown__item, .el-option');
+              console.log(`下拉菜单 ${index} 有 ${options.length} 个选项：`, {
+                options: Array.from(options).map(opt => opt.textContent.trim()),
+                isSignalWordDropdown: dropdown.textContent.includes('Alarm（告警/报警）') && !dropdown.classList.contains('is-multiple')
+              });
+
+              // 如果是信号词下拉菜单且被隐藏，尝试显示它
+              if (dropdown.classList.contains('el-select-dropdown') &&
+                  !dropdown.classList.contains('is-multiple') &&
+                  dropdown.textContent.includes('Alarm（告警/报警）') &&
+                  isHidden) {
+                console.log(`🎯 发现被隐藏的信号词下拉菜单，尝试显示...`);
+                dropdown.style.display = 'block';
+                dropdown.style.visibility = 'visible';
+                dropdown.style.opacity = '1';
+
+                // 检查所有选项是否都在
+                if (options.length > 0) {
+                  const optionTexts = Array.from(options).map(opt => opt.textContent.trim());
+                  console.log('📋 下拉菜单中的选项：', optionTexts);
+
+                  // 如果只有最后一个选项，可能是渲染问题
+                  if (options.length === 1 && optionTexts[0] === 'Alarm（告警/报警）') {
+                    console.warn('⚠️ 警告：下拉菜单只显示了最后一个选项！');
+                  }
+                }
+              }
+            });
+
+            // 检查body末尾是否有新创建的元素
+            const bodyChildren = document.body.children;
+            console.log(`Body有 ${bodyChildren.length} 个子元素`);
+            for (let i = bodyChildren.length - 5; i < bodyChildren.length; i++) {
+              if (bodyChildren[i]) {
+                const child = bodyChildren[i];
+                const isDropdown = child.classList.contains('el-popper') || child.classList.contains('el-select-dropdown');
+                console.log(`Body子元素 ${i}:`, child.tagName, child.className, isDropdown ? '(可能是下拉菜单)' : '');
+
+                // 如果是下拉菜单且被隐藏，显示它
+                if (isDropdown && child.style.display === 'none') {
+                  console.log('📝 显示被隐藏的下拉菜单');
+                  child.style.display = 'block';
+                }
+              }
+            }
+          }, 500);
+
+        } else {
+          console.log('未找到信号词选择器引用');
+        }
+      });
+    },
+
+    handlePictogramChange(file, fileList){
+      const isImage = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png' || file.raw.type === 'image/gif';
+      const isLt2M = file.raw.size / 1024 / 1024 < 2;
+
+      if (!isImage) {
+        ElMessage.error('只能上传图片格式(jpg/png/gif)!');
+        return false;
+      }
+      if (!isLt2M) {
+        ElMessage.error('图片大小不能超过 2MB!');
+        return false;
+      }
+      this.pictogramFileList = fileList;
+      return true;
+    },
+
+    handleMsdsPictogramChange(file, fileList){
+      const isImage = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png' || file.raw.type === 'image/gif';
+      const isLt2M = file.raw.size / 1024 / 1024 < 2;
+
+      if (!isImage) {
+        ElMessage.error('只能上传图片格式(jpg/png/gif)!');
+        return false;
+      }
+      if (!isLt2M) {
+        ElMessage.error('图片大小不能超过 2MB!');
+        return false;
+      }
+      this.msdsPictogramFileList = fileList;
+      return true;
+    },
+
+    submit(){
+      this.$refs.formRef.validate(valid=>{
+        if(!valid){ ElMessage.warning('请完善表单'); return; }
+        try{
+          this.saving=true;
+          setTimeout(()=>{ this.saving=false; ElMessage.success('提交成功'); window.history.back(); },800);
+        }catch(err){
+          this.saving=false;
+          ElMessage.error('提交失败');
+        }
+      });
+    },
+    goBack(){ window.history.back(); }
+  }
+}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

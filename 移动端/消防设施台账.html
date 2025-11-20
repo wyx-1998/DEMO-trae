@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安智通 · 工作场所 · 消防设施台账</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft Yahei', Arial, sans-serif;
+            background: #f3f6fb;
+            color: #2c3e50;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #1f6feb, #3ba0ff);
+            color: #fff;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            box-shadow: 0 8px 24px rgba(31, 111, 235, 0.18);
+        }
+
+        .top-bar button {
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .top-bar-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .top-bar-info h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .top-bar-info span {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .app {
+            min-height: 100vh;
+            padding: 12px 14px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #f3f6fb;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #1f6feb, #3ba0ff);
+            border-radius: 18px;
+            padding: 18px;
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(31, 111, 235, 0.2);
+        }
+
+        .summary-path {
+            font-size: 12px;
+            opacity: 0.75;
+            letter-spacing: 0.4px;
+            margin-bottom: 10px;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .summary-item span {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .summary-item strong {
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tool-button {
+            flex: 1;
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #1f6feb;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(31, 111, 235, 0.08);
+        }
+
+        .list-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .list-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .device-card {
+            border: 1px solid #edf2ff;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+            background: #f9fbff;
+        }
+
+        .device-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2933;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .status-tag {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+        }
+
+        .status-normal {
+            background: #ecf9f1;
+            color: #29a56c;
+        }
+
+        .status-warning {
+            background: #fff7e6;
+            color: #d46b08;
+        }
+
+        .status-danger {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+
+        .meta-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .el-button {
+            flex: 1;
+        }
+
+        .detail-view {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .detail-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-group {
+            margin-top: 12px;
+            border-radius: 12px;
+            border: 1px solid #eef2ff;
+            padding: 12px;
+            background: #f9fbff;
+        }
+
+        .info-group h3 {
+            font-size: 14px;
+            color: #1f2933;
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .info-field span {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #90a4ae;
+            font-size: 13px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px dashed #b6c3ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="top-bar">
+            <button @click="goBack">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="top-bar-info">
+                <h1>消防设施台账</h1>
+                <span>安智通 · 工作场所 · 消防安全管理</span>
+            </div>
+        </header>
+        <main class="app">
+        <section class="summary-card">
+            <p class="summary-path">安智通 / 工作场所 / 消防安全管理</p>
+            <div class="summary-header">
+                <span>消防设施台账</span>
+                <el-tag round type="success">巡检中</el-tag>
+            </div>
+            <p>当前共有 {{ stats.total }} 处设施，{{ stats.needAttention }} 处待跟进。</p>
+            <div class="summary-stats">
+                <div class="summary-item">
+                    <span>正常运行</span>
+                    <strong>{{ stats.normal }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>临近检查</span>
+                    <strong>{{ stats.nearCheck }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>逾期提醒</span>
+                    <strong>{{ stats.overdue }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="tool-row">
+            <button class="tool-button" @click="openFilter">
+                <i class="fas fa-filter"></i>筛选
+            </button>
+            <button class="tool-button" @click="syncData">
+                <i class="fas fa-cloud-arrow-down"></i>同步
+            </button>
+        </section>
+
+        <template v-if="viewMode === 'list'">
+            <section class="list-card">
+                <header class="list-header">
+                    <h2>重点关注</h2>
+                    <el-button text size="small" @click="viewAll">查看全部</el-button>
+                </header>
+
+                <el-input
+                    v-model="filters.keyword"
+                    placeholder="按名称/位置搜索"
+                    clearable
+                    @change="applyFilter"
+                    style="margin-bottom: 12px;"
+                    prefix-icon="Search"
+                />
+
+                <div class="filter-tags">
+                    <el-tag
+                        v-for="tag in activeFilterTags"
+                        :key="tag.key"
+                        type="info"
+                        round
+                        closable
+                        @close="removeFilter(tag.key)"
+                    >
+                        {{ tag.label }}
+                    </el-tag>
+                </div>
+
+                <article
+                    v-for="item in filteredList"
+                    :key="item.id"
+                    class="device-card"
+                >
+                    <div class="device-title">
+                        <i class="fas fa-fire-extinguisher"></i>
+                        <span>{{ item.name }}</span>
+                    </div>
+                    <div class="status-tags">
+                        <span class="status-tag status-normal" v-if="item.status === 'normal'">正常</span>
+                        <span class="status-tag status-warning" v-if="item.status === 'near'">临近</span>
+                        <span class="status-tag status-danger" v-if="item.status === 'overdue'">逾期</span>
+                        <span class="status-tag status-warning" v-if="item.pressure === 'low'">水压偏低</span>
+                        <span class="status-tag status-normal" v-if="item.lastResult === 'pass'">上次合格</span>
+                    </div>
+                    <div class="meta-row">
+                        <div>位置：{{ item.location }}</div>
+                        <div>责任人：{{ item.owner }}</div>
+                        <div>下次计划：{{ item.nextCheck }}</div>
+                        <div>周期：{{ item.cycle }}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <el-button size="small" type="primary" @click="handleQRCode(item)">
+                            <i class="fas fa-qrcode"></i> 扫码检查
+                        </el-button>
+                        <el-button size="small" type="success" plain @click="handleVideo(item)">
+                            <i class="fas fa-video"></i> 视频巡检
+                        </el-button>
+                        <el-button size="small" type="warning" plain @click="handleSignature(item)">
+                            <i class="fas fa-pen-nib"></i> 签名确认
+                        </el-button>
+                        <el-button size="small" text @click="openDetail(item)">
+                            详情
+                        </el-button>
+                    </div>
+                </article>
+
+                <div v-if="!filteredList.length" class="empty-state">
+                    当前筛选无结果，可更换筛选条件或同步最新台账。
+                </div>
+            </section>
+        </template>
+
+        <template v-else>
+            <section class="detail-view" v-if="currentItem">
+                <header class="detail-header">
+                    <div class="detail-title">
+                        <i class="fas fa-circle-info"></i>
+                        <span>{{ currentItem.name }}</span>
+                    </div>
+                    <div class="status-tags">
+                        <span class="status-tag status-normal" v-if="currentItem.status === 'normal'">运行正常</span>
+                        <span class="status-tag status-warning" v-if="currentItem.status === 'near'">临近检查</span>
+                        <span class="status-tag status-danger" v-if="currentItem.status === 'overdue'">逾期处理</span>
+                    </div>
+                </header>
+
+                <el-space wrap>
+                    <el-button type="primary" icon="Scan" @click="handleQRCode(currentItem)">现场扫码</el-button>
+                    <el-button type="success" icon="VideoCamera" plain @click="handleVideo(currentItem)">查看视频</el-button>
+                    <el-button type="warning" icon="EditPen" plain @click="handleSignature(currentItem)">现场签署</el-button>
+                    <el-button icon="ArrowLeft" plain @click="backToList">返回列表</el-button>
+                </el-space>
+
+                <div class="info-group">
+                    <h3>基本信息</h3>
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span>设施编号</span>
+                            {{ currentItem.code }}
+                        </div>
+                        <div class="info-field">
+                            <span>设施类别</span>
+                            {{ currentItem.category }}
+                        </div>
+                        <div class="info-field">
+                            <span>安装位置</span>
+                            {{ currentItem.location }}
+                        </div>
+                        <div class="info-field">
+                            <span>负责单位</span>
+                            {{ currentItem.department }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3>巡检计划</h3>
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span>巡检周期</span>
+                            {{ currentItem.cycle }}
+                        </div>
+                        <div class="info-field">
+                            <span>提醒提前天数</span>
+                            {{ currentItem.remindDays }} 天
+                        </div>
+                        <div class="info-field">
+                            <span>上次巡检时间</span>
+                            {{ currentItem.lastCheck }}
+                        </div>
+                        <div class="info-field">
+                            <span>下次巡检计划</span>
+                            {{ currentItem.nextCheck }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h3>最近一次巡检结论</h3>
+                    <el-timeline>
+                        <el-timeline-item
+                            v-for="record in currentItem.records"
+                            :key="record.id"
+                            :timestamp="record.time"
+                            :type="record.type"
+                        >
+                            {{ record.description }}
+                        </el-timeline-item>
+                    </el-timeline>
+                </div>
+            </section>
+        </template>
+        </main>
+
+        <el-drawer v-model="filterDrawer" title="筛选条件" direction="btt" size="90%">
+            <el-form label-position="top">
+                <el-form-item label="设施类别">
+                    <el-select v-model="filters.category" placeholder="选择类别" @change="applyFilter">
+                        <el-option label="全部" value=""></el-option>
+                        <el-option label="消火栓" value="hydrant"></el-option>
+                        <el-option label="灭火器" value="extinguisher"></el-option>
+                        <el-option label="报警系统" value="alarm"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-radio-group v-model="filters.status" @change="applyFilter">
+                        <el-radio-button label="">全部</el-radio-button>
+                        <el-radio-button label="normal">正常</el-radio-button>
+                        <el-radio-button label="near">临近</el-radio-button>
+                        <el-radio-button label="overdue">逾期</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="提醒提前天数">
+                    <el-slider
+                        v-model="filters.remindDays"
+                        :min="0"
+                        :max="15"
+                        :step="1"
+                        show-stops
+                        @change="applyFilter"
+                    ></el-slider>
+                </el-form-item>
+            </el-form>
+            <el-space wrap>
+                <el-button type="primary" @click="applyFilter">应用筛选</el-button>
+                <el-button plain @click="resetFilter">重置</el-button>
+            </el-space>
+        </el-drawer>
+
+        <el-dialog
+            v-model="qr.dialogVisible.value"
+            title="现场二维码"
+            width="90%"
+            destroy-on-close
+        >
+            <template #default>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+                    <el-image
+                        style="width:200px; height:200px;"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=mobile-fire-safety"
+                        fit="contain"
+                    ></el-image>
+                    <el-input
+                        type="textarea"
+                        :model-value="qr.getQRCodePayload()"
+                        rows="4"
+                        readonly
+                    ></el-input>
+                </div>
+            </template>
+            <template #footer>
+                <el-space wrap>
+                    <el-button @click="qr.close">关闭</el-button>
+                    <el-button type="primary" @click="notifyParent('已复制二维码数据', 'success')">复制数据</el-button>
+                </el-space>
+            </template>
+        </el-dialog>
+
+        <el-drawer
+            v-model="video.drawerVisible.value"
+            title="视频巡检"
+            direction="btt"
+            size="90%"
+        >
+            <video
+                v-if="video.playingSource.value"
+                :src="video.playingSource.value"
+                controls
+                style="width:100%; border-radius:16px; margin-bottom:12px;"
+            ></video>
+            <el-card v-for="item in video.history.value" :key="item.id" style="margin-bottom:10px;" shadow="hover">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong>{{ item.title }}</strong>
+                        <p style="font-size:12px; color:#909399;">时长 {{ item.duration }}</p>
+                    </div>
+                    <el-button size="small" type="primary" text @click="video.playHistory(item)">
+                        播放
+                    </el-button>
+                </div>
+            </el-card>
+        </el-drawer>
+
+        <el-drawer
+            v-model="signature.drawerVisible.value"
+            title="现场签字确认"
+            direction="btt"
+            size="90%"
+        >
+            <canvas
+                ref="signatureCanvas"
+                @mousedown="signature.startDrawing"
+                @mousemove="signature.draw"
+                @mouseup="signature.endDrawing"
+                @mouseleave="signature.endDrawing"
+                @touchstart="signature.startDrawing"
+                @touchmove="signature.draw"
+                @touchend="signature.endDrawing"
+            ></canvas>
+            <el-space style="margin-top:12px;" wrap>
+                <el-button @click="signature.clearSignature">清空</el-button>
+                <el-button type="primary" @click="signature.saveSignature">保存签名</el-button>
+            </el-space>
+            <el-divider content-position="left">签名历史</el-divider>
+            <el-empty v-if="!signature.signatures.value.length" description="暂无签名"></el-empty>
+            <el-card
+                v-for="item in signature.signatures.value"
+                :key="item.id"
+                style="margin-bottom:10px;"
+            >
+                <img :src="item.url" alt="签名" style="width:100%; border-radius:12px;">
+                <p style="font-size:12px; color:#909399; margin-top:6px;">{{ item.time }}</p>
+            </el-card>
+        </el-drawer>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script src="./mobile-shared.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
+        const app = createApp({
+            setup() {
+                const stats = reactive({
+                    total: 48,
+                    needAttention: 5,
+                    normal: 42,
+                    nearCheck: 4,
+                    overdue: 2
+                });
+
+                const filters = reactive({
+                    keyword: '',
+                    category: '',
+                    status: '',
+                    remindDays: 7
+                });
+
+                const filterDrawer = ref(false);
+                const viewMode = ref('list');
+                const currentItem = ref(null);
+                const list = ref([
+                    {
+                        id: 'xh-001',
+                        name: '1号楼室外消火栓',
+                        code: 'HYD-001',
+                        category: 'hydrant',
+                        location: '生产一区 · 东南角',
+                        owner: '张三',
+                        department: '生产保障部',
+                        status: 'overdue',
+                        pressure: 'low',
+                        lastResult: 'pass',
+                        cycle: '月巡检',
+                        nextCheck: '2024-11-20',
+                        lastCheck: '2024-10-12',
+                        remindDays: 5,
+                        records: [
+                            { id: 1, time: '2024-10-12 09:30', type: 'warning', description: '水压偏低，建议尽快复测。' },
+                            { id: 2, time: '2024-09-10 09:20', type: 'success', description: '巡检通过，水压正常。' }
+                        ]
+                    },
+                    {
+                        id: 'mhq-104',
+                        name: '办公区干粉灭火器',
+                        code: 'EXT-104',
+                        category: 'extinguisher',
+                        location: '办公楼二层走廊',
+                        owner: '李四',
+                        department: '办公室',
+                        status: 'near',
+                        pressure: 'normal',
+                        lastResult: 'pass',
+                        cycle: '季巡检',
+                        nextCheck: '2024-11-05',
+                        lastCheck: '2024-08-02',
+                        remindDays: 3,
+                        records: [
+                            { id: 3, time: '2024-08-02 15:30', type: 'success', description: '巡检通过，压力正常。' }
+                        ]
+                    },
+                    {
+                        id: 'alarm-02',
+                        name: '消防控制室主机',
+                        code: 'ALM-002',
+                        category: 'alarm',
+                        location: '消防控制室',
+                        owner: '王五',
+                        department: '安全环保部',
+                        status: 'normal',
+                        pressure: 'normal',
+                        lastResult: 'pass',
+                        cycle: '周巡检',
+                        nextCheck: '2024-11-03',
+                        lastCheck: '2024-10-27',
+                        remindDays: 2,
+                        records: [
+                            { id: 4, time: '2024-10-27 10:00', type: 'success', description: '巡检通过，系统自检正常。' },
+                            { id: 5, time: '2024-10-20 10:00', type: 'info', description: '软件版本更新至 V2.3.1。' }
+                        ]
+                    }
+                ]);
+
+                const qr = MobileShared.useQRCode();
+                const video = MobileShared.useVideoPreview();
+                const signature = MobileShared.useSignaturePad();
+
+                const filteredList = computed(() => {
+                    return list.value.filter((item) => {
+                        const matchKeyword =
+                            !filters.keyword ||
+                            item.name.includes(filters.keyword) ||
+                            item.location.includes(filters.keyword);
+                        const matchCategory = !filters.category || item.category === filters.category;
+                        const matchStatus = !filters.status || item.status === filters.status;
+                        const matchRemind = item.remindDays <= filters.remindDays;
+                        return matchKeyword && matchCategory && matchStatus && matchRemind;
+                    });
+                });
+
+                    const activeFilterTags = computed(() => {
+                    const tags = [];
+                    if (filters.category) {
+                        const map = {
+                            hydrant: '消火栓',
+                            extinguisher: '灭火器',
+                            alarm: '报警系统'
+                        };
+                        tags.push({ key: 'category', label: `类别：${map[filters.category] || filters.category}` });
+                    }
+                    if (filters.status) {
+                        const map = {
+                            normal: '正常',
+                            near: '临近',
+                            overdue: '逾期'
+                        };
+                        tags.push({ key: 'status', label: `状态：${map[filters.status] || filters.status}` });
+                    }
+                    if (filters.remindDays !== 7) {
+                        tags.push({ key: 'remindDays', label: `提醒≤${filters.remindDays}天` });
+                    }
+                    return tags;
+                });
+
+                const applyFilter = () => {
+                    MobileShared.notifyParent('筛选条件已更新');
+                    filterDrawer.value = false;
+                };
+
+                const removeFilter = (key) => {
+                    if (key === 'category') filters.category = '';
+                    if (key === 'status') filters.status = '';
+                    if (key === 'remindDays') filters.remindDays = 7;
+                    applyFilter();
+                };
+
+                const openFilter = () => {
+                    filterDrawer.value = true;
+                };
+
+                const resetFilter = () => {
+                    filters.keyword = '';
+                    filters.category = '';
+                    filters.status = '';
+                    filters.remindDays = 7;
+                    applyFilter();
+                };
+
+                const syncData = () => {
+                    MobileShared.notifyParent('同步成功，已获取最新台账', 'success');
+                };
+
+                const handleQRCode = (item) => {
+                    qr.open(item);
+                    MobileShared.notifyParent(`已调起 ${item.name} 的二维码`, 'info');
+                };
+
+                const handleVideo = (item) => {
+                    video.open(item);
+                    MobileShared.notifyParent(`正在播放 ${item.name} 的巡检视频`, 'info');
+                };
+
+                const handleSignature = (item) => {
+                    signature.open();
+                    MobileShared.notifyParent(`请完成 ${item.name} 的现场签署`, 'warning');
+                };
+
+                const openDetail = (item) => {
+                    currentItem.value = item;
+                    viewMode.value = 'detail';
+                };
+
+                const backToList = () => {
+                    viewMode.value = 'list';
+                    currentItem.value = null;
+                };
+
+                const viewAll = () => {
+                    MobileShared.notifyParent('已切换至全部列表，可通过筛选查看。', 'info');
+                };
+
+                const goBack = () => {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                        return;
+                    }
+                    window.location.href = './移动端-安全管理系统.html';
+                };
+
+                onMounted(() => {
+                    MobileShared.notifyParent('消防设施台账已加载', 'success');
+                    nextTick(() => signature.resizeCanvas());
+                });
+
+                return {
+                    stats,
+                    filters,
+                    filterDrawer,
+                    viewMode,
+                    list,
+                    currentItem,
+                    filteredList,
+                    activeFilterTags,
+                    qr,
+                    video,
+                    signature,
+                    applyFilter,
+                    removeFilter,
+                    openFilter,
+                    resetFilter,
+                    syncData,
+                    handleQRCode,
+                    handleVideo,
+                    handleSignature,
+                    openDetail,
+                    backToList,
+                    viewAll,
+                    notifyParent: MobileShared.notifyParent,
+                    signatureCanvas: signature.canvasRef,
+                    goBack
+                };
+            }
+        });
+
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>
+

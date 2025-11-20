@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安智通 · 功能中心 · 开发中</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft Yahei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #ecf2ff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2933;
+        }
+
+        .placeholder-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px 24px;
+            box-shadow: 0 16px 40px rgba(79, 114, 205, 0.18);
+            max-width: 360px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .placeholder-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 18px;
+            background: rgba(28, 126, 214, 0.12);
+            color: #1c7ed6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto;
+        }
+
+        .placeholder-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .placeholder-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .placeholder-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 148, 62, 0.12);
+            color: #ff6a3a;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 auto;
+        }
+
+        .placeholder-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header style="position: sticky; top: 0; z-index: 10;">
+            <div style="background: linear-gradient(135deg, #1f6feb, #3ba0ff); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 24px rgba(31,111,235,0.18);">
+                <button @click="goBack" style="border:none; background: rgba(255,255,255,0.25); color:#fff; width:34px; height:34px; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:16px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <strong>更多模块 · 敬请期待</strong>
+                    <small style="opacity:0.85;">安智通 · 功能中心</small>
+                </div>
+            </div>
+        </header>
+        <div class="placeholder-card">
+            <div class="placeholder-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="placeholder-badge">
+                <i class="fas fa-hammer"></i>
+                功能建设中
+            </div>
+            <h2 class="placeholder-title">更多安智通模块 · 敬请期待</h2>
+            <p class="placeholder-desc">
+                当前仅开放“工作场所 / 消防安全管理”。其他业务模块正在接入中，稍后将提供统一的移动端能力，包括巡检、会议、风险等核心场景。
+            </p>
+            <div class="placeholder-actions">
+                <el-button type="primary" plain @click="goBack">返回消防管理</el-button>
+                <el-button text type="info" @click="notifyParent">收到提醒</el-button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({
+            setup() {
+                const goBack = () => {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'openMenu',
+                            payload: { menuId: 'ledger' }
+                        }, '*');
+                    }
+                };
+
+                const notifyParent = () => {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'toast',
+                            payload: { message: '我们会在新模块上线时通知您！', level: 'info' }
+                        }, '*');
+                    }
+                };
+
+                return {
+                    goBack,
+                    notifyParent
+                };
+            }
+        });
+
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>
+

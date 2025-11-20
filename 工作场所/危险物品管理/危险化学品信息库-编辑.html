@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>危险化学品信息库 - 编辑</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif;background:#f5f7fa}
+    .app-container{min-height:100vh;display:flex;flex-direction:column}
+    .page{max-width:1200px;margin:0 auto;padding:24px;width:100%}
+    .content-card{background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
+    .form-container{padding:24px}
+    .form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f0f0f0}
+    .form-title{font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:10px}
+    .form-sections{display:flex;flex-direction:column;gap:24px}
+    .form-section{border:1px solid #e8e8e8;border-radius:8px;overflow:hidden}
+    .section-header{background:#fafafa;padding:14px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
+    .section-title{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}
+    .section-title-actions{display:flex;align-items:center;gap:8px}
+    .msds-collapse{background:#fff}
+    .msds-collapse .el-collapse-item__header{font-weight:600}
+    .chapter-hint{font-size:13px;color:#909399;margin-bottom:12px}
+    .form-section-content{padding:20px}
+    .footer-bar{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
+    .status-tag{font-size:12px;color:#909399}
+  </style>
+</head>
+<body>
+<div id="app" class="app-container">
+  <div class="page">
+    <div class="content-card">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="form-title"><i class="fas fa-pen-to-square"></i> 编辑化学品标准信息</div>
+          <div class="status-tag" v-if="form.cas">CAS：{{ form.cas }}</div>
+        </div>
+        <el-alert v-if="errorMsg" :title="errorMsg" type="error" show-icon style="margin-bottom:12px"></el-alert>
+        <template v-if="initialized">
+          <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
+            <el-alert v-if="loading" title="正在加载数据" type="info" show-icon style="margin-bottom:12px"></el-alert>
+            <div class="form-sections">
+              <div class="form-section">
+                <div class="section-header">
+                  <div class="section-title"><i class="fas fa-info-circle"></i> 基本标识</div>
+                  <div class="section-title-actions">
+                    <el-button link size="small" @click="toggleSection('basic')">{{ sectionOpen.basic ? '收起' : '展开' }}</el-button>
+                  </div>
+                </div>
+                <div class="form-section-content" v-show="sectionOpen.basic">
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="化学品名称" prop="name"><el-input v-model="form.name"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="英文名" prop="englishName"><el-input v-model="form.englishName"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="24" :md="8">
+                      <el-form-item label="别名"><el-input v-model="form.alias"></el-input></el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="CAS号" prop="cas"><el-input v-model="form.cas"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="分子式" prop="formula"><el-input v-model="form.formula"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="危险性分类" prop="hazards">
+                        <el-select v-model="form.hazards" multiple placeholder="请选择危险性分类">
+                          <el-option v-for="opt in hazardOptions" :key="opt" :label="opt" :value="opt" />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+
+
+              <div class="form-section">
+                <div class="section-header">
+                  <div class="section-title"><i class="fas fa-flask"></i> 理化特性</div>
+                  <div class="section-title-actions">
+                    <el-button link size="small" @click="toggleSection('physical')">{{ sectionOpen.physical ? '收起' : '展开' }}</el-button>
+                  </div>
+                </div>
+                <div class="form-section-content" v-show="sectionOpen.physical">
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="闪点(℃)"><el-input v-model="form.flashPoint" /></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="密度(g/cm³)"><el-input v-model="form.density" /></el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="分子量"><el-input v-model="form.mw" /></el-form-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="section-header">
+                  <div class="section-title"><i class="fas fa-file-alt"></i> MSDS 快速编辑</div>
+                  <div class="section-title-actions">
+                    <el-button link size="small" @click="toggleSection('msds')">{{ sectionOpen.msds ? '收起' : '展开' }}</el-button>
+                  </div>
+                </div>
+                <div class="form-section-content" v-show="sectionOpen.msds">
+                  <p class="chapter-hint">以下 16 章字段遵循国标 SDS 结构，可按需折叠。</p>
+                  <el-collapse v-model="activeMsdsPanels" class="msds-collapse">
+                    <el-collapse-item name="c1" title="第1章：化学品及企业标识">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="产品名称" prop="msds.chapter1.product"><el-input v-model="form.msds.chapter1.product" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="推荐用途" prop="msds.chapter1.use"><el-input v-model="form.msds.chapter1.use" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="供应商" prop="msds.chapter1.supplier"><el-input v-model="form.msds.chapter1.supplier" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="地址" prop="msds.chapter1.address"><el-input v-model="form.msds.chapter1.address" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="联系电话" prop="msds.chapter1.phone"><el-input v-model="form.msds.chapter1.phone" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="应急电话" prop="msds.chapter1.emergency"><el-input v-model="form.msds.chapter1.emergency" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c2" title="第2章：危险性概述">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12"><el-form-item label="GHS分类" prop="msds.chapter2.ghs"><el-input v-model="form.msds.chapter2.ghs" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12"><el-form-item label="信号词" prop="msds.chapter2.signalWord">
+                          <el-select v-model="form.msds.chapter2.signalWord" placeholder="请选择信号词">
+                            <el-option label="Danger（严重危害）" value="Danger" />
+                            <el-option label="Warning（一般危害）" value="Warning" />
+                            <el-option label="Caution（注意）" value="Caution" />
+                            <el-option label="Notice（提示）" value="Notice" />
+                            <el-option label="Attention（关注）" value="Attention" />
+                            <el-option label="Alarm（告警/报警）" value="Alarm" />
+                          </el-select>
+                        </el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="象形图上传" prop="msds.chapter2.pictograms">
+                          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+                            <el-upload
+                              action="#"
+                              list-type="picture-card"
+                              :auto-upload="false"
+                              :limit="1"
+                              :file-list="msdsPictogramFileList"
+                              @change="handleMsdsPictogramChange"
+                              style="margin-bottom: 4px;"
+                            >
+                              <div class="el-icon-plus">+</div>
+                            </el-upload>
+                            <div style="font-size: 12px; color: #909399; line-height: 1.4;">支持jpg/png/gif格式，大小不超过2MB</div>
+                          </div>
+                        </el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="危险说明(H)" prop="msds.chapter2.h"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.h" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="防范说明(P)" prop="msds.chapter2.p"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.p" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c3" title="第3章：成分/组成信息">
+                      <el-table :data="form.msds.chapter3.components" border size="small" style="width:100%">
+                        <el-table-column label="化学名称">
+                          <template #default="scope">
+                            <el-input v-model="scope.row.name" placeholder="化学名称" />
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="CAS号" width="220">
+                          <template #default="scope">
+                            <el-input v-model="scope.row.cas" placeholder="CAS号" />
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="含量(%)" width="160">
+                          <template #default="scope">
+                            <el-input v-model="scope.row.concentration" placeholder="例如 95" />
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="100">
+                          <template #default="scope">
+                            <el-button type="danger" link size="small" @click="removeComponent(scope.$index)">删除</el-button>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                      <div style="margin-top:12px">
+                        <el-button type="primary" plain @click="addComponentRow"><i class="fas fa-plus" style="margin-right:4px"></i>新增成分行</el-button>
+                      </div>
+                    </el-collapse-item>
+                    <el-collapse-item name="c4" title="第4章：急救措施">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="吸入" prop="msds.chapter4.inhale"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.inhale" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="皮肤接触" prop="msds.chapter4.skin"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.skin" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="眼睛接触" prop="msds.chapter4.eye"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.eye" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="摄入" prop="msds.chapter4.ingest"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.ingest" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="重要症状" prop="msds.chapter4.symptoms"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.symptoms" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="特殊治疗" prop="msds.chapter4.treatment"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.treatment" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c5" title="第5章：消防措施">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="适用灭火剂" prop="msds.chapter5.agent"><el-input v-model="form.msds.chapter5.agent" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="不适用灭火剂" prop="msds.chapter5.noagent"><el-input v-model="form.msds.chapter5.noagent" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="特殊危害" prop="msds.chapter5.hazard"><el-input type="textarea" :rows="2" v-model="form.msds.chapter5.hazard" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="消防员防护" prop="msds.chapter5.protect"><el-input type="textarea" :rows="2" v-model="form.msds.chapter5.protect" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c6" title="第6章：泄漏应急处理">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="个人防护" prop="msds.chapter6.pp"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.pp" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="环境防护" prop="msds.chapter6.env"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.env" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="清除方法" prop="msds.chapter6.clean"><el-input type="textarea" :rows="2" v-model="form.msds.chapter6.clean" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c7" title="第7章：操作处置与储存">
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="操作注意" prop="msds.chapter7.op"><el-input type="textarea" :rows="2" v-model="form.msds.chapter7.op" /></el-form-item></el-col>
+                        <el-col :span="24"><el-form-item label="储存条件" prop="msds.chapter7.store"><el-input type="textarea" :rows="2" v-model="form.msds.chapter7.store" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="工程控制" prop="msds.chapter8.ec"><el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ec" /></el-form-item></el-col>
+                        <el-col :span="24"><el-form-item label="个体防护装备" prop="msds.chapter8.ppe"><el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ppe" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c9" title="第9章：理化特性">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="外观性状" prop="msds.chapter9.appearance"><el-input v-model="form.msds.chapter9.appearance" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="pH值" prop="msds.chapter9.ph"><el-input v-model="form.msds.chapter9.ph" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="闪点" prop="msds.chapter9.fp"><el-input v-model="form.msds.chapter9.fp" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="蒸气压" prop="msds.chapter9.vp"><el-input v-model="form.msds.chapter9.vp" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="蒸气密度" prop="msds.chapter9.vd"><el-input v-model="form.msds.chapter9.vd" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="相对密度" prop="msds.chapter9.d"><el-input v-model="form.msds.chapter9.d" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="溶解性" prop="msds.chapter9.sol"><el-input v-model="form.msds.chapter9.sol" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="自燃温度" prop="msds.chapter9.sa"><el-input v-model="form.msds.chapter9.sa" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="黏度" prop="msds.chapter9.vis"><el-input v-model="form.msds.chapter9.vis" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c10" title="第10章：稳定性和反应性">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="反应性" prop="msds.chapter10.react"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.react" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="化学稳定性" prop="msds.chapter10.stable"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.stable" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="危险反应可能性" prop="msds.chapter10.danger"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.danger" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="避免条件" prop="msds.chapter10.avoid"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.avoid" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="禁配物" prop="msds.chapter10.incompat"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.incompat" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="危害分解产物" prop="msds.chapter10.decompose"><el-input type="textarea" :rows="2" v-model="form.msds.chapter10.decompose" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c11" title="第11章：毒理学信息">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="暴露途径" prop="msds.chapter11.route"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.route" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="急性毒性" prop="msds.chapter11.acute"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.acute" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="刺激/致敏性" prop="msds.chapter11.irritation"><el-input type="textarea" :rows="2" v-model="form.msds.chapter11.irritation" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c12" title="第12章：生态学信息">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="生态毒性" prop="msds.chapter12.eco"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.eco" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="持久性与降解性" prop="msds.chapter12.persistent"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.persistent" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="生物累积性" prop="msds.chapter12.bioacc"><el-input type="textarea" :rows="2" v-model="form.msds.chapter12.bioacc" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c13" title="第13章：废弃处置">
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="处置方法" prop="msds.chapter13.disp"><el-input type="textarea" :rows="2" v-model="form.msds.chapter13.disp" /></el-form-item></el-col>
+                        <el-col :span="24"><el-form-item label="包装处置" prop="msds.chapter13.pack"><el-input type="textarea" :rows="2" v-model="form.msds.chapter13.pack" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c14" title="第14章：运输信息">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="UN编号" prop="msds.chapter14.un"><el-input v-model="form.msds.chapter14.un" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="运输名称" prop="msds.chapter14.name"><el-input v-model="form.msds.chapter14.name" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="危险性类别" prop="msds.chapter14.class"><el-input v-model="form.msds.chapter14.class" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="包装类别" prop="msds.chapter14.pack"><el-input v-model="form.msds.chapter14.pack" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="环境危害" prop="msds.chapter14.env"><el-input v-model="form.msds.chapter14.env" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="特殊注意" prop="msds.chapter14.sp"><el-input v-model="form.msds.chapter14.sp" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c15" title="第15章：法规信息">
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="适用法规" prop="msds.chapter15.laws"><el-input type="textarea" :rows="2" v-model="form.msds.chapter15.laws" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                    <el-collapse-item name="c16" title="第16章：其他信息">
+                      <el-row :gutter="16">
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="编制日期" prop="msds.chapter16.date"><el-input v-model="form.msds.chapter16.date" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="修订日期" prop="msds.chapter16.revision"><el-input v-model="form.msds.chapter16.revision" /></el-form-item></el-col>
+                        <el-col :xs="24" :sm="24" :md="8"><el-form-item label="参考文献" prop="msds.chapter16.refs"><el-input type="textarea" :rows="2" v-model="form.msds.chapter16.refs" /></el-form-item></el-col>
+                      </el-row>
+                      <el-row :gutter="16">
+                        <el-col :span="24"><el-form-item label="修订说明" prop="msds.chapter16.note"><el-input type="textarea" :rows="2" v-model="form.msds.chapter16.note" /></el-form-item></el-col>
+                      </el-row>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bar">
+              <el-button @click="onCancel">取消</el-button>
+              <el-button type="primary" :loading="saving" @click="onSave"><i class="fas fa-save" style="margin-right:6px"></i>保存</el-button>
+            </div>
+          </el-form>
+        </template>
+        <el-empty v-else description="数据初始化中或未找到记录"></el-empty>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+<script>
+;(function(){
+  const rows = [
+    ['序号','品名','别名','英文名','CAS号','危险性类别','备注','来源页面'],
+    ['732','氟','','fluorine','7782-41-4','氧化性气体,类别1 加压气体 急性毒性-吸入,类别2* 皮肤腐蚀/刺激,类别1A 严重眼损伤/眼刺激,类别1','剧毒','100'],
+    ['733','1-氟-2,4-二硝基苯','2,4-二硝基-1-氟苯','1-fluoro-2,4-dinitrobenzene;2,4-dinitr o-1-fluorobenzene','70-34-8','皮肤腐蚀/刺激,类别2 皮肤致敏物,类别1','','100'],
+    ['734','2-氟苯胺','邻氟苯胺；邻氨基氟化苯','2-fluoroaniline;o-fluoroaniline;o-amin ofluorobenzene','348-54-9','易燃液体,类别3 皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2A 特异性靶器官毒性-一次接触,类别 3 （呼吸道刺激） 危害水生环境-长期危害,类别3','','100'],
+    ['735','3-氟苯胺','间氟苯胺；间氨基氟化苯','3-fluoroaniline;m-fluoro aniline;m-aminofluorobenzene','372-19-0','皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2A 特异性靶器官毒性-一次接触,类别 3 （呼吸道刺激） 危害水生环境-长期危害,类别3','','100'],
+    ['736','4-氟苯胺','对氟苯胺；对氨基氟化苯','4-fluoroaniline;p-fluoroaniline;p-amin ofluorobenzene','371-40-4','皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2A 特异性靶器官毒性-一次接触,类别 3 （呼吸道刺激） 危害水生环境-长期危害,类别3','','100'],
+    ['737','氟代苯','氟苯','phenyl fluoride;fluorobenzene','462-06-6','易燃液体,类别2 严重眼损伤/眼刺激,类别2A 危害水生环境-急性危害,类别2 危害水生环境-长期危害,类别2','','100'],
+    ['738','氟代甲苯','','fluorotoluenes','25496-08-6','易燃液体,类别2','','100'],
+    ['739','氟锆酸钾','氟化锆钾','potassium fluorozirconate;yirconium potassium fluoride','16923-95-8','急性毒性-经口,类别3 严重眼损伤/眼刺激,类别1','','100'],
+    ['740','氟硅酸','硅氟酸','fluorosilicicacid;hexafluorosilicic acid','16961-83-4','皮肤腐蚀/刺激,类别1B 严重眼损伤/眼刺激,类别1','','101'],
+    ['741','氟硅酸铵','','ammonium fluorosilicate','1309-32-6','急性毒性-经口,类别3 急性毒性-经皮,类别3 急性毒性-吸入,类别3','','101'],
+    ['742','氟硅酸钾','','potassium fluorosilicates','16871-90-2','急性毒性-经口,类别3* 急性毒性-经皮,类别3* 急性毒性-吸入,类别3*','','101'],
+    ['743','氟硅酸钠','','sodium fluorosilicates','16893-85-9','急性毒性-经口,类别3* 急性毒性-经皮,类别3* 急性毒性-吸入,类别3*','','101'],
+    ['744','氟化铵','','ammonium fluoride','12125-01-8','急性毒性-经口,类别3* 急性毒性-经皮,类别3* 急性毒性-吸入,类别3*','','101'],
+    ['745','氟化钡','','barium fluoride','7787-32-8','急性毒性-经口,类别3 严重眼损伤/眼刺激,类别2 生殖毒性,类别2 特异性靶器官毒性-一次接触,类别 3 （呼吸道刺激） 特异性靶器官毒性-反复接触,类别1','','101'],
+    ['746','氟化锆','','zirconium fluoride','7783-64-4','皮肤腐蚀/刺激,类别1 严重眼损伤/眼刺激,类别1','','101'],
+    ['747','氟化镉','','cadmium fluoride','7790-79-6','急性毒性-经口,类别2* 急性毒性-吸入,类别2* 生殖细胞致突变性,类别1B 致癌性,类别1A 生殖毒性,类别1B 特异性靶器官毒性-反复接触,类别1 危害水生环境-急性危害,类别1 危害水生环境-长期危害,类别1','','101'],
+    ['748','氟化铬','三氟化铬','chromic fluoride,solid;chromium trifluoride','7788-97-8','皮肤腐蚀/刺激,类别1 严重眼损伤/眼刺激,类别1','','102'],
+    ['749','氟化汞','二氟化汞','mercuric fluoride;mercury difluoride','7783-39-3','急性毒性-经口,类别2* 急性毒性-经皮,类别1 急性毒性-吸入,类别2* 特异性靶器官毒性-反复接触,类别2* 危害水生环境-急性危害,类别1 危害水生环境-长期危害,类别1','','102'],
+    ['750','氟化钴','三氟化钴','cobaltic fluoride;cobalt trifluoride','10026-18-3','致癌性,类别2','','102'],
+    ['751','氟化钾','','potassium fluoride','7789-23-3','急性毒性-经口,类别3* 急性毒性-经皮,类别3* 急性毒性-吸入,类别3* 危害水生环境-急性危害,类别2','','102'],
+    ['752','氟化镧','三氟化镧','lanthanum fluoride;lanthanum trifluoride','13709-38-1','皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2','','102'],
+    ['753','氟化锂','','lithium fluoride','7789-24-4','急性毒性-经口,类别3','','102'],
+    ['754','氟化钠','','sodium fluoride','7681-49-4','急性毒性-经口,类别3* 皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2','','102'],
+    ['755','氟化铅','二氟化铅','lead difluoride;lead fluoride','7783-46-2','严重眼损伤/眼刺激,类别2 致癌性,类别1B 生殖毒性,类别1A 特异性靶器官毒性-一次接触,类别1 特异性靶器官毒性-一次接触,类别 3 （呼吸道刺激） 特异性靶器官毒性-反复接触,类别1 危害水生环境-急性危害,类别1 危害水生环境-长期危害,类别1','','102'],
+    ['756','氟化氢[无水]','','hydrogen fluoride,anhydrous','7664-39-3','急性毒性-经口,类别2* 急性毒性-经皮,类别1 急性毒性-吸入,类别2* 皮肤腐蚀/刺激,类别1A 严重眼损伤/眼刺激,类别1','','103'],
+    ['757','氟化氢铵','酸性氟化铵；二氟化氢铵','ammonium bifluoride;ammonium hydrogen difluoride','1341-49-7','急性毒性-经口,类别3* 皮肤腐蚀/刺激,类别1B 严重眼损伤/眼刺激,类别1','','103'],
+    ['758','氟化氢钾','酸性氟化钾；二氟化氢钾','potassium bifluoride;potassium hydrogen difluoride','7789-29-9','急性毒性-经口,类别3* 皮肤腐蚀/刺激,类别1B 严重眼损伤/眼刺激,类别1','','103'],
+    ['759','氟化氢钠','酸性氟化钠；二氟化氢钠','sodium hydrogenfluoride;sodium bifluoride;sodium hydrogen difluoride','1333-83-1','急性毒性-经口,类别3* 皮肤腐蚀/刺激,类别1B 严重眼损伤/眼刺激,类别1','','103'],
+    ['760','氟化铷','','rubidium fluoride','13446-74-7','皮肤腐蚀/刺激,类别2 严重眼损伤/眼刺激,类别2','','103']
+  ];
+  function normalizeHazards(raw){
+    const opts=['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'];
+    const syn={ '加压气体':'高压气体' };
+    const toks=String(raw||'').replace(/"/g,'').split(/[，,\s]+/).filter(Boolean);
+    const valid=new Set(); const cats=[];
+    for(const t0 of toks){ const t=syn[t0]||t0; if(opts.includes(t)) valid.add(t); else if(/类别\d+[A-Z\*]?/i.test(t)) cats.push(t.replace('*','')); }
+    return { hazards:Array.from(valid).join(','), hazardCategory:cats.join('/') };
+  }
+  function rowsToObjects(rows){
+    const out=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i]; if(!r||r.length<8) continue; const m=normalizeHazards(r[5]); const remark=String(r[6]||'');
+      const name=String(r[1]||'').trim();
+      const classification=[m.hazards,m.hazardCategory].filter(Boolean).join(' / ');
+      const msds={
+        chapter1:{ product:name, use:'', supplier:'', address:'', phone:'', emergency:'' },
+        chapter2:{ ghs:classification, pictograms:'', signalWord:'', h:'', p:'' },
+        chapter3:{ components:[] },
+        chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
+        chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
+        chapter6:{ pp:'', env:'', clean:'' },
+        chapter7:{ op:'', store:'' },
+        chapter8:{ ec:'', ppe:'' },
+        chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
+        chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
+        chapter11:{ route:'', acute:'', irritation:'' },
+        chapter12:{ eco:'', persistent:'', bioacc:'' },
+        chapter13:{ disp:'', pack:'' },
+        chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
+        chapter15:{ laws:'' },
+        chapter16:{ date:'', revision:'', refs:'', note:'' }
+      };
+      const obj={ name, alias:String(r[2]||'').trim(), englishName:String(r[3]||'').trim(), cas:String(r[4]||'').trim(), un:'', hazards:m.hazards, hazardCategory:m.hazardCategory, pictograms:'', signalWord:'', hCodes:'', pCodes:'', flashPoint:'', density:'', msds, isHighlyToxic:/剧毒/.test(remark)?'是':'否', isExplosive:/易制爆/.test(remark)?'是':'否' };
+      out.push(obj);
+    }
+    return out;
+  }
+  let _dataset=null; let _casIndex=null;
+  function buildCache(){
+    _dataset = rowsToObjects(rows);
+    _casIndex = new Map();
+    for(const d of _dataset){ const key = normalizeCAS(d.cas); if(key) _casIndex.set(key, d); }
+  }
+  function getChemDataset(){ if(!_dataset || !_casIndex){ buildCache(); } return _dataset; }
+  function normalizeCAS(s){ return String(s||'').trim(); }
+  function validateCAS(cas){ return /^\d{2,7}-\d{2}-\d$/.test(normalizeCAS(cas)); }
+  function getChemByCAS(cas){ const c=normalizeCAS(cas); const ds=getChemDataset(); return _casIndex.get(c); }
+  function getChemByCASLoose(cas){ const c=normalizeCAS(cas); const ds=getChemDataset(); return _casIndex.get(c); }
+  function casExists(cas){ const c=normalizeCAS(cas); const ds=getChemDataset(); return _casIndex.has(c); }
+  function resetCache(){ _dataset=null; _casIndex=null; }
+  window.CHEM_STD={ rows, normalizeHazards, rowsToObjects, getChemDataset, getChemByCAS, getChemByCASLoose, validateCAS, normalizeCAS, casExists, resetCache };
+})();
+</script>
+<script>
+const { createApp } = Vue; const { ElMessage } = ElementPlus;
+const createEmptyMsds = () => ({
+  chapter1:{ product:'', use:'', supplier:'', address:'', phone:'', emergency:'' },
+  chapter2:{ ghs:'', pictograms:'', signalWord:'', h:'', p:'' },
+  chapter3:{ components:[] },
+  chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
+  chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
+  chapter6:{ pp:'', env:'', clean:'' },
+  chapter7:{ op:'', store:'' },
+  chapter8:{ ec:'', ppe:'' },
+  chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
+  chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
+  chapter11:{ route:'', acute:'', irritation:'' },
+  chapter12:{ eco:'', persistent:'', bioacc:'' },
+  chapter13:{ disp:'', pack:'' },
+  chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
+  chapter15:{ laws:'' },
+  chapter16:{ date:'', revision:'', refs:'', note:'' }
+});
+const mergeMsds = (partial={}) => {
+  const result = createEmptyMsds();
+  const assign = (t,s)=>{
+    Object.keys(s||{}).forEach(k=>{
+      if(s[k] && typeof s[k]==='object' && !Array.isArray(s[k])){
+        if(!t[k] || typeof t[k]!=='object') t[k]={};
+        assign(t[k], s[k]);
+      }else{
+        t[k]=s[k];
+      }
+    });
+  };
+  assign(result, partial);
+  return result;
+};
+const FALLBACK_DATASET_RAW=[
+  { name:'1-氟-2,4-二硝基苯', englishName:'1-fluoro-2,4-dinitrobenzene', alias:'2,4-二硝基-1-氟苯', cas:'70-34-8', un:'', hazards:'', hazardCategory:'皮肤腐蚀/刺激 类别2; 皮肤致敏物 类别1', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:{ chapter1:{ product:'1-氟-2,4-二硝基苯' }, chapter2:{ ghs:'皮肤腐蚀/刺激 类别2; 皮肤致敏物 类别1' } } },
+  { name:'氟', englishName:'fluorine', alias:'', cas:'7782-41-4', un:'', hazards:'', hazardCategory:'氧化性气体 类别1; 高压气体; 急性毒性-吸入 类别2', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:{ chapter1:{ product:'氟' }, chapter2:{ ghs:'氧化性气体 类别1; 高压气体; 急性毒性-吸入 类别2' } } },
+  { name:'氟化氢[无水]', englishName:'hydrogen fluoride, anhydrous', alias:'', cas:'7664-39-3', un:'', hazards:'', hazardCategory:'急性毒性-经口 类别2; 急性毒性-经皮 类别1; 急性毒性-吸入 类别2; 皮肤腐蚀/刺激 类别1A; 严重眼损伤/眼刺激 类别1', pictograms:'', signalWord:'', hCodes:'', pCodes:'', msds:{ chapter1:{ product:'氟化氢[无水]' }, chapter2:{ ghs:'急性毒性-经口 类别2; 急性毒性-经皮 类别1; 急性毒性-吸入 类别2; 皮肤腐蚀/刺激 类别1A; 严重眼损伤/眼刺激 类别1' } } }
+];
+const applyMsdsShape = (list=[]) => list.map(item=>({ ...item, msds: mergeMsds(item.msds||{}) }));
+const DATASET = (() => {
+  try{
+    if(window.CHEM_STD && typeof window.CHEM_STD.getChemDataset === 'function'){
+      const ds = window.CHEM_STD.getChemDataset();
+      if(Array.isArray(ds) && ds.length) return applyMsdsShape(ds);
+    }
+  }catch(err){
+    console.warn('加载 chem-std-data.js 失败，使用内置兜底数据', err);
+  }
+  return applyMsdsShape(FALLBACK_DATASET_RAW);
+})();
+function getParam(k){ const u=new URL(window.location.href); return u.searchParams.get(k); }
+const normalizeCAS = (window.CHEM_STD && typeof window.CHEM_STD.normalizeCAS === 'function')
+  ? window.CHEM_STD.normalizeCAS
+  : function(s){ return String(s||'').trim(); };
+createApp({
+  data(){ return { loading:false, saving:false, initialized:false, errorMsg:'', backup:null, msdsPictogramFileList:[], hazardOptions:['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'], signalWordOptions:[{ label:'Danger（严重危害）', value:'Danger' },{ label:'Warning（一般危害）', value:'Warning' },{ label:'Caution（注意）', value:'Caution' },{ label:'Notice（提示）', value:'Notice' },{ label:'Attention（关注）', value:'Attention' },{ label:'Alarm（告警/报警）', value:'Alarm' }], form:{ name:'',englishName:'',alias:'',cas:'', formula:'', hazards:[], flashPoint:'', density:'', mw:'', hazardCategory:'', msds:createEmptyMsds() }, rules:{ name:[{required:true,message:'请输入名称',trigger:'blur'}], englishName:[{required:true,message:'请输入英文名',trigger:'blur'}], cas:[{required:true,message:'请输入CAS',trigger:'blur'},{ validator:(r,v,cb)=>{ const ok=/^\d{2,7}-\d{2}-\d$/.test(String(v||'')); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}], 'msds.chapter2.signalWord':[{required:true,message:'请选择信号词',trigger:'change'}] }, sectionOpen:{ basic:true, physical:true, msds:true }, activeMsdsPanels:['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13','c14','c15','c16'] } },
+  mounted(){
+    try{
+      const cas=getParam('cas');
+      this.loading=true;
+      const base=this.emptyForm();
+      let row={};
+      if(cas){
+        const c=normalizeCAS(cas);
+        row = DATASET.find(d=>normalizeCAS(d.cas)===c) || {};
+      }
+      if(!row || Object.keys(row).length===0){
+        try{ const s=sessionStorage.getItem('CHEM_EDIT_ROW'); if(s){ row=JSON.parse(s)||{}; } }catch(e){}
+      }
+      this.form=this.deepMerge(base,row);
+      if(!this.form.cas && cas) this.form.cas = normalizeCAS(cas);
+      try{ sessionStorage.removeItem('CHEM_EDIT_ROW'); }catch(e){}
+      this.backup=JSON.parse(JSON.stringify(this.form));
+      this.initialized=true;
+      this.loading=false;
+    }catch(e){ this.loading=false; this.errorMsg='数据加载失败'; this.initialized=true; }
+  },
+  methods:{
+    emptyForm(){ return { name:'',englishName:'',alias:'',cas:'', formula:'', hazards:[], flashPoint:'', density:'', mw:'', msds:createEmptyMsds() }; },
+    deepMerge(a,b){ const r=JSON.parse(JSON.stringify(a)); const m=(t,s)=>{ Object.keys(s||{}).forEach(k=>{ if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){ if(!t[k]||typeof t[k]!=='object') t[k]={}; m(t[k],s[k]); } else { t[k]=s[k]; } }); }; m(r,b); return r; },
+    onCancel(){ if(this.backup){ this.form=JSON.parse(JSON.stringify(this.backup)); } window.history.back(); },
+    onSave(){ this.$refs.formRef.validate(v=>{ if(!v){ ElMessage.warning('请完善表单'); return; } try{ this.saving=true; setTimeout(()=>{ this.saving=false; ElMessage.success('保存成功'); window.history.back(); },800); } catch(e){ this.saving=false; ElMessage.error('保存失败'); } }); },
+    toggleSection(key){ this.sectionOpen[key]=!this.sectionOpen[key]; },
+    addComponentRow(){ this.form.msds.chapter3.components.push({ name:'', cas:'', concentration:'' }); },
+    handleMsdsPictogramChange(file, fileList){
+      const raw = file.raw;
+      const isImage = raw && (raw.type === 'image/jpeg' || raw.type === 'image/png' || raw.type === 'image/gif');
+      const isLt2M = raw ? (raw.size / 1024 / 1024 < 2) : true;
+      if (!isImage) { ElMessage.error('只能上传图片格式(jpg/png/gif)!'); return false; }
+      if (!isLt2M) { ElMessage.error('图片大小不能超过 2MB!'); return false; }
+      this.msdsPictogramFileList = fileList;
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const dataUrl = e.target.result;
+        this.form.msds.chapter2.pictograms = dataUrl;
+        this.form.pictograms = dataUrl;
+      };
+      reader.readAsDataURL(raw);
+      return true;
+    },
+    removeComponent(index){ this.form.msds.chapter3.components.splice(index,1); }
+  }
+}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

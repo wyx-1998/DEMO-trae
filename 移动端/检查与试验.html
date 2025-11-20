@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安智通 · 消防设施检查与试验</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-brand: #3366cc;
+            --color-brand-light: #e3f2fd;
+            --color-success: #00b042;
+            --color-warning: #ff943e;
+            --color-error: #f25643;
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --bg-page: #f5f7fa;
+            --bg-card: #ffffff;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 20px;
+            --spacing-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 520px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-page);
+        }
+
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--color-brand);
+            color: #ffffff;
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .top-bar button {
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .top-bar button:active {
+            opacity: 0.7;
+        }
+
+        .top-bar-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .top-bar-info h1 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .top-bar-info span {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .top-bar-count {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px var(--spacing-xs);
+            border-radius: 12px;
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            padding-bottom: 80px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            text-align: center;
+        }
+
+        .summary-item span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .summary-item strong {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filter-strip {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-strip__inner {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-xs);
+        }
+
+        .filter-chip {
+            border: none;
+            background: #f0f0f0;
+            color: var(--text-secondary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 44px;
+        }
+
+        .filter-chip.active {
+            background: var(--color-brand);
+            color: #ffffff;
+        }
+
+        .filter-chip .count {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-chip.active .count {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .filter-more-btn {
+            grid-column: 1 / -1;
+            border: none;
+            background: var(--color-brand);
+            color: #ffffff;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            min-height: 44px;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .filter-more-btn:active {
+            opacity: 0.8;
+        }
+
+        .task-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: var(--spacing-md);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-card:active {
+            transform: scale(0.98);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .task-title {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .task-title i {
+            color: var(--color-brand);
+        }
+
+        .task-type-tag {
+            font-size: 11px;
+            padding: 4px var(--spacing-xs);
+            border-radius: 4px;
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+        }
+
+        .task-status-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .status-tag {
+            font-size: 11px;
+            padding: 4px var(--spacing-xs);
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-executing {
+            background: #e3f2fd;
+            color: var(--color-brand);
+        }
+
+        .status-completed {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .status-overdue {
+            background: #ffebee;
+            color: var(--color-error);
+        }
+
+        .overdue-text {
+            font-size: 12px;
+            color: var(--color-error);
+            font-weight: 600;
+        }
+
+        .task-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-xs);
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: var(--spacing-xs) var(--spacing-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--color-brand);
+            color: #ffffff;
+        }
+
+        .btn-primary:active {
+            opacity: 0.8;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:active {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ffebee;
+            color: var(--color-error);
+        }
+
+        .btn-danger:active {
+            background: #ffcdd2;
+        }
+
+        .detail-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .section-title i {
+            color: var(--color-brand);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            font-size: 14px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 44px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-brand);
+        }
+
+        /* 文件上传输入框样式 */
+        .file-upload-label {
+            display: block;
+            cursor: pointer;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .file-upload-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-brand);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            min-height: 44px;
+        }
+
+        .file-upload-button:hover {
+            opacity: 0.9;
+        }
+
+        .file-upload-button:active {
+            opacity: 0.8;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-brand);
+        }
+
+        .project-item {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .project-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .project-result {
+            font-size: 12px;
+            padding: 4px var(--spacing-xs);
+            border-radius: 4px;
+        }
+
+        .result-qualified {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .result-unqualified {
+            background: #ffebee;
+            color: var(--color-error);
+        }
+
+        .bottom-bar {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            padding: var(--spacing-sm) var(--spacing-md);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: var(--spacing-xs);
+            z-index: 100;
+        }
+
+        .bottom-bar .btn {
+            flex: 1;
+        }
+
+        .empty-state {
+            padding: var(--spacing-xl);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--spacing-md);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .pagination-btn {
+            border: 1px solid #e0e0e0;
+            background: var(--bg-card);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            min-height: 32px;
+            min-width: 44px;
+        }
+
+        .pagination-btn:active {
+            background: #f0f0f0;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drawer {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 520px;
+            max-height: 80vh;
+            background: var(--bg-card);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+
+        .drawer.hidden {
+            transform: translateX(-50%) translateY(100%);
+        }
+
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin: var(--spacing-sm) auto;
+        }
+
+        .drawer-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .drawer-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .drawer-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .drawer-footer .btn {
+            flex: 1;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .checklist-item {
+            padding: var(--spacing-md);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: var(--spacing-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checklist-item:hover {
+            background: #f9f9f9;
+        }
+
+        .checklist-item.selected {
+            border-color: var(--color-brand);
+            background: #ecf5ff;
+        }
+
+        .checklist-item input[type="radio"] {
+            margin-right: var(--spacing-xs);
+        }
+
+        @media (max-width: 480px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .task-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="app">
+        <header class="top-bar" v-if="activeView === 'list'">
+            <button @click="goBack">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="top-bar-info">
+                <h1>消防设施检查与试验</h1>
+                <span>安智通 · 工作场所</span>
+            </div>
+            <div class="top-bar-count">共 {{ taskList.length }} 条</div>
+        </header>
+
+        <header class="top-bar" v-else>
+            <button @click="goBack">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="top-bar-info">
+                <h1>{{ getViewTitle() }}</h1>
+            </div>
+        </header>
+
+        <main>
+            <template v-if="activeView === 'list'">
+                <section class="summary-card">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span>全部任务</span>
+                            <strong>{{ overviewStats.total }}</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>待执行</span>
+                            <strong>{{ overviewStats.pending }}</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>逾期提醒</span>
+                            <strong>{{ overviewStats.overdue }}</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="filter-strip">
+                    <div class="filter-strip__inner">
+                        <button
+                            v-for="filter in quickFilters"
+                            :key="filter.id"
+                            :class="['filter-chip', { active: selectedQuickFilter === filter.id }]"
+                            @click="applyQuickFilter(filter.id)"
+                        >
+                            <i :class="filter.icon"></i>
+                            <span>{{ filter.label }}</span>
+                            <span class="count">{{ quickFilterCounts[filter.id] || 0 }}</span>
+                        </button>
+                        <button class="filter-more-btn" @click="openAdvancedFilter">
+                            <i class="fas fa-sliders-h"></i>
+                            高级筛选
+                        </button>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="summary-card" style="margin-bottom: var(--spacing-sm);">
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            共 {{ filteredList.length }} 条筛选结果
+                        </div>
+                    </div>
+
+                    <div v-if="paginatedList.length">
+                        <article
+                            v-for="task in paginatedList"
+                            :key="task.id"
+                            class="task-card"
+                            @click="viewTaskDetail(task)"
+                        >
+                            <div class="task-header">
+                                <div class="task-title">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <span>{{ task.taskCode }}</span>
+                                </div>
+                                <span class="task-type-tag">{{ getCheckTypeText(task.checkType) }}</span>
+                            </div>
+                            <div class="task-status-row">
+                                <span :class="getStatusClass(task)">{{ getStatusText(task) }}</span>
+                                <span v-if="getOverdueDays(task) > 0" class="overdue-text">逾期 {{ getOverdueDays(task) }} 天</span>
+                            </div>
+                            <div class="task-meta">
+                                <div><i class="fas fa-map-marker-alt"></i> {{ task.location }}</div>
+                                <div><i class="fas fa-calendar-day"></i> {{ task.planDate }}</div>
+                            </div>
+                            <div class="task-actions" @click.stop>
+                                <button
+                                    v-if="['pending', 'executing', 'pending-overdue', 'executing-overdue'].includes(getTaskStatusKey(task))"
+                                    class="btn btn-primary"
+                                    @click="executeCheck(task)"
+                                >
+                                    <i class="fas fa-play"></i>
+                                    执行检查
+                                </button>
+                                <button class="btn btn-secondary" @click="viewTaskDetail(task)">
+                                    <i class="fas fa-eye"></i>
+                                    查看详情
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+                    <div v-else class="empty-state">
+                        暂无符合条件的检查任务
+                    </div>
+
+                    <div class="pagination" v-if="filteredList.length > 0">
+                        <span>第 {{ pagination.currentPage }} / {{ totalPages }} 页</span>
+                        <div class="pagination-controls">
+                            <button
+                                class="pagination-btn"
+                                @click="prevPage"
+                                :disabled="pagination.currentPage === 1"
+                            >
+                                上一页
+                            </button>
+                            <button
+                                class="pagination-btn"
+                                @click="nextPage"
+                                :disabled="pagination.currentPage >= totalPages"
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <template v-else-if="activeView === 'detail'">
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        任务信息
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">任务编号</span>
+                            <span class="info-value">{{ currentTask?.taskCode }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">检查类型</span>
+                            <span class="info-value">{{ getCheckTypeText(currentTask?.checkType) }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">计划日期</span>
+                            <span class="info-value">{{ currentTask?.planDate }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">设施名称</span>
+                            <span class="info-value">{{ currentTask?.facilityName }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">安装位置</span>
+                            <span class="info-value">{{ currentTask?.location }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">责任人</span>
+                            <span class="info-value">{{ currentTask?.responsible || '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section" v-if="currentTask?.projects && currentTask.projects.length">
+                    <div class="section-title">
+                        <i class="fas fa-list-check"></i>
+                        检查项目
+                    </div>
+                    <div
+                        v-for="(project, index) in currentTask.projects"
+                        :key="index"
+                        class="project-item"
+                    >
+                        <div class="project-header">
+                            <span class="project-name">{{ index + 1 }}. {{ project.name }}</span>
+                            <span :class="['project-result', project.result === '符合' ? 'result-qualified' : 'result-unqualified']">
+                                {{ project.result }}
+                            </span>
+                        </div>
+                        <div class="info-item" v-if="project.standard">
+                            <span class="info-label">检查标准</span>
+                            <span class="info-value">{{ project.standard }}</span>
+                        </div>
+                        <div class="info-item" v-if="project.remark">
+                            <span class="info-label">备注</span>
+                            <span class="info-value">{{ project.remark }}</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template v-else-if="activeView === 'execute'">
+                <!-- 功能试验提示横幅 -->
+                <div v-if="isFunctionCheck" class="detail-section" style="background: #fff7e6; border-left: 4px solid #faad14;">
+                    <div style="display: flex; gap: var(--spacing-sm); align-items: flex-start;">
+                        <i class="fas fa-flask" style="color: #fa8c16; font-size: 20px; margin-top: 2px;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #d46b08; margin-bottom: var(--spacing-xs);">功能试验提示</div>
+                            <div style="font-size: 13px; color: #7f5c00; line-height: 1.6;">
+                                请按照试验方案准备联动设备、测量仪器与安全防护措施，确保数据记录完整可追溯。
+                                <div v-if="currentTask?.testReference" style="margin-top: var(--spacing-xs);">
+                                    参考标准：{{ currentTask.testReference }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        检查与试验记录
+                    </div>
+                    
+                    <!-- 功能试验：试验过程说明 -->
+                    <div v-if="isFunctionCheck" class="form-group">
+                        <label class="form-label">试验过程说明</label>
+                        <textarea
+                            class="form-textarea"
+                            v-model="executionForm.testGuidance"
+                            placeholder="填写本次试验步骤、准备情况或异常说明"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">执行日期</label>
+                        <input
+                            type="date"
+                            class="form-input"
+                            v-model="executionForm.inspectionDate"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">执行人员</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            v-model="executionForm.executor"
+                            placeholder="请输入执行人姓名"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">现场位置记录</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            v-model="executionForm.location"
+                            placeholder="可填写GPS定位或二维码扫描结果"
+                        >
+                    </div>
+
+                    <div class="section-title" style="margin-top: var(--spacing-lg);">
+                        <i class="fas fa-list-check"></i>
+                        检查项目
+                    </div>
+
+                    <div class="task-actions" style="margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: var(--spacing-xs);">
+                        <button class="btn btn-primary" @click="openChecklistDialog">
+                            <i class="fas fa-file-import"></i>
+                            {{ isFunctionCheck ? '导入功能试验模板' : '选择并导入检查表' }}
+                        </button>
+                        <button class="btn btn-secondary" @click="setAllQualified" :disabled="executionForm.projects.length === 0">
+                            <i class="fas fa-check"></i>
+                            全部符合
+                        </button>
+                        <button class="btn btn-primary" @click="addEmptyProject">
+                            <i class="fas fa-plus"></i>
+                            新增检查项
+                        </button>
+                        <button class="btn btn-secondary" @click="resetProjects" :disabled="executionForm.projects.length === 0">
+                            <i class="fas fa-eraser"></i>
+                            清空项目
+                        </button>
+                    </div>
+                    <div v-if="selectedChecklistName" style="margin-bottom: var(--spacing-md); padding: var(--spacing-xs) var(--spacing-sm); background: #ecf5ff; color: #409EFF; border-radius: 6px; font-size: 13px;">
+                        <i class="fas fa-check-circle"></i>
+                        已应用：{{ selectedChecklistName }}
+                    </div>
+
+                    <div
+                        v-for="(project, index) in executionForm.projects"
+                        :key="index"
+                        class="project-item"
+                    >
+                        <div class="project-header">
+                            <span class="project-name">{{ index + 1 }}. {{ project.name || '未命名检查项' }}</span>
+                            <button
+                                class="btn btn-danger"
+                                style="min-height: 32px; padding: 4px var(--spacing-xs);"
+                                @click="removeProject(index)"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">检查内容</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                v-model="project.name"
+                                placeholder="请输入检查内容"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">检查标准</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                v-model="project.standard"
+                                placeholder="请输入检查标准"
+                            >
+                        </div>
+                        
+                        <!-- 功能试验特有字段：判定标准 -->
+                        <div v-if="isFunctionCheck" class="form-group">
+                            <label class="form-label">判定标准</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                v-model="project.threshold"
+                                placeholder="请填写判定标准或阈值"
+                            >
+                        </div>
+                        
+                        <!-- 功能试验特有字段：测量值 -->
+                        <div v-if="isFunctionCheck" class="form-group">
+                            <label class="form-label">测量值</label>
+                            <div style="display: flex; gap: var(--spacing-xs); align-items: center;">
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    v-model="project.value"
+                                    placeholder="记录实测数据"
+                                    style="flex: 1;"
+                                >
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    v-model="project.unit"
+                                    placeholder="单位"
+                                    style="max-width: 100px;"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">检查结果</label>
+                            <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                    <input
+                                        type="radio"
+                                        v-model="project.result"
+                                        value="符合"
+                                    >
+                                    <span>符合</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                    <input
+                                        type="radio"
+                                        v-model="project.result"
+                                        value="不符合"
+                                    >
+                                    <span>不符合</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                    <input
+                                        type="radio"
+                                        v-model="project.result"
+                                        value="不涉及"
+                                    >
+                                    <span>不涉及</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea
+                                class="form-textarea"
+                                v-model="project.remark"
+                                placeholder="请输入备注"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 现场附件 -->
+                    <div class="form-group">
+                        <label class="form-label">现场附件</label>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            支持 jpg/png/pdf，最多 5 个附件，单个不超过 10MB
+                        </div>
+                        <label class="file-upload-label">
+                            <input
+                                type="file"
+                                multiple
+                                accept=".jpg,.jpeg,.png,.pdf"
+                                @change="handleAttachmentChange"
+                                class="file-upload-input"
+                            >
+                            <span class="file-upload-button">
+                                <i class="fas fa-upload"></i>
+                                选择文件
+                            </span>
+                        </label>
+                        <div v-if="executionForm.attachments.length > 0" style="margin-top: var(--spacing-sm);">
+                            <div
+                                v-for="(file, idx) in executionForm.attachments"
+                                :key="idx"
+                                style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-xs); background: #f9f9f9; border-radius: 6px; margin-bottom: var(--spacing-xs);"
+                            >
+                                <span style="font-size: 13px;">{{ file.name || file }}</span>
+                                <button
+                                    type="button"
+                                    @click="removeAttachment(idx)"
+                                    style="border: none; background: transparent; color: var(--color-error); cursor: pointer; padding: 4px 8px;"
+                                >
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 现场签字 -->
+                    <div class="form-group">
+                        <label class="form-label">现场签字</label>
+                        <textarea
+                            class="form-textarea"
+                            v-model="executionForm.signature"
+                            placeholder="此处可接入签名板，当前用文本占位"
+                            rows="2"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">补充说明</label>
+                        <textarea
+                            class="form-textarea"
+                            v-model="executionForm.remarks"
+                            placeholder="填写其他说明或后续建议"
+                        ></textarea>
+                    </div>
+
+                    <!-- 功能试验结论 -->
+                    <div v-if="isFunctionCheck" class="detail-section" style="background: #fff7e6; margin-top: var(--spacing-md);">
+                        <div class="section-title">
+                            <i class="fas fa-clipboard-check"></i>
+                            功能试验结论
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">试验结论</label>
+                            <select class="form-input" v-model="executionForm.testConclusion">
+                                <option value="">请选择试验结论</option>
+                                <option value="pass">试验通过</option>
+                                <option value="retest">需复测</option>
+                                <option value="incomplete">试验未完成</option>
+                                <option value="fail">试验失败</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">复测计划</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                v-model="executionForm.retestPlan"
+                                placeholder="如需复测，请填写计划时间或安排"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </main>
+
+        <div class="bottom-bar" v-if="activeView === 'detail'">
+            <button class="btn btn-secondary" @click="goBackToList">
+                返回列表
+            </button>
+            <button
+                v-if="canExecute"
+                class="btn btn-primary"
+                @click="executeCheck(currentTask)"
+            >
+                执行检查
+            </button>
+        </div>
+
+        <div class="bottom-bar" v-if="activeView === 'execute'">
+            <button class="btn btn-secondary" @click="goBackToList">
+                返回列表
+            </button>
+            <button class="btn btn-secondary" @click="saveDraft">
+                保存草稿
+            </button>
+            <button class="btn btn-primary" @click="submitExecution" :disabled="submitting">
+                {{ submitting ? '提交中...' : '提交结果' }}
+            </button>
+        </div>
+
+        <div class="overlay" :class="{ show: showAdvancedFilter }" @click="closeAdvancedFilter"></div>
+        <div class="drawer" :class="{ hidden: !showAdvancedFilter }">
+            <div class="drawer-handle"></div>
+            <div class="drawer-header">
+                <div class="drawer-title">高级筛选</div>
+            </div>
+            <div class="drawer-body">
+                <div class="form-group">
+                    <label class="form-label">设施类别</label>
+                    <select class="form-input" v-model="advancedFilters.category">
+                        <option value="">全部</option>
+                        <option value="hydrant">消火栓</option>
+                        <option value="extinguisher">灭火器</option>
+                        <option value="alarm">报警系统</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">责任人</label>
+                    <input
+                        type="text"
+                        class="form-input"
+                        v-model="advancedFilters.responsible"
+                        placeholder="请输入责任人"
+                    >
+                </div>
+            </div>
+            <div class="drawer-footer">
+                <button class="btn btn-secondary" @click="resetAdvancedFilters">
+                    重置
+                </button>
+                <button class="btn btn-primary" @click="applyAdvancedFilters">
+                    应用筛选
+                </button>
+            </div>
+        </div>
+
+        <!-- 检查表选择抽屉 -->
+        <div class="overlay" :class="{ show: showChecklistDialog }" @click="closeChecklistDialog"></div>
+        <div class="drawer" :class="{ hidden: !showChecklistDialog }">
+            <div class="drawer-handle"></div>
+            <div class="drawer-header">
+                <div class="drawer-title">选择标准检查表</div>
+            </div>
+            <div class="drawer-body">
+                <div v-if="standardChecklists.length === 0" class="empty-state">
+                    暂无可用的标准检查表
+                </div>
+                <div v-else>
+                    <div
+                        v-for="checklist in standardChecklists"
+                        :key="checklist.id"
+                        class="checklist-item"
+                        :class="{ selected: checklistSelection === checklist.id }"
+                        @click="selectChecklist(checklist.id)"
+                    >
+                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                            <input
+                                type="radio"
+                                :checked="checklistSelection === checklist.id"
+                                @change="selectChecklist(checklist.id)"
+                            >
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-xs);">
+                                    {{ checklist.name }}
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                                    <span>编号：{{ checklist.code }}</span>
+                                    <span style="margin-left: var(--spacing-sm);">类型：{{ checklist.checklistType }}</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    检查项：{{ checklist.items ? checklist.items.length : checklist.itemCount }} 项
+                                </div>
+                                <div v-if="checklist.summary" style="font-size: 12px; color: var(--text-tertiary); margin-top: var(--spacing-xs);">
+                                    {{ checklist.summary }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="drawer-footer">
+                <button class="btn btn-secondary" @click="closeChecklistDialog">
+                    取消
+                </button>
+                <button class="btn btn-primary" @click="confirmImportChecklist" :disabled="!checklistSelection">
+                    确认导入
+                </button>
+            </div>
+        </div>
+
+        <div class="toast" :class="{ show: toast.show }">{{ toast.message }}</div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        createApp({
+            setup() {
+                const activeView = ref('list');
+                const currentTask = ref(null);
+                const submitting = ref(false);
+
+                const toast = reactive({
+                    show: false,
+                    message: ''
+                });
+
+                const showToast = (message) => {
+                    toast.message = message;
+                    toast.show = true;
+                    setTimeout(() => {
+                        toast.show = false;
+                    }, 2000);
+                };
+
+                // 动态计算概览统计（与PC端保持一致）
+                const overviewStats = computed(() => {
+                    return {
+                        total: taskList.value.length,
+                        pending: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey === 'pending';
+                        }).length,
+                        overdue: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey.includes('-overdue');
+                        }).length
+                    };
+                });
+
+                const pagination = reactive({
+                    currentPage: 1,
+                    pageSize: 10
+                });
+
+                const selectedQuickFilter = ref('all');
+                const quickFilters = [
+                    { id: 'all', label: '全部', icon: 'fas fa-list' },
+                    { id: 'pending', label: '待执行', icon: 'fas fa-clock' },
+                    { id: 'executing', label: '执行中', icon: 'fas fa-play' },
+                    { id: 'completed', label: '已完成', icon: 'fas fa-check-circle' },
+                    { id: 'overdue', label: '逾期', icon: 'fas fa-exclamation-triangle' }
+                ];
+
+                // 动态计算各筛选条件的数量（与PC端保持一致）
+                const quickFilterCounts = computed(() => {
+                    const counts = {
+                        all: taskList.value.length,
+                        pending: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey === 'pending';
+                        }).length,
+                        executing: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey === 'executing';
+                        }).length,
+                        completed: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey === 'completed' || statusKey === 'completed-overdue';
+                        }).length,
+                        overdue: taskList.value.filter(t => {
+                            const statusKey = getTaskStatusKey(t);
+                            return statusKey.includes('-overdue');
+                        }).length
+                    };
+                    return counts;
+                });
+
+                const showAdvancedFilter = ref(false);
+                const advancedFilters = reactive({
+                    category: '',
+                    responsible: ''
+                });
+
+                // 检查表相关
+                const showChecklistDialog = ref(false);
+                const checklistSelection = ref('');
+                const selectedChecklist = ref('');
+                
+                // 标准检查表数据
+                const standardChecklists = ref([
+                    {
+                        id: 'hydrant_routine',
+                        code: 'CHK-HY-RT-001',
+                        name: '室外消火栓例行检查表',
+                        checklistType: '设施例检',
+                        itemCount: 4,
+                        category: '室外消火栓',
+                        checkType: 'routine',
+                        summary: '适用于室外消火栓日常巡检，关注外观、启闭、出水等关键项',
+                        items: [
+                            { name: '栓体外观与防护', standard: '外观完好无破损，防护设施可靠', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '启闭与密封性能', standard: '启闭灵活，无渗漏、滴水', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '出水试验', standard: '出水顺畅，流量压力符合设计要求', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '消火栓箱组件', standard: '箱门完好、软管喷嘴齐全，卷盘转动灵活', result: '符合', remark: '', threshold: '', value: '', unit: '' }
+                        ]
+                    },
+                    {
+                        id: 'hydrant_function',
+                        code: 'CHK-HY-FN-001',
+                        name: '室外消火栓功能试验表',
+                        checklistType: '设施功能试验',
+                        itemCount: 3,
+                        category: '室外消火栓',
+                        checkType: 'function',
+                        summary: '验证室外消火栓功能性能，重点核对水压与持续供水能力',
+                        items: [
+                            { name: '静压测试', standard: '静压 ≥0.28 MPa', threshold: '≥0.28', unit: 'MPa', result: '符合', remark: '', value: '' },
+                            { name: '动压测试', standard: '动压 ≥0.20 MPa', threshold: '≥0.20', unit: 'MPa', result: '符合', remark: '', value: '' },
+                            { name: '连续供水能力', standard: '持续放水5分钟水压稳定', threshold: '5分钟压力稳定', unit: '', result: '符合', remark: '', value: '' }
+                        ]
+                    },
+                    {
+                        id: 'alarm_routine',
+                        code: 'CHK-AL-RT-001',
+                        name: '火灾自动报警系统例行检查表',
+                        checklistType: '系统巡检',
+                        itemCount: 4,
+                        category: '火灾自动报警系统',
+                        checkType: 'routine',
+                        summary: '用于火灾自动报警系统日常巡检，涵盖主机、电源、探测器与联动接口状态',
+                        items: [
+                            { name: '主机运行状态', standard: '主机运行正常，无故障信息', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '电源与备电', standard: '主电、备用电源供电正常，切换可靠', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '探测器抽检', standard: '抽检≥10%，响应及时，复位正常', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '联动接口', standard: '与消防联动控制设备通讯正常', result: '符合', remark: '', threshold: '', value: '', unit: '' }
+                        ]
+                    },
+                    {
+                        id: 'alarm_function',
+                        code: 'CHK-AL-FN-001',
+                        name: '火灾自动报警系统功能试验表',
+                        checklistType: '联动试验',
+                        itemCount: 4,
+                        category: '火灾自动报警系统',
+                        checkType: 'function',
+                        summary: '针对报警系统联动功能开展测试，覆盖手报、探测器联动、故障自检等',
+                        items: [
+                            { name: '手报装置测试', standard: '按下后报警信号及时定位，声光提示正常', threshold: '响应时间 ≤5s', unit: 's', result: '符合', remark: '', value: '' },
+                            { name: '探测器联动', standard: '触发探测器后关联联动设备动作正确', threshold: '全部联动动作', unit: '', result: '符合', remark: '', value: '' },
+                            { name: '故障自检', standard: '模拟断路短路后主机能记录并提示', threshold: '记录并报警', unit: '', result: '符合', remark: '', value: '' },
+                            { name: '信号传输', standard: '报警信号上传消防控制室/监测平台正常', threshold: '信号完整', unit: '', result: '符合', remark: '', value: '' }
+                        ]
+                    },
+                    {
+                        id: 'extinguisher_routine',
+                        code: 'CHK-EX-RT-001',
+                        name: '灭火器例行检查表',
+                        checklistType: '器材巡检',
+                        itemCount: 4,
+                        category: '灭火器',
+                        checkType: 'routine',
+                        summary: '用于灭火器日常巡检，聚焦筒体、压力、封签与放置位置',
+                        items: [
+                            { name: '筒体与铭牌', standard: '筒体完好无锈蚀、凹陷，铭牌清晰', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '压力表读数', standard: '压力表指针位于绿色工作区', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '封签与保险', standard: '铅封完整、安全销牢固', result: '符合', remark: '', threshold: '', value: '', unit: '' },
+                            { name: '配置位置', standard: '摆放位置正确、标识明显、便于取用', result: '符合', remark: '', threshold: '', value: '', unit: '' }
+                        ]
+                    }
+                ]);
+
+                const selectedChecklistName = computed(() => {
+                    const activeId = selectedChecklist.value || currentTask.value?.selectedChecklistId;
+                    if (!activeId) return '';
+                    const checklist = standardChecklists.value.find(item => item.id === activeId);
+                    return checklist ? checklist.name : '';
+                });
+
+                // 计算任务状态（与PC端保持一致）
+                const msPerDay = 24 * 60 * 60 * 1000;
+
+                const computeTimelineStatus = (task) => {
+                    const now = new Date();
+                    const start = task.startDate ? new Date(task.startDate) : null;
+                    const end = task.endDate ? new Date(task.endDate) : null;
+                    const deadline = task.plannedEndDate ? new Date(task.plannedEndDate) : (task.planDate ? new Date(task.planDate) : null);
+
+                    if (!start) {
+                        if (deadline && deadline < now) {
+                            return { key: 'pending-overdue', text: '未开始-超期' };
+                        }
+                        return { key: 'pending', text: '未开始' };
+                    }
+
+                    if (!end) {
+                        if (deadline && deadline < now) {
+                            return { key: 'executing-overdue', text: '执行中-超期' };
+                        }
+                        return { key: 'executing', text: '执行中' };
+                    }
+
+                    if (deadline && new Date(end) > deadline) {
+                        return { key: 'completed-overdue', text: '已完成(超期)' };
+                    }
+
+                    return { key: 'completed', text: '已完成' };
+                };
+
+                const getOverdueDays = (task) => {
+                    const deadlineStr = task.plannedEndDate || task.planDate;
+                    if (!deadlineStr) return 0;
+                    const deadline = new Date(deadlineStr);
+                    if (Number.isNaN(deadline.getTime())) return 0;
+                    const compare = task.endDate ? new Date(task.endDate) : new Date();
+                    const diff = Math.floor((compare.getTime() - deadline.getTime()) / msPerDay);
+                    return diff > 0 ? diff : 0;
+                };
+
+                const getTaskStatusKey = (task) => {
+                    // 如果任务已经有计算好的状态，直接使用
+                    if (task.taskStatus && task.taskStatus.includes('-overdue')) {
+                        return task.taskStatus;
+                    }
+                    // 否则动态计算
+                    return computeTimelineStatus(task).key;
+                };
+
+                const getTaskStatusText = (task) => {
+                    const statusKey = getTaskStatusKey(task);
+                    if (statusKey.includes('-overdue')) {
+                        return computeTimelineStatus(task).text;
+                    }
+                    const map = {
+                        pending: '待执行',
+                        executing: '执行中',
+                        completed: '已完成',
+                        overdue: '逾期'
+                    };
+                    return map[statusKey] || statusKey;
+                };
+
+                // 获取当前日期，用于计算相对日期
+                const today = new Date();
+                const formatDate = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+                const getDateAfterDays = (days) => {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() + days);
+                    return formatDate(date);
+                };
+                const getDateBeforeDays = (days) => {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - days);
+                    return formatDate(date);
+                };
+
+                const taskList = ref([
+                    // pending - 未开始（计划日期在未来）
+                    {
+                        id: 'task-001',
+                        taskCode: 'CHK-2024-001',
+                        checkType: 'routine',
+                        status: 'pending',
+                        planDate: getDateAfterDays(7),
+                        plannedEndDate: getDateAfterDays(7),
+                        facilityName: '1号楼室外消火栓',
+                        location: '生产一区 · 东南角',
+                        responsible: '张三',
+                        overdueDays: 0,
+                        projects: []
+                    },
+                    // pending-overdue - 未开始-超期（计划日期在过去，未开始）
+                    {
+                        id: 'task-002',
+                        taskCode: 'CHK-2024-002',
+                        checkType: 'routine',
+                        status: 'pending',
+                        planDate: getDateBeforeDays(7),
+                        plannedEndDate: getDateBeforeDays(7),
+                        facilityName: '2号楼室内消火栓',
+                        location: '生产二区 · 北侧',
+                        responsible: '李四',
+                        overdueDays: 7,
+                        projects: []
+                    },
+                    // executing - 执行中（已开始，计划日期在未来）
+                    {
+                        id: 'task-003',
+                        taskCode: 'CHK-2024-003',
+                        checkType: 'function',
+                        status: 'executing',
+                        planDate: getDateAfterDays(5),
+                        plannedEndDate: getDateAfterDays(5),
+                        startDate: getDateBeforeDays(3),
+                        facilityName: '消防控制室主机',
+                        location: '消防控制室',
+                        responsible: '王五',
+                        overdueDays: 0,
+                        projects: []
+                    },
+                    // executing-overdue - 执行中-超期（已开始，计划日期在过去）
+                    {
+                        id: 'task-004',
+                        taskCode: 'CHK-2024-004',
+                        checkType: 'function',
+                        status: 'executing',
+                        planDate: getDateBeforeDays(5),
+                        plannedEndDate: getDateBeforeDays(5),
+                        startDate: getDateBeforeDays(10),
+                        facilityName: '火灾自动报警系统',
+                        location: '办公楼一层',
+                        responsible: '赵六',
+                        overdueDays: 5,
+                        projects: []
+                    },
+                    // completed - 已完成（按时完成）
+                    {
+                        id: 'task-005',
+                        taskCode: 'CHK-2024-005',
+                        checkType: 'routine',
+                        status: 'completed',
+                        planDate: getDateBeforeDays(2),
+                        plannedEndDate: getDateBeforeDays(2),
+                        startDate: getDateBeforeDays(4),
+                        endDate: getDateBeforeDays(3),
+                        facilityName: '办公区干粉灭火器',
+                        location: '办公楼二层走廊',
+                        responsible: '孙七',
+                        overdueDays: 0,
+                        projects: []
+                    },
+                    // completed-overdue - 已完成(超期)（完成日期晚于计划日期）
+                    {
+                        id: 'task-006',
+                        taskCode: 'CHK-2024-006',
+                        checkType: 'routine',
+                        status: 'completed',
+                        planDate: getDateBeforeDays(7),
+                        plannedEndDate: getDateBeforeDays(7),
+                        startDate: getDateBeforeDays(10),
+                        endDate: getDateBeforeDays(2),
+                        facilityName: '3号楼室外消火栓',
+                        location: '生产三区 · 西南角',
+                        responsible: '周八',
+                        overdueDays: 5,
+                        projects: []
+                    }
+                ]);
+
+                const filteredList = computed(() => {
+                    let list = taskList.value;
+
+                    if (selectedQuickFilter.value !== 'all') {
+                        if (selectedQuickFilter.value === 'overdue') {
+                            // 逾期筛选：包括所有带 -overdue 后缀的状态
+                            list = list.filter(t => {
+                                const statusKey = getTaskStatusKey(t);
+                                return statusKey.includes('-overdue');
+                            });
+                        } else if (selectedQuickFilter.value === 'completed') {
+                            // 已完成筛选：包括 completed 和 completed-overdue
+                            list = list.filter(t => {
+                                const statusKey = getTaskStatusKey(t);
+                                return statusKey === 'completed' || statusKey === 'completed-overdue';
+                            });
+                        } else {
+                            // 其他筛选：精确匹配状态
+                            list = list.filter(t => {
+                                const statusKey = getTaskStatusKey(t);
+                                return statusKey === selectedQuickFilter.value;
+                            });
+                        }
+                    }
+
+                    if (advancedFilters.category) {
+                        list = list.filter(t => t.category === advancedFilters.category);
+                    }
+                    if (advancedFilters.responsible) {
+                        list = list.filter(t => t.responsible.includes(advancedFilters.responsible));
+                    }
+
+                    return list;
+                });
+
+                const totalPages = computed(() => {
+                    return Math.ceil(filteredList.value.length / pagination.pageSize);
+                });
+
+                const paginatedList = computed(() => {
+                    const start = (pagination.currentPage - 1) * pagination.pageSize;
+                    const end = start + pagination.pageSize;
+                    return filteredList.value.slice(start, end);
+                });
+
+                const executionForm = reactive({
+                    inspectionDate: '',
+                    executor: '',
+                    location: '',
+                    remarks: '',
+                    projects: [],
+                    testGuidance: '',
+                    testConclusion: '',
+                    retestPlan: '',
+                    signature: '',
+                    attachments: []
+                });
+
+                const isFunctionCheck = computed(() => {
+                    return currentTask.value?.checkType === 'function';
+                });
+
+                const canExecute = computed(() => {
+                    if (!currentTask.value) return false;
+                    const statusKey = getTaskStatusKey(currentTask.value);
+                    return ['pending', 'executing', 'pending-overdue', 'executing-overdue'].includes(statusKey);
+                });
+
+                const getViewTitle = () => {
+                    if (activeView.value === 'detail') return '任务详情';
+                    if (activeView.value === 'execute') return '执行检查';
+                    return '检查与试验';
+                };
+
+                const getCheckTypeText = (type) => {
+                    return type === 'function' ? '功能试验' : '常规检查';
+                };
+
+                const getStatusClass = (task) => {
+                    const statusKey = getTaskStatusKey(task);
+                    switch (statusKey) {
+                        case 'pending':
+                            return 'status-tag status-pending';
+                        case 'pending-overdue':
+                            return 'status-tag status-overdue';
+                        case 'executing':
+                            return 'status-tag status-executing';
+                        case 'executing-overdue':
+                            return 'status-tag status-overdue';
+                        case 'completed':
+                            return 'status-tag status-completed';
+                        case 'completed-overdue':
+                            return 'status-tag status-overdue';
+                        default:
+                            // 兼容旧数据
+                            if (task.status === 'overdue') {
+                                return 'status-tag status-overdue';
+                            }
+                            return 'status-tag';
+                    }
+                };
+
+                const getStatusText = (task) => {
+                    return getTaskStatusText(task);
+                };
+
+                const applyQuickFilter = (filterId) => {
+                    selectedQuickFilter.value = filterId;
+                    pagination.currentPage = 1;
+                };
+
+                const openAdvancedFilter = () => {
+                    showAdvancedFilter.value = true;
+                };
+
+                const closeAdvancedFilter = () => {
+                    showAdvancedFilter.value = false;
+                };
+
+                const resetAdvancedFilters = () => {
+                    advancedFilters.category = '';
+                    advancedFilters.responsible = '';
+                };
+
+                const applyAdvancedFilters = () => {
+                    pagination.currentPage = 1;
+                    closeAdvancedFilter();
+                    showToast('筛选条件已应用');
+                };
+
+                const prevPage = () => {
+                    if (pagination.currentPage > 1) {
+                        pagination.currentPage--;
+                    }
+                };
+
+                const nextPage = () => {
+                    if (pagination.currentPage < totalPages.value) {
+                        pagination.currentPage++;
+                    }
+                };
+
+                const viewTaskDetail = (task) => {
+                    currentTask.value = task;
+                    activeView.value = 'detail';
+                };
+
+                const executeCheck = (task) => {
+                    currentTask.value = task;
+                    executionForm.inspectionDate = new Date().toISOString().split('T')[0];
+                    executionForm.projects = (task.projects || []).map(p => ({
+                        name: p.name || '',
+                        standard: p.standard || '',
+                        result: p.result || '符合',
+                        remark: p.remark || '',
+                        threshold: p.threshold || '',
+                        value: p.value || '',
+                        unit: p.unit || ''
+                    }));
+                    executionForm.testGuidance = task.testGuidance || '';
+                    executionForm.testConclusion = task.testConclusion || '';
+                    executionForm.retestPlan = task.retestPlan || '';
+                    executionForm.signature = '';
+                    executionForm.attachments = task.attachments || [];
+                    selectedChecklist.value = task.selectedChecklistId || '';
+                    checklistSelection.value = task.selectedChecklistId || '';
+                    activeView.value = 'execute';
+                };
+
+                const goBackToList = () => {
+                    activeView.value = 'list';
+                    currentTask.value = null;
+                };
+
+                const addEmptyProject = () => {
+                    executionForm.projects.push({
+                        name: '',
+                        standard: '',
+                        result: '符合',
+                        remark: '',
+                        threshold: '',
+                        value: '',
+                        unit: ''
+                    });
+                };
+
+                const setAllQualified = () => {
+                    executionForm.projects.forEach(p => {
+                        p.result = '符合';
+                    });
+                    showToast('已设置全部符合');
+                };
+
+                const removeProject = (index) => {
+                    executionForm.projects.splice(index, 1);
+                };
+
+                const resetProjects = () => {
+                    if (executionForm.projects.length === 0) return;
+                    if (confirm('清空后需要重新选择或新增检查项目，是否继续？')) {
+                        executionForm.projects.splice(0, executionForm.projects.length);
+                        selectedChecklist.value = '';
+                        checklistSelection.value = '';
+                        if (currentTask.value) {
+                            currentTask.value.projects = [];
+                            currentTask.value.selectedChecklistId = '';
+                        }
+                        showToast('检查项目已清空');
+                    }
+                };
+
+                const openChecklistDialog = () => {
+                    if (standardChecklists.value.length === 0) {
+                        showToast('暂无可用的标准检查表');
+                        return;
+                    }
+                    showChecklistDialog.value = true;
+                    checklistSelection.value = selectedChecklist.value || standardChecklists.value[0].id;
+                };
+
+                const closeChecklistDialog = () => {
+                    showChecklistDialog.value = false;
+                };
+
+                const selectChecklist = (id) => {
+                    checklistSelection.value = id;
+                };
+
+                const confirmImportChecklist = () => {
+                    if (!checklistSelection.value) {
+                        showToast('请选择标准检查表');
+                        return;
+                    }
+                    selectedChecklist.value = checklistSelection.value;
+                    importChecklist();
+                };
+
+                const importChecklist = () => {
+                    if (!selectedChecklist.value) {
+                        showToast('请选择标准检查表');
+                        return;
+                    }
+                    const checklist = standardChecklists.value.find(item => item.id === selectedChecklist.value);
+                    if (!checklist) {
+                        showToast('未找到对应的标准检查表');
+                        return;
+                    }
+                    executionForm.projects = checklist.items.map(item => ({
+                        name: item.name || '',
+                        standard: item.standard || '',
+                        result: item.result || '符合',
+                        remark: item.remark || '',
+                        threshold: item.threshold || '',
+                        value: item.value || '',
+                        unit: item.unit || ''
+                    }));
+                    showChecklistDialog.value = false;
+                    checklistSelection.value = checklist.id;
+                    if (currentTask.value) {
+                        currentTask.value.selectedChecklistId = checklist.id;
+                    }
+                    showToast(`已导入【${checklist.name}】`);
+                };
+
+                const saveDraft = () => {
+                    if (currentTask.value) {
+                        currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                        currentTask.value.selectedChecklistId = selectedChecklist.value || currentTask.value.selectedChecklistId || '';
+                    }
+                    showToast('草稿已保存');
+                };
+
+                const handleAttachmentChange = (event) => {
+                    const files = Array.from(event.target.files || []);
+                    files.forEach(file => {
+                        if (executionForm.attachments.length < 5) {
+                            executionForm.attachments.push({
+                                name: file.name,
+                                size: file.size,
+                                file: file
+                            });
+                        }
+                    });
+                    if (files.length > 0 && executionForm.attachments.length >= 5) {
+                        showToast('最多只能上传5个附件');
+                    }
+                };
+
+                const removeAttachment = (index) => {
+                    executionForm.attachments.splice(index, 1);
+                };
+
+                const submitExecution = () => {
+                    if (!executionForm.executor) {
+                        showToast('请填写执行人员');
+                        return;
+                    }
+                    if (executionForm.projects.length === 0) {
+                        showToast('请至少添加一个检查项目');
+                        return;
+                    }
+                    if (isFunctionCheck.value && !executionForm.testConclusion) {
+                        showToast('功能试验需填写试验结论');
+                        return;
+                    }
+
+                    submitting.value = true;
+                    setTimeout(() => {
+                        submitting.value = false;
+                        if (currentTask.value) {
+                            currentTask.value.projects = executionForm.projects.map(item => ({ ...item }));
+                            currentTask.value.selectedChecklistId = selectedChecklist.value || currentTask.value.selectedChecklistId || '';
+                        }
+                        showToast('提交成功');
+                        setTimeout(() => {
+                            goBackToList();
+                        }, 1500);
+                    }, 1500);
+                };
+
+                const goBack = () => {
+                    if (activeView.value !== 'list') {
+                        goBackToList();
+                    } else {
+                        window.history.back();
+                    }
+                };
+
+                return {
+                    activeView,
+                    currentTask,
+                    submitting,
+                    toast,
+                    overviewStats,
+                    pagination,
+                    selectedQuickFilter,
+                    quickFilters,
+                    quickFilterCounts,
+                    taskList,
+                    showAdvancedFilter,
+                    advancedFilters,
+                    filteredList,
+                    totalPages,
+                    paginatedList,
+                    executionForm,
+                    isFunctionCheck,
+                    canExecute,
+                    getViewTitle,
+                    getCheckTypeText,
+                    getStatusClass,
+                    getStatusText,
+                    getTaskStatusKey,
+                    getOverdueDays,
+                    applyQuickFilter,
+                    openAdvancedFilter,
+                    closeAdvancedFilter,
+                    resetAdvancedFilters,
+                    applyAdvancedFilters,
+                    prevPage,
+                    nextPage,
+                    viewTaskDetail,
+                    executeCheck,
+                    goBackToList,
+                    addEmptyProject,
+                    setAllQualified,
+                    removeProject,
+                    resetProjects,
+                    saveDraft,
+                    handleAttachmentChange,
+                    removeAttachment,
+                    submitExecution,
+                    goBack,
+                    // 检查表相关
+                    showChecklistDialog,
+                    checklistSelection,
+                    selectedChecklist,
+                    selectedChecklistName,
+                    standardChecklists,
+                    openChecklistDialog,
+                    closeChecklistDialog,
+                    selectChecklist,
+                    confirmImportChecklist,
+                    importChecklist
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
+
