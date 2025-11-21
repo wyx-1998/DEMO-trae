@@ -129,7 +129,7 @@
 
         .table-header {
             display: grid;
-            grid-template-columns: 55px 120px 160px 100px 180px 100px 160px 100px 100px 120px 100px 120px 200px;
+            grid-template-columns: 55px 120px 160px 100px 180px 160px 100px 100px 120px 100px 120px 260px;
             background-color: #f5f7fa;
             font-weight: 600;
             color: #303133;
@@ -143,7 +143,7 @@
 
         .table-row {
             display: grid;
-            grid-template-columns: 55px 120px 160px 100px 180px 100px 160px 100px 100px 120px 100px 120px 200px;
+            grid-template-columns: 55px 120px 160px 100px 180px 160px 100px 100px 120px 100px 120px 260px;
             border-bottom: 1px solid #ebeef5;
         }
 
@@ -197,27 +197,93 @@
             background-color: #f0f2f5;
         }
 
-        /* 操作按钮样式 */
-        .body-cell .el-button {
-            margin: 0 2px;
+        /* 操作按钮样式优化 */
+        .body-cell:last-child {
+            justify-content: center;
+            padding: 8px 12px;
         }
 
-        .body-cell .el-button + .el-button {
-            margin-left: 4px;
+        .operation-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+
+        .operation-buttons .el-button {
+            min-width: 28px;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .operation-buttons .el-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .operation-buttons .el-button i {
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        /* 主要操作按钮样式增强 */
+        .operation-buttons .el-button--primary {
+            background: linear-gradient(135deg, #409EFF, #66b3ff);
+            border: none;
+        }
+
+        .operation-buttons .el-button--warning {
+            background: linear-gradient(135deg, #E6A23C, #f0b862);
+            border: none;
+        }
+
+        .operation-buttons .el-button--success {
+            background: linear-gradient(135deg, #67C23A, #85ce61);
+            border: none;
+        }
+
+        .operation-buttons .el-button--danger {
+            background: linear-gradient(135deg, #F56C6C, #f78989);
+            border: none;
+        }
+
+        /* 删除按钮特殊处理 */
+        .operation-buttons .el-popconfirm__reference {
+            display: inline-flex;
+        }
+
+        /* 响应式操作按钮 */
+        @media (max-width: 1400px) {
+            .operation-buttons .el-button {
+                min-width: 24px;
+                width: 24px;
+                height: 24px;
+            }
+
+            .operation-buttons .el-button i {
+                font-size: 11px;
+            }
         }
 
         /* 响应式表格 */
         @media (max-width: 1600px) {
             .table-header,
             .table-row {
-                grid-template-columns: 55px 100px 140px 80px 150px 80px 140px 80px 80px 100px 80px 100px 180px;
+                grid-template-columns: 55px 100px 140px 80px 150px 140px 80px 80px 100px 80px 100px 240px;
             }
         }
 
         @media (max-width: 1400px) {
             .table-header,
             .table-row {
-                grid-template-columns: 55px 90px 120px 70px 130px 70px 120px 70px 70px 90px 70px 90px 160px;
+                grid-template-columns: 55px 90px 120px 70px 130px 120px 70px 70px 90px 70px 90px 220px;
             }
         }
 
@@ -294,63 +360,7 @@
             border: 1px solid #91d5ff;
         }
 
-        /* 气体检测配置样式 */
-        .gas-config-section {
-            margin-bottom: 16px;
-        }
-
-        .gas-config-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #303133;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .gas-config-item {
-            background: #fafafa;
-            border: 1px solid #e4e7ed;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .gas-config-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .gas-config-name {
-            font-weight: 500;
-            color: #303133;
-        }
-
-        .gas-config-status {
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            background-color: #67c23a;
-            color: white;
-        }
-
-        .gas-config-details {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            font-size: 13px;
-            color: #606266;
-        }
-
-        .gas-config-detail {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
+  
         /* 响应式设计 */
         @media (max-width: 1400px) {
             .search-form,
@@ -492,7 +502,6 @@
                         <div class="header-cell">空间名称</div>
                         <div class="header-cell">空间类型</div>
                         <div class="header-cell">空间位置</div>
-                        <div class="header-cell">风险等级</div>
                         <div class="header-cell">主要危害</div>
                         <div class="header-cell">通风方式</div>
                         <div class="header-cell">状态</div>
@@ -510,11 +519,6 @@
                             <div class="body-cell">{{ row.name }}</div>
                             <div class="body-cell">{{ row.type }}</div>
                             <div class="body-cell">{{ row.location }}</div>
-                            <div class="body-cell">
-                                <span class="risk-tag" :class="'risk-' + getRiskClass(row.riskLevel)">
-                                    {{ row.riskLevel }}
-                                </span>
-                            </div>
                             <div class="body-cell">{{ row.mainHazards }}</div>
                             <div class="body-cell">{{ row.ventilation }}</div>
                             <div class="body-cell">
@@ -526,30 +530,37 @@
                             <div class="body-cell">{{ row.responsiblePerson }}</div>
                             <div class="body-cell">{{ row.establishDate }}</div>
                             <div class="body-cell">
-                                <el-tooltip content="查看" placement="top">
-                                    <el-button size="small" type="primary" circle @click="handleView(row)">
-                                        <i class="fas fa-eye"></i>
-                                    </el-button>
-                                </el-tooltip>
-                                <el-tooltip content="编辑" placement="top">
-                                    <el-button size="small" type="warning" circle @click="handleEdit(row)">
-                                        <i class="fas fa-edit"></i>
-                                    </el-button>
-                                </el-tooltip>
-                                <el-tooltip content="气体配置" placement="top">
-                                    <el-button size="small" type="success" circle @click="handleGasConfig(row)">
-                                        <i class="fas fa-flask"></i>
-                                    </el-button>
-                                </el-tooltip>
-                                <el-popconfirm title="确定要删除这个空间吗？" @confirm="handleDelete(row)">
-                                    <template #reference>
-                                        <el-tooltip content="删除" placement="top">
-                                            <el-button size="small" type="danger" circle>
-                                                <i class="fas fa-trash"></i>
-                                            </el-button>
-                                        </el-tooltip>
-                                    </template>
-                                </el-popconfirm>
+                                <div class="operation-buttons">
+                                    <el-tooltip content="查看详情" placement="top" :enterable="false">
+                                        <el-button size="small" type="primary" @click="handleView(row)">
+                                            <i class="fas fa-eye"></i>
+                                        </el-button>
+                                    </el-tooltip>
+                                    <el-tooltip content="编辑信息" placement="top" :enterable="false">
+                                        <el-button size="small" type="warning" @click="handleEdit(row)">
+                                            <i class="fas fa-edit"></i>
+                                        </el-button>
+                                    </el-tooltip>
+                                    <el-tooltip content="气体检测配置" placement="top" :enterable="false">
+                                        <el-button size="small" type="success" @click="handleGasConfig(row)">
+                                            <i class="fas fa-flask"></i>
+                                        </el-button>
+                                    </el-tooltip>
+                                    <el-popconfirm
+                                        title="确定要删除这个空间吗？删除后不可恢复！"
+                                        confirm-button-text="确定删除"
+                                        cancel-button-text="取消"
+                                        confirm-button-type="danger"
+                                        @confirm="handleDelete(row)">
+                                        <template #reference>
+                                            <el-tooltip content="删除空间" placement="top" :enterable="false">
+                                                <el-button size="small" type="danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </el-button>
+                                            </el-tooltip>
+                                        </template>
+                                    </el-popconfirm>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -571,185 +582,7 @@
         </div>
     </div>
 
-    <!-- 气体检测配置弹窗 -->
-    <el-dialog
-        v-model="gasConfigDialogVisible"
-        title="气体检测配置"
-        width="900px"
-        :before-close="handleGasConfigClose"
-    >
-        <div class="gas-config-section">
-            <div class="gas-config-title">
-                <i class="fas fa-wind" style="color: #409EFF;"></i>
-                必检项目（根据危险因素自动生成）
-            </div>
-
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">氧含量检测</div>
-                    <div class="gas-config-status">必检</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-tachometer-alt"></i>
-                        检测范围：0-25%vol
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-check-circle" style="color: #67c23a;"></i>
-                        合格标准：≥19.5%vol
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-exclamation-triangle" style="color: #e6a23c;"></i>
-                        报警阈值：19.5%vol
-                    </div>
-                </div>
-            </div>
-
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">硫化氢检测</div>
-                    <div class="gas-config-status" style="background-color: #e6a23c;">条件必检</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-tachometer-alt"></i>
-                        检测范围：0-100ppm
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-check-circle" style="color: #67c23a;"></i>
-                        合格标准：<10ppm
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-exclamation-triangle" style="color: #e6a23c;"></i>
-                        报警阈值：10ppm
-                    </div>
-                </div>
-            </div>
-
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">一氧化碳检测</div>
-                    <div class="gas-config-status" style="background-color: #e6a23c;">条件必检</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-tachometer-alt"></i>
-                        检测范围：0-500ppm
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-check-circle" style="color: #67c23a;"></i>
-                        合格标准：<50ppm
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-exclamation-triangle" style="color: #e6a23c;"></i>
-                        报警阈值：50ppm
-                    </div>
-                </div>
-            </div>
-
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">二氧化碳检测</div>
-                    <div class="gas-config-status" style="background-color: #e6a23c;">条件必检</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-tachometer-alt"></i>
-                        检测范围：0-5%vol
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-check-circle" style="color: #67c23a;"></i>
-                        合格标准：<1.5%vol
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-exclamation-triangle" style="color: #e6a23c;"></i>
-                        报警阈值：1.5%vol
-                    </div>
-                </div>
-            </div>
-
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">可燃气体检测</div>
-                    <div class="gas-config-status" style="background-color: #e6a23c;">条件必检</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-tachometer-alt"></i>
-                        检测范围：0-100%LEL
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-check-circle" style="color: #67c23a;"></i>
-                        合格标准：<10%LEL
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-exclamation-triangle" style="color: #e6a23c;"></i>
-                        报警阈值：25%LEL
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="gas-config-section">
-            <div class="gas-config-title">
-                <i class="fas fa-tools" style="color: #e6a23c;"></i>
-                检测设备要求
-            </div>
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">便携式气体检测仪</div>
-                    <div class="gas-config-status">必需</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-shield-alt"></i>
-                        防爆等级：Ex ib IIC T4 Gb
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-clock"></i>
-                        检定周期：≤6个月
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-certificate"></i>
-                        计量检定证书：必需
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="gas-config-section">
-            <div class="gas-config-title">
-                <i class="fas fa-hourglass-half" style="color: #409EFF;"></i>
-                检测频率要求（根据风险等级）
-            </div>
-            <div class="gas-config-item">
-                <div class="gas-config-header">
-                    <div class="gas-config-name">一级（高风险）</div>
-                    <div class="gas-config-status">必须持续监测</div>
-                </div>
-                <div class="gas-config-details">
-                    <div class="gas-config-detail">
-                        <i class="fas fa-play-circle"></i>
-                        作业前30分钟内检测
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-sync"></i>
-                        作业中每30分钟检测
-                    </div>
-                    <div class="gas-config-detail">
-                        <i class="fas fa-redo"></i>
-                        中断后重新进入必须复检
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <template #footer>
-            <el-button @click="gasConfigDialogVisible = false">关闭</el-button>
-            <el-button type="primary" @click="handleSaveGasConfig">保存配置</el-button>
-        </template>
-    </el-dialog>
-</div>
+  </div>
 
 <!-- Vue 3 -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -770,8 +603,6 @@
                 pageSize: 20,
                 total: 156,
                 selectedRows: [],
-                gasConfigDialogVisible: false,
-                currentSpace: null,
                 searchForm: {
                     name: '',
                     code: '',
@@ -966,7 +797,8 @@
             },
 
             handleAdd() {
-                ElMessage.info('跳转到新增空间页面');
+                // 跳转到新建页面
+                window.location.href = '有限空间台账-新建.html';
             },
 
             handleBatchImport() {
@@ -985,23 +817,16 @@
             },
 
             handleEdit(row) {
-                ElMessage.info(`编辑空间：${row.name}`);
+                // 跳转到编辑页面，传递空间ID
+                window.location.href = `有限空间台账-编辑.html?id=${row.id}`;
             },
 
             handleGasConfig(row) {
-                this.currentSpace = row;
-                this.gasConfigDialogVisible = true;
+                // 跳转到气体配置页面
+                window.open(`气体检测配置.html?id=${row.id}`, '_blank');
             },
 
-            handleGasConfigClose() {
-                this.gasConfigDialogVisible = false;
-            },
-
-            handleSaveGasConfig() {
-                ElMessage.success('气体检测配置保存成功');
-                this.gasConfigDialogVisible = false;
-            },
-
+    
             handleDelete(row) {
                 ElMessage.success(`删除空间：${row.name}`);
             },

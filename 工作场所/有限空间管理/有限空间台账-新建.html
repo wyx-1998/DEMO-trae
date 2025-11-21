@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建有限空间</title>
+
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e4e7ed;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* 表单标题栏 */
+        .form-header {
+            background: #f8f9fa;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e4e7ed;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 表单区域 */
+        .form-content {
+            padding: 24px;
+        }
+
+        /* 表单区块 */
+        .form-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #409eff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-description {
+            font-size: 13px;
+            color: #909399;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        /* 表单布局 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .form-item {
+            margin-bottom: 0;
+        }
+
+        .form-item-full {
+            grid-column: 1 / -1;
+        }
+
+        /* 表单项标签 */
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #606266;
+        }
+
+        .form-label-required::before {
+            content: '*';
+            color: #f56c6c;
+            margin-right: 4px;
+        }
+
+        /* 输入控件统一样式 */
+        .form-control {
+            width: 100%;
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 14px;
+            color: #606266;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .custom-select:focus {
+            border-color: #409eff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #606266;
+            background-color: #fff;
+            transition: all 0.2s;
+        }
+
+        .custom-input:focus {
+            border-color: #409eff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .custom-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #606266;
+            background-color: #fff;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* 多选标签 */
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-option {
+            padding: 4px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #606266;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .tag-option:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+
+        .tag-option.selected {
+            background-color: #409eff;
+            border-color: #409eff;
+            color: #ffffff;
+        }
+
+    
+  
+        /* 关联管理Tab样式 */
+        .tab-content {
+            padding: 16px 0;
+        }
+
+        .association-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .association-title {
+            font-weight: 500;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .association-list {
+            min-height: 200px;
+        }
+
+        .association-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .association-item:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+        }
+
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f7fa;
+            border-radius: 8px;
+            margin-right: 16px;
+            font-size: 20px;
+        }
+
+        .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #303133;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .item-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #ecf5ff;
+            color: #409eff;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .item-desc {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .item-actions .el-button {
+            padding: 4px 8px;
+            font-size: 12px;
+            min-width: auto;
+        }
+
+        .item-actions .el-button:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+
+        .item-actions .el-button--text:hover {
+            color: #409EFF;
+        }
+
+        .item-actions .el-button--text:first-child:hover {
+            color: #67C23A;
+        }
+
+        .empty-association {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            color: #909399;
+            background: #f8f9fa;
+            border: 1px dashed #dcdfe6;
+            border-radius: 8px;
+        }
+
+        .empty-association i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #c0c4cc;
+        }
+
+        .empty-association span {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #606266;
+        }
+
+        .empty-association p {
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* 附件上传样式 */
+        .upload-area {
+            margin-bottom: 20px;
+        }
+
+        .upload-dragger {
+            width: 100%;
+        }
+
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #409EFF;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            text-align: center;
+        }
+
+        .upload-title {
+            font-size: 16px;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .upload-tip {
+            font-size: 12px;
+            color: #909399;
+            line-height: 1.4;
+        }
+
+        .upload-progress {
+            background: #f5f7fa;
+            border: 1px solid #e4e7ed;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .progress-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #409EFF;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e4e7ed;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #409EFF;
+            transition: width 0.3s ease;
+        }
+
+        .attachment-list {
+            border: 1px solid #e4e7ed;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f5f7fa;
+            border-bottom: 1px solid #e4e7ed;
+            font-size: 14px;
+            color: #303133;
+        }
+
+        .attachment-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .attachment-item:hover {
+            background: #f9f9f9;
+        }
+
+        .attachment-item:last-child {
+            border-bottom: none;
+        }
+
+        .attachment-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f7fa;
+            border-radius: 6px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .attachment-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .attachment-name {
+            font-size: 14px;
+            color: #303133;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .attachment-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #909399;
+        }
+
+        .attachment-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .attachment-actions .el-button {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* 选择对话框样式 - 多层级强制覆盖 */
+        body .select-dialog .el-message-box,
+        .select-dialog.el-message-box,
+        div.select-dialog .el-message-box {
+            width: 800px !important;
+            max-width: 90vw !important;
+            min-width: 800px !important;
+        }
+
+        body .select-dialog .el-message-box__wrapper,
+        .select-dialog .el-message-box__wrapper {
+            width: 800px !important;
+            max-width: 90vw !important;
+        }
+
+        body .select-dialog .el-message-box__content,
+        .select-dialog .el-message-box__content {
+            padding: 20px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        body .select-dialog .select-dialog-content,
+        .select-dialog .select-dialog-content {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        body .select-dialog .search-box input,
+        .select-dialog .search-box input {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            border: 1px solid #dcdfe6 !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            box-sizing: border-box !important;
+        }
+
+        body .select-dialog .select-item,
+        .select-dialog .select-item {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        body .select-dialog .el-message-box__btns,
+        .select-dialog .el-message-box__btns {
+            padding: 20px 0 0 0 !important;
+        }
+
+        /* 使用行内样式作为备用 */
+        .dialog-force-width {
+            width: 800px !important;
+            max-width: 90vw !important;
+        }
+
+        /* 按钮样式 */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 24px 0;
+        }
+
+        .el-button--primary {
+            --el-button-bg-color: #409EFF;
+            --el-button-border-color: #409EFF;
+        }
+
+        /* 提示信息 */
+        .help-tip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #909399;
+            margin-top: 4px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .form-grid,
+            .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .gas-card-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="app-container">
+    <!-- 顶部导航栏 -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <el-button @click="handleGoBack" type="text">
+                <i class="fas fa-arrow-left"></i> 返回
+            </el-button>
+            <div class="nav-title">新建有限空间</div>
+        </div>
+        <div class="nav-right">
+            <el-button @click="handleSaveDraft">
+                <i class="fas fa-save"></i> 保存草稿
+            </el-button>
+            <el-button @click="handleReset">
+                <i class="fas fa-redo"></i> 重置
+            </el-button>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+        <div class="form-container">
+            <!-- 表单标题 -->
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-plus-circle" style="color: #409EFF;"></i>
+                    新建有限空间
+                </div>
+            </div>
+
+            <!-- 表单内容 -->
+            <div class="form-content">
+                <el-form :model="formData" :rules="formRules" ref="spaceForm" label-width="120px">
+                    <!-- 基本信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle" style="color: #409EFF;"></i>
+                            基本信息
+                        </div>
+
+                        <div class="form-grid-3">
+                            <div class="form-item">
+                                <label class="form-label form-label-required">有限空间名称</label>
+                                <div class="form-control">
+                                    <input v-model="formData.name" type="text" class="custom-input" placeholder="请输入有限空间名称" maxlength="50">
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">有限空间编号</label>
+                                <div class="form-control">
+                                    <input v-model="formData.code" type="text" class="custom-input" placeholder="格式：FS-XXXX-XXX">
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">有限空间类型</label>
+                                <div class="form-control">
+                                    <select v-model="formData.type" class="custom-select">
+                                        <option value="">请选择有限空间类型</option>
+                                        <option value="储罐">储罐</option>
+                                        <option value="管道">管道</option>
+                                        <option value="坑池">坑池</option>
+                                        <option value="地下室">地下室</option>
+                                        <option value="筒仓">筒仓</option>
+                                        <option value="反应釜">反应釜</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">有限空间位置</label>
+                                <div class="form-control">
+                                    <el-tree-select
+                                        v-model="formData.location"
+                                        :data="locationTreeData"
+                                        placeholder="请选择有限空间位置"
+                                        clearable
+                                        filterable
+                                        check-strictly
+                                        style="width: 100%;"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label">有限空间尺寸</label>
+                                <div class="form-control">
+                                    <input v-model="formData.dimensions" type="text" class="custom-input" placeholder="长×宽×高 或 直径×深度">
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label">体积/面积</label>
+                                <div class="form-control">
+                                    <input v-model="formData.volume" type="number" step="0.01" class="custom-input" placeholder="请输入数值">
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">通风方式</label>
+                                <div class="form-control">
+                                    <select v-model="formData.ventilation" class="custom-select">
+                                        <option value="">请选择通风方式</option>
+                                        <option value="natural">自然通风</option>
+                                        <option value="mechanical">机械通风</option>
+                                        <option value="none">无通风</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关联管理 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-link" style="color: #67c23a;"></i>
+                            关联管理
+                        </div>
+
+                        <!-- Tab页切换 -->
+                        <el-tabs v-model="activeTab" type="card" @tab-click="handleTabClick">
+                            <!-- 安全设施Tab -->
+                            <el-tab-pane label="安全设施" name="safety-facilities">
+                                <div class="tab-content">
+                                    <div class="association-header">
+                                        <div class="association-title">
+                                            <i class="fas fa-shield-alt"></i>
+                                            关联安全设施
+                                        </div>
+                                        <el-button type="primary" size="small" @click="handleSelectSafetyFacilities">
+                                            <i class="fas fa-plus"></i> 添加安全设施
+                                        </el-button>
+                                    </div>
+                                    <div class="association-list">
+                                        <div v-if="formData.safetyFacilities.length === 0" class="empty-association">
+                                            <i class="fas fa-inbox"></i>
+                                            <span>暂无关联安全设施</span>
+                                            <p>点击上方按钮添加安全设施</p>
+                                        </div>
+                                        <div v-for="facility in formData.safetyFacilities" :key="facility.id" class="association-item">
+                                            <div class="item-icon">
+                                                <i class="fas fa-shield-alt" style="color: #67c23a;"></i>
+                                            </div>
+                                            <div class="item-content">
+                                                <div class="item-name">{{ facility.name }}</div>
+                                                <div class="item-info">
+                                                    <span v-if="facility.type" class="item-tag">{{ facility.type }}</span>
+                                                    <span v-if="facility.spec" class="item-desc">{{ facility.spec }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <el-button type="text" size="small" @click="viewItemDetail('safety-facilities', facility)">
+                                                    <i class="fas fa-eye"></i>
+                                                </el-button>
+                                                <el-button type="text" size="small" @click="removeSafetyFacility(facility.id)">
+                                                    <i class="fas fa-trash"></i>
+                                                </el-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-tab-pane>
+
+                            <!-- 工器具Tab -->
+                            <el-tab-pane label="工器具" name="tools">
+                                <div class="tab-content">
+                                    <div class="association-header">
+                                        <div class="association-title">
+                                            <i class="fas fa-wrench"></i>
+                                            关联工器具
+                                        </div>
+                                        <el-button type="primary" size="small" @click="handleSelectTools">
+                                            <i class="fas fa-plus"></i> 添加工器具
+                                        </el-button>
+                                    </div>
+                                    <div class="association-list">
+                                        <div v-if="formData.tools.length === 0" class="empty-association">
+                                            <i class="fas fa-inbox"></i>
+                                            <span>暂无关联工器具</span>
+                                            <p>点击上方按钮添加工器具</p>
+                                        </div>
+                                        <div v-for="tool in formData.tools" :key="tool.id" class="association-item">
+                                            <div class="item-icon">
+                                                <i class="fas fa-wrench" style="color: #e6a23c;"></i>
+                                            </div>
+                                            <div class="item-content">
+                                                <div class="item-name">{{ tool.name }}</div>
+                                                <div class="item-info">
+                                                    <span v-if="tool.type" class="item-tag">{{ tool.type }}</span>
+                                                    <span v-if="tool.spec" class="item-desc">{{ tool.spec }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <el-button type="text" size="small" @click="viewItemDetail('tools', tool)">
+                                                    <i class="fas fa-eye"></i>
+                                                </el-button>
+                                                <el-button type="text" size="small" @click="removeTool(tool.id)">
+                                                    <i class="fas fa-trash"></i>
+                                                </el-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-tab-pane>
+
+                            <!-- 设备Tab -->
+                            <el-tab-pane label="设备" name="equipment">
+                                <div class="tab-content">
+                                    <div class="association-header">
+                                        <div class="association-title">
+                                            <i class="fas fa-cogs"></i>
+                                            关联设备
+                                        </div>
+                                        <el-button type="primary" size="small" @click="handleSelectEquipment">
+                                            <i class="fas fa-plus"></i> 添加设备
+                                        </el-button>
+                                    </div>
+                                    <div class="association-list">
+                                        <div v-if="formData.equipment.length === 0" class="empty-association">
+                                            <i class="fas fa-inbox"></i>
+                                            <span>暂无关联设备</span>
+                                            <p>点击上方按钮添加设备</p>
+                                        </div>
+                                        <div v-for="equipment in formData.equipment" :key="equipment.id" class="association-item">
+                                            <div class="item-icon">
+                                                <i class="fas fa-cogs" style="color: #409EFF;"></i>
+                                            </div>
+                                            <div class="item-content">
+                                                <div class="item-name">{{ equipment.name }}</div>
+                                                <div class="item-info">
+                                                    <span v-if="equipment.type" class="item-tag">{{ equipment.type }}</span>
+                                                    <span v-if="equipment.spec" class="item-desc">{{ equipment.spec }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="item-actions">
+                                                <el-button type="text" size="small" @click="viewItemDetail('equipment', equipment)">
+                                                    <i class="fas fa-eye"></i>
+                                                </el-button>
+                                                <el-button type="text" size="small" @click="removeEquipment(equipment.id)">
+                                                    <i class="fas fa-trash"></i>
+                                                </el-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </div>
+
+                    <!-- 附件信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-paperclip" style="color: #409EFF;"></i>
+                            附件信息
+                        </div>
+                        <div class="section-description">
+                            支持上传有限空间相关文档，如安全评估报告、检测记录、图纸等
+                        </div>
+
+                        <!-- 文件上传区域 -->
+                        <div class="upload-area" v-show="!isUploading">
+                            <el-upload
+                                class="upload-dragger"
+                                drag
+                                multiple
+                                :auto-upload="false"
+                                :show-file-list="false"
+                                :on-change="handleFileChange"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.dwg"
+                            >
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <div class="upload-text">
+                                        <div class="upload-title">点击或拖拽文件到此处上传</div>
+                                        <div class="upload-tip">支持 PDF、Word、Excel、PPT、图片、CAD 等格式，单个文件不超过 10MB</div>
+                                    </div>
+                                </div>
+                            </el-upload>
+                        </div>
+
+                        <!-- 上传进度 -->
+                        <div class="upload-progress" v-show="isUploading">
+                            <div class="progress-info">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>正在上传文件...</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+                            </div>
+                        </div>
+
+                        <!-- 附件列表 -->
+                        <div class="attachment-list" v-if="attachments.length > 0">
+                            <div class="list-header">
+                                <span>已上传附件（{{ attachments.length }}个）</span>
+                                <el-button type="text" size="small" @click="clearAllAttachments">
+                                    <i class="fas fa-trash"></i> 清空全部
+                                </el-button>
+                            </div>
+
+                            <div class="attachment-items">
+                                <div v-for="attachment in attachments" :key="attachment.id" class="attachment-item">
+                                    <div class="attachment-icon">
+                                        <i :class="getFileIcon(attachment.type)" :style="'color: ' + getFileColor(attachment.type)"></i>
+                                    </div>
+                                    <div class="attachment-info">
+                                        <div class="attachment-name" :title="attachment.name">{{ attachment.name }}</div>
+                                        <div class="attachment-meta">
+                                            <span class="attachment-size">{{ formatFileSize(attachment.size) }}</span>
+                                            <span class="attachment-date">{{ attachment.uploadTime }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="attachment-actions">
+                                        <el-button type="text" size="small" @click="previewAttachment(attachment)">
+                                            <i class="fas fa-eye"></i> 预览
+                                        </el-button>
+                                        <el-button type="text" size="small" @click="downloadAttachment(attachment)">
+                                            <i class="fas fa-download"></i> 下载
+                                        </el-button>
+                                        <el-button type="text" size="small" @click="removeAttachment(attachment)">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </el-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 责任信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-user-tie" style="color: #909399;"></i>
+                            责任信息
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-item">
+                                <label class="form-label form-label-required">责任部门</label>
+                                <div class="form-control">
+                                    <select v-model="formData.responsibleDept" class="custom-select">
+                                        <option value="">请选择责任部门</option>
+                                        <option value="safety">安全管理部</option>
+                                        <option value="production">生产部</option>
+                                        <option value="maintenance">设备维护部</option>
+                                        <option value="warehouse">仓储部</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">责任人</label>
+                                <div class="form-control">
+                                    <select v-model="formData.responsiblePerson" class="custom-select">
+                                        <option value="">请选择责任人</option>
+                                        <option value="张三">张三 - 安全管理员</option>
+                                        <option value="李四">李四 - 生产主管</option>
+                                        <option value="王五">王五 - 设备工程师</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">建立日期</label>
+                                <div class="form-control">
+                                    <input v-model="formData.establishDate" type="date" class="custom-input">
+                                </div>
+                            </div>
+
+                            <div class="form-item">
+                                <label class="form-label form-label-required">状态</label>
+                                <div class="form-control">
+                                    <select v-model="formData.status" class="custom-select">
+                                        <option value="normal">正常</option>
+                                        <option value="maintenance">维修</option>
+                                        <option value="stopped">停用</option>
+                                        <option value="sealed">封存</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-item-full" style="margin-top: 20px;">
+                            <label class="form-label">配置说明</label>
+                            <textarea v-model="formData.description" class="custom-textarea"
+                                      placeholder="请输入特殊配置说明（最多300字符）" maxlength="300"></textarea>
+                        </div>
+
+                        <div class="form-item-full" style="margin-top: 20px;">
+                            <label class="form-label">备注</label>
+                            <textarea v-model="formData.remarks" class="custom-textarea"
+                                      placeholder="请输入其他说明信息（最多200字符）" maxlength="200"></textarea>
+                        </div>
+                    </div>
+                </el-form>
+
+                <!-- 操作按钮 -->
+                <div class="button-group">
+                    <el-button size="large" @click="handleGoBack">
+                        <i class="fas fa-times"></i> 取消
+                    </el-button>
+                    <el-button type="primary" size="large" @click="handleSubmit">
+                        <i class="fas fa-check"></i> 提交保存
+                    </el-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vue 3 -->
+<script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+<!-- Element Plus -->
+<script src="https://unpkg.com/element-plus@2.3.14/dist/index.full.js"></script>
+<!-- Element Plus Icons -->
+<script src="https://unpkg.com/@element-plus/icons-vue@2.1.0/dist/index.iife.js"></script>
+
+<script>
+    const { createApp } = Vue;
+    const { ElMessage, ElMessageBox } = ElementPlus;
+
+    createApp({
+        data() {
+            return {
+                // 表单数据
+                formData: {
+                    name: '',
+                    code: '',
+                    type: '',
+                    location: '',
+                    dimensions: '',
+                    volume: '',
+                    ventilation: '',
+                    safetyFacilities: [],
+                    tools: [],
+                    equipment: [],
+                    responsibleDept: '',
+                    responsiblePerson: '',
+                    establishDate: '',
+                    status: 'normal',
+                    description: '',
+                    remarks: ''
+                },
+
+                // 附件相关数据
+                attachments: [],
+                isUploading: false,
+                uploadProgress: 0,
+
+                // Tab页控制
+                activeTab: 'safety-facilities',
+
+                // 模拟数据
+                mockSafetyFacilities: [
+                    { id: 1, name: '安全警示标志', type: '标识类', spec: '铝合金材质' },
+                    { id: 2, name: '应急照明设备', type: '照明类', spec: 'LED 20W' },
+                    { id: 3, name: '消防器材', type: '消防类', spec: '干粉灭火器 4kg' },
+                    { id: 4, name: '气体检测仪', type: '检测类', spec: '多气体检测' },
+                    { id: 5, name: '通风设备', type: '通风类', spec: '轴流风机' },
+                    { id: 6, name: '应急通讯设备', type: '通讯类', spec: '防爆对讲机' },
+                    { id: 7, name: '安全防护用品', type: '防护类', spec: '全身式安全带' },
+                    { id: 8, name: '安全出口标志', type: '标识类', spec: '蓄光型' }
+                ],
+
+                mockTools: [
+                    { id: 1, name: '防爆手电筒', type: '照明工具', spec: 'LED 防爆型' },
+                    { id: 2, name: '便携式气体检测仪', type: '检测工具', spec: '四合一检测' },
+                    { id: 3, name: '强制通风机', type: '通风工具', spec: '移动式' },
+                    { id: 4, name: '安全绳', type: '救援工具', spec: '尼龙绳 20m' },
+                    { id: 5, name: '救援三脚架', type: '救援工具', spec: '铝合金 2.5m' },
+                    { id: 6, name: '防爆通讯设备', type: '通讯工具', spec: '本安型' },
+                    { id: 7, name: '绝缘工具套装', type: '绝缘工具', spec: '10kV' },
+                    { id: 8, name: '急救包', type: '医疗工具', spec: '基础套装' }
+                ],
+
+                mockEquipment: [
+                    { id: 1, name: '固定式气体检测系统', type: '检测设备', spec: '在线监测' },
+                    { id: 2, name: '强制通风系统', type: '通风设备', spec: '中央控制' },
+                    { id: 3, name: '应急照明系统', type: '照明设备', spec: 'UPS供电' },
+                    { id: 4, name: '视频监控系统', type: '监控设备', spec: '防爆型' },
+                    { id: 5, name: '紧急停机装置', type: '安全设备', spec: '防爆按钮' },
+                    { id: 6, name: '声光报警器', type: '报警设备', spec: '120dB' },
+                    { id: 7, name: '自动灭火系统', type: '消防设备', spec: '气体灭火' },
+                    { id: 8, name: '门禁系统', type: '安防设备', spec: '刷卡式' }
+                ],
+
+                // 位置树数据
+                locationTreeData: [
+                    {
+                        value: 'production-area',
+                        label: '生产区域',
+                        children: [
+                            {
+                                value: 'workshop-1',
+                                label: '一号车间',
+                                children: [
+                                    { value: 'area-a', label: 'A区' },
+                                    { value: 'area-b', label: 'B区' },
+                                    { value: 'area-c', label: 'C区' }
+                                ]
+                            },
+                            {
+                                value: 'workshop-2',
+                                label: '二号车间',
+                                children: [
+                                    { value: 'area-d', label: 'D区' },
+                                    { value: 'area-e', label: 'E区' },
+                                    { value: 'area-f', label: 'F区' }
+                                ]
+                            },
+                            {
+                                value: 'workshop-3',
+                                label: '三号车间',
+                                children: [
+                                    { value: 'area-g', label: 'G区' },
+                                    { value: 'area-h', label: 'H区' },
+                                    { value: 'area-i', label: 'I区' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        value: 'storage-area',
+                        label: '仓储区域',
+                        children: [
+                            {
+                                value: 'warehouse-1',
+                                label: '原料仓库',
+                                children: [
+                                    { value: 'zone-1', label: '1号库房' },
+                                    { value: 'zone-2', label: '2号库房' },
+                                    { value: 'zone-3', label: '3号库房' }
+                                ]
+                            },
+                            {
+                                value: 'warehouse-2',
+                                label: '成品仓库',
+                                children: [
+                                    { value: 'zone-4', label: '4号库房' },
+                                    { value: 'zone-5', label: '5号库房' },
+                                    { value: 'zone-6', label: '6号库房' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        value: 'utility-area',
+                        label: '公用工程区域',
+                        children: [
+                            {
+                                value: 'power-station',
+                                label: '动力站',
+                                children: [
+                                    { value: 'boiler-room', label: '锅炉房' },
+                                    { value: 'control-room', label: '控制室' }
+                                ]
+                            },
+                            {
+                                value: 'treatment-plant',
+                                label: '水处理站',
+                                children: [
+                                    { value: 'pump-room', label: '泵房' },
+                                    { value: 'tank-area', label: '储罐区' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        value: 'outdoor-area',
+                        label: '室外区域',
+                        children: [
+                            { value: 'parking-lot', label: '停车场' },
+                            { value: 'green-area', label: '绿化区' },
+                            { value: 'loading-area', label: '装卸区' }
+                        ]
+                    }
+                ]
+            };
+        },
+
+        methods: {
+            // 返回上一页
+            handleGoBack() {
+                window.history.back();
+            },
+
+            // Tab页切换方法
+            handleTabClick(tab) {
+                console.log('切换到Tab:', tab.name);
+            },
+
+            // 附件相关方法
+            handleFileChange(file) {
+                // 检查文件大小（10MB限制）
+                if (file.size > 10 * 1024 * 1024) {
+                    ElMessage.error('文件大小不能超过 10MB');
+                    return;
+                }
+
+                // 创建附件对象
+                const attachment = {
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    size: file.size,
+                    type: this.getFileType(file.name),
+                    uploadTime: new Date().toLocaleString(),
+                    file: file.raw,
+                    url: URL.createObjectURL(file.raw)
+                };
+
+                this.attachments.push(attachment);
+                ElMessage.success('文件添加成功');
+            },
+
+            getFileType(fileName) {
+                const ext = fileName.split('.').pop().toLowerCase();
+                const typeMap = {
+                    'pdf': 'pdf',
+                    'doc': 'word',
+                    'docx': 'word',
+                    'xls': 'excel',
+                    'xlsx': 'excel',
+                    'ppt': 'ppt',
+                    'pptx': 'ppt',
+                    'jpg': 'image',
+                    'jpeg': 'image',
+                    'png': 'image',
+                    'gif': 'image',
+                    'dwg': 'cad',
+                    'dxf': 'cad'
+                };
+                return typeMap[ext] || 'file';
+            },
+
+            getFileIcon(type) {
+                const iconMap = {
+                    'pdf': 'fas fa-file-pdf',
+                    'word': 'fas fa-file-word',
+                    'excel': 'fas fa-file-excel',
+                    'ppt': 'fas fa-file-powerpoint',
+                    'image': 'fas fa-file-image',
+                    'cad': 'fas fa-file-code',
+                    'file': 'fas fa-file-alt'
+                };
+                return iconMap[type] || 'fas fa-file-alt';
+            },
+
+            getFileColor(type) {
+                const colorMap = {
+                    'pdf': '#ff4757',
+                    'word': '#3742fa',
+                    'excel': '#2ed573',
+                    'ppt': '#ff6348',
+                    'image': '#ffa502',
+                    'cad': '#5f27cd',
+                    'file': '#747d8c'
+                };
+                return colorMap[type] || '#747d8c';
+            },
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            removeAttachment(attachment) {
+                ElMessageBox.confirm('确定要删除这个附件吗？', '确认删除', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }).then(() => {
+                    const index = this.attachments.findIndex(item => item.id === attachment.id);
+                    if (index > -1) {
+                        // 释放 URL 对象
+                        URL.revokeObjectURL(attachment.url);
+                        this.attachments.splice(index, 1);
+                        ElMessage.success('附件已删除');
+                    }
+                }).catch(() => {});
+            },
+
+            clearAllAttachments() {
+                ElMessageBox.confirm('确定要清空所有附件吗？', '确认清空', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }).then(() => {
+                    // 释放所有 URL 对象
+                    this.attachments.forEach(attachment => {
+                        URL.revokeObjectURL(attachment.url);
+                    });
+                    this.attachments = [];
+                    ElMessage.success('所有附件已清空');
+                }).catch(() => {});
+            },
+
+            previewAttachment(attachment) {
+                // 新窗口打开文件预览
+                window.open(attachment.url, '_blank');
+            },
+
+            downloadAttachment(attachment) {
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = attachment.url;
+                link.download = attachment.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+
+            // 移除安全设施
+            removeSafetyFacility(id) {
+                const index = this.formData.safetyFacilities.findIndex(item => item.id === id);
+                if (index > -1) {
+                    this.formData.safetyFacilities.splice(index, 1);
+                }
+            },
+
+            // 移除工器具
+            removeTool(id) {
+                const index = this.formData.tools.findIndex(item => item.id === id);
+                if (index > -1) {
+                    this.formData.tools.splice(index, 1);
+                }
+            },
+
+            // 移除设备
+            removeEquipment(id) {
+                const index = this.formData.equipment.findIndex(item => item.id === id);
+                if (index > -1) {
+                    this.formData.equipment.splice(index, 1);
+                }
+            },
+
+            // 查看项目详情
+            viewItemDetail(type, item) {
+                let title, icon, color;
+
+                switch(type) {
+                    case 'safety-facilities':
+                        title = '安全设施详情';
+                        icon = 'fas fa-shield-alt';
+                        color = '#E6A23C';
+                        break;
+                    case 'tools':
+                        title = '工器具详情';
+                        icon = 'fas fa-wrench';
+                        color = '#e6a23c';
+                        break;
+                    case 'equipment':
+                        title = '设备详情';
+                        icon = 'fas fa-cogs';
+                        color = '#409EFF';
+                        break;
+                }
+
+                const detailContent = `
+                    <div style="padding: 20px; min-width: 400px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
+                            <div style="width: 48px; height: 48px; background: ${color}20; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                                <i class="${icon}" style="color: ${color}; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: #303133; font-size: 18px; font-weight: 600;">${item.name}</h3>
+                                <p style="margin: 4px 0 0 0; color: #909399; font-size: 14px;">${item.type}</p>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; gap: 16px;">
+                            <div>
+                                <label style="color: #606266; font-size: 14px; font-weight: 500; margin-bottom: 4px; display: block;">规格型号</label>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; color: #303133; font-size: 14px;">
+                                    ${item.spec || '暂无规格信息'}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style="color: #606266; font-size: 14px; font-weight: 500; margin-bottom: 4px; display: block;">设备类型</label>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; color: #303133; font-size: 14px;">
+                                    ${item.type}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style="color: #606266; font-size: 14px; font-weight: 500; margin-bottom: 4px; display: block;">唯一标识</label>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; color: #303133; font-size: 14px; font-family: monospace;">
+                                    ID: ${item.id}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; padding: 16px; background: #ecf5ff; border-radius: 8px; border-left: 4px solid #409EFF;">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 8px;"></i>
+                                <span style="color: #409EFF; font-weight: 500; font-size: 14px;">使用说明</span>
+                            </div>
+                            <p style="margin: 0; color: #606266; font-size: 13px; line-height: 1.6;">
+                                该${type === 'safety-facilities' ? '安全设施' : type === 'tools' ? '工器具' : '设备'}已关联到当前有限空间，请确保定期检查维护状态，保持良好的工作状态。
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                ElMessageBox({
+                    title: title,
+                    message: detailContent,
+                    dangerouslyUseHTMLString: true,
+                    showConfirmButton: true,
+                    confirmButtonText: '关闭',
+                    customClass: 'detail-dialog'
+                }).catch(() => {
+                    // 用户点击关闭按钮
+                });
+            },
+
+            // 选择安全设施
+            handleSelectSafetyFacilities() {
+                this.showSelectDialog('safety-facilities');
+            },
+
+            // 选择工器具
+            handleSelectTools() {
+                this.showSelectDialog('tools');
+            },
+
+            // 选择设备
+            handleSelectEquipment() {
+                this.showSelectDialog('equipment');
+            },
+
+            // 显示选择对话框
+            showSelectDialog(type) {
+                // 调试信息
+                console.log('显示选择对话框，类型:', type);
+                console.log('安全设施数据:', this.mockSafetyFacilities);
+                console.log('工器具数据:', this.mockTools);
+                console.log('设备数据:', this.mockEquipment);
+
+                let title, data, items;
+
+                switch(type) {
+                    case 'safety-facilities':
+                        title = '选择安全设施';
+                        data = this.mockSafetyFacilities || [];
+                        items = this.formData.safetyFacilities;
+                        break;
+                    case 'tools':
+                        title = '选择工器具';
+                        data = this.mockTools || [];
+                        items = this.formData.tools;
+                        break;
+                    case 'equipment':
+                        title = '选择设备';
+                        data = this.mockEquipment || [];
+                        items = this.formData.equipment;
+                        break;
+                }
+
+                console.log('选择的数据:', data);
+                console.log('已选择的项目:', items);
+
+                if (!data || data.length === 0) {
+                    ElMessage.error('没有可选的数据，请检查模拟数据是否正确加载');
+                    return;
+                }
+
+                ElMessageBox({
+                    title: title,
+                    message: this.renderSelectDialog(data, items, type),
+                    dangerouslyUseHTMLString: true,
+                    showConfirmButton: false,
+                    customClass: 'select-dialog dialog-force-width',
+                    closeOnClickModal: false,
+                    closeOnPressEscape: true
+                });
+
+                // 使用setTimeout确保DOM渲染完成后再设置样式和事件监听器
+                setTimeout(() => {
+                    const dialogBox = document.querySelector('.el-message-box');
+                    const dialogWrapper = document.querySelector('.el-message-box__wrapper');
+                    if (dialogBox) {
+                        dialogBox.style.setProperty('width', '800px', 'important');
+                        dialogBox.style.setProperty('min-width', '800px', 'important');
+                        dialogBox.style.setProperty('max-width', '90vw', 'important');
+                    }
+                    if (dialogWrapper) {
+                        dialogWrapper.style.setProperty('width', '800px', 'important');
+                        dialogWrapper.style.setProperty('min-width', '800px', 'important');
+                    }
+
+                    // 为对话框内的选择项添加事件监听器
+                    const selectItems = dialogBox.querySelectorAll('.select-item');
+                    console.log('找到的选择项数量:', selectItems.length);
+
+                    selectItems.forEach((item, index) => {
+                        item.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log(`选择项 ${index} 被点击:`, item.dataset.id);
+
+                            const checkbox = item.querySelector('input[type="checkbox"]');
+                            const isCurrentlySelected = item.classList.contains('selected');
+
+                            if (isCurrentlySelected) {
+                                // 取消选中
+                                item.classList.remove('selected');
+                                item.style.background = '#fff';
+                                if (checkbox) checkbox.checked = false;
+                                console.log('取消选中:', item.dataset.id);
+                            } else {
+                                // 选中
+                                item.classList.add('selected');
+                                item.style.background = '#f0f9ff';
+                                if (checkbox) checkbox.checked = true;
+                                console.log('选中项目:', item.dataset.id);
+                            }
+                        });
+                    });
+                }, 200);
+            },
+
+            // 渲染选择对话框内容
+            renderSelectDialog(data, selectedItems, type) {
+                console.log('渲染对话框 - 数据长度:', data ? data.length : 0);
+                console.log('渲染对话框 - 已选择项目:', selectedItems);
+
+                if (!data || data.length === 0) {
+                    return '<div style="padding: 20px; text-align: center;">没有可用的数据</div>';
+                }
+
+                const selectedIds = selectedItems.map(item => item.id);
+                let content = `
+                    <div class="select-dialog-content" style="width: 100%; box-sizing: border-box;">
+                        <div class="search-box" style="margin-bottom: 20px;">
+                            <input type="text" id="search-input" placeholder="搜索项目名称、类型或规格..."
+                                   style="width: 100%; padding: 12px 16px; border: 1px solid #dcdfe6; border-radius: 6px;
+                                          font-size: 14px; line-height: 1.5; box-sizing: border-box;">
+                        </div>
+                        <div class="items-list" style="max-height: 500px; overflow-y: auto; padding-right: 8px;">
+                `;
+
+                data.forEach((item, index) => {
+                    const isSelected = selectedIds.includes(item.id);
+                    console.log(`渲染项目 ${index + 1}:`, item.name, '是否选中:', isSelected);
+                    content += `
+                        <div class="select-item ${isSelected ? 'selected' : ''}"
+                             data-id="${item.id}" data-type="${type}"
+                             style="display: flex; align-items: center; padding: 16px; margin-bottom: 12px;
+                                    border: 1px solid #e4e7ed; border-radius: 8px; cursor: pointer;
+                                    background: ${isSelected ? '#f0f9ff' : '#fff'}; transition: all 0.2s;
+                                    box-sizing: border-box; width: 100%;">
+                            <div style="margin-right: 16px; flex-shrink: 0;">
+                                <input type="checkbox" ${isSelected ? 'checked' : ''}
+                                       style="width: 18px; height: 18px; margin: 0; cursor: pointer;">
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; color: #303133; margin-bottom: 8px; font-size: 16px; line-height: 1.4;">
+                                    ${item.name}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 8px;">
+                                    <span style="display: inline-block; padding: 4px 12px; background: #ecf5ff; color: #409eff;
+                                               border-radius: 14px; font-size: 13px; font-weight: 500; line-height: 1;">
+                                        ${item.type}
+                                    </span>
+                                    <span style="color: #606266; font-size: 14px; line-height: 1.4; flex: 1; min-width: 0;">
+                                        ${item.spec}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content += `
+                        </div>
+                        <div style="text-align: right; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e4e7ed;">
+                            <button onclick="appInstance.cancelSelectDialog()"
+                                    style="margin-right: 12px; padding: 10px 20px; border: 1px solid #dcdfe6;
+                                           background: #fff; color: #606266; border-radius: 6px; cursor: pointer;
+                                           font-size: 14px; font-weight: 500; line-height: 1.4; transition: all 0.2s;">
+                                取消
+                            </button>
+                            <button onclick="appInstance.confirmSelectDialog('${type}')"
+                                    style="padding: 10px 20px; background: #409EFF; color: white;
+                                           border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
+                                           font-weight: 500; line-height: 1.4; transition: all 0.2s;">
+                                确认选择
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                console.log('生成的HTML内容长度:', content.length);
+                return content;
+            },
+
+            // 取消选择对话框
+            cancelSelectDialog() {
+                ElMessageBox.close();
+            },
+
+            // 确认选择对话框
+            confirmSelectDialog(type) {
+                console.log('确认选择被调用，类型:', type);
+                const selectedElements = document.querySelectorAll('.select-item.selected');
+                const selectedIds = Array.from(selectedElements).map(el => el.dataset.id);
+                console.log('选中的元素数量:', selectedElements.length);
+                console.log('选中的IDs:', selectedIds);
+                let sourceData, targetArray;
+
+                switch(type) {
+                    case 'safety-facilities':
+                        sourceData = this.mockSafetyFacilities;
+                        targetArray = this.formData.safetyFacilities;
+                        break;
+                    case 'tools':
+                        sourceData = this.mockTools;
+                        targetArray = this.formData.tools;
+                        break;
+                    case 'equipment':
+                        sourceData = this.mockEquipment;
+                        targetArray = this.formData.equipment;
+                        break;
+                }
+
+                targetArray.splice(0);
+                selectedIds.forEach(id => {
+                    const item = sourceData.find(d => d.id == id);
+                    if (item) {
+                        targetArray.push({...item, id: Date.now() + Math.random()}); // 生成唯一ID
+                    }
+                });
+
+                ElMessage.success(`已选择 ${selectedIds.length} 个项目`);
+                ElMessageBox.close();
+            },
+
+            // 重置表单
+            handleReset() {
+                ElMessageBox.confirm('确定要重置所有填写的内容吗？', '确认重置', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }).then(() => {
+                    // 重置表单数据
+                    Object.assign(this.formData, {
+                        name: '',
+                        code: '',
+                        type: '',
+                        location: '',
+                        dimensions: '',
+                        volume: '',
+                        ventilation: '',
+                        safetyFacilities: [],
+                        tools: [],
+                        equipment: [],
+                        responsibleDept: '',
+                        responsiblePerson: '',
+                        establishDate: '',
+                        status: 'normal',
+                        description: '',
+                        remarks: ''
+                    });
+                    ElMessage.success('表单已重置');
+                }).catch(() => {});
+            },
+
+            // 保存草稿
+            handleSaveDraft() {
+                // 保存到本地存储
+                localStorage.setItem('space_draft', JSON.stringify(this.formData));
+                ElMessage.success('草稿已保存');
+            },
+
+            // 提交表单
+            handleSubmit() {
+                // 表单验证
+                if (!this.formData.name) {
+                    ElMessage.error('请输入空间名称');
+                    return;
+                }
+                if (!this.formData.code) {
+                    ElMessage.error('请输入空间编号');
+                    return;
+                }
+                if (!this.formData.type) {
+                    ElMessage.error('请选择空间类型');
+                    return;
+                }
+                if (!this.formData.location) {
+                    ElMessage.error('请输入空间位置');
+                    return;
+                }
+                if (!this.formData.ventilation) {
+                    ElMessage.error('请选择通风方式');
+                    return;
+                }
+
+                // 提交数据
+                ElMessageBox.confirm('确定要提交保存吗？', '确认提交', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'success',
+                }).then(() => {
+                    // 这里应该调用API保存数据
+                    console.log('提交数据:', this.formData);
+                    ElMessage.success('有限空间信息已保存');
+
+                    // 清除草稿
+                    localStorage.removeItem('space_draft');
+
+                    // 跳转到列表页或详情页
+                    setTimeout(() => {
+                        this.handleGoBack();
+                    }, 1500);
+                }).catch(() => {});
+            }
+        },
+
+        mounted() {
+            // 将方法挂载到window，供对话框HTML调用
+            window.appInstance = this;
+
+            // 监听对话框点击事件
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.select-item')) {
+                    const item = e.target.closest('.select-item');
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+
+                    // 切换选中状态
+                    const isCurrentlySelected = item.classList.contains('selected');
+
+                    if (isCurrentlySelected) {
+                        // 取消选中
+                        item.classList.remove('selected');
+                        item.style.background = '#fff';
+                        if (checkbox) checkbox.checked = false;
+                    } else {
+                        // 选中
+                        item.classList.add('selected');
+                        item.style.background = '#f0f9ff';
+                        if (checkbox) checkbox.checked = true;
+                    }
+
+                    console.log('项目点击:', item.dataset.id, '是否选中:', !isCurrentlySelected);
+                }
+            });
+
+            // 保持初始为空状态，让用户通过添加按钮来选择数据
+
+            // 恢复草稿数据
+            const draft = localStorage.getItem('space_draft');
+            if (draft) {
+                try {
+                    const draftData = JSON.parse(draft);
+                    Object.assign(this.formData, draftData);
+                    ElMessage.info('已恢复上次保存的草稿');
+                } catch (error) {
+                    console.error('恢复草稿失败:', error);
+                }
+            }
+
+            // 设置默认日期
+            if (!this.formData.establishDate) {
+                this.formData.establishDate = new Date().toISOString().split('T')[0];
+            }
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>
