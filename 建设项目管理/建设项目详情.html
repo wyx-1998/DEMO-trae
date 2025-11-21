@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建设项目详情 - 安全管理系统</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px; /* 为固定的按钮条留出空间 */
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #909399;
+            font-size: 14px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-item.half-width {
+            flex: 0 0 calc(50% - 12px);
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 120px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .view-content {
+            display: none;
+            padding: 12px 0;
+            color: #303133;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 20px;
+            flex: 1;
+        }
+
+        .view-mode .form-input,
+        .view-mode .form-select,
+        .view-mode .form-textarea {
+            display: none;
+        }
+
+        .view-mode .view-content {
+            display: block;
+        }
+
+        .view-content.empty {
+            color: #c0c4cc;
+            font-style: italic;
+        }
+
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(51, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success {
+            background: #67c23a;
+            border-color: #67c23a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #85ce61;
+            border-color: #85ce61;
+        }
+
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .mode-toggle .btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        /* 表格样式 */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .info-table th,
+        .info-table td {
+            border: 1px solid #ebeef5;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .info-table th {
+            background: #f5f7fa;
+            font-weight: 500;
+            color: #909399;
+            width: 150px;
+        }
+
+        .info-table td input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+        }
+
+        /* Tab样式 */
+        .material-tabs {
+            display: flex;
+            border-bottom: 2px solid #e4e7ed;
+            margin-bottom: 20px;
+        }
+
+        .material-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            color: #606266;
+        }
+
+        .material-tab:hover {
+            color: #409eff;
+        }
+
+        .material-tab.active {
+            color: #409eff;
+            border-bottom-color: #409eff;
+            font-weight: 500;
+        }
+
+        /* 树形结构样式 */
+        .tree-file-container {
+            display: flex;
+            gap: 20px;
+            min-height: 400px;
+        }
+
+        .tree-container {
+            width: 250px;
+            border: 1px solid #ebeef5;
+            border-radius: 4px;
+            padding: 16px;
+            background: #fafbfc;
+        }
+
+        .tree-node {
+            padding: 8px 12px;
+            margin: 4px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            background: #e6f7ff;
+        }
+
+        .tree-node.active {
+            background: #409eff;
+            color: white;
+        }
+
+        .tree-node.level-2 {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
+        .file-list-container {
+            flex: 1;
+            border: 1px solid #ebeef5;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .file-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .file-list-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid #ebeef5;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            background: #f5f7fa;
+        }
+
+        .file-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e6f7ff;
+            border-radius: 4px;
+            color: #409eff;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-action-btn {
+            padding: 4px 8px;
+            border: 1px solid #dcdfe6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-action-btn:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 20px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #409eff 0%, #67c23a 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .form-label {
+                width: auto;
+                padding-top: 0;
+            }
+
+            .module-content {
+                padding: 16px;
+            }
+
+            .form-actions {
+                padding: 16px;
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .tree-file-container {
+                flex-direction: column;
+            }
+
+            .tree-container {
+                width: 100%;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-module {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- 模式切换按钮 -->
+        <div class="mode-toggle" v-if="mode === 'view'">
+            <button class="btn btn-secondary" @click="switchToEditMode">
+                <i class="fas fa-edit"></i>
+                <span>编辑模式</span>
+            </button>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fas fa-building"></i>
+                {{ pageTitle }}
+            </div>
+            <div class="page-subtitle">{{ pageSubtitle }}</div>
+        </div>
+
+        <!-- 表单容器 -->
+        <div class="form-container" :class="{ 'view-mode': mode === 'view' }">
+            <!-- 基本信息模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule($event)">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">项目编号</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.projectCode" placeholder="请输入项目编号">
+                                <div class="view-content">{{ formData.projectCode || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">项目名称</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.projectName" placeholder="请输入项目名称">
+                                <div class="view-content">{{ formData.projectName || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">统计年份</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.statisticsYear" placeholder="请输入统计年份">
+                                <div class="view-content">{{ formData.statisticsYear || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">项目管理类型</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" v-model="formData.managementType">
+                                    <option value="">请选择</option>
+                                    <option value="EPC">EPC(工程总承包)</option>
+                                    <option value="EPCM">EPCM(工程总承包)</option>
+                                    <option value="PC">PC(采购-施工承包)</option>
+                                    <option value="C">C(施工总承包)</option>
+                                    <option value="EMC">EMC(合同能源管理)</option>
+                                    <option value="DB">DB(设计-施工)</option>
+                                    <option value="CM">CM(施工管理)</option>
+                                    <option value="PMC">PMC(项目管理承包)</option>
+                                    <option value="other">其他</option>
+                                </select>
+                                <div class="view-content">{{ getManagementTypeLabel(formData.managementType) || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">建设类别</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" v-model="formData.buildingCategory">
+                                    <option value="">请选择</option>
+                                    <option value="industrial">工业建筑</option>
+                                    <option value="civil">民用建筑</option>
+                                    <option value="commercial">商用建筑</option>
+                                </select>
+                                <div class="view-content">{{ getBuildingCategoryLabel(formData.buildingCategory) || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">建设性质</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" v-model="formData.buildingNature">
+                                    <option value="">请选择</option>
+                                    <option value="new">新建</option>
+                                    <option value="expand">扩建</option>
+                                    <option value="rebuild">改建</option>
+                                    <option value="relocate">迁建</option>
+                                    <option value="restore">恢复</option>
+                                    <option value="other">其他</option>
+                                </select>
+                                <div class="view-content">{{ getBuildingNatureLabel(formData.buildingNature) || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">项目投资(万元)</label>
+                            <div class="form-control">
+                                <input type="number" class="form-input" v-model="formData.investment" placeholder="请输入项目投资">
+                                <div class="view-content">{{ formData.investment || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">经纬度坐标</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.coordinates" placeholder="请输入经纬度坐标">
+                                <div class="view-content">
+                                    {{ formData.coordinates || '-' }}
+                                    <a href="https://lbs.amap.com/tools/picker" target="_blank" style="margin-left: 10px; color: #409eff;">查询坐标</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">是否纳入安全管理</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" v-model="formData.safetyManagement">
+                                    <option value="">请选择</option>
+                                    <option value="yes">是</option>
+                                    <option value="no">否</option>
+                                </select>
+                                <div class="view-content">{{ formData.safetyManagement === 'yes' ? '是' : '否' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">项目地址</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.address" placeholder="请输入项目地址"></textarea>
+                                <div class="view-content">{{ formData.address || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">项目概况</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.overview" placeholder="请输入项目概况"></textarea>
+                                <div class="view-content">{{ formData.overview || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item half-width">
+                            <label class="form-label">计划开工日期</label>
+                            <div class="form-control">
+                                <input type="date" class="form-input" v-model="formData.planStartDate">
+                                <div class="view-content">{{ formData.planStartDate || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item half-width">
+                            <label class="form-label">计划竣工日期</label>
+                            <div class="form-control">
+                                <input type="date" class="form-input" v-model="formData.planEndDate">
+                                <div class="view-content">{{ formData.planEndDate || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目单位信息模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule($event)">
+                    <div class="module-title">
+                        <i class="fas fa-users"></i>
+                        项目单位信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>单位类型</th>
+                                <th>组织类型</th>
+                                <th>单位名称</th>
+                                <th>项目负责人</th>
+                                <th>联系方式</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>业主单位(发包方)</td>
+                                <td>
+                                    <input type="text" v-model="formData.ownerOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.ownerOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.ownerUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.ownerUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.ownerManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.ownerManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.ownerContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.ownerContact || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>实施单位(承包方)</td>
+                                <td>
+                                    <input type="text" v-model="formData.implementOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.implementOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.implementUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.implementUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.implementManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.implementManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.implementContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.implementContact || '-' }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-top: 24px; margin-bottom: 12px; font-size: 14px; color: #606266;">其他相关单位</h4>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>单位类型</th>
+                                <th>组织类型</th>
+                                <th>单位名称</th>
+                                <th>项目负责人</th>
+                                <th>联系方式</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>管理单位</td>
+                                <td>
+                                    <input type="text" v-model="formData.managementOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.managementOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.managementUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.managementUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.managementManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.managementManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.managementContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.managementContact || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>设计单位</td>
+                                <td>
+                                    <input type="text" v-model="formData.designOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.designOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.designUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.designUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.designManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.designManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.designContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.designContact || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>监理单位</td>
+                                <td>
+                                    <input type="text" v-model="formData.supervisionOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.supervisionOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.supervisionUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.supervisionUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.supervisionManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.supervisionManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.supervisionContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.supervisionContact || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>地勘单位</td>
+                                <td>
+                                    <input type="text" v-model="formData.surveyOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.surveyOrgType || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.surveyUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.surveyUnit || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.surveyManager" placeholder="请输入项目负责人" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.surveyManager || '-' }}</span>
+                                </td>
+                                <td>
+                                    <input type="text" v-model="formData.surveyContact" placeholder="请输入联系方式" v-if="mode !== 'view'">
+                                    <span v-else>{{ formData.surveyContact || '-' }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 项目进展模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule($event)">
+                    <div class="module-title">
+                        <i class="fas fa-tasks"></i>
+                        项目进展
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">项目状态</label>
+                            <div class="form-control">
+                                <select class="form-input form-select" v-model="formData.projectStatus">
+                                    <option value="building">建设中</option>
+                                    <option value="completed">已竣工</option>
+                                </select>
+                                <div class="view-content">{{ formData.projectStatus === 'building' ? '建设中' : '已竣工' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">实际开工日期</label>
+                            <div class="form-control">
+                                <input type="date" class="form-input" v-model="formData.actualStartDate">
+                                <div class="view-content">{{ formData.actualStartDate || '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">实际竣工日期</label>
+                            <div class="form-control">
+                                <input type="date" class="form-input" v-model="formData.actualEndDate">
+                                <div class="view-content">{{ formData.actualEndDate || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">项目完成百分比</label>
+                            <div class="form-control">
+                                <div v-if="mode !== 'view'">
+                                    <input type="range" min="0" max="100" v-model="formData.completionPercentage" style="width: 100%;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <input type="number" v-model="formData.completionPercentage" min="0" max="100" style="width: 80px; text-align: center;"> %
+                                    </div>
+                                </div>
+                                <div class="view-content">
+                                    <div class="progress-container">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" :style="{ width: formData.completionPercentage + '%' }">
+                                                {{ formData.completionPercentage }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">当前进展阶段</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.currentStage" placeholder="请输入当前进展阶段"></textarea>
+                                <div class="view-content">{{ formData.currentStage || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目安全管理资料模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule($event)">
+                    <div class="module-title">
+                        <i class="fas fa-folder-open"></i>
+                        项目安全管理资料
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle"></i>
+                </div>
+                <div class="module-content">
+                    <!-- Tab切换 -->
+                    <div class="material-tabs">
+                        <div 
+                            class="material-tab"
+                            :class="{ active: activeMaterialTab === 'safety' }"
+                            @click="activeMaterialTab = 'safety'">
+                            安全设施三同时
+                        </div>
+                        <div 
+                            class="material-tab"
+                            :class="{ active: activeMaterialTab === 'health' }"
+                            @click="activeMaterialTab = 'health'">
+                            职业健康三同时
+                        </div>
+                        <div 
+                            class="material-tab"
+                            :class="{ active: activeMaterialTab === 'fire' }"
+                            @click="activeMaterialTab = 'fire'">
+                            消防三同时
+                        </div>
+                        <div 
+                            class="material-tab"
+                            :class="{ active: activeMaterialTab === 'other' }"
+                            @click="activeMaterialTab = 'other'">
+                            其他安全管理资料
+                        </div>
+                    </div>
+
+                    <!-- 树形结构和文件列表 -->
+                    <div class="tree-file-container">
+                        <!-- 左侧树形结构 -->
+                        <div class="tree-container">
+                            <h4 style="margin-bottom: 12px; font-size: 14px; color: #303133;">节点分类</h4>
+                            <div v-if="activeMaterialTab === 'safety'">
+                                <div class="tree-node" :class="{ active: selectedNode === 'design' }" @click="selectedNode = 'design'">
+                                    <i class="fas fa-folder"></i> 设计阶段
+                                </div>
+                                <div class="tree-node" :class="{ active: selectedNode === 'construction' }" @click="selectedNode = 'construction'">
+                                    <i class="fas fa-folder"></i> 施工阶段
+                                </div>
+                                <div class="tree-node" :class="{ active: selectedNode === 'usage' }" @click="selectedNode = 'usage'">
+                                    <i class="fas fa-folder"></i> 使用阶段
+                                </div>
+                            </div>
+                            <div v-if="activeMaterialTab === 'health'">
+                                <div class="tree-node" :class="{ active: selectedNode === 'feasibility' }" @click="selectedNode = 'feasibility'">
+                                    <i class="fas fa-folder"></i> 可行性论证阶段
+                                </div>
+                                <div class="tree-node" :class="{ active: selectedNode === 'design' }" @click="selectedNode = 'design'">
+                                    <i class="fas fa-folder"></i> 设计阶段
+                                </div>
+                                <div class="tree-node" :class="{ active: selectedNode === 'acceptance' }" @click="selectedNode = 'acceptance'">
+                                    <i class="fas fa-folder"></i> 验收阶段
+                                </div>
+                            </div>
+                            <div v-if="activeMaterialTab === 'fire'">
+                                <div class="tree-node" :class="{ active: selectedNode === 'design' }" @click="selectedNode = 'design'">
+                                    <i class="fas fa-folder"></i> 设计阶段
+                                </div>
+                                <div class="tree-node" :class="{ active: selectedNode === 'acceptance' }" @click="selectedNode = 'acceptance'">
+                                    <i class="fas fa-folder"></i> 验收阶段
+                                </div>
+                            </div>
+                            <div v-if="activeMaterialTab === 'other'">
+                                <div class="tree-node" :class="{ active: selectedNode === 'other' }" @click="selectedNode = 'other'">
+                                    <i class="fas fa-folder"></i> 其他资料
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧文件列表 -->
+                        <div class="file-list-container">
+                            <div class="file-list-header">
+                                <div>
+                                    <input type="text" placeholder="搜索文件名" style="padding: 8px 12px; border: 1px solid #dcdfe6; border-radius: 4px; width: 200px;">
+                                </div>
+                                <div class="file-list-actions" v-if="mode !== 'view'">
+                                    <button class="btn btn-primary" style="padding: 8px 16px;">
+                                        <i class="fas fa-upload"></i> 上传附件
+                                    </button>
+                                    <button class="btn btn-secondary" style="padding: 8px 16px;">
+                                        <i class="fas fa-download"></i> 批量下载
+                                    </button>
+                                    <button class="btn btn-secondary" style="padding: 8px 16px;">
+                                        <i class="fas fa-trash"></i> 批量删除
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 文件列表 -->
+                            <div v-if="mockFiles.length === 0" style="text-align: center; padding: 40px; color: #909399;">
+                                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 12px; display: block;"></i>
+                                <p>暂无文件</p>
+                            </div>
+                            <div v-else>
+                                <div class="file-item" v-for="file in mockFiles" :key="file.id">
+                                    <div class="file-info">
+                                        <div class="file-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 500; margin-bottom: 4px;">{{ file.name }}</div>
+                                            <div style="font-size: 12px; color: #909399;">
+                                                上传人: {{ file.uploader }} | 上传时间: {{ file.uploadTime }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="file-actions">
+                                        <button class="file-action-btn">
+                                            <i class="fas fa-eye"></i> 查看
+                                        </button>
+                                        <button class="file-action-btn">
+                                            <i class="fas fa-download"></i> 下载
+                                        </button>
+                                        <button class="file-action-btn" v-if="mode !== 'view'" style="color: #f56c6c;">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 表单操作按钮 -->
+            <div class="form-actions" v-if="mode !== 'view'">
+                <button type="button" class="btn btn-secondary" @click="handleCancel">
+                    <i class="fas fa-times"></i>
+                    取消
+                </button>
+                <button type="button" class="btn btn-secondary" @click="handleSaveDraft">
+                    <i class="fas fa-save"></i>
+                    保存草稿
+                </button>
+                <button type="button" class="btn btn-success" v-if="formData.safetyManagement === 'yes'" @click="handleSubmitApproval">
+                    <i class="fas fa-paper-plane"></i>
+                    提交审批
+                </button>
+                <button type="button" class="btn btn-primary" @click="handleSubmit">
+                    <i class="fas fa-check"></i>
+                    提交
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    mode: 'new', // new, edit, view
+                    activeMaterialTab: 'safety',
+                    selectedNode: 'design',
+                    formData: {
+                        projectCode: '',
+                        projectName: '',
+                        statisticsYear: '2024',
+                        managementType: '',
+                        buildingCategory: '',
+                        buildingNature: '',
+                        investment: '',
+                        coordinates: '',
+                        safetyManagement: 'yes',
+                        address: '',
+                        overview: '',
+                        planStartDate: '',
+                        planEndDate: '',
+                        ownerOrgType: '',
+                        ownerUnit: '',
+                        ownerManager: '',
+                        ownerContact: '',
+                        implementOrgType: '',
+                        implementUnit: '',
+                        implementManager: '',
+                        implementContact: '',
+                        managementOrgType: '',
+                        managementUnit: '',
+                        managementManager: '',
+                        managementContact: '',
+                        designOrgType: '',
+                        designUnit: '',
+                        designManager: '',
+                        designContact: '',
+                        supervisionOrgType: '',
+                        supervisionUnit: '',
+                        supervisionManager: '',
+                        supervisionContact: '',
+                        surveyOrgType: '',
+                        surveyUnit: '',
+                        surveyManager: '',
+                        surveyContact: '',
+                        projectStatus: 'building',
+                        actualStartDate: '',
+                        actualEndDate: '',
+                        completionPercentage: 0,
+                        currentStage: ''
+                    },
+                    mockFiles: [
+                        {
+                            id: 1,
+                            name: '安全设施设计方案.pdf',
+                            uploader: '张三',
+                            uploadTime: '2024-01-15 10:30:00'
+                        },
+                        {
+                            id: 2,
+                            name: '施工安全评估报告.pdf',
+                            uploader: '李四',
+                            uploadTime: '2024-01-16 14:20:00'
+                        }
+                    ]
+                };
+            },
+            computed: {
+                pageTitle() {
+                    const titles = {
+                        'new': '新建建设项目',
+                        'edit': '编辑建设项目',
+                        'view': '查看建设项目'
+                    };
+                    return titles[this.mode] || '建设项目详情';
+                },
+                pageSubtitle() {
+                    if (this.mode === 'view' && this.formData.projectName) {
+                        return `项目名称: ${this.formData.projectName}`;
+                    }
+                    return '请填写建设项目的基本信息';
+                }
+            },
+            methods: {
+                toggleModule(event) {
+                    const header = event.currentTarget;
+                    const content = header.nextElementSibling;
+                    const toggle = header.querySelector('.module-toggle');
+                    
+                    content.classList.toggle('collapsed');
+                    toggle.classList.toggle('collapsed');
+                },
+                switchToEditMode() {
+                    this.mode = 'edit';
+                },
+                handleCancel() {
+                    if (confirm('确定要取消吗?未保存的数据将丢失。')) {
+                        window.location.href = '建设项目列表.html';
+                    }
+                },
+                handleSaveDraft() {
+                    alert('草稿保存成功');
+                },
+                handleSubmitApproval() {
+                    if (this.validateForm()) {
+                        alert('已提交审批,审批通过后将自动创建建设项目组织');
+                        window.location.href = '建设项目列表.html';
+                    }
+                },
+                handleSubmit() {
+                    if (this.validateForm()) {
+                        alert('提交成功');
+                        window.location.href = '建设项目列表.html';
+                    }
+                },
+                validateForm() {
+                    if (!this.formData.projectCode) {
+                        alert('请输入项目编号');
+                        return false;
+                    }
+                    if (!this.formData.projectName) {
+                        alert('请输入项目名称');
+                        return false;
+                    }
+                    if (!this.formData.managementType) {
+                        alert('请选择项目管理类型');
+                        return false;
+                    }
+                    if (!this.formData.buildingCategory) {
+                        alert('请选择建设类别');
+                        return false;
+                    }
+                    if (!this.formData.buildingNature) {
+                        alert('请选择建设性质');
+                        return false;
+                    }
+                    return true;
+                },
+                getManagementTypeLabel(value) {
+                    const map = {
+                        'EPC': 'EPC(工程总承包)',
+                        'EPCM': 'EPCM(工程总承包)',
+                        'PC': 'PC(采购-施工承包)',
+                        'C': 'C(施工总承包)',
+                        'EMC': 'EMC(合同能源管理)',
+                        'DB': 'DB(设计-施工)',
+                        'CM': 'CM(施工管理)',
+                        'PMC': 'PMC(项目管理承包)',
+                        'other': '其他'
+                    };
+                    return map[value] || '';
+                },
+                getBuildingCategoryLabel(value) {
+                    const map = {
+                        'industrial': '工业建筑',
+                        'civil': '民用建筑',
+                        'commercial': '商用建筑'
+                    };
+                    return map[value] || '';
+                },
+                getBuildingNatureLabel(value) {
+                    const map = {
+                        'new': '新建',
+                        'expand': '扩建',
+                        'rebuild': '改建',
+                        'relocate': '迁建',
+                        'restore': '恢复',
+                        'other': '其他'
+                    };
+                    return map[value] || '';
+                }
+            },
+            mounted() {
+                // 从URL参数获取模式
+                const urlParams = new URLSearchParams(window.location.search);
+                const mode = urlParams.get('mode');
+                if (mode) {
+                    this.mode = mode;
+                }
+
+                // 如果是查看或编辑模式,加载数据
+                const id = urlParams.get('id');
+                if (id && (mode === 'view' || mode === 'edit')) {
+                    // 这里模拟加载数据
+                    this.formData = {
+                        projectCode: 'PRJ20240001',
+                        projectName: '办公楼建设项目',
+                        statisticsYear: '2024',
+                        managementType: 'EPC',
+                        buildingCategory: 'commercial',
+                        buildingNature: 'new',
+                        investment: '5000',
+                        coordinates: '116.404, 39.915',
+                        safetyManagement: 'yes',
+                        address: '北京市朝阳区某某街道123号',
+                        overview: '本项目为新建办公楼项目,总建筑面积约10000平方米,地上10层,地下2层。',
+                        planStartDate: '2024-01-15',
+                        planEndDate: '2024-12-31',
+                        ownerOrgType: '国有企业',
+                        ownerUnit: '某某集团有限公司',
+                        ownerManager: '张三',
+                        ownerContact: '13800138000',
+                        implementOrgType: '建筑施工企业',
+                        implementUnit: '某某建设有限公司',
+                        implementManager: '李四',
+                        implementContact: '13800138001',
+                        managementOrgType: '项目管理公司',
+                        managementUnit: '某某项目管理有限公司',
+                        managementManager: '王五',
+                        managementContact: '13800138002',
+                        designOrgType: '设计院',
+                        designUnit: '某某设计院',
+                        designManager: '赵六',
+                        designContact: '13800138003',
+                        supervisionOrgType: '监理公司',
+                        supervisionUnit: '某某监理有限公司',
+                        supervisionManager: '钱七',
+                        supervisionContact: '13800138004',
+                        surveyOrgType: '勘察院',
+                        surveyUnit: '某某勘察院',
+                        surveyManager: '孙八',
+                        surveyContact: '13800138005',
+                        projectStatus: 'building',
+                        actualStartDate: '2024-01-20',
+                        actualEndDate: '',
+                        completionPercentage: 45,
+                        currentStage: '目前正在进行主体结构施工,预计6月底完成主体封顶。'
+                    };
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

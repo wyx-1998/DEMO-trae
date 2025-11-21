@@ -266,7 +266,7 @@
         
         .main-content {
             flex: 1;
-            padding: 24px;
+            padding: 0;
             overflow-y: auto;
             background: #f0f2f5;
         }
@@ -319,7 +319,7 @@
             }
             
             .main-content {
-                padding: 15px;
+                padding: 0;
             }
             
             .stats-grid {
@@ -370,10 +370,10 @@
         
         .app-cards-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             justify-content: center;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -442,7 +442,7 @@
         @media (max-width: 1024px) {
             .app-cards-grid {
                 grid-template-columns: repeat(2, 1fr);
-                max-width: 600px;
+                max-width: 700px;
             }
         }
         
@@ -526,6 +526,13 @@
                             <a href="#" class="nav-link" @click="switchModule('workplace')">
                                 <i class="fas fa-building"></i>
                                 <span>工作场所</span>
+                            </a>
+                        </div>
+                        
+                        <div class="nav-item" :class="{ active: currentModule === 'construction' }">
+                            <a href="#" class="nav-link" @click="switchModule('construction')">
+                                <i class="fas fa-hard-hat"></i>
+                                <span>建设项目管理</span>
                             </a>
                         </div>
                     </nav>
@@ -620,6 +627,14 @@
                             <el-menu-item index="risk-dashboard">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <template #title>风险分析看板</template>
+                            </el-menu-item>
+                        </template>
+                        
+                        <!-- 建设项目管理模块菜单 -->
+                        <template v-else-if="currentModule === 'construction'">
+                            <el-menu-item index="construction-project-list">
+                                <i class="fas fa-list"></i>
+                                <template #title>建设项目列表</template>
                             </el-menu-item>
                         </template>
                         
@@ -760,6 +775,15 @@
                                         <h3 class="app-card-title">工作场所</h3>
                                         <p class="app-card-description">建筑物管理、安全设施管理、通风照明管理</p>
                                     </div>
+                                    
+                                    <!-- 建设项目管理应用卡片 -->
+                                    <div class="app-card" @click="switchToModule('construction')">
+                                        <div class="app-card-icon">
+                                            <i class="fas fa-hard-hat"></i>
+                                        </div>
+                                        <h3 class="app-card-title">建设项目管理</h3>
+                                        <p class="app-card-description">建设项目信息管理、项目进度跟踪、安全资料维护</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -840,6 +864,24 @@
                         <div class="content-wrapper" v-else-if="activeMenu === 'risk-dashboard'">
                             <iframe 
                                 src="./风险分析/风险分析看板.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+                        <!-- 建设项目列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'construction-project-list'">
+                            <iframe 
+                                src="./建设项目管理/建设项目列表.html" 
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+                        
+                        <!-- 建设项目详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'construction-project-detail'">
+                            <iframe 
+                                src="./建设项目管理/建设项目详情.html" 
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -1036,6 +1078,8 @@
                     'meeting-task-execute': { title: '任务执行', icon: 'fas fa-clipboard-check' },
                     'create-meeting': { title: '新建安全会议', icon: 'el-icon-plus' },
                     'risk-dashboard': { title: '风险分析看板', icon: 'el-icon-data-line' },
+                    'construction-project-list': { title: '建设项目列表', icon: 'fas fa-list' },
+                    'construction-project-detail': { title: '建设项目详情', icon: 'fas fa-info-circle' },
                     'building-management': { title: '建（构）筑物管理', icon: 'fas fa-building' },
                     'safety-standard-library': { title: '标准标志库', icon: 'fas fa-database' },
                     'safety-sign-ledger': { title: '标志管理台账', icon: 'fas fa-file-alt' },
@@ -1092,6 +1136,12 @@
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
+                        
+                    } else if (module === 'construction') {
+                        const defaultPage = 'construction-project-list';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
                     }
                 };
                 
@@ -1124,6 +1174,12 @@
                         
                     } else if (module === 'workplace') {
                         const defaultPage = 'building-management';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
+                        
+                    } else if (module === 'construction') {
+                        const defaultPage = 'construction-project-list';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;

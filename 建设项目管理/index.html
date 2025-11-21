@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建设项目管理 - 入口页面</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .card-features li {
+            padding: 8px 0;
+            color: #606266;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-features li i {
+            color: #67c23a;
+            margin-right: 8px;
+        }
+
+        .card-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .card-button:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-title i {
+            color: #667eea;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            padding: 20px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item h4 {
+            font-size: 16px;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .info-item p {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-building"></i>
+                建设项目管理
+            </h1>
+            <p>Building Project Management System</p>
+        </div>
+
+        <div class="cards">
+            <div class="card" onclick="window.location.href='建设项目列表.html'">
+                <div class="card-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="card-title">建设项目列表</div>
+                <div class="card-description">
+                    查看和管理所有建设项目,支持多条件搜索、批量操作、项目进度更新等功能。
+                </div>
+                <ul class="card-features">
+                    <li><i class="fas fa-check-circle"></i> Tab状态切换(建设中、已竣工、申报中、草稿)</li>
+                    <li><i class="fas fa-check-circle"></i> 多条件搜索与筛选</li>
+                    <li><i class="fas fa-check-circle"></i> 快速更新项目进度</li>
+                    <li><i class="fas fa-check-circle"></i> 上传安全管理资料</li>
+                    <li><i class="fas fa-check-circle"></i> 批量操作与导出</li>
+                </ul>
+                <a href="建设项目列表.html" class="card-button">
+                    进入列表页
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="card" onclick="window.location.href='建设项目详情.html?mode=new'">
+                <div class="card-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="card-title">新建建设项目</div>
+                <div class="card-description">
+                    创建新的建设项目,填写项目基本信息、单位信息、项目进展等详细内容。
+                </div>
+                <ul class="card-features">
+                    <li><i class="fas fa-check-circle"></i> 完整的项目信息管理</li>
+                    <li><i class="fas fa-check-circle"></i> 项目单位信息维护</li>
+                    <li><i class="fas fa-check-circle"></i> 项目进度跟踪</li>
+                    <li><i class="fas fa-check-circle"></i> 安全管理资料上传</li>
+                    <li><i class="fas fa-check-circle"></i> 支持草稿保存</li>
+                </ul>
+                <a href="建设项目详情.html?mode=new" class="card-button">
+                    新建项目
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="card" onclick="window.location.href='建设项目详情.html?id=1&mode=view'">
+                <div class="card-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="card-title">查看项目详情</div>
+                <div class="card-description">
+                    查看建设项目的完整信息,包括基本信息、单位信息、项目进展和安全管理资料。
+                </div>
+                <ul class="card-features">
+                    <li><i class="fas fa-check-circle"></i> 只读模式查看项目信息</li>
+                    <li><i class="fas fa-check-circle"></i> 可切换到编辑模式</li>
+                    <li><i class="fas fa-check-circle"></i> 查看项目进度详情</li>
+                    <li><i class="fas fa-check-circle"></i> 浏览安全管理资料</li>
+                    <li><i class="fas fa-check-circle"></i> 模块化信息展示</li>
+                </ul>
+                <a href="建设项目详情.html?id=1&mode=view" class="card-button">
+                    查看示例
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="card" onclick="window.location.href='建设项目详情.html?id=1&mode=edit'">
+                <div class="card-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="card-title">编辑建设项目</div>
+                <div class="card-description">
+                    编辑已有建设项目的信息,更新项目详情、维护项目资料、跟踪项目进展。
+                </div>
+                <ul class="card-features">
+                    <li><i class="fas fa-check-circle"></i> 修改项目基本信息</li>
+                    <li><i class="fas fa-check-circle"></i> 更新单位信息</li>
+                    <li><i class="fas fa-check-circle"></i> 维护项目进度</li>
+                    <li><i class="fas fa-check-circle"></i> 管理安全资料</li>
+                    <li><i class="fas fa-check-circle"></i> 提交审批流程</li>
+                </ul>
+                <a href="建设项目详情.html?id=1&mode=edit" class="card-button">
+                    编辑示例
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-title">
+                <i class="fas fa-info-circle"></i>
+                系统说明
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <h4><i class="fas fa-user"></i> 使用人群</h4>
+                    <p>建设项目安全管理人员、领导可查看项目信息;建设项目安全管理人员可更新项目进展、上传安全管理资料。</p>
+                </div>
+                <div class="info-item">
+                    <h4><i class="fas fa-cog"></i> 主要功能</h4>
+                    <p>实现建设项目基础信息的建立与申报;实现建设项目安全设施三同时、职业健康三同时、消防三同时和其他安全管理资料的在线维护管理。</p>
+                </div>
+                <div class="info-item">
+                    <h4><i class="fas fa-shield-alt"></i> 安全管理</h4>
+                    <p>选择"是否纳入安全管理=是"的建设项目需要进行审批,审批通过后系统将自动创建该建设项目组织及安全管理部门等。</p>
+                </div>
+                <div class="info-item">
+                    <h4><i class="fas fa-chart-line"></i> 进度跟踪</h4>
+                    <p>支持实时更新项目进度,包括项目状态、实际开工日期、实际竣工日期、完成百分比和当前进展阶段等信息。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加卡片点击动画效果
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // 如果点击的是链接,则不执行动画
+                if (e.target.tagName === 'A') {
+                    return;
+                }
+                
+                // 创建点击波纹效果
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(102, 126, 234, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 阻止卡片上的链接触发卡片点击事件
+        document.querySelectorAll('.card-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

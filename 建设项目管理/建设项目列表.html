@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建设项目管理 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .container {
+            padding: 20px;
+            padding-top: 0;
+        }
+
+        /* 固定区域容器 */
+        .fixed-area {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #f5f7fa;
+            padding-top: 20px;
+            margin: 0 -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .button-group {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tabs-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .operation-button {
+            padding: 0;
+            margin: 0 4px;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .status-building {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .status-completed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-submitting {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-draft {
+            background: #f5f5f5;
+            color: #8c8c8c;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <!-- 固定区域 -->
+        <div class="fixed-area">
+            <!-- 功能按钮组 -->
+            <div class="button-group">
+                <el-button type="primary" icon="el-icon-plus" @click="handleNew">新建</el-button>
+                <el-button type="danger" icon="el-icon-delete" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除</el-button>
+                <el-button type="success" icon="el-icon-download">导出</el-button>
+            </div>
+
+            <!-- Tab切换 -->
+            <div class="tabs-wrapper">
+                <el-tabs v-model="activeTab" @tab-click="handleTabClick" style="background: white; padding: 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                    <el-tab-pane label="建设中" name="building"></el-tab-pane>
+                    <el-tab-pane label="已竣工" name="completed"></el-tab-pane>
+                    <el-tab-pane label="申报中" name="submitting"></el-tab-pane>
+                    <el-tab-pane label="草稿" name="draft"></el-tab-pane>
+                </el-tabs>
+            </div>
+
+            <!-- 搜索表单 -->
+            <div class="search-form">
+            <el-form :model="searchForm" ref="searchForm" :inline="true" label-width="100px">
+                <template v-for="(field, index) in visibleSearchFields">
+                    <el-form-item :label="field.label" :key="field.prop">
+                        <el-input 
+                            v-if="field.type === 'input'"
+                            v-model="searchForm[field.prop]"
+                            :placeholder="'请输入' + field.label"
+                            clearable
+                            style="width: 200px;">
+                        </el-input>
+                        <el-select
+                            v-if="field.type === 'select'"
+                            v-model="searchForm[field.prop]"
+                            :placeholder="'请选择' + field.label"
+                            clearable
+                            style="width: 200px;">
+                            <el-option
+                                v-for="item in field.options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <el-date-picker
+                            v-if="field.type === 'date'"
+                            v-model="searchForm[field.prop]"
+                            type="date"
+                            :placeholder="'选择' + field.label"
+                            clearable
+                            style="width: 200px;">
+                        </el-date-picker>
+                    </el-form-item>
+                </template>
+                <el-form-item>
+                    <el-button type="primary" @click="handleSearch">搜索</el-button>
+                    <el-button @click="handleReset">重置</el-button>
+                    <el-button type="text" @click="toggleSearchFields">
+                        {{ isExpanded ? '收起' : '展开' }}
+                        <i :class="['el-icon-arrow-' + (isExpanded ? 'up' : 'down')]"></i>
+                    </el-button>
+                </el-form-item>
+            </el-form>
+            </div>
+        </div>
+        <!-- 固定区域结束 -->
+
+        <!-- 表格 -->
+        <div class="table-container">
+            <el-table
+                :data="tableData"
+                border
+                stripe
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55" align="center"></el-table-column>
+                <el-table-column prop="projectCode" label="项目编号" width="150" align="center"></el-table-column>
+                <el-table-column prop="projectName" label="项目名称" min-width="180">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.projectName" placement="top" :disabled="scope.row.projectName.length <= 20">
+                            <div class="text-ellipsis">{{ scope.row.projectName }}</div>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="managementType" label="项目管理类型" width="150" align="center"></el-table-column>
+                <el-table-column prop="buildingCategory" label="建设类别" width="120" align="center"></el-table-column>
+                <el-table-column prop="buildingNature" label="建设性质" width="100" align="center"></el-table-column>
+                <el-table-column prop="projectStatus" label="项目状态" width="100" align="center">
+                    <template slot-scope="scope">
+                        <span :class="getStatusClass(scope.row.projectStatus)">
+                            {{ scope.row.projectStatus }}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="ownerUnit" label="业主单位(发包方)" min-width="150">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.ownerUnit" placement="top" :disabled="scope.row.ownerUnit.length <= 15">
+                            <div class="text-ellipsis">{{ scope.row.ownerUnit }}</div>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="implementUnit" label="实施单位(承包方)" min-width="150">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.implementUnit" placement="top" :disabled="scope.row.implementUnit.length <= 15">
+                            <div class="text-ellipsis">{{ scope.row.implementUnit }}</div>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="safetyManagement" label="是否纳入安全管理" width="140" align="center">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.safetyManagement === '是' ? 'success' : 'info'" size="small">
+                            {{ scope.row.safetyManagement }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="planStartDate" label="计划开工日期" width="120" align="center"></el-table-column>
+                <el-table-column prop="actualStartDate" label="实际开工日期" width="120" align="center"></el-table-column>
+                <el-table-column prop="planEndDate" label="计划竣工日期" width="120" align="center"></el-table-column>
+                <el-table-column prop="actualEndDate" label="实际竣工日期" width="120" align="center"></el-table-column>
+                <el-table-column prop="currentStage" label="当前进展阶段" min-width="150">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.currentStage" placement="top" :disabled="scope.row.currentStage.length <= 15">
+                            <div class="text-ellipsis">{{ scope.row.currentStage }}</div>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="completionPercentage" label="完成百分比(%)" width="130" align="center">
+                    <template slot-scope="scope">
+                        <el-progress :percentage="scope.row.completionPercentage" :color="getProgressColor(scope.row.completionPercentage)"></el-progress>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="280" align="center" fixed="right">
+                    <template slot-scope="scope">
+                        <el-tooltip content="查看" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-view"
+                                class="operation-button"
+                                @click="handleView(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="编辑" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-edit"
+                                class="operation-button"
+                                @click="handleEdit(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="更新项目进度" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-refresh"
+                                class="operation-button"
+                                @click="handleUpdateProgress(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="上传安全管理资料" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-upload"
+                                class="operation-button"
+                                @click="handleUploadMaterial(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="删除" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-delete"
+                                class="operation-button"
+                                style="color: #F56C6C;"
+                                @click="handleDelete(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div style="margin-top: 20px; text-align: right;">
+                <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="currentPage"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 更新项目进度弹窗 -->
+        <el-dialog title="更新项目进度" :visible.sync="progressDialogVisible" width="600px">
+            <el-form :model="progressForm" label-width="120px">
+                <el-form-item label="项目状态">
+                    <el-select v-model="progressForm.projectStatus" placeholder="请选择项目状态" style="width: 100%;">
+                        <el-option label="建设中" value="building"></el-option>
+                        <el-option label="已竣工" value="completed"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="实际开工日期">
+                    <el-date-picker
+                        v-model="progressForm.actualStartDate"
+                        type="date"
+                        placeholder="选择日期"
+                        style="width: 100%;">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="实际竣工日期">
+                    <el-date-picker
+                        v-model="progressForm.actualEndDate"
+                        type="date"
+                        placeholder="选择日期"
+                        style="width: 100%;">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="项目完成百分比">
+                    <el-slider v-model="progressForm.completionPercentage" :show-tooltip="true"></el-slider>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <el-input-number v-model="progressForm.completionPercentage" :min="0" :max="100" size="small"></el-input-number>
+                        <span style="margin-left: 10px;">%</span>
+                    </div>
+                </el-form-item>
+                <el-form-item label="当前进展阶段">
+                    <el-input
+                        type="textarea"
+                        v-model="progressForm.currentStage"
+                        placeholder="请输入当前进展阶段"
+                        :rows="4">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="progressDialogVisible = false">关闭</el-button>
+                <el-button type="primary" @click="saveProgress">保存</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 上传安全管理资料弹窗 -->
+        <el-dialog title="上传安全管理资料" :visible.sync="uploadDialogVisible" width="600px">
+            <el-form :model="uploadForm" label-width="100px">
+                <el-form-item label="类型">
+                    <el-select v-model="uploadForm.materialType" placeholder="请选择类型" style="width: 100%;" @change="handleMaterialTypeChange">
+                        <el-option label="安全设施三同时" value="safety"></el-option>
+                        <el-option label="职业健康三同时" value="health"></el-option>
+                        <el-option label="消防三同时" value="fire"></el-option>
+                        <el-option label="其他安全管理资料" value="other"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="所属节点">
+                    <el-select v-model="uploadForm.nodeId" placeholder="请选择所属节点" style="width: 100%;">
+                        <el-option
+                            v-for="node in currentNodes"
+                            :key="node.value"
+                            :label="node.label"
+                            :value="node.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="附件上传">
+                    <el-upload
+                        class="upload-demo"
+                        :action="uploadAction"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :file-list="fileList"
+                        :before-upload="beforeUpload"
+                        multiple>
+                        <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
+                        <div slot="tip" class="el-upload__tip">支持上传PDF、DOC、DOCX、JPG、PNG等格式文件,单个文件不超过10MB</div>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="uploadDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmUpload">确认</el-button>
+            </span>
+        </el-dialog>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    activeTab: 'building',
+                    isExpanded: false,
+                    searchFields: [
+                        { label: '项目编号', prop: 'projectCode', type: 'input' },
+                        { label: '项目名称', prop: 'projectName', type: 'input' },
+                        { 
+                            label: '项目管理类型', 
+                            prop: 'managementType', 
+                            type: 'select',
+                            options: [
+                                { label: 'EPC(工程总承包)', value: 'EPC' },
+                                { label: 'EPCM(工程总承包)', value: 'EPCM' },
+                                { label: 'PC(采购-施工承包)', value: 'PC' },
+                                { label: 'C(施工总承包)', value: 'C' },
+                                { label: 'EMC(合同能源管理)', value: 'EMC' },
+                                { label: 'DB(设计-施工)', value: 'DB' },
+                                { label: 'CM(施工管理)', value: 'CM' },
+                                { label: 'PMC(项目管理承包)', value: 'PMC' },
+                                { label: '其他', value: 'other' }
+                            ]
+                        },
+                        { 
+                            label: '建设类别', 
+                            prop: 'buildingCategory', 
+                            type: 'select',
+                            options: [
+                                { label: '工业建筑', value: 'industrial' },
+                                { label: '民用建筑', value: 'civil' },
+                                { label: '商用建筑', value: 'commercial' }
+                            ]
+                        },
+                        { 
+                            label: '建设性质', 
+                            prop: 'buildingNature', 
+                            type: 'select',
+                            options: [
+                                { label: '新建', value: 'new' },
+                                { label: '扩建', value: 'expand' },
+                                { label: '改建', value: 'rebuild' },
+                                { label: '迁建', value: 'relocate' },
+                                { label: '恢复', value: 'restore' },
+                                { label: '其他', value: 'other' }
+                            ]
+                        },
+                        { label: '业主单位', prop: 'ownerUnit', type: 'input' },
+                        { label: '实施单位', prop: 'implementUnit', type: 'input' },
+                        { 
+                            label: '是否纳入安全管理', 
+                            prop: 'safetyManagement', 
+                            type: 'select',
+                            options: [
+                                { label: '是', value: 'yes' },
+                                { label: '否', value: 'no' }
+                            ]
+                        }
+                    ],
+                    searchForm: {},
+                    tableData: [],
+                    selectedRows: [],
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    progressDialogVisible: false,
+                    progressForm: {
+                        projectStatus: '',
+                        actualStartDate: '',
+                        actualEndDate: '',
+                        completionPercentage: 0,
+                        currentStage: ''
+                    },
+                    uploadDialogVisible: false,
+                    uploadForm: {
+                        materialType: '',
+                        nodeId: '',
+                    },
+                    fileList: [],
+                    uploadAction: '/api/upload',
+                    currentNodes: [],
+                    materialNodes: {
+                        safety: [
+                            { label: '设计阶段', value: 'design' },
+                            { label: '施工阶段', value: 'construction' },
+                            { label: '使用阶段', value: 'usage' }
+                        ],
+                        health: [
+                            { label: '可行性论证阶段', value: 'feasibility' },
+                            { label: '设计阶段', value: 'design' },
+                            { label: '验收阶段', value: 'acceptance' }
+                        ],
+                        fire: [
+                            { label: '设计阶段', value: 'design' },
+                            { label: '验收阶段', value: 'acceptance' }
+                        ],
+                        other: []
+                    }
+                };
+            },
+            computed: {
+                visibleSearchFields() {
+                    return this.isExpanded 
+                        ? this.searchFields 
+                        : this.searchFields.slice(0, 3);
+                }
+            },
+            methods: {
+                loadData() {
+                    // 模拟数据加载
+                    const mockData = Array.from({ length: 25 }, (_, index) => ({
+                        id: index + 1,
+                        projectCode: `PRJ2024${String(index + 1).padStart(4, '0')}`,
+                        projectName: `建设项目${index + 1} - ${['办公楼建设', '生产车间改造', '仓库扩建', '研发中心新建'][index % 4]}`,
+                        managementType: ['EPC(工程总承包)', 'EPCM(工程总承包)', 'PC(采购-施工承包)', 'C(施工总承包)'][index % 4],
+                        buildingCategory: ['工业建筑', '民用建筑', '商用建筑'][index % 3],
+                        buildingNature: ['新建', '扩建', '改建'][index % 3],
+                        projectStatus: ['建设中', '已竣工', '申报中', '草稿'][index % 4],
+                        ownerUnit: `业主单位${index + 1}`,
+                        implementUnit: `实施单位${index + 1}`,
+                        safetyManagement: index % 2 === 0 ? '是' : '否',
+                        planStartDate: '2024-01-15',
+                        actualStartDate: '2024-01-20',
+                        planEndDate: '2024-12-31',
+                        actualEndDate: index % 4 === 1 ? '2024-12-20' : '',
+                        currentStage: `当前处于${['设计阶段', '施工阶段', '验收阶段', '竣工阶段'][index % 4]}`,
+                        completionPercentage: [25, 50, 75, 100][index % 4]
+                    }));
+                    
+                    // 根据tab筛选数据
+                    const statusMap = {
+                        'building': '建设中',
+                        'completed': '已竣工',
+                        'submitting': '申报中',
+                        'draft': '草稿'
+                    };
+                    
+                    const filteredData = mockData.filter(item => item.projectStatus === statusMap[this.activeTab]);
+                    this.total = filteredData.length;
+                    
+                    // 分页
+                    const start = (this.currentPage - 1) * this.pageSize;
+                    const end = start + this.pageSize;
+                    this.tableData = filteredData.slice(start, end);
+                },
+                handleTabClick(tab) {
+                    this.currentPage = 1;
+                    this.loadData();
+                },
+                handleSelectionChange(val) {
+                    this.selectedRows = val;
+                },
+                handleNew() {
+                    window.location.href = '建设项目详情.html?mode=new';
+                },
+                handleView(row) {
+                    console.log('查看', row);
+                    window.location.href = `建设项目详情.html?id=${row.id}&mode=view`;
+                },
+                handleEdit(row) {
+                    console.log('编辑', row);
+                    window.location.href = `建设项目详情.html?id=${row.id}&mode=edit`;
+                },
+                handleUpdateProgress(row) {
+                    this.progressForm = {
+                        projectStatus: row.projectStatus === '建设中' ? 'building' : 'completed',
+                        actualStartDate: row.actualStartDate,
+                        actualEndDate: row.actualEndDate,
+                        completionPercentage: row.completionPercentage,
+                        currentStage: row.currentStage
+                    };
+                    this.progressDialogVisible = true;
+                },
+                saveProgress() {
+                    this.$message.success('项目进度更新成功');
+                    this.progressDialogVisible = false;
+                    this.loadData();
+                },
+                handleUploadMaterial(row) {
+                    this.uploadForm = {
+                        materialType: '',
+                        nodeId: ''
+                    };
+                    this.fileList = [];
+                    this.uploadDialogVisible = true;
+                },
+                handleMaterialTypeChange(value) {
+                    this.currentNodes = this.materialNodes[value] || [];
+                    this.uploadForm.nodeId = '';
+                },
+                handlePreview(file) {
+                    console.log('预览', file);
+                },
+                handleRemove(file, fileList) {
+                    console.log('删除', file);
+                },
+                beforeUpload(file) {
+                    const isLt10M = file.size / 1024 / 1024 < 10;
+                    if (!isLt10M) {
+                        this.$message.error('上传文件大小不能超过 10MB!');
+                    }
+                    return isLt10M;
+                },
+                confirmUpload() {
+                    if (!this.uploadForm.materialType) {
+                        this.$message.warning('请选择资料类型');
+                        return;
+                    }
+                    if (!this.uploadForm.nodeId) {
+                        this.$message.warning('请选择所属节点');
+                        return;
+                    }
+                    this.$message.success('安全管理资料上传成功');
+                    this.uploadDialogVisible = false;
+                },
+                handleDelete(row) {
+                    this.$confirm('确定要删除该建设项目吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message.success('删除成功');
+                        this.loadData();
+                    }).catch(() => {});
+                },
+                handleBatchDelete() {
+                    this.$confirm(`确定要删除选中的 ${this.selectedRows.length} 个建设项目吗?`, '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message.success('批量删除成功');
+                        this.selectedRows = [];
+                        this.loadData();
+                    }).catch(() => {});
+                },
+                handleSearch() {
+                    console.log('搜索条件：', this.searchForm);
+                    this.currentPage = 1;
+                    this.loadData();
+                },
+                handleReset() {
+                    this.$refs.searchForm.resetFields();
+                    this.handleSearch();
+                },
+                toggleSearchFields() {
+                    this.isExpanded = !this.isExpanded;
+                },
+                handleSizeChange(val) {
+                    this.pageSize = val;
+                    this.loadData();
+                },
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                    this.loadData();
+                },
+                getStatusClass(status) {
+                    const statusMap = {
+                        '建设中': 'status-tag status-building',
+                        '已竣工': 'status-tag status-completed',
+                        '申报中': 'status-tag status-submitting',
+                        '草稿': 'status-tag status-draft'
+                    };
+                    return statusMap[status] || 'status-tag';
+                },
+                getProgressColor(percentage) {
+                    if (percentage < 30) return '#f56c6c';
+                    if (percentage < 70) return '#e6a23c';
+                    return '#67c23a';
+                }
+            },
+            created() {
+                // 初始化搜索表单
+                this.searchFields.forEach(field => {
+                    this.$set(this.searchForm, field.prop, '');
+                });
+                this.loadData();
+            }
+        });
+    </script>
+</body>
+</html>
