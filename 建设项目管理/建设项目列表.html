@@ -105,7 +105,7 @@
             color: #52c41a;
         }
 
-        .status-submitting {
+        .status-approving {
             background: #fff7e6;
             color: #fa8c16;
         }
@@ -129,10 +129,10 @@
 
             <!-- Tab切换 -->
             <div class="tabs-wrapper">
-                <el-tabs v-model="activeTab" @tab-click="handleTabClick" style="background: white; padding: 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <el-tabs v-model="activeTab" @tab-click="handleTabClick" style="background: white; padding: 12px 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                     <el-tab-pane label="建设中" name="building"></el-tab-pane>
                     <el-tab-pane label="已竣工" name="completed"></el-tab-pane>
-                    <el-tab-pane label="申报中" name="submitting"></el-tab-pane>
+                    <el-tab-pane label="审批中" name="approving"></el-tab-pane>
                     <el-tab-pane label="草稿" name="draft"></el-tab-pane>
                 </el-tabs>
             </div>
@@ -234,17 +234,17 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="planStartDate" label="计划开工日期" width="120" align="center"></el-table-column>
-                <el-table-column prop="actualStartDate" label="实际开工日期" width="120" align="center"></el-table-column>
+                <el-table-column v-if="activeTab !== 'approving' && activeTab !== 'draft'" prop="actualStartDate" label="实际开工日期" width="120" align="center"></el-table-column>
                 <el-table-column prop="planEndDate" label="计划竣工日期" width="120" align="center"></el-table-column>
-                <el-table-column prop="actualEndDate" label="实际竣工日期" width="120" align="center"></el-table-column>
-                <el-table-column prop="currentStage" label="当前进展阶段" min-width="150">
+                <el-table-column v-if="activeTab === 'completed'" prop="actualEndDate" label="实际竣工日期" width="120" align="center"></el-table-column>
+                <el-table-column v-if="activeTab !== 'approving' && activeTab !== 'draft'" prop="currentStage" label="当前进展阶段" min-width="150">
                     <template slot-scope="scope">
                         <el-tooltip :content="scope.row.currentStage" placement="top" :disabled="scope.row.currentStage.length <= 15">
                             <div class="text-ellipsis">{{ scope.row.currentStage }}</div>
                         </el-tooltip>
                     </template>
                 </el-table-column>
-                <el-table-column prop="completionPercentage" label="完成百分比(%)" width="130" align="center">
+                <el-table-column v-if="activeTab !== 'approving' && activeTab !== 'draft'" prop="completionPercentage" label="完成百分比(%)" width="130" align="center">
                     <template slot-scope="scope">
                         <el-progress :percentage="scope.row.completionPercentage" :color="getProgressColor(scope.row.completionPercentage)"></el-progress>
                     </template>
@@ -259,7 +259,7 @@
                                 @click="handleView(scope.row)">
                             </el-button>
                         </el-tooltip>
-                        <el-tooltip content="编辑" placement="top">
+                        <el-tooltip v-if="activeTab !== 'approving'" content="编辑" placement="top">
                             <el-button
                                 type="text"
                                 icon="el-icon-edit"
@@ -267,7 +267,7 @@
                                 @click="handleEdit(scope.row)">
                             </el-button>
                         </el-tooltip>
-                        <el-tooltip content="更新项目进度" placement="top">
+                        <el-tooltip v-if="activeTab !== 'approving'" content="更新项目进度" placement="top">
                             <el-button
                                 type="text"
                                 icon="el-icon-refresh"
@@ -275,7 +275,7 @@
                                 @click="handleUpdateProgress(scope.row)">
                             </el-button>
                         </el-tooltip>
-                        <el-tooltip content="上传安全管理资料" placement="top">
+                        <el-tooltip v-if="activeTab !== 'approving'" content="上传安全管理资料" placement="top">
                             <el-button
                                 type="text"
                                 icon="el-icon-upload"
@@ -523,7 +523,7 @@
                         managementType: ['EPC(工程总承包)', 'EPCM(工程总承包)', 'PC(采购-施工承包)', 'C(施工总承包)'][index % 4],
                         buildingCategory: ['工业建筑', '民用建筑', '商用建筑'][index % 3],
                         buildingNature: ['新建', '扩建', '改建'][index % 3],
-                        projectStatus: ['建设中', '已竣工', '申报中', '草稿'][index % 4],
+                        projectStatus: ['建设中', '已竣工', '审批中', '草稿'][index % 4],
                         ownerUnit: `业主单位${index + 1}`,
                         implementUnit: `实施单位${index + 1}`,
                         safetyManagement: index % 2 === 0 ? '是' : '否',
@@ -539,11 +539,21 @@
                     const statusMap = {
                         'building': '建设中',
                         'completed': '已竣工',
-                        'submitting': '申报中',
+                        'approving': '审批中',
                         'draft': '草稿'
                     };
                     
-                    const filteredData = mockData.filter(item => item.projectStatus === statusMap[this.activeTab]);
+                    let filteredData = mockData.filter(item => item.projectStatus === statusMap[this.activeTab]);
+                    
+                    // 已竣工状态的特殊处理
+                    if (this.activeTab === 'completed') {
+                        filteredData = filteredData.map(item => ({
+                            ...item,
+                            currentStage: '已竣工验收',
+                            completionPercentage: 100
+                        }));
+                    }
+                    
                     this.total = filteredData.length;
                     
                     // 分页
@@ -563,11 +573,27 @@
                 },
                 handleView(row) {
                     console.log('查看', row);
-                    window.location.href = `建设项目详情.html?id=${row.id}&mode=view`;
+                    // 将项目状态映射为审批状态
+                    const statusMap = {
+                        '建设中': 'building',
+                        '已竣工': 'completed',
+                        '审批中': 'approving',
+                        '草稿': 'draft'
+                    };
+                    const status = statusMap[row.projectStatus] || 'building';
+                    window.location.href = `建设项目详情.html?id=${row.id}&mode=view&status=${status}`;
                 },
                 handleEdit(row) {
                     console.log('编辑', row);
-                    window.location.href = `建设项目详情.html?id=${row.id}&mode=edit`;
+                    // 将项目状态映射为审批状态
+                    const statusMap = {
+                        '建设中': 'building',
+                        '已竣工': 'completed',
+                        '审批中': 'approving',
+                        '草稿': 'draft'
+                    };
+                    const status = statusMap[row.projectStatus] || 'building';
+                    window.location.href = `建设项目详情.html?id=${row.id}&mode=edit&status=${status}`;
                 },
                 handleUpdateProgress(row) {
                     this.progressForm = {
@@ -666,7 +692,7 @@
                     const statusMap = {
                         '建设中': 'status-tag status-building',
                         '已竣工': 'status-tag status-completed',
-                        '申报中': 'status-tag status-submitting',
+                        '审批中': 'status-tag status-approving',
                         '草稿': 'status-tag status-draft'
                     };
                     return statusMap[status] || 'status-tag';

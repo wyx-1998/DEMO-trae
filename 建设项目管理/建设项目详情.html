@@ -31,26 +31,6 @@
             padding-bottom: 120px; /* 为固定的按钮条留出空间 */
         }
 
-        .page-header {
-            background: white;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #3366CC;
-            margin-bottom: 8px;
-        }
-
-        .page-subtitle {
-            color: #909399;
-            font-size: 14px;
-        }
-
         .form-container {
             background: white;
             border-radius: 8px;
@@ -154,6 +134,67 @@
             position: absolute;
             left: -12px;
             top: 12px;
+        }
+
+        .form-label-with-tooltip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #909399;
+            color: white;
+            font-size: 12px;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-icon:hover {
+            background: #606266;
+        }
+
+        .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%);
+            background: rgba(48, 49, 51, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: normal;
+            width: 320px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(48, 49, 51, 0.95);
+        }
+
+        .tooltip-icon:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+            bottom: calc(100% + 12px);
         }
 
         .form-control {
@@ -285,18 +326,6 @@
             border-color: #85ce61;
         }
 
-        .mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .mode-toggle .btn {
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-
         /* 表格样式 */
         .info-table {
             width: 100%;
@@ -318,11 +347,37 @@
             width: 150px;
         }
 
-        .info-table td input {
+        .info-table td input,
+        .info-table td select {
             width: 100%;
             padding: 8px 12px;
             border: 1px solid #dcdfe6;
             border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .info-table td input:focus,
+        .info-table td select:focus {
+            outline: none;
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .info-table td input:hover,
+        .info-table td select:hover {
+            border-color: #c0c4cc;
+        }
+
+        .info-table td select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 32px;
+            cursor: pointer;
         }
 
         /* Tab样式 */
@@ -460,31 +515,243 @@
         }
 
         /* 进度条样式 */
-        .progress-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
         .progress-bar {
             flex: 1;
-            height: 20px;
-            background: #f5f7fa;
-            border-radius: 10px;
-            overflow: hidden;
+            height: 32px;
+            background: linear-gradient(to bottom, #f8f9fa, #f0f2f5);
+            border-radius: 16px;
+            overflow: visible;
+            border: 1px solid #e4e7ed;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #409eff 0%, #67c23a 100%);
-            transition: width 0.3s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            padding-right: 8px;
+            justify-content: center;
             color: white;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .progress-fill.low {
+            background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+            box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3);
+        }
+
+        .progress-fill.medium {
+            background: linear-gradient(135deg, #e6a23c 0%, #f0b95b 100%);
+            box-shadow: 0 2px 8px rgba(230, 162, 60, 0.3);
+        }
+
+        .progress-fill.high {
+            background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+            box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3);
+        }
+
+        .progress-percentage {
+            min-width: 75px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: white;
+            border: 2px solid;
+            flex-shrink: 0;
+        }
+
+        .progress-percentage.low {
+            color: #f56c6c;
+            border-color: #f56c6c;
+            background: rgba(245, 108, 108, 0.05);
+        }
+
+        .progress-percentage.medium {
+            color: #e6a23c;
+            border-color: #e6a23c;
+            background: rgba(230, 162, 60, 0.05);
+        }
+
+        .progress-percentage.high {
+            color: #67c23a;
+            border-color: #67c23a;
+            background: rgba(103, 194, 58, 0.05);
+        }
+
+        .progress-input {
+            width: 75px;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 16px;
+            font-size: 15px;
+            text-align: center;
+            font-weight: 600;
+            background: white;
+            color: #303133;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .progress-input:hover {
+            border-color: #c0c4cc;
+        }
+
+        .progress-input:focus {
+            outline: none;
+            border-color: #409eff;
+            box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+        }
+
+        /* 进度滑块样式 */
+        .progress-slider {
+            width: 100%;
+            height: 32px;
+            background: transparent;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* WebKit浏览器（Chrome, Safari, Edge）*/
+        .progress-slider::-webkit-slider-track {
+            width: 100%;
+            height: 32px;
+            background: transparent;
+            border-radius: 16px;
+            border: none;
+        }
+
+        .progress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            border: 3px solid #409eff;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4), 0 0 0 0 rgba(64, 158, 255, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: -4px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.5), 0 0 0 4px rgba(64, 158, 255, 0.15);
+            border-color: #66b1ff;
+        }
+
+        .progress-slider:active::-webkit-slider-thumb {
+            cursor: grabbing;
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(64, 158, 255, 0.6), 0 0 0 6px rgba(64, 158, 255, 0.2);
+        }
+
+        /* Firefox浏览器 */
+        .progress-slider::-moz-range-track {
+            width: 100%;
+            height: 32px;
+            background: transparent;
+            border-radius: 16px;
+            border: none;
+        }
+
+        .progress-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            border: 3px solid #409eff;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4), 0 0 0 0 rgba(64, 158, 255, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.5), 0 0 0 4px rgba(64, 158, 255, 0.15);
+            border-color: #66b1ff;
+        }
+
+        .progress-slider:active::-moz-range-thumb {
+            cursor: grabbing;
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(64, 158, 255, 0.6), 0 0 0 6px rgba(64, 158, 255, 0.2);
+        }
+
+        .progress-bar-wrapper {
+            position: relative;
+            flex: 1;
+            height: 32px;
+        }
+
+        .progress-bar-wrapper.edit-mode {
+            pointer-events: none;
+        }
+
+        .progress-bar-wrapper.edit-mode .progress-bar {
+            overflow: hidden;
+        }
+
+        .progress-slider-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: all;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-edit-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            width: 100%;
+        }
+
+        .progress-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 32px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 32px;
         }
 
         /* 响应式设计 */
@@ -550,23 +817,6 @@
 </head>
 <body>
     <div id="app" class="container">
-        <!-- 模式切换按钮 -->
-        <div class="mode-toggle" v-if="mode === 'view'">
-            <button class="btn btn-secondary" @click="switchToEditMode">
-                <i class="fas fa-edit"></i>
-                <span>编辑模式</span>
-            </button>
-        </div>
-
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <div class="page-title">
-                <i class="fas fa-building"></i>
-                {{ pageTitle }}
-            </div>
-            <div class="page-subtitle">{{ pageSubtitle }}</div>
-        </div>
-
         <!-- 表单容器 -->
         <div class="form-container" :class="{ 'view-mode': mode === 'view' }">
             <!-- 基本信息模块 -->
@@ -660,15 +910,28 @@
                         <div class="form-item">
                             <label class="form-label">经纬度坐标</label>
                             <div class="form-control">
-                                <input type="text" class="form-input" v-model="formData.coordinates" placeholder="请输入经纬度坐标">
-                                <div class="view-content">
-                                    {{ formData.coordinates || '-' }}
-                                    <a href="https://lbs.amap.com/tools/picker" target="_blank" style="margin-left: 10px; color: #409eff;">查询坐标</a>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="text" class="form-input" v-model="formData.coordinates" placeholder="请输入经纬度坐标">
+                                    <a v-if="mode !== 'view'" href="https://lbs.amap.com/tools/picker" target="_blank" 
+                                       style="white-space: nowrap; color: #409eff; text-decoration: none; font-size: 13px;">
+                                        <i class="fas fa-map-marker-alt"></i> 查询坐标
+                                    </a>
                                 </div>
+                                <div class="view-content">{{ formData.coordinates || '-' }}</div>
                             </div>
                         </div>
                         <div class="form-item">
-                            <label class="form-label required">是否纳入安全管理</label>
+                            <label class="form-label required">
+                                <div class="form-label-with-tooltip">
+                                    是否纳入安全管理
+                                    <span class="tooltip-icon">
+                                        ?
+                                        <span class="tooltip-content">
+                                            选择"是"则本建设项目需要完成申报审批，审批通过后将系统自动创建本建设项目组织，在本系统内进行安全管理；选择"否"则不需要审批及其他操作。
+                                        </span>
+                                    </span>
+                                </div>
+                            </label>
                             <div class="form-control">
                                 <select class="form-input form-select" v-model="formData.safetyManagement">
                                     <option value="">请选择</option>
@@ -740,8 +1003,12 @@
                             <tr>
                                 <td>业主单位(发包方)</td>
                                 <td>
-                                    <input type="text" v-model="formData.ownerOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.ownerOrgType || '-' }}</span>
+                                    <select v-model="formData.ownerOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.ownerOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.ownerUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -759,8 +1026,12 @@
                             <tr>
                                 <td>实施单位(承包方)</td>
                                 <td>
-                                    <input type="text" v-model="formData.implementOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.implementOrgType || '-' }}</span>
+                                    <select v-model="formData.implementOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.implementOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.implementUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -793,8 +1064,12 @@
                             <tr>
                                 <td>管理单位</td>
                                 <td>
-                                    <input type="text" v-model="formData.managementOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.managementOrgType || '-' }}</span>
+                                    <select v-model="formData.managementOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.managementOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.managementUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -812,8 +1087,12 @@
                             <tr>
                                 <td>设计单位</td>
                                 <td>
-                                    <input type="text" v-model="formData.designOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.designOrgType || '-' }}</span>
+                                    <select v-model="formData.designOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.designOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.designUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -831,8 +1110,12 @@
                             <tr>
                                 <td>监理单位</td>
                                 <td>
-                                    <input type="text" v-model="formData.supervisionOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.supervisionOrgType || '-' }}</span>
+                                    <select v-model="formData.supervisionOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.supervisionOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.supervisionUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -850,8 +1133,12 @@
                             <tr>
                                 <td>地勘单位</td>
                                 <td>
-                                    <input type="text" v-model="formData.surveyOrgType" placeholder="请输入组织类型" v-if="mode !== 'view'">
-                                    <span v-else>{{ formData.surveyOrgType || '-' }}</span>
+                                    <select v-model="formData.surveyOrgType" v-if="mode !== 'view'">
+                                        <option value="">请选择</option>
+                                        <option value="internal">内部组织</option>
+                                        <option value="external">外部组织</option>
+                                    </select>
+                                    <span v-else>{{ getOrgTypeLabel(formData.surveyOrgType) || '-' }}</span>
                                 </td>
                                 <td>
                                     <input type="text" v-model="formData.surveyUnit" placeholder="请输入单位名称" v-if="mode !== 'view'">
@@ -872,7 +1159,7 @@
             </div>
 
             <!-- 项目进展模块 -->
-            <div class="form-module">
+            <div class="form-module" v-if="approvalStatus !== 'approving'">
                 <div class="module-header" @click="toggleModule($event)">
                     <div class="module-title">
                         <i class="fas fa-tasks"></i>
@@ -911,19 +1198,47 @@
                         <div class="form-item full-width">
                             <label class="form-label">项目完成百分比</label>
                             <div class="form-control">
-                                <div v-if="mode !== 'view'">
-                                    <input type="range" min="0" max="100" v-model="formData.completionPercentage" style="width: 100%;">
-                                    <div style="text-align: center; margin-top: 10px;">
-                                        <input type="number" v-model="formData.completionPercentage" min="0" max="100" style="width: 80px; text-align: center;"> %
-                                    </div>
-                                </div>
-                                <div class="view-content">
-                                    <div class="progress-container">
-                                        <div class="progress-bar">
-                                            <div class="progress-fill" :style="{ width: formData.completionPercentage + '%' }">
-                                                {{ formData.completionPercentage }}%
+                                <!-- 编辑模式 -->
+                                <div v-if="mode !== 'view'" class="progress-edit-container">
+                                    <div class="progress-edit-row">
+                                        <div class="progress-bar-wrapper edit-mode">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" 
+                                                     :class="progressColorClass"
+                                                     :style="{ width: formData.completionPercentage + '%' }">
+                                                    <span v-if="formData.completionPercentage >= 15">{{ formData.completionPercentage }}%</span>
+                                                </div>
+                                            </div>
+                                            <div class="progress-slider-wrapper">
+                                                <input 
+                                                    type="range" 
+                                                    class="progress-slider"
+                                                    v-model.number="formData.completionPercentage" 
+                                                    min="0" 
+                                                    max="100"
+                                                    @input="validatePercentage">
                                             </div>
                                         </div>
+                                        <input 
+                                            type="number" 
+                                            class="progress-input"
+                                            v-model.number="formData.completionPercentage" 
+                                            min="0" 
+                                            max="100"
+                                            @input="validatePercentage">
+                                    </div>
+                                </div>
+                                <!-- 查看模式 -->
+                                <div v-else class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" 
+                                             :class="progressColorClass"
+                                             :style="{ width: formData.completionPercentage + '%' }">
+                                            <span v-if="formData.completionPercentage >= 15">{{ formData.completionPercentage }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-percentage" :class="progressColorClass">
+                                        {{ formData.completionPercentage }}%
                                     </div>
                                 </div>
                             </div>
@@ -942,7 +1257,7 @@
             </div>
 
             <!-- 项目安全管理资料模块 -->
-            <div class="form-module">
+            <div class="form-module" v-if="approvalStatus !== 'approving'">
                 <div class="module-header" @click="toggleModule($event)">
                     <div class="module-title">
                         <i class="fas fa-folder-open"></i>
@@ -1077,23 +1392,33 @@
             </div>
 
             <!-- 表单操作按钮 -->
-            <div class="form-actions" v-if="mode !== 'view'">
-                <button type="button" class="btn btn-secondary" @click="handleCancel">
-                    <i class="fas fa-times"></i>
-                    取消
-                </button>
-                <button type="button" class="btn btn-secondary" @click="handleSaveDraft">
-                    <i class="fas fa-save"></i>
-                    保存草稿
-                </button>
-                <button type="button" class="btn btn-success" v-if="formData.safetyManagement === 'yes'" @click="handleSubmitApproval">
-                    <i class="fas fa-paper-plane"></i>
-                    提交审批
-                </button>
-                <button type="button" class="btn btn-primary" @click="handleSubmit">
-                    <i class="fas fa-check"></i>
-                    提交
-                </button>
+            <div class="form-actions">
+                <!-- 编辑模式按钮 -->
+                <template v-if="mode !== 'view'">
+                    <button type="button" class="btn btn-secondary" @click="handleCancel">
+                        <i class="fas fa-times"></i>
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-secondary" @click="handleSaveDraft">
+                        <i class="fas fa-save"></i>
+                        保存草稿
+                    </button>
+                    <button type="button" class="btn btn-success" v-if="formData.safetyManagement === 'yes'" @click="handleSubmitApproval">
+                        <i class="fas fa-paper-plane"></i>
+                        提交审批
+                    </button>
+                    <button type="button" class="btn btn-primary" v-if="formData.safetyManagement === 'no'" @click="handleSubmit">
+                        <i class="fas fa-check"></i>
+                        提交
+                    </button>
+                </template>
+                <!-- 查看模式按钮 -->
+                <template v-else>
+                    <button type="button" class="btn btn-secondary" @click="handleCancel">
+                        <i class="fas fa-times"></i>
+                        关闭
+                    </button>
+                </template>
             </div>
         </div>
     </div>
@@ -1108,6 +1433,7 @@
             data() {
                 return {
                     mode: 'new', // new, edit, view
+                    approvalStatus: '', // draft草稿中, approving审批中, building建设中, completed已竣工
                     activeMaterialTab: 'safety',
                     selectedNode: 'design',
                     formData: {
@@ -1171,19 +1497,15 @@
                 };
             },
             computed: {
-                pageTitle() {
-                    const titles = {
-                        'new': '新建建设项目',
-                        'edit': '编辑建设项目',
-                        'view': '查看建设项目'
-                    };
-                    return titles[this.mode] || '建设项目详情';
-                },
-                pageSubtitle() {
-                    if (this.mode === 'view' && this.formData.projectName) {
-                        return `项目名称: ${this.formData.projectName}`;
+                progressColorClass() {
+                    const percentage = this.formData.completionPercentage;
+                    if (percentage < 30) {
+                        return 'low';
+                    } else if (percentage < 70) {
+                        return 'medium';
+                    } else {
+                        return 'high';
                     }
-                    return '请填写建设项目的基本信息';
                 }
             },
             methods: {
@@ -1195,12 +1517,24 @@
                     content.classList.toggle('collapsed');
                     toggle.classList.toggle('collapsed');
                 },
-                switchToEditMode() {
-                    this.mode = 'edit';
+                validatePercentage() {
+                    let value = parseInt(this.formData.completionPercentage);
+                    if (isNaN(value) || value < 0) {
+                        this.formData.completionPercentage = 0;
+                    } else if (value > 100) {
+                        this.formData.completionPercentage = 100;
+                    } else {
+                        this.formData.completionPercentage = value;
+                    }
                 },
                 handleCancel() {
-                    if (confirm('确定要取消吗?未保存的数据将丢失。')) {
+                    // 查看模式直接关闭，编辑模式需要确认
+                    if (this.mode === 'view') {
                         window.location.href = '建设项目列表.html';
+                    } else {
+                        if (confirm('确定要关闭吗?未保存的数据将丢失。')) {
+                            window.location.href = '建设项目列表.html';
+                        }
                     }
                 },
                 handleSaveDraft() {
@@ -1273,6 +1607,13 @@
                         'other': '其他'
                     };
                     return map[value] || '';
+                },
+                getOrgTypeLabel(value) {
+                    const map = {
+                        'internal': '内部组织',
+                        'external': '外部组织'
+                    };
+                    return map[value] || '';
                 }
             },
             mounted() {
@@ -1281,6 +1622,12 @@
                 const mode = urlParams.get('mode');
                 if (mode) {
                     this.mode = mode;
+                }
+
+                // 获取项目审批状态
+                const status = urlParams.get('status');
+                if (status) {
+                    this.approvalStatus = status;
                 }
 
                 // 如果是查看或编辑模式,加载数据
@@ -1301,27 +1648,27 @@
                         overview: '本项目为新建办公楼项目,总建筑面积约10000平方米,地上10层,地下2层。',
                         planStartDate: '2024-01-15',
                         planEndDate: '2024-12-31',
-                        ownerOrgType: '国有企业',
+                        ownerOrgType: 'internal',
                         ownerUnit: '某某集团有限公司',
                         ownerManager: '张三',
                         ownerContact: '13800138000',
-                        implementOrgType: '建筑施工企业',
+                        implementOrgType: 'external',
                         implementUnit: '某某建设有限公司',
                         implementManager: '李四',
                         implementContact: '13800138001',
-                        managementOrgType: '项目管理公司',
+                        managementOrgType: 'internal',
                         managementUnit: '某某项目管理有限公司',
                         managementManager: '王五',
                         managementContact: '13800138002',
-                        designOrgType: '设计院',
+                        designOrgType: 'external',
                         designUnit: '某某设计院',
                         designManager: '赵六',
                         designContact: '13800138003',
-                        supervisionOrgType: '监理公司',
+                        supervisionOrgType: 'external',
                         supervisionUnit: '某某监理有限公司',
                         supervisionManager: '钱七',
                         supervisionContact: '13800138004',
-                        surveyOrgType: '勘察院',
+                        surveyOrgType: 'external',
                         surveyUnit: '某某勘察院',
                         surveyManager: '孙八',
                         surveyContact: '13800138005',
@@ -1331,6 +1678,11 @@
                         completionPercentage: 45,
                         currentStage: '目前正在进行主体结构施工,预计6月底完成主体封顶。'
                     };
+                    // 设置审批状态（如果没有从URL获取，则根据数据判断）
+                    if (!this.approvalStatus) {
+                        // 这里可以根据实际数据判断，示例中设为building
+                        this.approvalStatus = 'building';
+                    }
                 }
             }
         }).mount('#app');
