@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重大危险源管理 - 重大危险源台账</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .app-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .function-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .function-left {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-area {
+      padding: 20px 24px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: end;
+    }
+
+    .search-form .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .search-form .el-form-item .el-input,
+    .search-form .el-form-item .el-select {
+      width: 100%;
+    }
+
+    .search-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .more-filters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    .more-filters .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .more-filters .el-form-item .el-select {
+      width: 100%;
+    }
+
+    .table-area {
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .table-area .el-table {
+      min-width: 1400px;
+    }
+
+    .el-table__header .cell {
+      white-space: nowrap;
+    }
+
+    .pagination-bar {
+      padding: 16px 24px;
+      background: #f8f9fa;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .el-button--primary {
+      --el-button-bg-color: #409EFF;
+      --el-button-border-color: #409EFF;
+    }
+
+    /* 风险等级色标 */
+    .risk-level-tag {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .risk-level-low {
+      background-color: #67c23a;
+      color: #fff;
+    }
+
+    .risk-level-medium {
+      background-color: #e6a23c;
+      color: #fff;
+    }
+
+    .risk-level-high {
+      background-color: #f56c6c;
+      color: #fff;
+    }
+
+    .risk-level-critical {
+      background-color: #c41d7f;
+      color: #fff;
+    }
+
+    /* 状态色标 */
+    .status-tag {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background-color: #67c23a;
+      color: #fff;
+    }
+
+    .status-changing {
+      background-color: #e6a23c;
+      color: #fff;
+    }
+
+    .status-cancelling {
+      background-color: #f56c6c;
+      color: #fff;
+    }
+
+    .status-cancelled {
+      background-color: #909399;
+      color: #fff;
+    }
+
+    .monitoring-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .monitoring-status.connected {
+      color: #67c23a;
+    }
+
+    .monitoring-status.disconnected {
+      color: #909399;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app-container">
+    <div class="main-content">
+      <div class="content-card">
+        <div class="function-bar">
+          <div class="function-left">
+            <el-button type="primary" @click="syncFromRiskLedger"><i class="fas fa-sync-alt"></i> 同步数据</el-button>
+            <el-button type="warning" @click="exportData"><i class="fas fa-file-export"></i> 导出</el-button>
+            <el-button @click="batchExport" type="success"><i class="fas fa-download"></i> 批量导出</el-button>
+          </div>
+          <div style="font-size: 12px; color: #909399;">
+            <i class="fas fa-info-circle"></i> 数据来源于危险化学品安全风险分布台账
+          </div>
+        </div>
+
+        <div class="search-area">
+          <el-form :model="searchForm" label-position="left" class="search-form">
+            <el-form-item label="关键字">
+              <el-input v-model="searchForm.keyword" placeholder="请输入编号/化学品名称" clearable />
+            </el-form-item>
+            <el-form-item label="所属单元">
+              <el-select v-model="searchForm.unit" placeholder="请选择所属单元" clearable style="width: 100%">
+                <el-option label="生产" value="production" />
+                <el-option label="储存" value="storage" />
+                <el-option label="使用" value="usage" />
+                <el-option label="搬运" value="transport" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="危险化学品类别">
+              <el-select v-model="searchForm.category" placeholder="请选择类别" clearable style="width: 100%">
+                <el-option v-for="cat in categoryOptions" :key="cat.value" :label="cat.label" :value="cat.value" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+
+          <el-form v-show="showMoreFilters" :model="searchForm" label-position="left" class="more-filters">
+            <el-form-item label="风险等级">
+              <el-select v-model="searchForm.riskLevel" clearable placeholder="请选择风险等级" style="width:100%">
+                <el-option label="一级重大危险源" value="critical" />
+                <el-option label="二级重大危险源" value="high" />
+                <el-option label="三级重大危险源" value="medium" />
+                <el-option label="四级重大危险源" value="low" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="状态">
+              <el-select v-model="searchForm.status" clearable placeholder="请选择状态" style="width:100%">
+                <el-option label="在册" value="active" />
+                <el-option label="变更中" value="changing" />
+                <el-option label="核销中" value="cancelling" />
+                <el-option label="已核销" value="cancelled" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="监测接入状态">
+              <el-select v-model="searchForm.monitoringStatus" clearable placeholder="请选择" style="width:100%">
+                <el-option label="已接入" value="connected" />
+                <el-option label="未接入" value="disconnected" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+
+          <div class="search-buttons">
+            <el-button type="primary" @click="search"><i class="fas fa-search"></i> 查询</el-button>
+            <el-button @click="reset"><i class="fas fa-redo"></i> 重置</el-button>
+            <el-button text type="primary" @click="toggleMore">
+              <i :class="showMoreFilters ? 'fas fa-angle-up' : 'fas fa-angle-down'"></i>
+              {{ showMoreFilters ? '收起' : '展开更多' }}
+            </el-button>
+          </div>
+        </div>
+
+        <div class="table-area">
+          <el-table :data="pagedData" style="width:100%" stripe border @selection-change="handleSelectionChange"
+            v-loading="loading">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column prop="code" label="重大危险源编号" min-width="160" fixed="left">
+              <template #default="{ row }">
+                <el-link type="primary" @click="goView(row)">{{ row.code }}</el-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="unit" label="所属单元" width="100">
+              <template #default="{ row }">
+                <el-tag :type="getUnitTagType(row.unit)" size="small">
+                  {{ getUnitLabel(row.unit) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="areaName" label="存储区域" min-width="180">
+              <template #default="{ row }">
+                {{ row.warehouseName }} - {{ row.areaName }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="rValue" label="R值" width="100">
+              <template #default="{ row }">
+                <el-tag :type="getRValueTagType(row.rValue)" size="small">
+                  {{ row.rValue ? row.rValue.toFixed(1) : '0.0' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="chemicalCount" label="化学品种类" width="100">
+              <template #default="{ row }">
+                {{ row.chemicalCount || 0 }}种
+              </template>
+            </el-table-column>
+            <el-table-column prop="criticalJudgment" label="临界量判定" width="120">
+              <template #default="{ row }">
+                <el-tag :type="row.criticalJudgment === '≥临界量' ? 'danger' : 'info'" size="small">
+                  {{ row.criticalJudgment }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="riskLevel" label="风险等级" width="100">
+              <template #default="{ row }">
+                <span :class="['risk-level-tag', getRiskLevelClass(row.riskLevel)]">
+                  {{ getRiskLevelLabel(row.riskLevel) }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="responsiblePersons" label="包保责任人" min-width="200">
+              <template #default="{ row }">
+                <div style="font-size: 12px; line-height: 1.6;">
+                  <div>主要负责人：{{ row.responsiblePersons.main || '-' }}</div>
+                  <div>技术负责人：{{ row.responsiblePersons.technical || '-' }}</div>
+                  <div>操作负责人：{{ row.responsiblePersons.operational || '-' }}</div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="recordDate" label="备案日期" width="120"></el-table-column>
+            <el-table-column prop="monitoringStatus" label="监测接入状态" width="120">
+              <template #default="{ row }">
+                <span :class="['monitoring-status', row.monitoringStatus === '已接入' ? 'connected' : 'disconnected']">
+                  <i :class="row.monitoringStatus === '已接入' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                  {{ row.monitoringStatus }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="status" label="状态" width="100">
+              <template #default="{ row }">
+                <span :class="['status-tag', getStatusClass(row.status)]">
+                  {{ getStatusLabel(row.status) }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="200" fixed="right">
+              <template #default="scope">
+                <el-button size="small" type="primary" @click="goView(scope.row)">
+                  <i class="fas fa-eye"></i> 查看
+                </el-button>
+                <el-button size="small" type="warning" @click="goEdit(scope.row)">
+                  <i class="fas fa-edit"></i> 编辑
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="pagination-bar">
+          <el-pagination background size="small" v-model:current-page="currentPage" v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
+            layout="total, ->, sizes, prev, pager, next, jumper" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage, ElMessageBox } = ElementPlus;
+
+    createApp({
+      data() {
+        return {
+          searchForm: {
+            keyword: '',
+            unit: '',
+            category: '',
+            riskLevel: '',
+            status: '',
+            monitoringStatus: ''
+          },
+          showMoreFilters: false,
+          categoryOptions: [
+            { label: '爆炸物', value: 'explosive' },
+            { label: '易燃气体', value: 'flammable_gas' },
+            { label: '易燃液体', value: 'flammable_liquid' },
+            { label: '易燃固体', value: 'flammable_solid' },
+            { label: '氧化性物质', value: 'oxidizing' },
+            { label: '毒性物质', value: 'toxic' },
+            { label: '腐蚀性物质', value: 'corrosive' }
+          ],
+          tableData: [],
+          selectedRows: [],
+          currentPage: 1,
+          pageSize: 20,
+          loading: false
+        }
+      },
+      computed: {
+        filteredData() {
+          let data = this.tableData.filter(d => {
+            const keywordOk = !this.searchForm.keyword ||
+              d.code.includes(this.searchForm.keyword) ||
+              (d.warehouseName && d.warehouseName.includes(this.searchForm.keyword)) ||
+              (d.areaName && d.areaName.includes(this.searchForm.keyword));
+            const unitOk = !this.searchForm.unit || d.unit === this.searchForm.unit;
+            const categoryOk = !this.searchForm.category || true; // 简化处理
+            const riskLevelOk = !this.searchForm.riskLevel || d.riskLevel === this.searchForm.riskLevel;
+            const statusOk = !this.searchForm.status || d.status === this.searchForm.status;
+            const monitoringOk = !this.searchForm.monitoringStatus ||
+              (this.searchForm.monitoringStatus === 'connected' && d.monitoringStatus === '已接入') ||
+              (this.searchForm.monitoringStatus === 'disconnected' && d.monitoringStatus === '未接入');
+            return keywordOk && unitOk && categoryOk && riskLevelOk && statusOk && monitoringOk;
+          });
+          return data;
+        },
+        pagedData() {
+          const start = (this.currentPage - 1) * this.pageSize;
+          return this.filteredData.slice(start, start + this.pageSize);
+        }
+      },
+      mounted() {
+        this.loadData();
+      },
+      methods: {
+        // 从危险化学品安全风险分布台账加载数据
+        loadData() {
+          this.loading = true;
+          try {
+            // 尝试从sessionStorage获取危险化学品安全风险分布台账的数据
+            const riskLedgerData = sessionStorage.getItem('riskLedgerData');
+            if (riskLedgerData) {
+              const data = JSON.parse(riskLedgerData);
+              this.convertRiskLedgerToMajorHazard(data);
+            } else {
+              // 如果没有缓存数据，使用模拟数据（实际应该通过API获取）
+              this.loadMockData();
+            }
+          } catch (error) {
+            console.error('加载数据失败:', error);
+            ElMessage.error('加载数据失败，使用模拟数据');
+            this.loadMockData();
+          } finally {
+            this.loading = false;
+          }
+        },
+        // 从危险化学品安全风险分布台账同步数据
+        syncFromRiskLedger() {
+          this.loading = true;
+          ElMessage.info('正在同步数据...');
+          setTimeout(() => {
+            // 实际应该调用API获取最新数据
+            // 这里模拟从危险化学品安全风险分布台账获取数据
+            const riskLedgerData = sessionStorage.getItem('riskLedgerData');
+            if (riskLedgerData) {
+              const data = JSON.parse(riskLedgerData);
+              this.convertRiskLedgerToMajorHazard(data);
+              ElMessage.success('数据同步成功');
+            } else {
+              this.loadMockData();
+              ElMessage.success('已加载模拟数据');
+            }
+            this.loading = false;
+          }, 1000);
+        },
+        // 将危险化学品安全风险分布台账数据转换为重大危险源格式
+        convertRiskLedgerToMajorHazard(riskLedgerData) {
+          // 只筛选出重大危险源（riskLevel为1、2、3、4）
+          const majorHazards = riskLedgerData.filter(item => 
+            item.riskLevel && item.riskLevel >= 1 && item.riskLevel <= 4
+          );
+          
+          this.tableData = majorHazards.map(item => ({
+            code: item.areaCode || `WH-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            unit: item.unitType || 'storage',
+            areaName: item.areaName || '',
+            warehouseName: item.warehouseName || '',
+            storageArea: item.storageArea || '',
+            rValue: item.rValue || 0,
+            riskLevel: this.convertRiskLevel(item.riskLevel),
+            chemicalCount: item.chemicalCount || 0,
+            totalInventory: item.totalInventory || '0kg',
+            judgmentType: item.judgmentType || 'single',
+            criticalJudgment: item.rValue >= 10 ? '≥临界量' : '<临界量',
+            responsiblePersons: {
+              main: item.responsiblePerson || '-',
+              technical: '-',
+              operational: '-'
+            },
+            recordDate: item.lastUpdateTime ? this.formatDate(item.lastUpdateTime) : new Date().toISOString().split('T')[0],
+            monitoringStatus: '未接入', // 默认未接入，需要单独配置
+            status: 'active',
+            chemicals: item.chemicals || [],
+            calculationResult: item.calculationResult || 0
+          }));
+        },
+        // 加载模拟数据（基于危险化学品安全风险分布台账的结构）
+        loadMockData() {
+          const mockRiskLedgerData = [
+            {
+              areaCode: 'WH-A01',
+              unitType: 'storage',
+              storageArea: '危化仓-A区',
+              warehouseName: '危化仓',
+              areaName: 'A区',
+              riskLevel: 1,
+              rValue: 120.5,
+              calculationResult: 1.85,
+              chemicalCount: 3,
+              totalInventory: '1000kg',
+              judgmentType: 'multiple',
+              lastUpdateTime: '2024-11-28 14:25:30',
+              responsiblePerson: '张三',
+              chemicals: [
+                { chemicalName: '乙醇', casNo: '64-17-5' },
+                { chemicalName: '甲醇', casNo: '67-56-1' },
+                { chemicalName: '丙酮', casNo: '67-64-1' }
+              ]
+            },
+            {
+              areaCode: 'WH-A02',
+              unitType: 'storage',
+              storageArea: '危化仓-A区',
+              warehouseName: '危化仓',
+              areaName: 'A区',
+              riskLevel: 2,
+              rValue: 85.0,
+              calculationResult: 0.75,
+              chemicalCount: 2,
+              totalInventory: '750kg',
+              judgmentType: 'single',
+              lastUpdateTime: '2024-11-28 13:15:20',
+              responsiblePerson: '李四',
+              chemicals: [
+                { chemicalName: '盐酸', casNo: '7647-01-0' },
+                { chemicalName: '硫酸', casNo: '7664-93-9' }
+              ]
+            },
+            {
+              areaCode: 'SL-01',
+              unitType: 'storage',
+              storageArea: '溶剂仓库-01区',
+              warehouseName: '溶剂仓库',
+              areaName: '01区',
+              riskLevel: 1,
+              rValue: 110.2,
+              calculationResult: 1.25,
+              chemicalCount: 4,
+              totalInventory: '1200kg',
+              judgmentType: 'multiple',
+              lastUpdateTime: '2024-11-28 12:45:10',
+              responsiblePerson: '王五',
+              chemicals: [
+                { chemicalName: '丙酮', casNo: '67-64-1' },
+                { chemicalName: '甲苯', casNo: '108-88-3' },
+                { chemicalName: '二甲苯', casNo: '1330-20-7' },
+                { chemicalName: '乙酸乙酯', casNo: '141-78-6' }
+              ]
+            },
+            {
+              areaCode: 'WH-C01',
+              unitType: 'storage',
+              storageArea: '危化仓-C区',
+              warehouseName: '危化仓',
+              areaName: 'C区',
+              riskLevel: 1,
+              rValue: 150.3,
+              calculationResult: 2.1,
+              chemicalCount: 4,
+              totalInventory: '1800kg',
+              judgmentType: 'multiple',
+              lastUpdateTime: '2024-11-28 16:45:30',
+              responsiblePerson: '赵六',
+              chemicals: [
+                { chemicalName: '乙醇', casNo: '64-17-5' },
+                { chemicalName: '甲醇', casNo: '67-56-1' },
+                { chemicalName: '丙酮', casNo: '67-64-1' },
+                { chemicalName: '乙酸乙酯', casNo: '141-78-6' }
+              ]
+            },
+            {
+              areaCode: 'SL-02',
+              unitType: 'storage',
+              storageArea: '溶剂仓库-02区',
+              warehouseName: '溶剂仓库',
+              areaName: '02区',
+              riskLevel: 2,
+              rValue: 68.7,
+              calculationResult: 0.92,
+              chemicalCount: 3,
+              totalInventory: '920kg',
+              judgmentType: 'single',
+              lastUpdateTime: '2024-11-28 15:20:15',
+              responsiblePerson: '孙七',
+              chemicals: [
+                { chemicalName: '二甲苯', casNo: '1330-20-7' },
+                { chemicalName: '乙醇', casNo: '64-17-5' },
+                { chemicalName: '丙酮', casNo: '67-64-1' }
+              ]
+            },
+            {
+              areaCode: 'MT-E01',
+              unitType: 'production',
+              storageArea: '原料仓库-东区',
+              warehouseName: '原料仓库',
+              areaName: '东区',
+              riskLevel: 3,
+              rValue: 35.5,
+              calculationResult: 0.35,
+              chemicalCount: 2,
+              totalInventory: '400kg',
+              judgmentType: 'single',
+              lastUpdateTime: '2024-11-28 11:30:45',
+              responsiblePerson: '周八',
+              chemicals: [
+                { chemicalName: '氢氧化钠', casNo: '1310-73-2' },
+                { chemicalName: '纯碱', casNo: '497-19-8' }
+              ]
+            },
+            {
+              areaCode: 'WH-B01',
+              unitType: 'storage',
+              storageArea: '危化仓-B区',
+              warehouseName: '危化仓',
+              areaName: 'B区',
+              riskLevel: 1,
+              rValue: 105.8,
+              calculationResult: 1.10,
+              chemicalCount: 5,
+              totalInventory: '1500kg',
+              judgmentType: 'multiple',
+              lastUpdateTime: '2024-11-28 10:20:30',
+              responsiblePerson: '吴九',
+              chemicals: [
+                { chemicalName: '甲苯', casNo: '108-88-3' },
+                { chemicalName: '二甲苯', casNo: '1330-20-7' },
+                { chemicalName: '乙醇', casNo: '64-17-5' },
+                { chemicalName: '丙酮', casNo: '67-64-1' },
+                { chemicalName: '乙酸乙酯', casNo: '141-78-6' }
+              ]
+            }
+          ];
+          this.convertRiskLedgerToMajorHazard(mockRiskLedgerData);
+        },
+        // 转换风险等级
+        convertRiskLevel(level) {
+          if (level >= 1 && level <= 4) {
+            return level === 1 ? 'critical' : level === 2 ? 'high' : level === 3 ? 'medium' : 'low';
+          }
+          return 'low';
+        },
+        // 格式化日期
+        formatDate(dateStr) {
+          if (!dateStr) return new Date().toISOString().split('T')[0];
+          try {
+            const date = new Date(dateStr);
+            return date.toISOString().split('T')[0];
+          } catch (e) {
+            return dateStr.split(' ')[0] || new Date().toISOString().split('T')[0];
+          }
+        },
+        // 获取R值标签类型
+        getRValueTagType(value) {
+          if (!value) return 'info';
+          if (value >= 100) return 'danger';
+          if (value >= 50) return 'warning';
+          if (value >= 10) return 'warning';
+          return 'success';
+        },
+        search() {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+            this.currentPage = 1;
+            ElMessage.success('查询完成');
+          }, 500);
+        },
+        reset() {
+          this.searchForm = {
+            keyword: '',
+            unit: '',
+            category: '',
+            riskLevel: '',
+            status: '',
+            monitoringStatus: ''
+          };
+          this.currentPage = 1;
+        },
+        toggleMore() {
+          this.showMoreFilters = !this.showMoreFilters;
+        },
+        exportData() {
+          ElMessage.success('导出功能开发中');
+        },
+        batchExport() {
+          if (this.selectedRows.length === 0) {
+            ElMessage.warning('请选择要导出的记录');
+            return;
+          }
+          ElMessage.success(`已导出 ${this.selectedRows.length} 条记录`);
+        },
+        handleSelectionChange(selection) {
+          this.selectedRows = selection;
+        },
+        goView(row) {
+          window.parent.postMessage({
+            type: 'navigate',
+            page: 'major-hazard-detail',
+            data: { code: row.code },
+            title: '重大危险源台账详情',
+            icon: 'fas fa-info-circle'
+          }, '*');
+        },
+        goEdit(row) {
+          window.parent.postMessage({
+            type: 'navigate',
+            page: 'major-hazard-edit',
+            data: { code: row.code, mode: 'edit' },
+            title: '编辑重大危险源',
+            icon: 'fas fa-edit'
+          }, '*');
+        },
+        getUnitLabel(unit) {
+          const map = {
+            'production': '生产',
+            'storage': '储存',
+            'usage': '使用',
+            'transport': '搬运'
+          };
+          return map[unit] || unit;
+        },
+        getUnitTagType(unit) {
+          const map = {
+            'production': 'success',
+            'storage': 'primary',
+            'usage': 'warning',
+            'transport': 'danger'
+          };
+          return map[unit] || '';
+        },
+        getRiskLevelLabel(level) {
+          const map = {
+            'low': '四级重大危险源',
+            'medium': '三级重大危险源',
+            'high': '二级重大危险源',
+            'critical': '一级重大危险源'
+          };
+          return map[level] || level;
+        },
+        getRiskLevelClass(level) {
+          const map = {
+            'low': 'risk-level-low',
+            'medium': 'risk-level-medium',
+            'high': 'risk-level-high',
+            'critical': 'risk-level-critical'
+          };
+          return map[level] || '';
+        },
+        getStatusLabel(status) {
+          const map = {
+            'active': '在册',
+            'changing': '变更中',
+            'cancelling': '核销中',
+            'cancelled': '已核销'
+          };
+          return map[status] || status;
+        },
+        getStatusClass(status) {
+          const map = {
+            'active': 'status-active',
+            'changing': 'status-changing',
+            'cancelling': 'status-cancelling',
+            'cancelled': 'status-cancelled'
+          };
+          return map[status] || '';
+        }
+      }
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+
+</html>
+

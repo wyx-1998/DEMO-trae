@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重大危险源管理 - 台账详情</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .app-container {
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .detail-header {
+      background: #fff;
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .info-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #409EFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: #409EFF;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 14px;
+      color: #909399;
+      margin-bottom: 8px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: #303133;
+      font-weight: 500;
+    }
+
+    .info-item.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .responsible-persons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .person-card {
+      background: #f5f7fa;
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 3px solid #409EFF;
+    }
+
+    .person-title {
+      font-size: 14px;
+      color: #909399;
+      margin-bottom: 8px;
+    }
+
+    .person-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+
+    .person-info {
+      font-size: 12px;
+      color: #606266;
+      line-height: 1.6;
+    }
+
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .photo-item {
+      position: relative;
+      width: 100%;
+      padding-top: 75%;
+      background: #f5f7fa;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .photo-item img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #909399;
+      font-size: 12px;
+    }
+
+    .monitoring-list {
+      margin-top: 12px;
+    }
+
+    .monitoring-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #f5f7fa;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .monitoring-info {
+      flex: 1;
+    }
+
+    .monitoring-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+
+    .monitoring-detail {
+      font-size: 12px;
+      color: #606266;
+    }
+
+    .monitoring-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .monitoring-status.connected {
+      color: #67c23a;
+    }
+
+    .monitoring-status.disconnected {
+      color: #909399;
+    }
+
+    .reference-section {
+      margin-top: 20px;
+    }
+
+    .reference-list {
+      margin-top: 12px;
+    }
+
+    .reference-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #f5f7fa;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .reference-item:hover {
+      background: #e6f7ff;
+    }
+
+    .reference-info {
+      flex: 1;
+    }
+
+    .reference-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+
+    .reference-meta {
+      font-size: 12px;
+      color: #606266;
+    }
+
+    .reference-status {
+      margin-left: 12px;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background-color: #67c23a;
+      color: #fff;
+    }
+
+    .status-processing {
+      background-color: #e6a23c;
+      color: #fff;
+    }
+
+    .status-completed {
+      background-color: #909399;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app-container">
+    <!-- 详情头部 -->
+    <div class="detail-header">
+      <div class="detail-title">重大危险源台账详情</div>
+      <div>
+        <el-button type="primary" @click="goEdit">
+          <i class="fas fa-edit"></i> 编辑
+        </el-button>
+        <el-button @click="goBack">
+          <i class="fas fa-arrow-left"></i> 返回
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 基本信息卡 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-info-circle"></i>
+        基本信息
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">重大危险源编号</div>
+          <div class="info-value">{{ detailData.code }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">所属单元</div>
+          <div class="info-value">
+            <el-tag :type="getUnitTagType(detailData.unit)" size="small">
+              {{ getUnitLabel(detailData.unit) }}
+            </el-tag>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">危险化学品名称</div>
+          <div class="info-value">{{ detailData.chemicalName }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">CAS号</div>
+          <div class="info-value">{{ detailData.cas }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">临界量判定</div>
+          <div class="info-value">
+            <el-tag :type="detailData.criticalJudgment === '≥临界量' ? 'danger' : 'info'" size="small">
+              {{ detailData.criticalJudgment }}
+            </el-tag>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">风险等级</div>
+          <div class="info-value">
+            <span :class="['risk-level-tag', getRiskLevelClass(detailData.riskLevel)]">
+              {{ getRiskLevelLabel(detailData.riskLevel) }}
+            </span>
+          </div>
+        </div>
+        <div class="info-item full-width">
+          <div class="info-label">最大库存/最大操作量</div>
+          <div class="info-value">{{ detailData.maxStock }} {{ detailData.unit }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 包保与公示卡 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-users"></i>
+        包保与公示
+      </div>
+      <div class="responsible-persons">
+        <div class="person-card" v-for="(person, key) in detailData.responsiblePersons" :key="key">
+          <div class="person-title">{{ getPersonTitle(key) }}</div>
+          <div class="person-name">{{ person.name }}</div>
+          <div class="person-info">
+            <div>职务：{{ person.position }}</div>
+            <div>联系方式：{{ person.contact }}</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 24px;">
+        <div class="info-label">公示牌位置</div>
+        <div class="info-value" style="margin-top: 8px;">{{ detailData.publicityLocation }}</div>
+      </div>
+      <div style="margin-top: 20px;">
+        <div class="info-label">公示牌照片</div>
+        <div class="photo-gallery">
+          <div class="photo-item" v-for="(photo, index) in detailData.publicityPhotos" :key="index">
+            <img v-if="photo" :src="photo" alt="公示牌照片" />
+            <div v-else class="photo-placeholder">
+              <i class="fas fa-image"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 20px;">
+        <div class="info-label">承诺公告</div>
+        <div class="info-value" style="margin-top: 8px;">
+          <el-link :href="detailData.commitmentNotice" target="_blank" type="primary" v-if="detailData.commitmentNotice">
+            <i class="fas fa-external-link-alt"></i> 查看承诺公告
+          </el-link>
+          <span v-else style="color: #909399;">未上传</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 监测接入卡 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-chart-line"></i>
+        监测接入
+      </div>
+      <div class="monitoring-list">
+        <div class="monitoring-item" v-for="(item, index) in detailData.monitoringItems" :key="index">
+          <div class="monitoring-info">
+            <div class="monitoring-name">{{ item.name }}</div>
+            <div class="monitoring-detail">
+              阈值：{{ item.threshold }} {{ item.unit }} | 数据源：{{ item.dataSource }}
+            </div>
+          </div>
+          <div :class="['monitoring-status', item.status === '已接入' ? 'connected' : 'disconnected']">
+            <i :class="item.status === '已接入' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+            {{ item.status }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 备案信息卡 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-file-alt"></i>
+        备案信息
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">属地部门</div>
+          <div class="info-value">{{ detailData.localDepartment }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">报备日期</div>
+          <div class="info-value">{{ detailData.recordDate }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">登记系统ID</div>
+          <div class="info-value">{{ detailData.systemId }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">状态</div>
+          <div class="info-value">
+            <span :class="['status-badge', getStatusClass(detailData.status)]">
+              {{ getStatusLabel(detailData.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 关联视图引用区 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-link"></i>
+        关联视图
+      </div>
+
+      <!-- 状态变更与核销 -->
+      <div class="reference-section">
+        <div class="info-label" style="margin-bottom: 12px;">状态变更与核销</div>
+        <div class="reference-list">
+          <div class="reference-item" v-if="detailData.statusChange">
+            <div class="reference-info">
+              <div class="reference-title">当前状态：{{ getStatusLabel(detailData.status) }}</div>
+              <div class="reference-meta">
+                外部流程ID：{{ detailData.statusChange.processId }} | 
+                最新审批结果：{{ detailData.statusChange.approvalResult || '待审批' }} | 
+                完成时间：{{ detailData.statusChange.completeTime || '-' }}
+              </div>
+            </div>
+            <el-button size="small" type="primary" text @click="viewStatusChange">
+              查看详情
+            </el-button>
+          </div>
+          <div v-else style="color: #909399; padding: 12px;">暂无状态变更记录</div>
+        </div>
+      </div>
+
+      <!-- 隐患信息 -->
+      <div class="reference-section">
+        <div class="info-label" style="margin-bottom: 12px;">隐患信息</div>
+        <div class="reference-list">
+          <div class="reference-item" v-for="(item, index) in detailData.hiddenDangers" :key="index">
+            <div class="reference-info">
+              <div class="reference-title">{{ item.title }}</div>
+              <div class="reference-meta">
+                记录ID：{{ item.id }} | 责任人：{{ item.responsiblePerson }} | 完成时间：{{ item.completeTime || '-' }}
+              </div>
+            </div>
+            <div class="reference-status">
+              <span :class="['status-badge', getReferenceStatusClass(item.status)]">
+                {{ item.status }}
+              </span>
+            </div>
+          </div>
+          <div v-if="detailData.hiddenDangers.length === 0" style="color: #909399; padding: 12px;">暂无隐患记录</div>
+        </div>
+      </div>
+
+      <!-- 应急预案与演练 -->
+      <div class="reference-section">
+        <div class="info-label" style="margin-bottom: 12px;">应急预案与演练</div>
+        <div class="reference-list">
+          <div class="reference-item" v-for="(item, index) in detailData.emergencyPlans" :key="index">
+            <div class="reference-info">
+              <div class="reference-title">{{ item.title }}</div>
+              <div class="reference-meta">
+                记录ID：{{ item.id }} | 责任人：{{ item.responsiblePerson }} | 完成时间：{{ item.completeTime || '-' }}
+              </div>
+            </div>
+            <div class="reference-status">
+              <span :class="['status-badge', getReferenceStatusClass(item.status)]">
+                {{ item.status }}
+              </span>
+            </div>
+          </div>
+          <div v-if="detailData.emergencyPlans.length === 0" style="color: #909399; padding: 12px;">暂无应急预案记录</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    createApp({
+      data() {
+        return {
+          detailData: {
+            code: 'WH-2024-001',
+            unit: 'production',
+            chemicalName: '乙醇 (64-17-5)',
+            cas: '64-17-5',
+            criticalJudgment: '≥临界量',
+            riskLevel: 'high',
+            maxStock: 150,
+            unit: 'L',
+            responsiblePersons: {
+              main: {
+                name: '张三',
+                position: '总经理',
+                contact: '13800138000'
+              },
+              technical: {
+                name: '李四',
+                position: '技术总监',
+                contact: '13800138001'
+              },
+              operational: {
+                name: '王五',
+                position: '车间主任',
+                contact: '13800138002'
+              }
+            },
+            publicityLocation: '生产车间入口处',
+            publicityPhotos: [],
+            commitmentNotice: 'https://example.com/commitment.pdf',
+            monitoringItems: [
+              {
+                name: '压力监测',
+                threshold: '0.8',
+                unit: 'MPa',
+                dataSource: '压力传感器-001',
+                status: '已接入'
+              },
+              {
+                name: '液位监测',
+                threshold: '80',
+                unit: '%',
+                dataSource: '液位计-002',
+                status: '已接入'
+              },
+              {
+                name: '温度监测',
+                threshold: '60',
+                unit: '℃',
+                dataSource: '温度传感器-003',
+                status: '已接入'
+              }
+            ],
+            localDepartment: 'XX市应急管理局',
+            recordDate: '2024-01-15',
+            systemId: 'REG-2024-001',
+            status: 'active',
+            statusChange: {
+              processId: 'CHG-2024-001',
+              approvalResult: '通过',
+              completeTime: '2024-01-20 10:30:00'
+            },
+            hiddenDangers: [
+              {
+                id: 'HD-2024-001',
+                title: '压力容器安全阀检查',
+                responsiblePerson: '王五',
+                status: '已完成',
+                completeTime: '2024-02-15'
+              }
+            ],
+            emergencyPlans: [
+              {
+                id: 'EP-2024-001',
+                title: '乙醇泄漏应急预案',
+                responsiblePerson: '李四',
+                status: '已完成',
+                completeTime: '2024-01-25'
+              }
+            ]
+          }
+        }
+      },
+      mounted() {
+        // 从sessionStorage获取传递的数据
+        const data = sessionStorage.getItem('major-hazard-detail_data');
+        if (data) {
+          try {
+            const params = JSON.parse(data);
+            // 从危险化学品安全风险分布台账中查找对应的数据
+            this.loadDetailFromRiskLedger(params.code);
+          } catch (e) {
+            console.error('解析数据失败:', e);
+          }
+        }
+      },
+      methods: {
+        // 从危险化学品安全风险分布台账加载详情数据
+        loadDetailFromRiskLedger(areaCode) {
+          try {
+            // 尝试从sessionStorage获取危险化学品安全风险分布台账的数据
+            const riskLedgerData = sessionStorage.getItem('riskLedgerData');
+            if (riskLedgerData) {
+              const data = JSON.parse(riskLedgerData);
+              const item = data.find(d => d.areaCode === areaCode);
+              if (item && item.riskLevel >= 1 && item.riskLevel <= 4) {
+                // 转换为重大危险源详情格式
+                this.detailData = {
+                  code: item.areaCode,
+                  unit: item.unitType || 'storage',
+                  chemicalName: item.chemicals && item.chemicals.length > 0 
+                    ? item.chemicals.map(c => `${c.chemicalName} (${c.casNo})`).join('、')
+                    : '未指定',
+                  cas: item.chemicals && item.chemicals.length > 0 
+                    ? item.chemicals[0].casNo 
+                    : '',
+                  criticalJudgment: item.rValue >= 10 ? '≥临界量' : '<临界量',
+                  riskLevel: item.riskLevel === 1 ? 'critical' : item.riskLevel === 2 ? 'high' : item.riskLevel === 3 ? 'medium' : 'low',
+                  maxStock: item.totalInventory ? parseFloat(item.totalInventory) : 0,
+                  unit: 'kg',
+                  rValue: item.rValue || 0,
+                  calculationResult: item.calculationResult || 0,
+                  chemicalCount: item.chemicalCount || 0,
+                  judgmentType: item.judgmentType || 'single',
+                  responsiblePersons: {
+                    main: {
+                      name: item.responsiblePerson || '-',
+                      position: '主要负责人',
+                      contact: '-'
+                    },
+                    technical: {
+                      name: '-',
+                      position: '技术负责人',
+                      contact: '-'
+                    },
+                    operational: {
+                      name: '-',
+                      position: '操作负责人',
+                      contact: '-'
+                    }
+                  },
+                  publicityLocation: `${item.warehouseName} - ${item.areaName}`,
+                  publicityPhotos: [],
+                  commitmentNotice: '',
+                  monitoringItems: [
+                    {
+                      name: '压力监测',
+                      threshold: '0.8',
+                      unit: 'MPa',
+                      dataSource: '压力传感器-001',
+                      status: '已接入'
+                    },
+                    {
+                      name: '液位监测',
+                      threshold: '80',
+                      unit: '%',
+                      dataSource: '液位计-002',
+                      status: '已接入'
+                    }
+                  ],
+                  localDepartment: 'XX市应急管理局',
+                  recordDate: item.lastUpdateTime ? item.lastUpdateTime.split(' ')[0] : new Date().toISOString().split('T')[0],
+                  systemId: `REG-${item.areaCode}`,
+                  status: 'active',
+                  statusChange: null,
+                  hiddenDangers: [],
+                  emergencyPlans: [],
+                  chemicals: item.chemicals || []
+                };
+                return;
+              }
+            }
+            // 如果没有找到数据，使用默认数据
+            console.warn('未找到对应的重大危险源数据，使用默认数据');
+          } catch (e) {
+            console.error('加载详情数据失败:', e);
+          }
+        },
+        goBack() {
+          window.parent.postMessage({
+            type: 'navigate',
+            page: 'major-hazard-ledger',
+            title: '重大危险源台账',
+            icon: 'fas fa-table'
+          }, '*');
+        },
+        goEdit() {
+          window.parent.postMessage({
+            type: 'navigate',
+            page: 'major-hazard-edit',
+            data: { code: this.detailData.code, mode: 'edit' },
+            title: '编辑重大危险源',
+            icon: 'fas fa-edit'
+          }, '*');
+        },
+        viewStatusChange() {
+          ElMessage.info('跳转到外部流程详情');
+        },
+        getUnitLabel(unit) {
+          const map = {
+            'production': '生产',
+            'storage': '储存',
+            'usage': '使用',
+            'transport': '搬运'
+          };
+          return map[unit] || unit;
+        },
+        getUnitTagType(unit) {
+          const map = {
+            'production': 'success',
+            'storage': 'primary',
+            'usage': 'warning',
+            'transport': 'danger'
+          };
+          return map[unit] || '';
+        },
+        getPersonTitle(key) {
+          const map = {
+            'main': '主要负责人',
+            'technical': '技术负责人',
+            'operational': '操作负责人'
+          };
+          return map[key] || key;
+        },
+        getRiskLevelLabel(level) {
+          const map = {
+            'low': '可容许',
+            'medium': '可容许',
+            'high': '超限',
+            'critical': '超限'
+          };
+          return map[level] || level;
+        },
+        getRiskLevelClass(level) {
+          const map = {
+            'low': 'risk-level-low',
+            'medium': 'risk-level-medium',
+            'high': 'risk-level-high',
+            'critical': 'risk-level-critical'
+          };
+          return map[level] || '';
+        },
+        getStatusLabel(status) {
+          const map = {
+            'active': '在册',
+            'changing': '变更中',
+            'cancelling': '核销中',
+            'cancelled': '已核销'
+          };
+          return map[status] || status;
+        },
+        getStatusClass(status) {
+          const map = {
+            'active': 'status-active',
+            'changing': 'status-processing',
+            'cancelling': 'status-processing',
+            'cancelled': 'status-completed'
+          };
+          return map[status] || '';
+        },
+        getReferenceStatusClass(status) {
+          if (status === '已完成') return 'status-completed';
+          if (status === '在办' || status === '整改中') return 'status-processing';
+          return 'status-active';
+        }
+      }
+    }).use(ElementPlus).mount('#app');
+  </script>
+  <style>
+    .risk-level-tag {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .risk-level-low {
+      background-color: #67c23a;
+      color: #fff;
+    }
+
+    .risk-level-medium {
+      background-color: #e6a23c;
+      color: #fff;
+    }
+
+    .risk-level-high {
+      background-color: #f56c6c;
+      color: #fff;
+    }
+
+    .risk-level-critical {
+      background-color: #c41d7f;
+      color: #fff;
+    }
+  </style>
+</body>
+
+</html>
+

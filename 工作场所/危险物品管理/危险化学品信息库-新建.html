@@ -692,8 +692,8 @@
                   <el-col :xs="24" :sm="12" :md="8">
                     <el-form-item label="分子式"><el-input v-model="form.formula" /></el-form-item>
                   </el-col>
-                  <el-col :xs="24" :sm="12" :md="8">
-                    <el-form-item label="危险性分类" prop="hazards">
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="危险性分类" prop="hazards">
                       <el-select
                           v-model="form.hazards"
                           placeholder="请选择危险性分类"
@@ -715,6 +715,12 @@
                           <el-option label="高压气体" value="高压气体"></el-option>
                       </el-select>
                     </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="12" :md="8">
+                    <el-form-item label="临界量" prop="criticalQty"><el-input-number v-model="form.criticalQty"
+                        placeholder="请输入临界量" style="width: 100%" :min="0" /></el-form-item>
                   </el-col>
                 </el-row>
               </div>
@@ -1148,7 +1154,7 @@ createApp({
       form:{
         name:'',englishName:'',alias:'',cas:'',formula:'',
         hazards:[], // 从危险性与标签中移除signalWord, pictograms, hCodes, pCodes，避免与MSDS第二章重复
-        flashPoint:'',density:'',mw:'',
+        flashPoint:'',density:'',mw:'',criticalQty:null,
         physicalState:'',color:'',odor:'', // 新增物理性质字段
         msds:createEmptyMsds()
       },
@@ -1158,6 +1164,10 @@ createApp({
         cas:[
           {required:true,message:'请输入CAS',trigger:'blur'},
           {validator:(rule,value,cb)=>{ if(!value){ cb(); return; } const ok=/^\d{2,7}-\d{2}-\d$/.test(value); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}
+        ],
+        criticalQty:[
+          {required:true,message:'请输入临界量',trigger:'blur'},
+          {validator:(rule,value,cb)=>{ if(value!==null&&value!==undefined&&value>=0){ cb(); }else{ cb(new Error('临界量必须为非负数')); } }, trigger:'blur'}
         ],
       },
       sectionOpen:{ basic:true, hazard:true, physical:true, msds:true },

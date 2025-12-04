@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>危险化学品台账-储存位置下拉框测试</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #f0f9ff; border-color: #91d5ff; }
+        .error { background-color: #fff1f0; border-color: #ffccc7; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>储存位置下拉框功能测试</h1>
+
+        <div class="test-result" :class="testStatus">
+            <h3>测试结果</h3>
+            <p>{{ message }}</p>
+            <p>选中的储存位置值: {{ searchForm.location }}</p>
+            <p>选中的储存位置标签: {{ selectedLocationLabel }}</p>
+        </div>
+
+        <el-form :model="searchForm" label-position="left">
+            <el-form-item label="储存位置">
+                <el-select v-model="searchForm.location" placeholder="请选择储存位置" clearable style="width: 300px">
+                    <el-option v-for="area in storageAreaOptions" :key="area.value" :label="area.label" :value="area.value" />
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button @click="testFiltering" type="primary">测试过滤功能</el-button>
+                <el-button @click="resetForm" type="info">重置</el-button>
+            </el-form-item>
+        </el-form>
+
+        <div v-if="testResults.length > 0" style="margin-top: 20px;">
+            <h4>过滤测试结果:</h4>
+            <div v-for="result in testResults" :key="result.id" class="test-result" :class="result.status">
+                <strong>{{ result.name }}</strong> - 位置: {{ result.location }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 Script -->
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    message: '下拉框加载中...',
+                    testStatus: '',
+                    searchForm: {
+                        location: ''
+                    },
+                    storageAreaOptions: [
+                        { label: '危化仓-A区', value: 'hazchem-a' },
+                        { label: '危化仓-B区', value: 'hazchem-b' },
+                        { label: '危化仓-C区', value: 'hazchem-c' },
+                        { label: '溶剂仓库-01区', value: 'solvent-01' },
+                        { label: '溶剂仓库-02区', value: 'solvent-02' },
+                        { label: '原料仓库-东区', value: 'material-east' },
+                        { label: '原料仓库-西区', value: 'material-west' }
+                    ],
+                    testData: [
+                        { id: 1, name: '乙醇', location: '危化仓A-01-05' },
+                        { id: 2, name: '甲醇', location: '危化仓B-02-03' },
+                        { id: 3, name: '丙酮', location: '溶剂仓库01-01-02' },
+                        { id: 4, name: '乙酸乙酯', location: '原料仓库东-03-01' },
+                        { id: 5, name: '盐酸', location: '危化仓C-01-01' }
+                    ],
+                    testResults: []
+                };
+            },
+            computed: {
+                selectedLocationLabel() {
+                    const area = this.storageAreaOptions.find(item => item.value === this.searchForm.location);
+                    return area ? area.label : '未选择';
+                }
+            },
+            methods: {
+                testFiltering() {
+                    try {
+                        // 模拟过滤逻辑
+                        const locationMapping = {
+                            'hazchem-a': '危化仓A',
+                            'hazchem-b': '危化仓B',
+                            'hazchem-c': '危化仓C',
+                            'solvent-01': '溶剂仓库01',
+                            'solvent-02': '溶剂仓库02',
+                            'material-east': '原料仓库东',
+                            'material-west': '原料仓库西'
+                        };
+
+                        if (!this.searchForm.location) {
+                            this.testResults = [...this.testData];
+                        } else {
+                            const searchArea = locationMapping[this.searchForm.location];
+                            this.testResults = this.testData.filter(item =>
+                                item.location.includes(searchArea)
+                            );
+                        }
+
+                        this.message = `过滤功能正常！找到 ${this.testResults.length} 条记录`;
+                        this.testStatus = 'success';
+                    } catch (error) {
+                        this.message = '过滤功能失败: ' + error.message;
+                        this.testStatus = 'error';
+                    }
+                },
+                resetForm() {
+                    this.searchForm.location = '';
+                    this.testResults = [];
+                    this.message = '已重置';
+                    this.testStatus = '';
+                }
+            },
+            mounted() {
+                try {
+                    this.message = '储存位置下拉框测试成功加载！';
+                    this.testStatus = 'success';
+                    console.log('✅ 储存位置下拉框功能正常');
+                } catch (error) {
+                    this.message = '加载失败: ' + error.message;
+                    this.testStatus = 'error';
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

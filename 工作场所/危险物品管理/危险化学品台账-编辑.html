@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -12,24 +13,123 @@
   <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif;background:#f5f7fa}
-    .app-container{min-height:100vh;display:flex;flex-direction:column}
-    .page{max-width:1200px;margin:0 auto;padding:24px;width:100%}
-    .content-card{background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
-    .form-container{padding:24px}
-    .form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f0f0f0}
-    .form-title{font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:10px}
-    .form-sections{display:flex;flex-direction:column;gap:24px}
-    .form-section{border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;background:#fff}
-    .section-header{background:#fafafa;padding:14px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
-    .section-title{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}
-    .section-title-actions{display:flex;align-items:center;gap:8px}
-    .form-section-content{padding:20px}
-    .footer-bar{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
-    .status-tag{font-size:12px;color:#909399}
-    .el-select,.el-input,.el-textarea{width:100%}
-    .el-button--primary{--el-button-bg-color:#409EFF;--el-button-border-color:#409EFF}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      background: #f5f7fa
+    }
+
+    .app-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      width: 100%
+    }
+
+    .content-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      overflow: hidden
+    }
+
+    .form-container {
+      padding: 24px
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .form-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 24px
+    }
+
+    .form-section {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff
+    }
+
+    .section-header {
+      background: #fafafa;
+      padding: 14px 20px;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .section-title-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .form-section-content {
+      padding: 20px
+    }
+
+    .footer-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 16px
+    }
+
+    .status-tag {
+      font-size: 12px;
+      color: #909399
+    }
+
+    .el-select,
+    .el-input,
+    .el-textarea {
+      width: 100%
+    }
+
+    .el-button--primary {
+      --el-button-bg-color: #409EFF;
+      --el-button-border-color: #409EFF
+    }
+
     .el-icon-plus {
       display: flex;
       align-items: center;
@@ -42,60 +142,62 @@
     }
   </style>
 </head>
+
 <body>
-<div id="app" class="app-container">
-  <div class="page">
-    <div class="content-card">
-      <div class="form-container">
-        <div class="form-header">
-          <div class="form-title"><i class="fas fa-edit"></i> 编辑危险化学品台账</div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <el-button type="success" @click="showImportDialog" :icon="Upload" size="small">
-              从信息库导入
-            </el-button>
-            <div class="status-tag" v-if="form.cas">CAS：{{ form.cas }}</div>
+  <div id="app" class="app-container">
+    <div class="page">
+      <div class="content-card">
+        <div class="form-container">
+          <div class="form-header">
+            <div class="form-title"><i class="fas fa-edit"></i> 编辑危险化学品台账</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <el-button type="success" @click="showImportDialog" :icon="Upload" size="small">
+                从信息库导入
+              </el-button>
+              <div class="status-tag" v-if="form.cas">CAS：{{ form.cas }}</div>
+            </div>
           </div>
-        </div>
 
-        <el-alert v-if="errorMsg" :title="errorMsg" type="error" show-icon style="margin-bottom:12px"></el-alert>
+          <el-alert v-if="errorMsg" :title="errorMsg" type="error" show-icon style="margin-bottom:12px"></el-alert>
 
-        <template v-if="!loading">
-          <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
-            <div class="form-sections">
-              <!-- 基本信息 -->
-              <div class="form-section">
-                <div class="section-header">
-                  <div class="section-title"><i class="fas fa-info-circle"></i> 基本信息</div>
-                  <div class="section-title-actions">
-                    <el-button link size="small" @click="toggleSection('basic')">{{ sectionOpen.basic ? '收起' : '展开' }}</el-button>
+          <template v-if="!loading">
+            <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
+              <div class="form-sections">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <div class="section-title"><i class="fas fa-info-circle"></i> 基本信息</div>
+                    <div class="section-title-actions">
+                      <el-button link size="small" @click="toggleSection('basic')">{{ sectionOpen.basic ? '收起' : '展开'
+                        }}</el-button>
+                    </div>
                   </div>
-                </div>
-                <div class="form-section-content" v-show="sectionOpen.basic">
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="化学品名称" prop="name"><el-input v-model="form.name" placeholder="请输入化学品名称" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="英文名" prop="englishName"><el-input v-model="form.englishName" placeholder="请输入英文名" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="别名"><el-input v-model="form.alias" placeholder="请输入别名" /></el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="CAS号" prop="cas"><el-input v-model="form.cas" placeholder="XXXXX-XX-X" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="分子式"><el-input v-model="form.formula" placeholder="请输入分子式" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="危险性分类" prop="hazards">
-                        <el-select
-                            v-model="form.hazards"
-                            placeholder="请选择危险性分类"
-                            multiple
-                            clearable>
+                  <div class="form-section-content" v-show="sectionOpen.basic">
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="化学品名称" prop="name"><el-input v-model="form.name"
+                            placeholder="请输入化学品名称" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="英文名" prop="englishName"><el-input v-model="form.englishName"
+                            placeholder="请输入英文名" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="别名"><el-input v-model="form.alias" placeholder="请输入别名" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="CAS号" prop="cas"><el-input v-model="form.cas"
+                            placeholder="XXXXX-XX-X" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="分子式"><el-input v-model="form.formula"
+                            placeholder="请输入分子式" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="危险性分类" prop="hazards">
+                          <el-select v-model="form.hazards" placeholder="请选择危险性分类" multiple clearable>
                             <el-option label="爆炸物" value="爆炸物"></el-option>
                             <el-option label="易燃气体" value="易燃气体"></el-option>
                             <el-option label="易燃液体" value="易燃液体"></el-option>
@@ -110,1040 +212,1098 @@
                             <el-option label="有机过氧化物" value="有机过氧化物"></el-option>
                             <el-option label="腐蚀性物质" value="腐蚀性物质"></el-option>
                             <el-option label="高压气体" value="高压气体"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="闪点(℃)"><el-input v-model="form.flashPoint" placeholder="请输入闪点" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="密度(g/cm³)"><el-input v-model="form.density" placeholder="请输入密度" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="分子量"><el-input v-model="form.mw" placeholder="请输入分子量" /></el-form-item>
-                    </el-col>
-                  </el-row>
-                </div>
-              </div>
-
-              <!-- 企业库存信息 -->
-              <div class="form-section">
-                <div class="section-header">
-                  <div class="section-title"><i class="fas fa-warehouse"></i> 企业库存信息</div>
-                  <div class="section-title-actions">
-                    <el-button link size="small" @click="toggleSection('enterprise')">{{ sectionOpen.enterprise ? '收起' : '展开' }}</el-button>
-                  </div>
-                </div>
-                <div class="form-section-content" v-show="sectionOpen.enterprise">
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="储存位置" prop="location">
-                        <el-select
-                            v-model="form.location"
-                            placeholder="请选择储存位置"
-                            clearable
-                            style="width: 100%">
-                          <el-option label="危化仓A-01-01" value="危化仓A-01-01"></el-option>
-                          <el-option label="危化仓A-01-02" value="危化仓A-01-02"></el-option>
-                          <el-option label="危化仓A-01-03" value="危化仓A-01-03"></el-option>
-                          <el-option label="危化仓A-01-04" value="危化仓A-01-04"></el-option>
-                          <el-option label="危化仓A-01-05" value="危化仓A-01-05"></el-option>
-                          <el-option label="危化仓A-01-06" value="危化仓A-01-06"></el-option>
-                          <el-option label="危化仓B-02-01" value="危化仓B-02-01"></el-option>
-                          <el-option label="危化仓B-02-02" value="危化仓B-02-02"></el-option>
-                          <el-option label="危化仓B-02-03" value="危化仓B-02-03"></el-option>
-                          <el-option label="危化仓C-03-01" value="危化仓C-03-01"></el-option>
-                          <el-option label="危化仓C-03-02" value="危化仓C-03-02"></el-option>
-                          <el-option label="危化仓D-04-01" value="危化仓D-04-01"></el-option>
-                          <el-option label="危化仓D-04-02" value="危化仓D-04-02"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="库存数量" prop="stockQty"><el-input-number v-model="form.stockQty" placeholder="请输入库存数量" style="width: 100%" :min="0" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="计量单位" prop="unit">
-                        <el-select
-                            v-model="form.unit"
-                            placeholder="请选择计量单位"
-                            clearable>
-                          <el-option label="kg" value="kg"></el-option>
-                          <el-option label="L" value="L"></el-option>
-                          <el-option label="吨" value="吨"></el-option>
-                          <el-option label="m³" value="m³"></el-option>
-                          <el-option label="个" value="个"></el-option>
-                          <el-option label="瓶" value="瓶"></el-option>
-                          <el-option label="桶" value="桶"></el-option>
-                          <el-option label="袋" value="袋"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="库存状态" prop="stockStatus">
-                        <el-select
-                            v-model="form.stockStatus"
-                            placeholder="请选择库存状态"
-                            clearable>
-                          <el-option label="正常" value="正常"></el-option>
-                          <el-option label="超期" value="超期"></el-option>
-                          <el-option label="冻结" value="冻结"></el-option>
-                          <el-option label="待检" value="待检"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="供应商" prop="supplier"><el-input v-model="form.supplier" placeholder="请输入供应商名称" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="批次号" prop="batchNo"><el-input v-model="form.batchNo" placeholder="请输入批次号" /></el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="生产日期" prop="prodDate">
-                        <el-date-picker v-model="form.prodDate" type="date" placeholder="请选择生产日期" format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="有效期至" prop="expireDate">
-                        <el-date-picker v-model="form.expireDate" type="date" placeholder="请选择有效期" format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="标签状态" prop="labelStatus">
-                        <el-select
-                            v-model="form.labelStatus"
-                            placeholder="请选择标签状态"
-                            clearable>
-                          <el-option label="已粘贴" value="已粘贴"></el-option>
-                          <el-option label="未粘贴" value="未粘贴"></el-option>
-                          <el-option label="破损" value="破损"></el-option>
-                          <el-option label="缺失" value="缺失"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </div>
-              </div>
-
-              <!-- 包装信息 -->
-              <div class="form-section">
-                <div class="section-header">
-                  <div class="section-title"><i class="fas fa-box"></i> 包装信息</div>
-                  <div class="section-title-actions">
-                    <el-button link size="small" @click="toggleSection('packaging')">{{ sectionOpen.packaging ? '收起' : '展开' }}</el-button>
-                  </div>
-                </div>
-                <div class="form-section-content" v-show="sectionOpen.packaging">
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="包装类型"><el-input v-model="form.pkgType" placeholder="如：200L铁桶" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="包装材质"><el-input v-model="form.pkgMaterial" placeholder="如：不锈钢" /></el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="包装数量"><el-input-number v-model="form.pkgQty" placeholder="请输入包装数量" style="width: 100%" :min="0" /></el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="单包装容量"><el-input v-model="form.pkgCapacity" placeholder="如：200L" /></el-form-item>
-                    </el-col>
-                  </el-row>
-                </div>
-              </div>
-
-              <!-- 特殊属性 -->
-              <div class="form-section">
-                <div class="section-header">
-                  <div class="section-title"><i class="fas fa-exclamation-triangle"></i> 特殊属性</div>
-                  <div class="section-title-actions">
-                    <el-button link size="small" @click="toggleSection('special')">{{ sectionOpen.special ? '收起' : '展开' }}</el-button>
-                  </div>
-                </div>
-                <div class="form-section-content" v-show="sectionOpen.special">
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="是否剧毒">
-                        <el-select
-                            v-model="form.isHighlyToxic"
-                            placeholder="请选择"
-                            clearable>
-                          <el-option label="是" value="是"></el-option>
-                          <el-option label="否" value="否"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="是否易制爆">
-                        <el-select
-                            v-model="form.isExplosive"
-                            placeholder="请选择"
-                            clearable>
-                          <el-option label="是" value="是"></el-option>
-                          <el-option label="否" value="否"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12" :md="8">
-                      <el-form-item label="是否易制毒">
-                        <el-select
-                            v-model="form.isDrugPrecursor"
-                            placeholder="请选择"
-                            clearable>
-                          <el-option label="是" value="是"></el-option>
-                          <el-option label="否" value="否"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </div>
-              </div>
-
-              <!-- MSDS快速录入 -->
-              <div class="form-section">
-                <div class="section-header">
-                  <div class="section-title"><i class="fas fa-file-alt"></i> MSDS 快速录入</div>
-                  <div class="section-title-actions">
-                    <el-button link size="small" @click="toggleSection('msds')">{{ sectionOpen.msds ? '收起' : '展开' }}</el-button>
-                  </div>
-                </div>
-                <div class="form-section-content" v-show="sectionOpen.msds">
-                  <p class="status-tag">以下 16 章字段遵循国标 SDS 结构，可按需填写核心信息。</p>
-
-                  <!-- 第1章 -->
-                  <el-collapse v-model="activeMsdsPanels" class="msds-collapse">
-                    <el-collapse-item name="c1" title="第1章：化学品及企业标识">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="产品名称"><el-input v-model="form.msds.chapter1.product" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="推荐用途"><el-input v-model="form.msds.chapter1.use" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="供应商"><el-input v-model="form.msds.chapter1.supplier" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="地址"><el-input v-model="form.msds.chapter1.address" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="联系电话"><el-input v-model="form.msds.chapter1.phone" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12" :md="8"><el-form-item label="应急电话"><el-input v-model="form.msds.chapter1.emergency" /></el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
-
-                    <!-- 第2章 -->
-                    <el-collapse-item name="c2" title="第2章：危险性概述">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12"><el-form-item label="GHS分类"><el-input v-model="form.msds.chapter2.ghs" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12"><el-form-item label="信号词">
-                          <el-select
-                              v-model="form.msds.chapter2.signalWord"
-                              placeholder="请选择信号词"
-                              clearable>
-                            <el-option label="Danger（严重危害）" value="Danger"></el-option>
-                            <el-option label="Warning（一般危害）" value="Warning"></el-option>
-                            <el-option label="Caution（注意）" value="Caution"></el-option>
-                            <el-option label="Notice（提示）" value="Notice"></el-option>
-                            <el-option label="Attention（关注）" value="Attention"></el-option>
-                            <el-option label="Alarm（告警/报警）" value="Alarm"></el-option>
                           </el-select>
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="象形图上传">
-                          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
-                            <el-upload
-                              action="#"
-                              list-type="picture-card"
-                              :auto-upload="false"
-                              :limit="1"
-                              :file-list="msdsPictogramFileList"
-                              @change="handleMsdsPictogramChange"
-                              style="margin-bottom: 4px;"
-                            >
-                              <div class="el-icon-plus">+</div>
-                            </el-upload>
-                            <div style="font-size: 12px; color: #909399; line-height: 1.4;">支持jpg/png/gif格式，大小不超过2MB</div>
-                          </div>
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="危险说明(H)"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.h" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="防范说明(P)"><el-input type="textarea" :rows="2" v-model="form.msds.chapter2.p" /></el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="闪点(℃)"><el-input v-model="form.flashPoint"
+                            placeholder="请输入闪点" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="密度(g/cm³)"><el-input v-model="form.density"
+                            placeholder="请输入密度" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="分子量"><el-input v-model="form.mw" placeholder="请输入分子量" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="临界量" prop="criticalQty"><el-input-number v-model="form.criticalQty"
+                            placeholder="请输入临界量" style="width: 100%" :min="0" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
 
-                    <!-- 第3章 -->
-                    <el-collapse-item name="c3" title="第3章：成分/组成信息">
-                      <el-table :data="form.msds.chapter3.components" border size="small" style="width:100%">
-                        <el-table-column label="化学名称">
-                          <template #default="scope"><el-input v-model="scope.row.name" placeholder="化学名称" /></template>
-                        </el-table-column>
-                        <el-table-column label="CAS号" width="220">
-                          <template #default="scope"><el-input v-model="scope.row.cas" placeholder="CAS号" /></template>
-                        </el-table-column>
-                        <el-table-column label="含量(%)" width="160">
-                          <template #default="scope"><el-input v-model="scope.row.concentration" placeholder="例如 95" /></template>
-                        </el-table-column>
-                        <el-table-column label="操作" width="100">
-                          <template #default="scope"><el-button type="danger" link size="small" @click="removeComponent(scope.$index)">删除</el-button></template>
-                        </el-table-column>
-                      </el-table>
-                      <div style="margin-top:12px">
-                        <el-button type="primary" plain @click="addComponentRow"><i class="fas fa-plus" style="margin-right:4px"></i>新增成分行</el-button>
-                      </div>
-                    </el-collapse-item>
+                <!-- 企业库存信息 -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <div class="section-title"><i class="fas fa-warehouse"></i> 企业库存信息</div>
+                    <div class="section-title-actions">
+                      <el-button link size="small" @click="toggleSection('enterprise')">{{ sectionOpen.enterprise ? '收起'
+                        : '展开' }}</el-button>
+                    </div>
+                  </div>
+                  <div class="form-section-content" v-show="sectionOpen.enterprise">
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="存储区域" prop="storageArea">
+                          <el-select v-model="form.storageArea" placeholder="请选择存储区域" clearable style="width: 100%">
+                            <el-option label="危化仓-A区" value="hazchem-a"></el-option>
+                            <el-option label="危化仓-B区" value="hazchem-b"></el-option>
+                            <el-option label="危化仓-C区" value="hazchem-c"></el-option>
+                            <el-option label="溶剂仓库-01区" value="solvent-01"></el-option>
+                            <el-option label="溶剂仓库-02区" value="solvent-02"></el-option>
+                            <el-option label="原料仓库-东区" value="material-east"></el-option>
+                            <el-option label="原料仓库-西区" value="material-west"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="单元类型" prop="unitType">
+                          <el-select v-model="form.unitType" placeholder="请选择单元类型" clearable style="width: 100%">
+                            <el-option label="生产单元" value="production"></el-option>
+                            <el-option label="存储单元" value="storage"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="库存数量" prop="stockQty"><el-input-number v-model="form.stockQty"
+                            placeholder="请输入库存数量" style="width: 100%" :min="0" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="计量单位" prop="unit">
+                          <el-select v-model="form.unit" placeholder="请选择计量单位" clearable>
+                            <el-option label="kg" value="kg"></el-option>
+                            <el-option label="L" value="L"></el-option>
+                            <el-option label="吨" value="吨"></el-option>
+                            <el-option label="m³" value="m³"></el-option>
+                            <el-option label="个" value="个"></el-option>
+                            <el-option label="瓶" value="瓶"></el-option>
+                            <el-option label="桶" value="桶"></el-option>
+                            <el-option label="袋" value="袋"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="库存状态" prop="stockStatus">
+                          <el-select v-model="form.stockStatus" placeholder="请选择库存状态" clearable>
+                            <el-option label="正常" value="正常"></el-option>
+                            <el-option label="超期" value="超期"></el-option>
+                            <el-option label="冻结" value="冻结"></el-option>
+                            <el-option label="待检" value="待检"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="供应商" prop="supplier"><el-input v-model="form.supplier"
+                            placeholder="请输入供应商名称" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="批次号" prop="batchNo"><el-input v-model="form.batchNo"
+                            placeholder="请输入批次号" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="生产日期" prop="prodDate">
+                          <el-date-picker v-model="form.prodDate" type="date" placeholder="请选择生产日期" format="YYYY-MM-DD"
+                            value-format="YYYY-MM-DD" style="width: 100%" />
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="有效期至" prop="expireDate">
+                          <el-date-picker v-model="form.expireDate" type="date" placeholder="请选择有效期" format="YYYY-MM-DD"
+                            value-format="YYYY-MM-DD" style="width: 100%" />
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="标签状态" prop="labelStatus">
+                          <el-select v-model="form.labelStatus" placeholder="请选择标签状态" clearable>
+                            <el-option label="已粘贴" value="已粘贴"></el-option>
+                            <el-option label="未粘贴" value="未粘贴"></el-option>
+                            <el-option label="破损" value="破损"></el-option>
+                            <el-option label="缺失" value="缺失"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
 
-                    <!-- 第4章 -->
-                    <el-collapse-item name="c4" title="第4章：急救措施">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12"><el-form-item label="吸入"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.inhale" placeholder="脱离现场至空气新鲜处，保持呼吸道通畅" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12"><el-form-item label="皮肤接触"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.skin" placeholder="脱去污染的衣着，用大量流动清水冲洗" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12"><el-form-item label="眼睛接触"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.eye" placeholder="立即提起眼睑，用大量流动清水或生理盐水彻底冲洗" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12"><el-form-item label="摄入"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.ingest" placeholder="饮水，禁止催吐" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="重要症状"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.symptoms" placeholder="主要症状和对健康的影响" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="特殊治疗"><el-input type="textarea" :rows="2" v-model="form.msds.chapter4.treatment" placeholder="医生需要知晓的特殊治疗信息" /></el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                <!-- 包装信息 -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <div class="section-title"><i class="fas fa-box"></i> 包装信息</div>
+                    <div class="section-title-actions">
+                      <el-button link size="small" @click="toggleSection('packaging')">{{ sectionOpen.packaging ? '收起' :
+                        '展开' }}</el-button>
+                    </div>
+                  </div>
+                  <div class="form-section-content" v-show="sectionOpen.packaging">
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="包装类型"><el-input v-model="form.pkgType"
+                            placeholder="如：200L铁桶" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="包装材质"><el-input v-model="form.pkgMaterial"
+                            placeholder="如：不锈钢" /></el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="包装数量"><el-input-number v-model="form.pkgQty" placeholder="请输入包装数量"
+                            style="width: 100%" :min="0" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="单包装容量"><el-input v-model="form.pkgCapacity"
+                            placeholder="如：200L" /></el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
 
-                    <!-- 第5章 -->
-                    <el-collapse-item name="c5" title="第5章：消防措施">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="灭火剂">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.agent" placeholder="抗溶性泡沫、干粉、二氧化碳、砂土" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="禁用灭火剂">
-                          <el-input v-model="form.msds.chapter5.noagent" placeholder="禁止用水" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="危险特性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.hazard" placeholder="其蒸气与空气可形成爆炸性混合物，遇明火、高热能引起燃烧爆炸" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="消防人员防护">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.protect" placeholder="消防人员必须佩戴空气呼吸器、穿全身消防防毒服，在上风向灭火" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                <!-- 特殊属性 -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <div class="section-title"><i class="fas fa-exclamation-triangle"></i> 特殊属性</div>
+                    <div class="section-title-actions">
+                      <el-button link size="small" @click="toggleSection('special')">{{ sectionOpen.special ? '收起' :
+                        '展开' }}</el-button>
+                    </div>
+                  </div>
+                  <div class="form-section-content" v-show="sectionOpen.special">
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="是否剧毒">
+                          <el-select v-model="form.isHighlyToxic" placeholder="请选择" clearable>
+                            <el-option label="是" value="是"></el-option>
+                            <el-option label="否" value="否"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="是否易制爆">
+                          <el-select v-model="form.isExplosive" placeholder="请选择" clearable>
+                            <el-option label="是" value="是"></el-option>
+                            <el-option label="否" value="否"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :xs="24" :sm="12" :md="8">
+                        <el-form-item label="是否易制毒">
+                          <el-select v-model="form.isDrugPrecursor" placeholder="请选择" clearable>
+                            <el-option label="是" value="是"></el-option>
+                            <el-option label="否" value="否"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
 
-                    <!-- 第6章 -->
-                    <el-collapse-item name="c6" title="第6章：泄漏应急处理">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="个人防护">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.pp" placeholder="建议应急处理人员戴携气式呼吸器，穿防静电服，戴橡胶耐油手套" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="环境保护措施">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.env" placeholder="防止流入下水道、排洪沟等限制性空间" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="清理方法">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.clean" placeholder="用活性炭或其它惰性材料吸收，收集运至废物处理场所处置" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                <!-- MSDS快速录入 -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <div class="section-title"><i class="fas fa-file-alt"></i> MSDS 快速录入</div>
+                    <div class="section-title-actions">
+                      <el-button link size="small" @click="toggleSection('msds')">{{ sectionOpen.msds ? '收起' : '展开'
+                        }}</el-button>
+                    </div>
+                  </div>
+                  <div class="form-section-content" v-show="sectionOpen.msds">
+                    <p class="status-tag">以下 16 章字段遵循国标 SDS 结构，可按需填写核心信息。</p>
 
-                    <!-- 第7章 -->
-                    <el-collapse-item name="c7" title="第7章：操作处置与储存">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="操作注意事项">
-                          <el-input type="textarea" :rows="3" v-model="form.msds.chapter7.op" placeholder="密闭操作，全面通风。防止蒸气泄漏到工作场所空气中。" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="储存注意事项">
-                          <el-input type="textarea" :rows="3" v-model="form.msds.chapter7.store" placeholder="储存于阴凉、通风的库房。远离火种、热源。" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                    <!-- 第1章 -->
+                    <el-collapse v-model="activeMsdsPanels" class="msds-collapse">
+                      <el-collapse-item name="c1" title="第1章：化学品及企业标识">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="产品名称"><el-input
+                                v-model="form.msds.chapter1.product" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="推荐用途"><el-input
+                                v-model="form.msds.chapter1.use" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="供应商"><el-input
+                                v-model="form.msds.chapter1.supplier" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="地址"><el-input
+                                v-model="form.msds.chapter1.address" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="联系电话"><el-input
+                                v-model="form.msds.chapter1.phone" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12" :md="8"><el-form-item label="应急电话"><el-input
+                                v-model="form.msds.chapter1.emergency" /></el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第8章 -->
-                    <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="工程控制">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ec" placeholder="生产过程密闭，全面通风。提供安全淋浴和洗眼设备" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="个体防护">
-                          <el-input type="textarea" :rows="3" v-model="form.msds.chapter8.ppe" placeholder="空气中浓度超标时，佩戴过滤式防毒面具（半面罩）。戴化学安全防护眼镜，穿防静电工作服，戴橡胶耐油手套" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第2章 -->
+                      <el-collapse-item name="c2" title="第2章：危险性概述">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12"><el-form-item label="GHS分类"><el-input
+                                v-model="form.msds.chapter2.ghs" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12"><el-form-item label="信号词">
+                              <el-select v-model="form.msds.chapter2.signalWord" placeholder="请选择信号词" clearable>
+                                <el-option label="Danger（严重危害）" value="Danger"></el-option>
+                                <el-option label="Warning（一般危害）" value="Warning"></el-option>
+                                <el-option label="Caution（注意）" value="Caution"></el-option>
+                                <el-option label="Notice（提示）" value="Notice"></el-option>
+                                <el-option label="Attention（关注）" value="Attention"></el-option>
+                                <el-option label="Alarm（告警/报警）" value="Alarm"></el-option>
+                              </el-select>
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="象形图上传">
+                              <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+                                <el-upload action="#" list-type="picture-card" :auto-upload="false" :limit="1"
+                                  :file-list="msdsPictogramFileList" @change="handleMsdsPictogramChange"
+                                  style="margin-bottom: 4px;">
+                                  <div class="el-icon-plus">+</div>
+                                </el-upload>
+                                <div style="font-size: 12px; color: #909399; line-height: 1.4;">支持jpg/png/gif格式，大小不超过2MB
+                                </div>
+                              </div>
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="危险说明(H)"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter2.h" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="防范说明(P)"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter2.p" /></el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第9章 -->
-                    <el-collapse-item name="c9" title="第9章：理化特性">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="外观与性状"><el-input v-model="form.msds.chapter9.appearance" placeholder="无色透明液体" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="pH值"><el-input v-model="form.msds.chapter9.ph" placeholder="中性" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="闪点(℃)"><el-input v-model="form.msds.chapter9.fp" placeholder="例如 12.8" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="蒸气压(kPa)"><el-input v-model="form.msds.chapter9.vp" placeholder="例如 5.95(20℃)" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="蒸气密度(空气=1)"><el-input v-model="form.msds.chapter9.vd" placeholder="例如 >1" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="相对密度(水=1)"><el-input v-model="form.msds.chapter9.d" placeholder="例如 0.789" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="溶解性"><el-input v-model="form.msds.chapter9.sol" placeholder="与水混溶" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="自燃温度(℃)"><el-input v-model="form.msds.chapter9.sa" placeholder="例如 363" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="粘度(mPa·s)"><el-input v-model="form.msds.chapter9.vis" placeholder="例如 1.074(20℃)" /></el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第3章 -->
+                      <el-collapse-item name="c3" title="第3章：成分/组成信息">
+                        <el-table :data="form.msds.chapter3.components" border size="small" style="width:100%">
+                          <el-table-column label="化学名称">
+                            <template #default="scope"><el-input v-model="scope.row.name"
+                                placeholder="化学名称" /></template>
+                          </el-table-column>
+                          <el-table-column label="CAS号" width="220">
+                            <template #default="scope"><el-input v-model="scope.row.cas"
+                                placeholder="CAS号" /></template>
+                          </el-table-column>
+                          <el-table-column label="含量(%)" width="160">
+                            <template #default="scope"><el-input v-model="scope.row.concentration"
+                                placeholder="例如 95" /></template>
+                          </el-table-column>
+                          <el-table-column label="操作" width="100">
+                            <template #default="scope"><el-button type="danger" link size="small"
+                                @click="removeComponent(scope.$index)">删除</el-button></template>
+                          </el-table-column>
+                        </el-table>
+                        <div style="margin-top:12px">
+                          <el-button type="primary" plain @click="addComponentRow"><i class="fas fa-plus"
+                              style="margin-right:4px"></i>新增成分行</el-button>
+                        </div>
+                      </el-collapse-item>
 
-                    <!-- 第10章 -->
-                    <el-collapse-item name="c10" title="第10章：稳定性和反应性">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="12"><el-form-item label="稳定性"><el-input v-model="form.msds.chapter10.stable" placeholder="稳定" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="12"><el-form-item label="禁配物"><el-input v-model="form.msds.chapter10.incompat" placeholder="强氧化剂、酸类、酸酐、酰氯" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="危险反应">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.react" placeholder="避免接触的条件" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="应避免的条件">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.avoid" placeholder="光照、高温、静电" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="分解产物">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.decompose" placeholder="一氧化碳、二氧化碳" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第4章 -->
+                      <el-collapse-item name="c4" title="第4章：急救措施">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12"><el-form-item label="吸入"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.inhale"
+                                placeholder="脱离现场至空气新鲜处，保持呼吸道通畅" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12"><el-form-item label="皮肤接触"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.skin"
+                                placeholder="脱去污染的衣着，用大量流动清水冲洗" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12"><el-form-item label="眼睛接触"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.eye"
+                                placeholder="立即提起眼睑，用大量流动清水或生理盐水彻底冲洗" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12"><el-form-item label="摄入"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.ingest" placeholder="饮水，禁止催吐" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="重要症状"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.symptoms"
+                                placeholder="主要症状和对健康的影响" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="特殊治疗"><el-input type="textarea" :rows="2"
+                                v-model="form.msds.chapter4.treatment"
+                                placeholder="医生需要知晓的特殊治疗信息" /></el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第11章 -->
-                    <el-collapse-item name="c11" title="第11章：毒理学信息">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="侵入途径">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.route" placeholder="吸入、食入、经皮吸收" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="急性毒性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.acute" placeholder="LD50：7060 mg/kg(大鼠经口)" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="刺激性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.irritation" placeholder="家兔经眼：500mg，重度刺激" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第5章 -->
+                      <el-collapse-item name="c5" title="第5章：消防措施">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="灭火剂">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.agent"
+                                placeholder="抗溶性泡沫、干粉、二氧化碳、砂土" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="禁用灭火剂">
+                              <el-input v-model="form.msds.chapter5.noagent" placeholder="禁止用水" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="危险特性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.hazard"
+                                placeholder="其蒸气与空气可形成爆炸性混合物，遇明火、高热能引起燃烧爆炸" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="消防人员防护">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter5.protect"
+                                placeholder="消防人员必须佩戴空气呼吸器、穿全身消防防毒服，在上风向灭火" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第12章 -->
-                    <el-collapse-item name="c12" title="第12章：生态学信息">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="生态毒性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.eco" placeholder="对水生生物有毒害作用" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="持久性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.persistent" placeholder="在环境中的持久性" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="生物累积性">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.bioacc" placeholder="生物富集或生物积累性" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第6章 -->
+                      <el-collapse-item name="c6" title="第6章：泄漏应急处理">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="个人防护">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.pp"
+                                placeholder="建议应急处理人员戴携气式呼吸器，穿防静电服，戴橡胶耐油手套" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="环境保护措施">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.env"
+                                placeholder="防止流入下水道、排洪沟等限制性空间" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="清理方法">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter6.clean"
+                                placeholder="用活性炭或其它惰性材料吸收，收集运至废物处理场所处置" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第13章 -->
-                    <el-collapse-item name="c13" title="第13章：废弃处置">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="废弃处置方法">
-                          <el-input type="textarea" :rows="3" v-model="form.msds.chapter13.disp" placeholder="用控制焚烧法处置" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="废弃包装">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter13.pack" placeholder="废弃包装的处理方法" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第7章 -->
+                      <el-collapse-item name="c7" title="第7章：操作处置与储存">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="操作注意事项">
+                              <el-input type="textarea" :rows="3" v-model="form.msds.chapter7.op"
+                                placeholder="密闭操作，全面通风。防止蒸气泄漏到工作场所空气中。" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="储存注意事项">
+                              <el-input type="textarea" :rows="3" v-model="form.msds.chapter7.store"
+                                placeholder="储存于阴凉、通风的库房。远离火种、热源。" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第14章 -->
-                    <el-collapse-item name="c14" title="第14章：运输信息">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="UN编号"><el-input v-model="form.msds.chapter14.un" placeholder="例如 1170" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="运输名称"><el-input v-model="form.msds.chapter14.name" placeholder="乙醇" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="危险性类别"><el-input v-model="form.msds.chapter14.class" placeholder="例如 3" /></el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="包装类别"><el-input v-model="form.msds.chapter14.pack" placeholder="例如 II" /></el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="环境危害">
-                          <el-input v-model="form.msds.chapter14.env" placeholder="对环境的影响" />
-                        </el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="特殊预防措施">
-                          <el-input v-model="form.msds.chapter14.sp" placeholder="运输过程中的特殊注意事项" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第8章 -->
+                      <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="工程控制">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter8.ec"
+                                placeholder="生产过程密闭，全面通风。提供安全淋浴和洗眼设备" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="个体防护">
+                              <el-input type="textarea" :rows="3" v-model="form.msds.chapter8.ppe"
+                                placeholder="空气中浓度超标时，佩戴过滤式防毒面具（半面罩）。戴化学安全防护眼镜，穿防静电工作服，戴橡胶耐油手套" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第15章 -->
-                    <el-collapse-item name="c15" title="第15章：法规信息">
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="法规信息">
-                          <el-input type="textarea" :rows="3" v-model="form.msds.chapter15.laws" placeholder="相关法律法规" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
+                      <!-- 第9章 -->
+                      <el-collapse-item name="c9" title="第9章：理化特性">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="外观与性状"><el-input
+                                v-model="form.msds.chapter9.appearance" placeholder="无色透明液体" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="pH值"><el-input v-model="form.msds.chapter9.ph"
+                                placeholder="中性" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="闪点(℃)"><el-input v-model="form.msds.chapter9.fp"
+                                placeholder="例如 12.8" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="蒸气压(kPa)"><el-input
+                                v-model="form.msds.chapter9.vp" placeholder="例如 5.95(20℃)" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="蒸气密度(空气=1)"><el-input
+                                v-model="form.msds.chapter9.vd" placeholder="例如 >1" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="相对密度(水=1)"><el-input
+                                v-model="form.msds.chapter9.d" placeholder="例如 0.789" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="溶解性"><el-input v-model="form.msds.chapter9.sol"
+                                placeholder="与水混溶" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="自燃温度(℃)"><el-input
+                                v-model="form.msds.chapter9.sa" placeholder="例如 363" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="粘度(mPa·s)"><el-input
+                                v-model="form.msds.chapter9.vis" placeholder="例如 1.074(20℃)" /></el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
 
-                    <!-- 第16章 -->
-                    <el-collapse-item name="c16" title="第16章：其他信息">
-                      <el-row :gutter="16">
-                        <el-col :xs="24" :sm="8"><el-form-item label="填表时间">
-                          <el-input v-model="form.msds.chapter16.date" placeholder="YYYY-MM-DD" />
-                        </el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="修订版本">
-                          <el-input v-model="form.msds.chapter16.revision" placeholder="版本号" />
-                        </el-form-item></el-col>
-                        <el-col :xs="24" :sm="8"><el-form-item label="其他信息">
-                          <el-input v-model="form.msds.chapter16.note" placeholder="补充说明" />
-                        </el-form-item></el-col>
-                      </el-row>
-                      <el-row :gutter="16">
-                        <el-col :span="24"><el-form-item label="参考文献">
-                          <el-input type="textarea" :rows="2" v-model="form.msds.chapter16.refs" placeholder="参考资料" />
-                        </el-form-item></el-col>
-                      </el-row>
-                    </el-collapse-item>
-                  </el-collapse>
+                      <!-- 第10章 -->
+                      <el-collapse-item name="c10" title="第10章：稳定性和反应性">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="12"><el-form-item label="稳定性"><el-input
+                                v-model="form.msds.chapter10.stable" placeholder="稳定" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="12"><el-form-item label="禁配物"><el-input
+                                v-model="form.msds.chapter10.incompat"
+                                placeholder="强氧化剂、酸类、酸酐、酰氯" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="危险反应">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.react"
+                                placeholder="避免接触的条件" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="应避免的条件">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.avoid"
+                                placeholder="光照、高温、静电" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="分解产物">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter10.decompose"
+                                placeholder="一氧化碳、二氧化碳" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第11章 -->
+                      <el-collapse-item name="c11" title="第11章：毒理学信息">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="侵入途径">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.route"
+                                placeholder="吸入、食入、经皮吸收" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="急性毒性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.acute"
+                                placeholder="LD50：7060 mg/kg(大鼠经口)" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="刺激性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter11.irritation"
+                                placeholder="家兔经眼：500mg，重度刺激" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第12章 -->
+                      <el-collapse-item name="c12" title="第12章：生态学信息">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="生态毒性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.eco"
+                                placeholder="对水生生物有毒害作用" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="持久性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.persistent"
+                                placeholder="在环境中的持久性" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="生物累积性">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter12.bioacc"
+                                placeholder="生物富集或生物积累性" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第13章 -->
+                      <el-collapse-item name="c13" title="第13章：废弃处置">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="废弃处置方法">
+                              <el-input type="textarea" :rows="3" v-model="form.msds.chapter13.disp"
+                                placeholder="用控制焚烧法处置" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="废弃包装">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter13.pack"
+                                placeholder="废弃包装的处理方法" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第14章 -->
+                      <el-collapse-item name="c14" title="第14章：运输信息">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="UN编号"><el-input v-model="form.msds.chapter14.un"
+                                placeholder="例如 1170" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="运输名称"><el-input
+                                v-model="form.msds.chapter14.name" placeholder="乙醇" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="危险性类别"><el-input
+                                v-model="form.msds.chapter14.class" placeholder="例如 3" /></el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="包装类别"><el-input
+                                v-model="form.msds.chapter14.pack" placeholder="例如 II" /></el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="环境危害">
+                              <el-input v-model="form.msds.chapter14.env" placeholder="对环境的影响" />
+                            </el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="特殊预防措施">
+                              <el-input v-model="form.msds.chapter14.sp" placeholder="运输过程中的特殊注意事项" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第15章 -->
+                      <el-collapse-item name="c15" title="第15章：法规信息">
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="法规信息">
+                              <el-input type="textarea" :rows="3" v-model="form.msds.chapter15.laws"
+                                placeholder="相关法律法规" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+
+                      <!-- 第16章 -->
+                      <el-collapse-item name="c16" title="第16章：其他信息">
+                        <el-row :gutter="16">
+                          <el-col :xs="24" :sm="8"><el-form-item label="填表时间">
+                              <el-input v-model="form.msds.chapter16.date" placeholder="YYYY-MM-DD" />
+                            </el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="修订版本">
+                              <el-input v-model="form.msds.chapter16.revision" placeholder="版本号" />
+                            </el-form-item></el-col>
+                          <el-col :xs="24" :sm="8"><el-form-item label="其他信息">
+                              <el-input v-model="form.msds.chapter16.note" placeholder="补充说明" />
+                            </el-form-item></el-col>
+                        </el-row>
+                        <el-row :gutter="16">
+                          <el-col :span="24"><el-form-item label="参考文献">
+                              <el-input type="textarea" :rows="2" v-model="form.msds.chapter16.refs"
+                                placeholder="参考资料" />
+                            </el-form-item></el-col>
+                        </el-row>
+                      </el-collapse-item>
+                    </el-collapse>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="footer-bar">
-              <el-button @click="onCancel">取消</el-button>
-              <el-button type="primary" :loading="saving" @click="onSave"><i class="fas fa-save" style="margin-right:6px"></i>保存</el-button>
-            </div>
-          </el-form>
-        </template>
-        <el-empty v-else description="数据加载中"></el-empty>
-      </div>
-    </div>
-
-    <!-- 导入对话框 -->
-    <el-dialog v-model="importDialogVisible" title="从信息库导入化学品" width="800px" :close-on-click-modal="false">
-      <div style="margin-bottom: 16px;">
-        <el-alert title="请从列表中选择要导入的化学品" type="info" show-icon :closable="false" />
-      </div>
-
-      <!-- 搜索栏 -->
-      <div style="margin-bottom: 16px;">
-        <el-input
-          v-model="chemicalSearchKeyword"
-          placeholder="搜索化学品名称、CAS号或别名"
-          clearable
-          @input="filterChemicals"
-        >
-          <template #prefix>
-            <i class="fas fa-search"></i>
-          </template>
-        </el-input>
-      </div>
-
-      <!-- 化学品列表 -->
-      <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dcdfe6; border-radius: 4px;">
-        <el-table
-          :data="filteredChemicalList"
-          @row-click="selectChemical"
-          highlight-current-row
-          border
-          :cell-style="{padding: '8px'}"
-          :header-cell-style="{background: '#f5f7fa', color: '#606266', fontWeight: 'bold'}"
-        >
-          <el-table-column prop="name" label="化学品名称" width="200">
-            <template #default="scope">
-              <div style="font-weight: 500; color: #303133;">{{ scope.row.name }}</div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="cas" label="CAS号" width="120">
-            <template #default="scope">
-              <div style="font-family: monospace; color: #606266;">{{ scope.row.cas }}</div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="alias" label="别名" width="140">
-            <template #default="scope">
-              <div style="color: #606266; font-size: 13px;">{{ scope.row.alias || '—' }}</div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="hazards" label="危险性分类" width="180">
-            <template #default="scope">
-              <div v-if="scope.row.hazards && scope.row.hazards.length" style="display: flex; flex-wrap: wrap; gap: 4px;">
-                <el-tag
-                  v-for="(hazard, index) in (Array.isArray(scope.row.hazards) ? scope.row.hazards : [scope.row.hazards])"
-                  :key="index"
-                  size="small"
-                  :type="getHazardType(hazard)"
-                  effect="light"
-                >
-                  {{ hazard }}
-                </el-tag>
+              <div class="footer-bar">
+                <el-button @click="onCancel">取消</el-button>
+                <el-button type="primary" :loading="saving" @click="onSave"><i class="fas fa-save"
+                    style="margin-right:6px"></i>保存</el-button>
               </div>
-              <span v-else style="color: #c0c4cc;">—</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="80" align="center">
-            <template #default="scope">
-              <el-button
-                type="primary"
-                size="small"
-                @click.stop="selectChemical(scope.row)"
-              >
-                选择
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <div v-if="filteredChemicalList.length === 0" style="text-align: center; padding: 40px; color: #909399;">
-          <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px;"></i>
-          <div>未找到匹配的化学品</div>
-          <div style="font-size: 12px; margin-top: 8px;">请尝试其他搜索关键词</div>
+            </el-form>
+          </template>
+          <el-empty v-else description="数据加载中"></el-empty>
         </div>
       </div>
 
-      <template #footer>
-        <el-button @click="importDialogVisible = false">取消</el-button>
-      </template>
-    </el-dialog>
+      <!-- 导入对话框 -->
+      <el-dialog v-model="importDialogVisible" title="从信息库导入化学品" width="800px" :close-on-click-modal="false">
+        <div style="margin-bottom: 16px;">
+          <el-alert title="请从列表中选择要导入的化学品" type="info" show-icon :closable="false" />
+        </div>
+
+        <!-- 搜索栏 -->
+        <div style="margin-bottom: 16px;">
+          <el-input v-model="chemicalSearchKeyword" placeholder="搜索化学品名称、CAS号或别名" clearable @input="filterChemicals">
+            <template #prefix>
+              <i class="fas fa-search"></i>
+            </template>
+          </el-input>
+        </div>
+
+        <!-- 化学品列表 -->
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dcdfe6; border-radius: 4px;">
+          <el-table :data="filteredChemicalList" @row-click="selectChemical" highlight-current-row border
+            :cell-style="{padding: '8px'}"
+            :header-cell-style="{background: '#f5f7fa', color: '#606266', fontWeight: 'bold'}">
+            <el-table-column prop="name" label="化学品名称" width="200">
+              <template #default="scope">
+                <div style="font-weight: 500; color: #303133;">{{ scope.row.name }}</div>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="cas" label="CAS号" width="120">
+              <template #default="scope">
+                <div style="font-family: monospace; color: #606266;">{{ scope.row.cas }}</div>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="alias" label="别名" width="140">
+              <template #default="scope">
+                <div style="color: #606266; font-size: 13px;">{{ scope.row.alias || '—' }}</div>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="hazards" label="危险性分类" width="180">
+              <template #default="scope">
+                <div v-if="scope.row.hazards && scope.row.hazards.length"
+                  style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  <el-tag
+                    v-for="(hazard, index) in (Array.isArray(scope.row.hazards) ? scope.row.hazards : [scope.row.hazards])"
+                    :key="index" size="small" :type="getHazardType(hazard)" effect="light">
+                    {{ hazard }}
+                  </el-tag>
+                </div>
+                <span v-else style="color: #c0c4cc;">—</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="80" align="center">
+              <template #default="scope">
+                <el-button type="primary" size="small" @click.stop="selectChemical(scope.row)">
+                  选择
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <div v-if="filteredChemicalList.length === 0" style="text-align: center; padding: 40px; color: #909399;">
+            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <div>未找到匹配的化学品</div>
+            <div style="font-size: 12px; margin-top: 8px;">请尝试其他搜索关键词</div>
+          </div>
+        </div>
+
+        <template #footer>
+          <el-button @click="importDialogVisible = false">取消</el-button>
+        </template>
+      </el-dialog>
+    </div>
   </div>
-</div>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
-<script>
-const { createApp } = Vue;
-const { ElMessage } = ElementPlus;
-const { Upload } = ElementPlus;
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
+    const { Upload } = ElementPlus;
 
-// 获取URL参数
-function getParam(key) {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(key);
-}
-
-// 创建完整的MSDS数据结构
-const createEmptyMsds = () => ({
-  chapter1:{ product:'', use:'', supplier:'', address:'', phone:'', emergency:'' },
-  chapter2:{ ghs:'', pictograms:'', signalWord:'', h:'', p:'' },
-  chapter3:{ components:[] },
-  chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
-  chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
-  chapter6:{ pp:'', env:'', clean:'' },
-  chapter7:{ op:'', store:'' },
-  chapter8:{ ec:'', ppe:'' },
-  chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
-  chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
-  chapter11:{ route:'', acute:'', irritation:'' },
-  chapter12:{ eco:'', persistent:'', bioacc:'' },
-  chapter13:{ disp:'', pack:'' },
-  chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
-  chapter15:{ laws:'' },
-  chapter16:{ date:'', revision:'', refs:'', note:'' }
-});
-
-createApp({
-  data() {
-    return {
-      loading: false,
-      saving: false,
-      errorMsg: '',
-      backup: null,
-      hazardOptions: [
-        '爆炸物', '易燃气体', '易燃液体', '易燃固体', '自反应物质/混合物', '自燃液体',
-        '自燃固体', '遇水放出易燃气体物质', '氧化性气体', '氧化性液体', '氧化性固体',
-        '有机过氧化物', '腐蚀性物质', '高压气体'
-      ],
-      form: {
-        name: '',
-        englishName: '',
-        alias: '',
-        cas: '',
-        formula: '',
-        hazards: [],
-        flashPoint: '',
-        density: '',
-        mw: '',
-        location: '',
-        stockQty: null,
-        unit: '',
-        stockStatus: '',
-        supplier: '',
-        batchNo: '',
-        prodDate: '',
-        expireDate: '',
-        labelStatus: '',
-        pkgType: '',
-        pkgMaterial: '',
-        pkgQty: null,
-        pkgCapacity: '',
-        isHighlyToxic: '',
-        isExplosive: '',
-        isDrugPrecursor: '',
-        msds: createEmptyMsds()
-      },
-      msdsPictogramFileList: [],
-      rules: {
-        name: [{ required: true, message: '请输入化学品名称', trigger: 'blur' }],
-        cas: [
-          { required: true, message: '请输入CAS号', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              const reg = /^\d{2,7}-\d{2}-\d$/;
-              if (reg.test(value)) {
-                callback();
-              } else {
-                callback(new Error('CAS格式不正确，应为XXXXX-XX-X格式'));
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        location: [{ required: true, message: '请输入储存位置', trigger: 'blur' }],
-        stockQty: [
-          { required: true, message: '请输入库存数量', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (value !== null && value !== undefined && value >= 0) {
-                callback();
-              } else {
-                callback(new Error('库存数量必须为非负数'));
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        unit: [{ required: true, message: '请选择计量单位', trigger: 'change' }],
-        stockStatus: [{ required: true, message: '请选择库存状态', trigger: 'change' }],
-        supplier: [],
-        batchNo: [],
-        prodDate: [],
-        labelStatus: []
-      },
-      sectionOpen: {
-        basic: true,
-        enterprise: true,
-        packaging: true,
-        special: true,
-        msds: true
-      },
-      activeMsdsPanels: ['c1', 'c2', 'c3'],
-      importDialogVisible: false,
-      chemicalSearchKeyword: '',
-      chemicalList: [],
-      filteredChemicalList: []
+    // 获取URL参数
+    function getParam(key) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(key);
     }
-  },
-  mounted() {
-    this.initChemicalList();
-    this.loadData();
-  },
-  methods: {
-    loadData() {
-      const cas = getParam('cas');
-      if (cas) {
-        this.loading = true;
 
-        // 模拟从后端加载数据
-        setTimeout(() => {
-          try {
-            // 先从sessionStorage获取数据
-            const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
-            let data = 台账List.find(item => item.cas === cas);
+    // 创建完整的MSDS数据结构
+    const createEmptyMsds = () => ({
+      chapter1: { product: '', use: '', supplier: '', address: '', phone: '', emergency: '' },
+      chapter2: { ghs: '', pictograms: '', signalWord: '', h: '', p: '' },
+      chapter3: { components: [] },
+      chapter4: { inhale: '', skin: '', eye: '', ingest: '', symptoms: '', treatment: '' },
+      chapter5: { agent: '', noagent: '', hazard: '', protect: '' },
+      chapter6: { pp: '', env: '', clean: '' },
+      chapter7: { op: '', store: '' },
+      chapter8: { ec: '', ppe: '' },
+      chapter9: { appearance: '', ph: '', fp: '', vp: '', vd: '', d: '', sol: '', sa: '', vis: '' },
+      chapter10: { react: '', stable: '', danger: '', avoid: '', incompat: '', decompose: '' },
+      chapter11: { route: '', acute: '', irritation: '' },
+      chapter12: { eco: '', persistent: '', bioacc: '' },
+      chapter13: { disp: '', pack: '' },
+      chapter14: { un: '', name: '', class: '', pack: '', env: '', sp: '' },
+      chapter15: { laws: '' },
+      chapter16: { date: '', revision: '', refs: '', note: '' }
+    });
 
-            // 如果没有找到，使用模拟数据
-            if (!data) {
-              data = {
-                name: '乙醇',
-                englishName: 'Ethanol',
-                alias: '酒精',
-                cas: cas,
-                formula: 'C2H6O',
-                hazards: ['易燃液体'],
-                flashPoint: '12.8',
-                density: '0.789',
-                mw: '46.07',
-                location: '危化仓A-01-05',
-                stockQty: 120,
-                unit: 'L',
-                stockStatus: '正常',
-                supplier: 'XX化工有限公司',
-                batchNo: 'B202511-01',
-                prodDate: '2025-10-12',
-                expireDate: '2027-10-12',
-                pkgType: '200L铁桶',
-                pkgMaterial: '不锈钢',
-                pkgQty: 10,
-                pkgCapacity: '200L',
-                isHighlyToxic: '否',
-                isExplosive: '否',
-                isDrugPrecursor: '否',
-                msds: createEmptyMsds()
-              };
+    createApp({
+      data() {
+        return {
+          loading: false,
+          saving: false,
+          errorMsg: '',
+          backup: null,
+          hazardOptions: [
+            '爆炸物', '易燃气体', '易燃液体', '易燃固体', '自反应物质/混合物', '自燃液体',
+            '自燃固体', '遇水放出易燃气体物质', '氧化性气体', '氧化性液体', '氧化性固体',
+            '有机过氧化物', '腐蚀性物质', '高压气体'
+          ],
+          form: {
+            name: '',
+            englishName: '',
+            alias: '',
+            cas: '',
+            formula: '',
+            hazards: [],
+            flashPoint: '',
+            density: '',
+            mw: '',
+            storageArea: '',
+            unitType: '',
+            stockQty: null,
+            criticalQty: null,
+            unit: '',
+            stockStatus: '',
+            supplier: '',
+            batchNo: '',
+            prodDate: '',
+            expireDate: '',
+            labelStatus: '',
+            pkgType: '',
+            pkgMaterial: '',
+            pkgQty: null,
+            pkgCapacity: '',
+            isHighlyToxic: '',
+            isExplosive: '',
+            isDrugPrecursor: '',
+            msds: createEmptyMsds()
+          },
+          msdsPictogramFileList: [],
+          rules: {
+            name: [{ required: true, message: '请输入化学品名称', trigger: 'blur' }],
+            cas: [
+              { required: true, message: '请输入CAS号', trigger: 'blur' },
+              {
+                validator: (rule, value, callback) => {
+                  const reg = /^\d{2,7}-\d{2}-\d$/;
+                  if (reg.test(value)) {
+                    callback();
+                  } else {
+                    callback(new Error('CAS格式不正确，应为XXXXX-XX-X格式'));
+                  }
+                },
+                trigger: 'blur'
+              }
+            ],
+            storageArea: [{ required: true, message: '请选择存储区域', trigger: 'change' }],
+            unitType: [{ required: true, message: '请选择单位类型', trigger: 'change' }],
+            stockQty: [
+              { required: true, message: '请输入库存数量', trigger: 'blur' },
+              {
+                validator: (rule, value, callback) => {
+                  if (value !== null && value !== undefined && value >= 0) {
+                    callback();
+                  } else {
+                    callback(new Error('库存数量必须为非负数'));
+                  }
+                },
+                trigger: 'blur'
+              }
+            ],
+            unit: [{ required: true, message: '请选择计量单位', trigger: 'change' }],
+            stockStatus: [{ required: true, message: '请选择库存状态', trigger: 'change' }],
+            criticalQty: [
+              { required: true, message: '请输入临界量', trigger: 'blur' },
+              {
+                validator: (rule, value, callback) => {
+                  if (value !== null && value !== undefined && value >= 0) {
+                    callback();
+                  } else {
+                    callback(new Error('临界量必须为非负数'));
+                  }
+                },
+                trigger: 'blur'
+              }
+            ],
+            supplier: [],
+            batchNo: [],
+            prodDate: [],
+            labelStatus: []
+          },
+          sectionOpen: {
+            basic: true,
+            enterprise: true,
+            packaging: true,
+            special: true,
+            msds: true
+          },
+          activeMsdsPanels: ['c1', 'c2', 'c3'],
+          importDialogVisible: false,
+          chemicalSearchKeyword: '',
+          chemicalList: [],
+          filteredChemicalList: []
+        }
+      },
+      mounted() {
+        this.initChemicalList();
+        this.loadData();
+      },
+      methods: {
+        loadData() {
+          const cas = getParam('cas');
+          if (cas) {
+            this.loading = true;
+
+            // 模拟从后端加载数据
+            setTimeout(() => {
+              try {
+                // 先从sessionStorage获取数据
+                const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
+                let data = 台账List.find(item => item.cas === cas);
+
+                // 如果没有找到，使用模拟数据
+                if (!data) {
+                  data = {
+                    name: '乙醇',
+                    englishName: 'Ethanol',
+                    alias: '酒精',
+                    cas: cas,
+                    formula: 'C2H6O',
+                    hazards: ['易燃液体'],
+                    flashPoint: '12.8',
+                    density: '0.789',
+                    mw: '46.07',
+                    location: '危化仓A-01-05',
+                    stockQty: 120,
+                    unit: 'L',
+                    stockStatus: '正常',
+                    supplier: 'XX化工有限公司',
+                    batchNo: 'B202511-01',
+                    prodDate: '2025-10-12',
+                    expireDate: '2027-10-12',
+                    pkgType: '200L铁桶',
+                    pkgMaterial: '不锈钢',
+                    pkgQty: 10,
+                    pkgCapacity: '200L',
+                    isHighlyToxic: '否',
+                    isExplosive: '否',
+                    isDrugPrecursor: '否',
+                    msds: createEmptyMsds()
+                  };
+                }
+
+                // 确保所有字段都存在，避免字段丢失
+                this.form = Object.assign({}, this.form, data);
+                this.backup = { ...this.form };
+                this.loading = false;
+              } catch (error) {
+                this.loading = false;
+                this.errorMsg = '加载数据失败';
+              }
+            }, 500);
+          } else {
+            this.errorMsg = '缺少CAS参数';
+          }
+        },
+        toggleSection(key) {
+          this.sectionOpen[key] = !this.sectionOpen[key];
+        },
+        addComponentRow() {
+          this.form.msds.chapter3.components.push({ name: '', cas: '', concentration: '' });
+        },
+        removeComponent(index) {
+          this.form.msds.chapter3.components.splice(index, 1);
+        },
+        showImportDialog() {
+          this.importDialogVisible = true;
+          this.filterChemicals();
+        },
+        mergeMsds(currentMsds, importedMsds) {
+          return {
+            chapter1: { ...currentMsds.chapter1, ...importedMsds.chapter1 },
+            chapter2: { ...currentMsds.chapter2, ...importedMsds.chapter2 },
+            chapter3: { components: importedMsds.chapter3?.components || currentMsds.chapter3.components },
+            chapter4: { ...currentMsds.chapter4, ...importedMsds.chapter4 },
+            chapter5: { ...currentMsds.chapter5, ...importedMsds.chapter5 },
+            chapter6: { ...currentMsds.chapter6, ...importedMsds.chapter6 },
+            chapter7: { ...currentMsds.chapter7, ...importedMsds.chapter7 },
+            chapter8: { ...currentMsds.chapter8, ...importedMsds.chapter8 },
+            chapter9: { ...currentMsds.chapter9, ...importedMsds.chapter9 },
+            chapter10: { ...currentMsds.chapter10, ...importedMsds.chapter10 },
+            chapter11: { ...currentMsds.chapter11, ...importedMsds.chapter11 },
+            chapter12: { ...currentMsds.chapter12, ...importedMsds.chapter12 },
+            chapter13: { ...currentMsds.chapter13, ...importedMsds.chapter13 },
+            chapter14: { ...currentMsds.chapter14, ...importedMsds.chapter14 },
+            chapter15: { ...currentMsds.chapter15, ...importedMsds.chapter15 },
+            chapter16: { ...currentMsds.chapter16, ...importedMsds.chapter16 }
+          };
+        },
+        initChemicalList() {
+          // 模拟信息库数据，实际项目中这里会调用后端API
+          this.chemicalList = [
+            {
+              name: '乙醇',
+              englishName: 'Ethanol',
+              alias: '酒精',
+              cas: '64-17-5',
+              formula: 'C2H6O',
+              hazards: ['易燃液体'],
+              flashPoint: '12.8',
+              density: '0.789',
+              mw: '46.07'
+            },
+            {
+              name: '丙酮',
+              englishName: 'Acetone',
+              alias: '二甲基酮',
+              cas: '67-64-1',
+              formula: 'C3H6O',
+              hazards: ['易燃液体'],
+              flashPoint: '-20',
+              density: '0.7845',
+              mw: '58.08'
+            },
+            {
+              name: '氢氧化钠',
+              englishName: 'Sodium Hydroxide',
+              alias: '烧碱、火碱',
+              cas: '1310-73-2',
+              formula: 'NaOH',
+              hazards: ['腐蚀性物质'],
+              flashPoint: '',
+              density: '2.13',
+              mw: '40.00'
+            },
+            {
+              name: '硫酸',
+              englishName: 'Sulfuric Acid',
+              alias: '浓硫酸',
+              cas: '7664-93-9',
+              formula: 'H2SO4',
+              hazards: ['腐蚀性物质'],
+              flashPoint: '',
+              density: '1.84',
+              mw: '98.08'
+            },
+            {
+              name: '甲醇',
+              englishName: 'Methanol',
+              alias: '木醇',
+              cas: '67-56-1',
+              formula: 'CH4O',
+              hazards: ['易燃液体', '毒性物质'],
+              flashPoint: '11',
+              density: '0.7918',
+              mw: '32.04'
+            }
+          ];
+
+          // 初始化过滤列表
+          this.filteredChemicalList = [...this.chemicalList];
+          console.log('化学品列表初始化完成:', this.chemicalList.length, '个化学品');
+        },
+        filterChemicals() {
+          const keyword = this.chemicalSearchKeyword.toLowerCase().trim();
+
+          console.log('过滤化学品，搜索关键词:', keyword);
+          console.log('原始化学品列表长度:', this.chemicalList.length);
+
+          if (!keyword) {
+            this.filteredChemicalList = [...this.chemicalList];
+            console.log('无关键词，显示全部化学品:', this.filteredChemicalList.length);
+            return;
+          }
+
+          this.filteredChemicalList = this.chemicalList.filter(chemical => {
+            return (
+              chemical.name.toLowerCase().includes(keyword) ||
+              chemical.cas.includes(keyword) ||
+              (chemical.alias && chemical.alias.toLowerCase().includes(keyword)) ||
+              (chemical.englishName && chemical.englishName.toLowerCase().includes(keyword))
+            );
+          });
+          console.log('过滤后化学品列表长度:', this.filteredChemicalList.length);
+        },
+        getHazardType(hazard) {
+          if (hazard.includes('易燃')) {
+            return 'danger';
+          } else if (hazard.includes('腐蚀')) {
+            return 'warning';
+          } else if (hazard.includes('毒性')) {
+            return 'info';
+          } else if (hazard.includes('爆炸')) {
+            return 'danger';
+          } else if (hazard.includes('氧化')) {
+            return 'warning';
+          } else {
+            return 'primary';
+          }
+        },
+        selectChemical(chemical) {
+          // 合并导入的数据到表单（保留原有的ID和创建时间）
+          this.form = {
+            ...this.form,
+            name: chemical.name || this.form.name,
+            englishName: chemical.englishName || this.form.englishName,
+            alias: chemical.alias || this.form.alias,
+            cas: chemical.cas || this.form.cas,
+            formula: chemical.formula || this.form.formula,
+            hazards: chemical.hazards || this.form.hazards,
+            flashPoint: chemical.flashPoint || this.form.flashPoint,
+            density: chemical.density || this.form.density,
+            mw: chemical.mw || this.form.mw,
+            msds: this.mergeMsds(this.form.msds, chemical.msds || {})
+          };
+
+          // 更新MSDS默认打开的章节
+          this.activeMsdsPanels = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16'];
+
+          ElMessage.success(`成功导入 ${chemical.name} 的信息！`);
+          this.importDialogVisible = false;
+          this.chemicalSearchKeyword = '';
+        },
+        onCancel() {
+          if (this.backup) {
+            this.form = { ...this.backup };
+          }
+          window.location.href = './危险化学品台账.html';
+        },
+        onSave() {
+          this.$refs.formRef.validate((valid) => {
+            if (!valid) {
+              ElMessage.warning('请完善必填信息');
+              return;
             }
 
-            // 确保所有字段都存在，避免字段丢失
-            this.form = Object.assign({}, this.form, data);
-            this.backup = { ...this.form };
-            this.loading = false;
-          } catch (error) {
-            this.loading = false;
-            this.errorMsg = '加载数据失败';
-          }
-        }, 500);
-      } else {
-        this.errorMsg = '缺少CAS参数';
-      }
-    },
-    toggleSection(key) {
-      this.sectionOpen[key] = !this.sectionOpen[key];
-    },
-    addComponentRow() {
-      this.form.msds.chapter3.components.push({ name: '', cas: '', concentration: '' });
-    },
-    removeComponent(index) {
-      this.form.msds.chapter3.components.splice(index, 1);
-    },
-    showImportDialog() {
-      this.importDialogVisible = true;
-      this.filterChemicals();
-    },
-    mergeMsds(currentMsds, importedMsds) {
-      return {
-        chapter1: { ...currentMsds.chapter1, ...importedMsds.chapter1 },
-        chapter2: { ...currentMsds.chapter2, ...importedMsds.chapter2 },
-        chapter3: { components: importedMsds.chapter3?.components || currentMsds.chapter3.components },
-        chapter4: { ...currentMsds.chapter4, ...importedMsds.chapter4 },
-        chapter5: { ...currentMsds.chapter5, ...importedMsds.chapter5 },
-        chapter6: { ...currentMsds.chapter6, ...importedMsds.chapter6 },
-        chapter7: { ...currentMsds.chapter7, ...importedMsds.chapter7 },
-        chapter8: { ...currentMsds.chapter8, ...importedMsds.chapter8 },
-        chapter9: { ...currentMsds.chapter9, ...importedMsds.chapter9 },
-        chapter10: { ...currentMsds.chapter10, ...importedMsds.chapter10 },
-        chapter11: { ...currentMsds.chapter11, ...importedMsds.chapter11 },
-        chapter12: { ...currentMsds.chapter12, ...importedMsds.chapter12 },
-        chapter13: { ...currentMsds.chapter13, ...importedMsds.chapter13 },
-        chapter14: { ...currentMsds.chapter14, ...importedMsds.chapter14 },
-        chapter15: { ...currentMsds.chapter15, ...importedMsds.chapter15 },
-        chapter16: { ...currentMsds.chapter16, ...importedMsds.chapter16 }
-      };
-    },
-    initChemicalList() {
-      // 模拟信息库数据，实际项目中这里会调用后端API
-      this.chemicalList = [
-        {
-          name: '乙醇',
-          englishName: 'Ethanol',
-          alias: '酒精',
-          cas: '64-17-5',
-          formula: 'C2H6O',
-          hazards: ['易燃液体'],
-          flashPoint: '12.8',
-          density: '0.789',
-          mw: '46.07'
-        },
-        {
-          name: '丙酮',
-          englishName: 'Acetone',
-          alias: '二甲基酮',
-          cas: '67-64-1',
-          formula: 'C3H6O',
-          hazards: ['易燃液体'],
-          flashPoint: '-20',
-          density: '0.7845',
-          mw: '58.08'
-        },
-        {
-          name: '氢氧化钠',
-          englishName: 'Sodium Hydroxide',
-          alias: '烧碱、火碱',
-          cas: '1310-73-2',
-          formula: 'NaOH',
-          hazards: ['腐蚀性物质'],
-          flashPoint: '',
-          density: '2.13',
-          mw: '40.00'
-        },
-        {
-          name: '硫酸',
-          englishName: 'Sulfuric Acid',
-          alias: '浓硫酸',
-          cas: '7664-93-9',
-          formula: 'H2SO4',
-          hazards: ['腐蚀性物质'],
-          flashPoint: '',
-          density: '1.84',
-          mw: '98.08'
-        },
-        {
-          name: '甲醇',
-          englishName: 'Methanol',
-          alias: '木醇',
-          cas: '67-56-1',
-          formula: 'CH4O',
-          hazards: ['易燃液体', '毒性物质'],
-          flashPoint: '11',
-          density: '0.7918',
-          mw: '32.04'
-        }
-      ];
-
-      // 初始化过滤列表
-      this.filteredChemicalList = [...this.chemicalList];
-      console.log('化学品列表初始化完成:', this.chemicalList.length, '个化学品');
-    },
-    filterChemicals() {
-      const keyword = this.chemicalSearchKeyword.toLowerCase().trim();
-
-      console.log('过滤化学品，搜索关键词:', keyword);
-      console.log('原始化学品列表长度:', this.chemicalList.length);
-
-      if (!keyword) {
-        this.filteredChemicalList = [...this.chemicalList];
-        console.log('无关键词，显示全部化学品:', this.filteredChemicalList.length);
-        return;
-      }
-
-      this.filteredChemicalList = this.chemicalList.filter(chemical => {
-        return (
-          chemical.name.toLowerCase().includes(keyword) ||
-          chemical.cas.includes(keyword) ||
-          (chemical.alias && chemical.alias.toLowerCase().includes(keyword)) ||
-          (chemical.englishName && chemical.englishName.toLowerCase().includes(keyword))
-        );
-      });
-      console.log('过滤后化学品列表长度:', this.filteredChemicalList.length);
-    },
-    getHazardType(hazard) {
-      if (hazard.includes('易燃')) {
-        return 'danger';
-      } else if (hazard.includes('腐蚀')) {
-        return 'warning';
-      } else if (hazard.includes('毒性')) {
-        return 'info';
-      } else if (hazard.includes('爆炸')) {
-        return 'danger';
-      } else if (hazard.includes('氧化')) {
-        return 'warning';
-      } else {
-        return 'primary';
-      }
-    },
-    selectChemical(chemical) {
-      // 合并导入的数据到表单（保留原有的ID和创建时间）
-      this.form = {
-        ...this.form,
-        name: chemical.name || this.form.name,
-        englishName: chemical.englishName || this.form.englishName,
-        alias: chemical.alias || this.form.alias,
-        cas: chemical.cas || this.form.cas,
-        formula: chemical.formula || this.form.formula,
-        hazards: chemical.hazards || this.form.hazards,
-        flashPoint: chemical.flashPoint || this.form.flashPoint,
-        density: chemical.density || this.form.density,
-        mw: chemical.mw || this.form.mw,
-        msds: this.mergeMsds(this.form.msds, chemical.msds || {})
-      };
-
-      // 更新MSDS默认打开的章节
-      this.activeMsdsPanels = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16'];
-
-      ElMessage.success(`成功导入 ${chemical.name} 的信息！`);
-      this.importDialogVisible = false;
-      this.chemicalSearchKeyword = '';
-    },
-    onCancel() {
-      if (this.backup) {
-        this.form = { ...this.backup };
-      }
-      window.location.href = './危险化学品台账.html';
-    },
-    onSave() {
-      this.$refs.formRef.validate((valid) => {
-        if (!valid) {
-          ElMessage.warning('请完善必填信息');
-          return;
-        }
-
-        try {
-          this.saving = true;
-
-          // 模拟保存到后端
-          setTimeout(() => {
-            this.saving = false;
-            ElMessage.success('保存成功');
-
-            // 更新sessionStorage中的数据
             try {
-              const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
-              const index = 台账List.findIndex(item => item.cas === this.form.cas);
-              if (index !== -1) {
-                台账List[index] = {
-                  ...this.form,
-                  updateTime: new Date().toISOString()
-                };
-                sessionStorage.setItem('chemicalLedgerList', JSON.stringify(台账List));
-              }
-            } catch (e) {
-              console.warn('更新本地存储失败', e);
-            }
+              this.saving = true;
 
-            // 返回列表页面
-            window.location.href = './危险化学品台账.html';
-          }, 1000);
-        } catch (error) {
-          this.saving = false;
-          ElMessage.error('保存失败，请重试');
+              // 模拟保存到后端
+              setTimeout(() => {
+                this.saving = false;
+                ElMessage.success('保存成功');
+
+                // 更新sessionStorage中的数据
+                try {
+                  const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
+                  const index = 台账List.findIndex(item => item.cas === this.form.cas);
+                  if (index !== -1) {
+                    台账List[index] = {
+                      ...this.form,
+                      updateTime: new Date().toISOString()
+                    };
+                    sessionStorage.setItem('chemicalLedgerList', JSON.stringify(台账List));
+                  }
+                } catch (e) {
+                  console.warn('更新本地存储失败', e);
+                }
+
+                // 返回列表页面
+                window.location.href = './危险化学品台账.html';
+              }, 1000);
+            } catch (error) {
+              this.saving = false;
+              ElMessage.error('保存失败，请重试');
+            }
+          });
+        },
+        handleMsdsPictogramChange(file, fileList) {
+          const raw = file.raw;
+          const isImage = raw && (raw.type === 'image/jpeg' || raw.type === 'image/png' || raw.type === 'image/gif');
+          const isLt2M = raw ? (raw.size / 1024 / 1024 < 2) : true;
+          if (!isImage) {
+            ElMessage.error('只能上传图片格式(jpg/png/gif)!');
+            return false;
+          }
+          if (!isLt2M) {
+            ElMessage.error('图片大小不能超过 2MB!');
+            return false;
+          }
+          this.msdsPictogramFileList = fileList;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            this.form.msds.chapter2.pictograms = dataUrl;
+          };
+          reader.readAsDataURL(raw);
+          return true;
         }
-      });
-    },
-    handleMsdsPictogramChange(file, fileList) {
-      const raw = file.raw;
-      const isImage = raw && (raw.type === 'image/jpeg' || raw.type === 'image/png' || raw.type === 'image/gif');
-      const isLt2M = raw ? (raw.size / 1024 / 1024 < 2) : true;
-      if (!isImage) {
-        ElMessage.error('只能上传图片格式(jpg/png/gif)!');
-        return false;
       }
-      if (!isLt2M) {
-        ElMessage.error('图片大小不能超过 2MB!');
-        return false;
-      }
-      this.msdsPictogramFileList = fileList;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        this.form.msds.chapter2.pictograms = dataUrl;
-      };
-      reader.readAsDataURL(raw);
-      return true;
-    }
-  }
-}).use(ElementPlus).mount('#app');
-</script>
+    }).use(ElementPlus).mount('#app');
+  </script>
 </body>
+
 </html>

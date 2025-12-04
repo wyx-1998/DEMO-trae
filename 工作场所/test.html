@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #f0f9ff; border-color: #91d5ff; }
+        .error { background-color: #fff1f0; border-color: #ffccc7; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>页面加载测试</h1>
+
+        <div class="test-result" :class="loadStatus">
+            <h3>测试结果</h3>
+            <p>{{ message }}</p>
+            <p>Vue版本: {{ vueVersion }}</p>
+            <p>Element Plus: {{ elementStatus }}</p>
+        </div>
+
+        <el-button @click="testFunction" type="primary">测试按钮</el-button>
+        <el-input v-model="testInput" placeholder="测试输入框" style="width: 200px; margin-left: 10px;"></el-input>
+    </div>
+
+    <!-- Vue 3 Script -->
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            data() {
+                return {
+                    message: '正在加载...',
+                    vueVersion: '',
+                    elementStatus: '',
+                    loadStatus: '',
+                    testInput: ''
+                };
+            },
+            mounted() {
+                try {
+                    this.vueVersion = Vue.version;
+                    this.elementStatus = 'Element Plus 加载成功';
+                    this.message = '页面加载成功！所有依赖项正常工作。';
+                    this.loadStatus = 'success';
+
+                    ElMessage.success('测试页面加载成功！');
+                } catch (error) {
+                    this.message = '加载失败: ' + error.message;
+                    this.loadStatus = 'error';
+                }
+            },
+            methods: {
+                testFunction() {
+                    ElMessage.success('按钮点击成功！输入值: ' + this.testInput);
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

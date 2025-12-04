@@ -81,6 +81,12 @@
                       </el-form-item>
                     </el-col>
                   </el-row>
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12" :md="8">
+                      <el-form-item label="临界量" prop="criticalQty"><el-input-number v-model="form.criticalQty"
+                          placeholder="请输入临界量" style="width: 100%" :min="0" /></el-form-item>
+                    </el-col>
+                  </el-row>
                 </div>
               </div>
 
@@ -472,7 +478,7 @@ const normalizeCAS = (window.CHEM_STD && typeof window.CHEM_STD.normalizeCAS ===
   ? window.CHEM_STD.normalizeCAS
   : function(s){ return String(s||'').trim(); };
 createApp({
-  data(){ return { loading:false, saving:false, initialized:false, errorMsg:'', backup:null, msdsPictogramFileList:[], hazardOptions:['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'], signalWordOptions:[{ label:'Danger（严重危害）', value:'Danger' },{ label:'Warning（一般危害）', value:'Warning' },{ label:'Caution（注意）', value:'Caution' },{ label:'Notice（提示）', value:'Notice' },{ label:'Attention（关注）', value:'Attention' },{ label:'Alarm（告警/报警）', value:'Alarm' }], form:{ name:'',englishName:'',alias:'',cas:'', formula:'', hazards:[], flashPoint:'', density:'', mw:'', hazardCategory:'', msds:createEmptyMsds() }, rules:{ name:[{required:true,message:'请输入名称',trigger:'blur'}], englishName:[{required:true,message:'请输入英文名',trigger:'blur'}], cas:[{required:true,message:'请输入CAS',trigger:'blur'},{ validator:(r,v,cb)=>{ const ok=/^\d{2,7}-\d{2}-\d$/.test(String(v||'')); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}], 'msds.chapter2.signalWord':[{required:true,message:'请选择信号词',trigger:'change'}] }, sectionOpen:{ basic:true, physical:true, msds:true }, activeMsdsPanels:['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13','c14','c15','c16'] } },
+  data(){ return { loading:false, saving:false, initialized:false, errorMsg:'', backup:null, msdsPictogramFileList:[], hazardOptions:['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'], signalWordOptions:[{ label:'Danger（严重危害）', value:'Danger' },{ label:'Warning（一般危害）', value:'Warning' },{ label:'Caution（注意）', value:'Caution' },{ label:'Notice（提示）', value:'Notice' },{ label:'Attention（关注）', value:'Attention' },{ label:'Alarm（告警/报警）', value:'Alarm' }], form:{ name:'',englishName:'',alias:'',cas:'', formula:'', hazards:[], flashPoint:'', density:'', mw:'', criticalQty:null, hazardCategory:'', msds:createEmptyMsds() }, rules:{ name:[{required:true,message:'请输入名称',trigger:'blur'}], englishName:[{required:true,message:'请输入英文名',trigger:'blur'}], cas:[{required:true,message:'请输入CAS',trigger:'blur'},{ validator:(r,v,cb)=>{ const ok=/^\d{2,7}-\d{2}-\d$/.test(String(v||'')); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}], criticalQty:[{required:true,message:'请输入临界量',trigger:'blur'},{ validator:(r,v,cb)=>{ if(v!==null&&v!==undefined&&v>=0){ cb(); }else{ cb(new Error('临界量必须为非负数')); } }, trigger:'blur'}], 'msds.chapter2.signalWord':[{required:true,message:'请选择信号词',trigger:'change'}] }, sectionOpen:{ basic:true, physical:true, msds:true }, activeMsdsPanels:['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13','c14','c15','c16'] } },
   mounted(){
     try{
       const cas=getParam('cas');

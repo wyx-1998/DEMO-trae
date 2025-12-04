@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储单元功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #f0f9ff; border-color: #3b82f6; }
+        .primary { background-color: #f0fdf4; border-color: #16a34a; }
+        .info { background-color: #f8fafc; border-color: #64748b; }
+    </style>
+</head>
+<body>
+    <h1>存储单元功能测试</h1>
+
+    <div id="test-results"></div>
+
+    <script>
+        // 复制我们添加的函数逻辑
+        const getStorageUnitType = (unit) => {
+            if (!unit) return 'info';
+            if (unit.includes('生产单元')) return 'success';
+            if (unit.includes('存储单元')) return 'primary';
+            return 'info';
+        };
+
+        // 测试数据
+        const testData = [
+            { storageLocation: 'A01-01', storageUnit: '存储单元A01' },
+            { storageLocation: 'A01-02', storageUnit: '生产单元A01' },
+            { storageLocation: 'A01-03', storageUnit: '存储单元A01' },
+            { storageLocation: 'A02-01', storageUnit: '存储单元A02' },
+            { storageLocation: 'A02-02', storageUnit: '存储单元A02' },
+            { storageLocation: 'SL-01-01', storageUnit: '存储单元SL-01' },
+            { storageLocation: 'SL-01-02', storageUnit: '生产单元SL-01' }
+        ];
+
+        // 显示测试结果
+        const resultsDiv = document.getElementById('test-results');
+        testData.forEach(item => {
+            const unitType = getStorageUnitType(item.storageUnit);
+            const div = document.createElement('div');
+            div.className = `test-result ${unitType}`;
+            div.innerHTML = `
+                <strong>存储区域: ${item.storageLocation}</strong><br>
+                存储单元: ${item.storageUnit}<br>
+                单元类型: ${unitType}
+            `;
+            resultsDiv.appendChild(div);
+        });
+
+        console.log('✅ 存储单元功能测试完成');
+    </script>
+</body>
+</html>

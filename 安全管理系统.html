@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>安全管理系统</title>
-    
+
     <!-- Element Plus CSS -->
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
             background-color: #f5f7fa;
             overflow-x: hidden;
         }
-        
+
         .app-container {
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        
+
         /* 顶部导航栏样式 */
         .header {
             height: 64px;
@@ -42,13 +43,13 @@
             z-index: 1000;
             border-bottom: 1px solid #e8e8e8;
         }
-        
+
         .header-left {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
@@ -57,24 +58,24 @@
             font-weight: 600;
             color: #409EFF;
         }
-        
+
         .logo i {
             font-size: 28px;
             color: #409EFF;
         }
-        
+
         .breadcrumb {
             font-size: 14px;
             color: #666;
             margin-left: 24px;
         }
-        
+
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
@@ -85,11 +86,11 @@
             transition: background-color 0.3s;
             color: #333;
         }
-        
+
         .user-info:hover {
             background-color: #f5f5f5;
         }
-        
+
         /* 顶部导航样式 */
         .top-nav {
             display: flex;
@@ -97,11 +98,11 @@
             gap: 0;
             margin-left: 30px;
         }
-        
+
         .nav-item {
             position: relative;
         }
-        
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -113,31 +114,33 @@
             transition: all 0.3s;
             font-weight: 500;
         }
-        
+
         .nav-link:hover {
             background-color: #f5f5f5;
             color: #409EFF;
         }
-        
+
         .nav-item.active .nav-link {
             background-color: #409EFF;
             color: #fff;
         }
-        
+
         .nav-item.active .nav-link:hover {
             background-color: #66b1ff;
             color: #fff;
         }
-        
+
         /* 主体布局 */
         .main-container {
             flex: 1;
             display: flex;
-            align-items: stretch; /* 确保子元素高度一致 */
+            align-items: stretch;
+            /* 确保子元素高度一致 */
             overflow: hidden;
-            height: calc(100vh - 64px); /* 减去头部高度 */
+            height: calc(100vh - 64px);
+            /* 减去头部高度 */
         }
-        
+
         /* 侧边栏样式 */
         .sidebar {
             width: 256px;
@@ -147,13 +150,14 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            height: 100%; /* 确保侧边栏占满容器高度 */
+            height: 100%;
+            /* 确保侧边栏占满容器高度 */
         }
-        
+
         .sidebar.collapsed {
             width: 64px;
         }
-        
+
         .menu-toggle {
             padding: 15px;
             text-align: center;
@@ -161,95 +165,100 @@
             cursor: pointer;
             color: #409EFF;
             transition: background-color 0.3s;
-            flex-shrink: 0; /* 防止收缩 */
-            height: 64px; /* 设置固定高度 */
+            flex-shrink: 0;
+            /* 防止收缩 */
+            height: 64px;
+            /* 设置固定高度 */
             display: flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
         }
-        
+
         .menu-toggle:hover {
             background-color: #f5f5f5;
         }
-        
+
         /* 菜单容器 */
         .el-menu {
-            flex: 1; /* 菜单占据剩余空间 */
+            flex: 1;
+            /* 菜单占据剩余空间 */
             border-right: none;
         }
-        
+
         /* 菜单图标间距 */
         .el-menu .el-menu-item i,
         .el-menu .el-sub-menu__title i {
             margin-right: 12px;
         }
-        
+
         /* 白色主题菜单样式 */
         .el-menu--vertical .el-menu-item:hover,
         .el-menu--vertical .el-sub-menu__title:hover {
             background-color: #f5f5f5 !important;
         }
-        
+
         .el-menu--vertical .el-menu-item.is-active {
             background-color: #e6f7ff !important;
             border-right: 3px solid #409EFF;
             color: #409EFF !important;
         }
-        
+
         .el-sub-menu .el-menu-item {
             background-color: #fafafa !important;
         }
-        
+
         .el-sub-menu .el-menu-item:hover {
             background-color: #f5f5f5 !important;
         }
-        
+
         .el-sub-menu .el-menu-item.is-active {
             background-color: #e6f7ff !important;
             color: #409EFF !important;
         }
-        
+
         /* 内容区域 */
         .content-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 100%; /* 确保内容区域占满容器高度 */
+            height: 100%;
+            /* 确保内容区域占满容器高度 */
         }
-        
+
         .page-nav-container {
             background: #fff;
             border-bottom: 1px solid #e4e7ed;
             padding: 0 24px;
-            height: 64px; /* 与菜单切换按钮高度保持一致 */
+            height: 64px;
+            /* 与菜单切换按钮高度保持一致 */
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
-        .back-button {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 6px 12px;
-                background: transparent;
-                border: none;
-                border-radius: 6px;
-                color: #606266;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                font-weight: 500;
-            }
-            
-            .back-button:hover {
-                color: #409eff;
-            }
-            
 
-        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: #606266;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            color: #409eff;
+        }
+
+
+
         .page-nav-title {
             display: flex;
             align-items: center;
@@ -258,26 +267,26 @@
             font-weight: 600;
             color: #303133;
         }
-        
+
         .page-nav-title i {
             font-size: 20px;
             color: #409EFF;
         }
-        
+
         .main-content {
             flex: 1;
             padding: 0;
             overflow-y: auto;
             background: #f0f2f5;
         }
-        
+
         /* 页面内容样式 */
         .content-wrapper {
             height: 100%;
             display: flex;
             flex-direction: column;
         }
-        
+
         .page-header {
             display: flex;
             align-items: center;
@@ -286,47 +295,47 @@
             padding-bottom: 16px;
             border-bottom: 1px solid #e4e7ed;
         }
-        
+
         .page-header i {
             font-size: 24px;
             color: #409EFF;
         }
-        
+
         .page-title {
             font-size: 24px;
             font-weight: 600;
             color: #303133;
             margin: 0;
         }
-        
+
         .page-content {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
 
-        
+
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .sidebar {
                 width: 64px;
             }
-            
+
             .header-left .breadcrumb {
                 display: none;
             }
-            
+
             .main-content {
                 padding: 0;
             }
-            
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
-        
+
         /* 加载动画 */
         .loading {
             display: inline-block;
@@ -337,37 +346,42 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         /* 应用中心页面样式 */
         .app-center-content {
             padding: 40px 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .app-center-title {
             text-align: center;
             margin-bottom: 40px;
         }
-        
+
         .app-center-title h2 {
             font-size: 28px;
             color: #303133;
             margin-bottom: 12px;
             font-weight: 600;
         }
-        
+
         .app-center-title p {
             font-size: 16px;
             color: #666;
             margin: 0;
         }
-        
+
         .app-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -376,7 +390,7 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .app-card {
             background: #fff;
             border-radius: 12px;
@@ -392,52 +406,52 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .app-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             border-color: #409EFF;
         }
-        
+
         .app-card-icon {
             font-size: 48px;
             color: #409EFF;
             margin-bottom: 20px;
             transition: all 0.3s ease;
         }
-        
+
         .app-card:hover .app-card-icon {
             transform: scale(1.1);
             color: #66b1ff;
         }
-        
+
         .app-card-title {
             font-size: 18px;
             font-weight: 600;
             color: #303133;
             margin-bottom: 12px;
         }
-        
+
         .app-card-description {
             font-size: 14px;
             color: #666;
             line-height: 1.5;
             margin: 0;
         }
-        
+
         /* 应用中心时隐藏侧边栏和页面导航 */
         .main-container.app-center-mode .sidebar {
             display: none;
         }
-        
+
         .main-container.app-center-mode .page-nav-container {
             display: none;
         }
-        
+
         .main-container.app-center-mode .content-area {
             width: 100%;
         }
-        
+
         /* 响应式设计 */
         @media (max-width: 1024px) {
             .app-cards-grid {
@@ -445,42 +459,43 @@
                 max-width: 700px;
             }
         }
-        
+
         @media (max-width: 768px) {
             .app-cards-grid {
                 grid-template-columns: 1fr;
                 max-width: 300px;
             }
-            
+
             .app-center-content {
                 padding: 20px 15px;
             }
         }
-        
+
         /* 平滑滚动 */
         html {
             scroll-behavior: smooth;
         }
-        
+
         /* 自定义滚动条 */
         ::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #c1c1c1;
             border-radius: 3px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <div class="app-container">
@@ -491,48 +506,13 @@
                         <i class="fas fa-shield-alt"></i>
                         <span>中建材工业安全管理平台</span>
                     </div>
-                    
+
                     <!-- 顶部主导航 -->
                     <nav class="top-nav">
                         <div class="nav-item" :class="{ active: currentModule === 'app-center' }">
                             <a href="#" class="nav-link" @click="switchModule('app-center')">
                                 <i class="fas fa-th-large"></i>
                                 <span>应用中心</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item" :class="{ active: currentModule === 'inspection' }">
-                            <a href="#" class="nav-link" @click="switchModule('inspection')">
-                                <i class="fas fa-video"></i>
-                                <span>无票作业巡检</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item" :class="{ active: currentModule === 'meeting' }">
-                            <a href="#" class="nav-link" @click="switchModule('meeting')">
-                                <i class="fas fa-users"></i>
-                                <span>安全会议</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item" :class="{ active: currentModule === 'risk' }">
-                            <a href="#" class="nav-link" @click="switchModule('risk')">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>风险分析</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item" :class="{ active: currentModule === 'workplace' }">
-                            <a href="#" class="nav-link" @click="switchModule('workplace')">
-                                <i class="fas fa-building"></i>
-                                <span>工作场所</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item" :class="{ active: currentModule === 'construction' }">
-                            <a href="#" class="nav-link" @click="switchModule('construction')">
-                                <i class="fas fa-hard-hat"></i>
-                                <span>建设项目管理</span>
                             </a>
                         </div>
                     </nav>
@@ -560,7 +540,7 @@
                     </el-dropdown>
                 </div>
             </header>
-            
+
             <!-- 主体容器 -->
             <div class="main-container" :class="{ 'app-center-mode': currentModule === 'app-center' }">
                 <!-- 侧边栏 -->
@@ -568,15 +548,10 @@
                     <div class="menu-toggle" @click="toggleSidebar">
                         <i :class="isCollapsed ? 'fas fa-angle-double-right' : 'fas fa-angle-double-left'"></i>
                     </div>
-                    <el-menu
-                        :default-active="activeMenu"
-                        :collapse="isCollapsed"
-                        :unique-opened="true"
-                        @select="handleMenuSelect"
-                        background-color="#ffffff"
-                        text-color="#666666"
+                    <el-menu :default-active="activeMenu" :collapse="isCollapsed" :unique-opened="true"
+                        @select="handleMenuSelect" background-color="#ffffff" text-color="#666666"
                         active-text-color="#1890ff">
-                        
+
                         <!-- 无票作业巡检模块菜单 -->
                         <template v-if="currentModule === 'inspection'">
                             <el-menu-item index="inspection-list">
@@ -599,7 +574,7 @@
                             </el-menu-item>
                             -->
                         </template>
-                        
+
                         <!-- 安全会议模块菜单 -->
                         <template v-else-if="currentModule === 'meeting'">
                             <el-menu-item index="meeting-management">
@@ -621,7 +596,7 @@
                                 </el-menu-item>
                             </el-sub-menu>
                         </template>
-                        
+
                         <!-- 风险分析模块菜单 -->
                         <template v-else-if="currentModule === 'risk'">
                             <el-menu-item index="risk-dashboard">
@@ -629,7 +604,7 @@
                                 <template #title>风险分析看板</template>
                             </el-menu-item>
                         </template>
-                        
+
                         <!-- 建设项目管理模块菜单 -->
                         <template v-else-if="currentModule === 'construction'">
                             <el-menu-item index="construction-project-list">
@@ -637,7 +612,31 @@
                                 <template #title>建设项目列表</template>
                             </el-menu-item>
                         </template>
-                        
+
+                        <!-- 大坝管理模块菜单 -->
+                        <template v-else-if="currentModule === 'dam'">
+                            <el-menu-item index="dam-safety-management">
+                                <i class="fas fa-water"></i>
+                                <template #title>大坝安全管理</template>
+                            </el-menu-item>
+                        </template>
+
+                        <!-- 重大危险源管理模块菜单 -->
+                        <template v-else-if="currentModule === 'major-hazard'">
+                            <el-menu-item index="major-hazard-ledger">
+                                <i class="fas fa-table"></i>
+                                <template #title>重大危险源台账</template>
+                            </el-menu-item>
+                            <el-menu-item index="major-hazard-monitoring">
+                                <i class="fas fa-chart-line"></i>
+                                <template #title>在线监测与预警</template>
+                            </el-menu-item>
+                            <el-menu-item index="major-hazard-duty">
+                                <i class="fas fa-clipboard-list"></i>
+                                <template #title>包保履职记录</template>
+                            </el-menu-item>
+                        </template>
+
                         <!-- 工作场所模块菜单 -->
                         <template v-else-if="currentModule === 'workplace'">
                             <el-menu-item index="building-management">
@@ -656,6 +655,14 @@
                                 <el-menu-item index="hazchem-ledger">
                                     <i class="fas fa-table"></i>
                                     <template #title>危险化学品台账</template>
+                                </el-menu-item>
+                                <el-menu-item index="hazchem-risk-dashboard">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <template #title>安全风险分布总览</template>
+                                </el-menu-item>
+                                <el-menu-item index="hazchem-risk-ledger">
+                                    <i class="fas fa-table"></i>
+                                    <template #title>安全风险分布台账</template>
                                 </el-menu-item>
                             </el-sub-menu>
                             <el-sub-menu index="safety-facility-management">
@@ -709,26 +716,25 @@
                                 </el-menu-item>
                             </el-sub-menu>
                         </template>
-                        
+
                     </el-menu>
                 </aside>
-                
+
                 <!-- 内容区域 -->
                 <main class="content-area">
                     <!-- 页面导航栏 -->
-            <div class="page-nav-container">
-                <!-- 返回按钮 -->
-                <button v-if="showBackButton" @click="goBack" class="back-button">
-                    < 返回
-                </button>
-                
-                <!-- 页面标题 -->
-                <div class="page-nav-title">
-                    <i :class="currentPageIcon"></i>
-                    <span>{{ currentPageTitle }}</span>
-                </div>
-            </div>
-                    
+                    <div class="page-nav-container">
+                        <!-- 返回按钮 -->
+                        <button v-if="showBackButton" @click="goBack" class="back-button">
+                            < 返回 </button>
+
+                                <!-- 页面标题 -->
+                                <div class="page-nav-title">
+                                    <i :class="currentPageIcon"></i>
+                                    <span>{{ currentPageTitle }}</span>
+                                </div>
+                    </div>
+
                     <!-- 主内容区 -->
                     <div class="main-content">
                         <!-- 应用中心页面 -->
@@ -738,7 +744,7 @@
                                     <h2>应用中心</h2>
                                     <p>选择您需要使用的功能模块</p>
                                 </div>
-                                
+
                                 <div class="app-cards-grid">
                                     <!-- 无票作业巡检应用卡片 -->
                                     <div class="app-card" @click="switchToModule('inspection')">
@@ -748,7 +754,7 @@
                                         <h3 class="app-card-title">无票作业巡检</h3>
                                         <p class="app-card-description">结合摄像机巡检无票作业</p>
                                     </div>
-                                    
+
                                     <!-- 安全会议应用卡片 -->
                                     <div class="app-card" @click="switchToModule('meeting')">
                                         <div class="app-card-icon">
@@ -757,7 +763,7 @@
                                         <h3 class="app-card-title">安全会议</h3>
                                         <p class="app-card-description">开展企业安全会议，查看会议后任务完成情况</p>
                                     </div>
-                                    
+
                                     <!-- 风险分析应用卡片 -->
                                     <div class="app-card" @click="switchToModule('risk')">
                                         <div class="app-card-icon">
@@ -766,7 +772,7 @@
                                         <h3 class="app-card-title">风险分析</h3>
                                         <p class="app-card-description">双预防风险可视化分析</p>
                                     </div>
-                                    
+
                                     <!-- 工作场所应用卡片 -->
                                     <div class="app-card" @click="switchToModule('workplace')">
                                         <div class="app-card-icon">
@@ -775,7 +781,7 @@
                                         <h3 class="app-card-title">工作场所</h3>
                                         <p class="app-card-description">建筑物管理、安全设施管理、通风照明管理</p>
                                     </div>
-                                    
+
                                     <!-- 建设项目管理应用卡片 -->
                                     <div class="app-card" @click="switchToModule('construction')">
                                         <div class="app-card-icon">
@@ -784,113 +790,119 @@
                                         <h3 class="app-card-title">建设项目管理</h3>
                                         <p class="app-card-description">建设项目信息管理、项目进度跟踪、安全资料维护</p>
                                     </div>
+
+                                    <!-- 大坝管理应用卡片 -->
+                                    <div class="app-card" @click="switchToModule('dam')">
+                                        <div class="app-card-icon">
+                                            <i class="fas fa-water"></i>
+                                        </div>
+                                        <h3 class="app-card-title">大坝管理</h3>
+                                        <p class="app-card-description">大坝安全概览、安全管理台账、监测数据管理</p>
+                                    </div>
+
+                                    <!-- 重大危险源管理应用卡片 -->
+                                    <div class="app-card" @click="switchToModule('major-hazard')">
+                                        <div class="app-card-icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <h3 class="app-card-title">重大危险源管理</h3>
+                                        <p class="app-card-description">重大危险源台账、在线监测预警、包保履职记录</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- 巡检记录列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'inspection-list'">
-                            <iframe 
-                                src="./无票作业/inspection-list.html" 
+                            <iframe src="./无票作业/inspection-list.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 巡检记录详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'inspection-detail'">
-                            <iframe 
-                                src="./无票作业/inspection-detail.html" 
+                            <iframe src="./无票作业/inspection-detail.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 巡检设置页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'inspection-settings'">
-                            <iframe 
-                                src="./无票作业/inspection-settings.html" 
+                            <iframe src="./无票作业/inspection-settings.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 数据看板页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'dashboard-analysis'">
-                            <iframe 
-                                src="./无票作业/dashboard-analysis.html" 
+                            <iframe src="./无票作业/dashboard-analysis.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 安全会议管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'meeting-management'">
-                            <iframe 
-                                src="./安全会议new/安全会议管理.html" 
+                            <iframe src="./安全会议new/安全会议管理.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 新建安全会议页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'create-meeting'">
-                            <iframe 
-                                src="./安全会议new/新建安全会议.html" 
+                            <iframe src="./安全会议new/新建安全会议.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 会议后任务管理 - 任务下发 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'meeting-task-assign'">
-                            <iframe 
-                                src="./安全会议new/任务下发.html" 
+                            <iframe src="./安全会议new/任务下发.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 会议后任务管理 - 任务执行 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'meeting-task-execute'">
-                            <iframe 
-                                src="./安全会议new/任务执行.html" 
+                            <iframe src="./安全会议new/任务执行.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 风险分析看板页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'risk-dashboard'">
-                            <iframe 
-                                src="./风险分析/风险分析看板.html" 
+                            <iframe src="./风险分析/风险分析看板.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 建设项目列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'construction-project-list'">
-                            <iframe 
-                                src="./建设项目管理/建设项目列表.html" 
+                            <iframe src="./建设项目管理/建设项目列表.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 建设项目详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'construction-project-detail'">
-                            <iframe 
-                                src="./建设项目管理/建设项目详情.html" 
+                            <iframe src="./建设项目管理/建设项目详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 建（构）筑物管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'building-management'">
-                            <iframe 
-                                src="./工作场所/建构筑物管理/index.html" 
+                            <iframe src="./工作场所/建构筑物管理/index.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -898,8 +910,7 @@
 
                         <!-- 危险化学品信息库页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'hazchem-info'">
-                            <iframe 
-                                src="./工作场所/危险物品管理/危险化学品信息库.html" 
+                            <iframe src="./工作场所/危险物品管理/危险化学品信息库.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -907,8 +918,7 @@
 
                         <!-- 危险化学品台账页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'hazchem-ledger'">
-                            <iframe 
-                                src="./工作场所/危险物品管理/危险化学品台账.html" 
+                            <iframe src="./工作场所/危险物品管理/危险化学品台账.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -916,8 +926,7 @@
 
                         <!-- 生产安全设施管理 - 标准标志库 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-standard-library'">
-                            <iframe 
-                                src="./工作场所/生产安全设施管理/标准标志库.html" 
+                            <iframe src="./工作场所/生产安全设施管理/标准标志库.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -925,8 +934,7 @@
 
                         <!-- 生产安全设施管理 - 标志管理台账 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-sign-ledger'">
-                            <iframe 
-                                src="./工作场所/生产安全设施管理/标志管理台账.html" 
+                            <iframe src="./工作场所/生产安全设施管理/标志管理台账.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -934,44 +942,39 @@
 
                         <!-- 生产安全设施管理 - 安全防护设施配置台账 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-protection-ledger'">
-                            <iframe 
-                                src="./工作场所/生产安全设施管理/安全防护设施配置台账.html" 
+                            <iframe src="./工作场所/生产安全设施管理/安全防护设施配置台账.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 通风设施管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'ventilation-management'">
-                            <iframe 
-                                src="./工作场所/通风与照明管理/通风设施管理.html" 
+                            <iframe src="./工作场所/通风与照明管理/通风设施管理.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 照明设施管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'lighting-management'">
-                            <iframe 
-                                src="./工作场所/通风与照明管理/照明设施管理.html" 
+                            <iframe src="./工作场所/通风与照明管理/照明设施管理.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 消防设施器材台账页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'fire-facility-ledger'">
-                            <iframe 
-                                src="./工作场所/消防安全管理/消防设施器材台账.html" 
+                            <iframe src="./工作场所/消防安全管理/消防设施器材台账.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
-                        
+
                         <!-- 检查与试验管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'check-inspection-management'">
-                            <iframe
-                                src="./工作场所/消防安全管理/检查与试验管理.html"
+                            <iframe src="./工作场所/消防安全管理/检查与试验管理.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -979,12 +982,84 @@
 
                         <!-- 有限空间管理页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'confined-space-management'">
-                            <iframe
-                                src="./工作场所/有限空间管理/有限空间台账.html"
+                            <iframe src="./工作场所/有限空间管理/有限空间台账.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
                         </div>
+
+                        <!-- 大坝安全管理页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'dam-safety-management'">
+                            <iframe src="./大坝管理/大坝安全管理.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 重大危险源台账页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'major-hazard-ledger'">
+                            <iframe src="./重大危险源管理/重大危险源台账.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 重大危险源台账详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'major-hazard-detail'">
+                            <iframe src="./重大危险源管理/重大危险源台账-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 新建/编辑重大危险源页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'major-hazard-create' || activeMenu === 'major-hazard-edit'">
+                            <iframe src="./重大危险源管理/重大危险源台账-新建.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 在线监测与预警页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'major-hazard-monitoring'">
+                            <iframe src="./重大危险源管理/在线监测与预警.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 包保履职记录页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'major-hazard-duty'">
+                            <iframe src="./重大危险源管理/包保履职记录.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 危险化学品安全风险分布总览页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'hazchem-risk-dashboard'">
+                            <iframe src="./工作场所/危险化学品安全风险分布总览.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 危险化学品安全风险分布台账页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'hazchem-risk-ledger'">
+                            <iframe src="./工作场所/危险化学品安全风险分布台账.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 危险化学品安全风险分布档案页面 (保留作为备用) -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'hazchem-risk-profile'">
+                            <iframe src="./工作场所/危险化学品安全风险分布档案.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
 
 
                         <!-- 其他页面的默认内容 -->
@@ -1006,18 +1081,18 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Element Plus -->
     <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
     <!-- Element Plus Icons -->
     <script src="https://unpkg.com/@element-plus/icons-vue/dist/index.iife.js"></script>
-    
+
     <script>
         const { createApp, ref, reactive, onMounted, nextTick } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
-        
+
         const app = createApp({
             setup() {
                 // 响应式数据
@@ -1028,7 +1103,7 @@
                 const currentPageIcon = ref('fas fa-th-large');
                 const showBackButton = ref(false);
                 const navigationHistory = ref([]);
-                
+
                 // 统计数据
                 const stats = reactive({
                     totalUsers: 1248,
@@ -1036,14 +1111,14 @@
                     systemHealth: 98,
                     onlineUsers: 156
                 });
-                
+
                 // 系统状态
                 const systemStatus = reactive({
                     cpu: 45,
                     memory: 67,
                     disk: 32
                 });
-                
+
                 // 最新事件
                 const recentEvents = ref([
                     {
@@ -1065,7 +1140,7 @@
                         description: '用户权限更新'
                     }
                 ]);
-                
+
                 // 菜单配置
                 const menuConfig = {
                     'inspection-list': { title: '巡检记录列表', icon: 'el-icon-search' },
@@ -1090,112 +1165,142 @@
                     'fire-facility-ledger': { title: '消防设施器材台账', icon: 'fas fa-list-alt' },
                     'check-inspection-management': { title: '检查与试验管理', icon: 'fas fa-clipboard-check' },
                     'hazchem-info': { title: '危险化学品信息库', icon: 'fas fa-database' },
-                    'hazchem-ledger': { title: '危险化学品台账', icon: 'fas fa-table' }
+                    'hazchem-ledger': { title: '危险化学品台账', icon: 'fas fa-table' },
+                    'hazchem-risk-profile': { title: '安全风险分布档案', icon: 'fas fa-exclamation-triangle' },
+                    'dam-safety-management': { title: '大坝安全管理', icon: 'fas fa-water' },
+                    'major-hazard-ledger': { title: '重大危险源台账', icon: 'fas fa-table' },
+                    'major-hazard-detail': { title: '重大危险源台账详情', icon: 'fas fa-info-circle' },
+                    'major-hazard-create': { title: '新建重大危险源', icon: 'fas fa-plus' },
+                    'major-hazard-edit': { title: '编辑重大危险源', icon: 'fas fa-edit' },
+                    'major-hazard-monitoring': { title: '在线监测与预警', icon: 'fas fa-chart-line' },
+                    'major-hazard-duty': { title: '包保履职记录', icon: 'fas fa-clipboard-list' }
                 };
-                
+
                 // 方法
                 const toggleSidebar = () => {
                     isCollapsed.value = !isCollapsed.value;
                 };
-                
+
                 // 模块切换方法
                 const switchModule = (module) => {
                     currentModule.value = module;
-                    
+
                     // 切换模块时清空导航历史并隐藏返回按钮
                     navigationHistory.value = [];
                     showBackButton.value = false;
-                    
+
                     // 根据模块设置默认页面
                     if (module === 'app-center') {
                         // 应用中心模块特殊处理
                         activeMenu.value = '';
                         currentPageTitle.value = '应用中心';
                         currentPageIcon.value = 'fas fa-th-large';
-                        
+
                     } else if (module === 'inspection') {
                         const defaultPage = 'inspection-list';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'meeting') {
                         const defaultPage = 'meeting-management';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'risk') {
                         const defaultPage = 'risk-dashboard';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'workplace') {
                         const defaultPage = 'building-management';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'construction') {
                         const defaultPage = 'construction-project-list';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
+
+                    } else if (module === 'dam') {
+                        const defaultPage = 'dam-safety-management';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
+                    } else if (module === 'major-hazard') {
+                        const defaultPage = 'major-hazard-ledger';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
                     }
                 };
-                
+
                 // 从应用中心切换到具体模块的方法
                 const switchToModule = (module) => {
                     currentModule.value = module;
-                    
+
                     // 切换模块时清空导航历史并隐藏返回按钮
                     navigationHistory.value = [];
                     showBackButton.value = false;
-                    
+
                     // 根据模块设置默认页面
                     if (module === 'inspection') {
                         const defaultPage = 'inspection-list';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'meeting') {
                         const defaultPage = 'meeting-management';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'risk') {
                         const defaultPage = 'risk-dashboard';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'workplace') {
                         const defaultPage = 'building-management';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
-                        
+
                     } else if (module === 'construction') {
                         const defaultPage = 'construction-project-list';
                         activeMenu.value = defaultPage;
                         currentPageTitle.value = menuConfig[defaultPage].title;
                         currentPageIcon.value = menuConfig[defaultPage].icon;
+
+                    } else if (module === 'dam') {
+                        const defaultPage = 'dam-safety-management';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
+                    } else if (module === 'major-hazard') {
+                        const defaultPage = 'major-hazard-ledger';
+                        activeMenu.value = defaultPage;
+                        currentPageTitle.value = menuConfig[defaultPage].title;
+                        currentPageIcon.value = menuConfig[defaultPage].icon;
                     }
                 };
-                
+
                 const handleMenuSelect = (index) => {
                     activeMenu.value = index;
                     currentPageTitle.value = menuConfig[index]?.title || '未知页面';
                     currentPageIcon.value = menuConfig[index]?.icon || 'el-icon-document';
-                    
+
                     // 点击菜单时清空导航历史并隐藏返回按钮
                     navigationHistory.value = [];
                     showBackButton.value = false;
                 };
-                
+
                 // 返回上一页功能
                 const goBack = () => {
                     if (navigationHistory.value.length > 0) {
@@ -1203,12 +1308,12 @@
                         activeMenu.value = lastPage.menu;
                         currentPageTitle.value = lastPage.title;
                         currentPageIcon.value = lastPage.icon;
-                        
+
                         // 如果导航历史为空，隐藏返回按钮
                         showBackButton.value = navigationHistory.value.length > 0;
                     }
                 };
-                
+
                 const handleUserCommand = (command) => {
                     switch (command) {
                         case 'profile':
@@ -1230,21 +1335,21 @@
                             break;
                     }
                 };
-                
+
                 const getProgressColor = (percentage) => {
                     if (percentage < 50) return '#67c23a';
                     if (percentage < 80) return '#e6a23c';
                     return '#f56c6c';
                 };
-                
+
                 const getMenuIcon = (menuKey) => {
                     return menuConfig[menuKey]?.icon || 'fas fa-file';
                 };
-                
+
                 const getMenuTitle = (menuKey) => {
                     return menuConfig[menuKey]?.title || '未知页面';
                 };
-                
+
                 const showMessage = () => {
                     ElMessage({
                         message: '该功能正在开发中，敬请期待！',
@@ -1252,17 +1357,17 @@
                         duration: 3000
                     });
                 };
-                
+
                 const handleIframeLoad = () => {
                     console.log('页面加载完成');
                 };
-                
+
                 // 添加页面导航处理功能
                 const handlePageNavigation = (event) => {
                     // 检查消息来源和类型
                     if (event.data && event.data.type === 'navigate') {
                         const { page, data, mode, title, icon } = event.data;
-                        
+
                         // 保存当前页面到导航历史（只有在页面内跳转时才保存）
                         if (activeMenu.value) {
                             navigationHistory.value.push({
@@ -1271,10 +1376,10 @@
                                 icon: currentPageIcon.value
                             });
                         }
-                        
+
                         // 切换到指定页面
                         activeMenu.value = page;
-                        
+
                         // 使用传递的标题和图标，或者从菜单配置中获取
                         if (title) {
                             currentPageTitle.value = title;
@@ -1283,7 +1388,7 @@
                         } else {
                             currentPageTitle.value = '未知页面';
                         }
-                        
+
                         if (icon) {
                             currentPageIcon.value = icon;
                         } else if (menuConfig[page]) {
@@ -1291,10 +1396,10 @@
                         } else {
                             currentPageIcon.value = 'el-icon-document';
                         }
-                        
+
                         // 显示返回按钮
                         showBackButton.value = true;
-                        
+
                         // 如果有数据传递，存储到sessionStorage
                         if (data) {
                             sessionStorage.setItem(`${page}_data`, JSON.stringify(data));
@@ -1304,7 +1409,7 @@
                         }
                     }
                 };
-                
+
                 // 模拟数据更新
                 const updateStats = () => {
                     setInterval(() => {
@@ -1314,7 +1419,7 @@
                         systemStatus.disk = Math.floor(Math.random() * 20) + 25;
                     }, 5000);
                 };
-                
+
                 // 生命周期
                 onMounted(() => {
                     updateStats();
@@ -1325,7 +1430,7 @@
                         duration: 3000
                     });
                 });
-                
+
                 return {
                     isCollapsed,
                     currentModule,
@@ -1352,13 +1457,14 @@
                 };
             }
         });
-        
+
         // 注册Element Plus图标
         for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
             app.component(key, component);
         }
-        
+
         app.use(ElementPlus).mount('#app');
     </script>
 </body>
+
 </html>

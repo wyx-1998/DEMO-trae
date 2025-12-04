@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -12,680 +13,846 @@
   <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif;background:#f5f7fa}
-    .app-container{min-height:100vh;display:flex;flex-direction:column}
-    .page{max-width:1200px;margin:0 auto;padding:24px;width:100%}
-    .content-card{background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
-    .page-header{padding:20px 24px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
-    .page-title{font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:12px}
-    .page-content{padding:24px}
-    .info-section{margin-bottom:24px}
-    .section-title{font-size:16px;font-weight:600;color:#409EFF;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-    .section-divider{margin:24px 0}
-    .el-descriptions{margin-bottom:16px}
-    .status-tag{display:inline-flex;align-items:center;gap:4px}
-    .footer-bar{display:flex;gap:12px;justify-content:flex-end;padding:20px 24px;border-top:1px solid #f0f0f0}
-    .loading-container{display:flex;justify-content:center;align-items:center;height:200px}
-    .el-button--primary{--el-button-bg-color:#409EFF;--el-button-border-color:#409EFF}
-    .el-collapse{margin-top:16px}
-    .el-collapse-item__header{font-weight:600}
-    .chapter-content{margin-top:12px}
-    .form-section{border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;background:#fff;margin-bottom:20px}
-    .section-header{background:#fafafa;padding:14px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
-    .section-header-title{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}
-    .form-section-content{padding:20px}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      background: #f5f7fa
+    }
+
+    .app-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      width: 100%
+    }
+
+    .content-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      overflow: hidden
+    }
+
+    .page-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .page-content {
+      padding: 24px
+    }
+
+    .info-section {
+      margin-bottom: 24px
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #409EFF;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .section-divider {
+      margin: 24px 0
+    }
+
+    .el-descriptions {
+      margin-bottom: 16px
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .footer-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding: 20px 24px;
+      border-top: 1px solid #f0f0f0
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px
+    }
+
+    .el-button--primary {
+      --el-button-bg-color: #409EFF;
+      --el-button-border-color: #409EFF
+    }
+
+    .el-collapse {
+      margin-top: 16px
+    }
+
+    .el-collapse-item__header {
+      font-weight: 600
+    }
+
+    .chapter-content {
+      margin-top: 12px
+    }
+
+    .form-section {
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      margin-bottom: 20px
+    }
+
+    .section-header {
+      background: #fafafa;
+      padding: 14px 20px;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .section-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .form-section-content {
+      padding: 20px
+    }
   </style>
 </head>
+
 <body>
-<div id="app" class="app-container">
-  <div class="page">
-    <div class="content-card">
-      <div class="page-header">
-        <div class="page-title">
-          <i class="fas fa-eye"></i> 危险化学品台账详情
-        </div>
-        <div class="status-tag" v-if="data.cas">CAS：{{ data.cas }}</div>
-      </div>
-
-      <div class="page-content" v-loading="loading">
-        <!-- 基本信息 -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-header-title">
-              <i class="fas fa-info-circle"></i> 基本信息
-            </div>
+  <div id="app" class="app-container">
+    <div class="page">
+      <div class="content-card">
+        <div class="page-header">
+          <div class="page-title">
+            <i class="fas fa-eye"></i> 危险化学品台账详情
           </div>
-          <div class="form-section-content">
-            <el-descriptions :column="3" border>
-              <el-descriptions-item label="化学品名称">{{ data.name }}</el-descriptions-item>
-              <el-descriptions-item label="英文名">{{ data.englishName || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="别名">{{ data.alias || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="CAS号">{{ data.cas }}</el-descriptions-item>
-              <el-descriptions-item label="分子式">{{ data.formula || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="危险性分类">{{ formatHazards(data.hazards) }}</el-descriptions-item>
-              <el-descriptions-item label="闪点(℃)">{{ data.flashPoint || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="密度(g/cm³)">{{ data.density || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="分子量">{{ data.mw || '—' }}</el-descriptions-item>
-            </el-descriptions>
-          </div>
+          <div class="status-tag" v-if="data.cas">CAS：{{ data.cas }}</div>
         </div>
 
-        <!-- 企业库存信息 -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-header-title">
-              <i class="fas fa-warehouse"></i> 企业库存信息
+        <div class="page-content" v-loading="loading">
+          <!-- 基本信息 -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-header-title">
+                <i class="fas fa-info-circle"></i> 基本信息
+              </div>
+            </div>
+            <div class="form-section-content">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="化学品名称">{{ data.name }}</el-descriptions-item>
+                <el-descriptions-item label="英文名">{{ data.englishName || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="别名">{{ data.alias || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="CAS号">{{ data.cas }}</el-descriptions-item>
+                <el-descriptions-item label="分子式">{{ data.formula || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="危险性分类">{{ formatHazards(data.hazards) }}</el-descriptions-item>
+                <el-descriptions-item label="闪点(℃)">{{ data.flashPoint || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="密度(g/cm³)">{{ data.density || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="分子量">{{ data.mw || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="临界量">{{ data.criticalQty || '—' }} {{ data.unit || '' }}</el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-          <div class="form-section-content">
-            <el-descriptions :column="3" border>
-              <el-descriptions-item label="储存位置">{{ data.location }}</el-descriptions-item>
-              <el-descriptions-item label="库存数量">{{ data.stockQty }} {{ data.unit }}</el-descriptions-item>
-              <el-descriptions-item label="库存状态">
-                <el-tag :type="getStatusType(data.stockStatus)">{{ data.stockStatus }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="供应商">{{ data.supplier }}</el-descriptions-item>
-              <el-descriptions-item label="批次号">{{ data.batchNo }}</el-descriptions-item>
-              <el-descriptions-item label="生产日期">{{ data.prodDate || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="有效期至">{{ data.expireDate || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="标签状态">
-                <el-tag :type="getLabelStatusType(data.labelStatus)">{{ data.labelStatus }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="创建时间">{{ formatDate(data.createTime) }}</el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </div>
 
-        <!-- 包装信息 -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-header-title">
-              <i class="fas fa-box"></i> 包装信息
+          <!-- 企业库存信息 -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-header-title">
+                <i class="fas fa-warehouse"></i> 企业库存信息
+              </div>
+            </div>
+            <div class="form-section-content">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="存储区域">{{ formatStorageArea(data.storageArea) }}</el-descriptions-item>
+                <el-descriptions-item label="单元类型">
+                  <el-tag :type="data.unitType === 'production' ? 'success' : 'primary'" v-if="data.unitType">
+                    {{ data.unitType === 'production' ? '生产单元' : '存储单元' }}
+                  </el-tag>
+                  <span v-else>—</span>
+                </el-descriptions-item>
+                <el-descriptions-item label="库存数量">{{ data.stockQty }} {{ data.unit }}</el-descriptions-item>
+                <el-descriptions-item label="库存状态">
+                  <el-tag :type="getStatusType(data.stockStatus)">{{ data.stockStatus }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="供应商">{{ data.supplier }}</el-descriptions-item>
+                <el-descriptions-item label="批次号">{{ data.batchNo }}</el-descriptions-item>
+                <el-descriptions-item label="生产日期">{{ data.prodDate || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="有效期至">{{ data.expireDate || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="标签状态">
+                  <el-tag :type="getLabelStatusType(data.labelStatus)">{{ data.labelStatus }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="创建时间">{{ formatDate(data.createTime) }}</el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-          <div class="form-section-content">
-            <el-descriptions :column="3" border>
-              <el-descriptions-item label="包装类型">{{ data.pkgType || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="包装材质">{{ data.pkgMaterial || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="包装数量">{{ data.pkgQty || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="单包装容量">{{ data.pkgCapacity || '—' }}</el-descriptions-item>
-              <el-descriptions-item label="包装规格">{{ getPackageSpec(data) }}</el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </div>
 
-        <!-- 特殊属性 -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-header-title">
-              <i class="fas fa-exclamation-triangle"></i> 特殊属性
+          <!-- 包装信息 -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-header-title">
+                <i class="fas fa-box"></i> 包装信息
+              </div>
+            </div>
+            <div class="form-section-content">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="包装类型">{{ data.pkgType || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="包装材质">{{ data.pkgMaterial || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="包装数量">{{ data.pkgQty || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="单包装容量">{{ data.pkgCapacity || '—' }}</el-descriptions-item>
+                <el-descriptions-item label="包装规格">{{ getPackageSpec(data) }}</el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-          <div class="form-section-content">
-            <el-descriptions :column="3" border>
-              <el-descriptions-item label="是否剧毒">
-                <el-tag :type="data.isHighlyToxic === '是' ? 'danger' : 'info'">{{ data.isHighlyToxic || '—' }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="是否易制爆">
-                <el-tag :type="data.isExplosive === '是' ? 'danger' : 'info'">{{ data.isExplosive || '—' }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="是否易制毒">
-                <el-tag :type="data.isDrugPrecursor === '是' ? 'danger' : 'info'">{{ data.isDrugPrecursor || '—' }}</el-tag>
-              </el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </div>
 
-        <!-- MSDS信息 -->
-        <div class="form-section">
-          <div class="section-header">
-            <div class="section-header-title">
-              <i class="fas fa-file-alt"></i> MSDS 信息
+          <!-- 特殊属性 -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-header-title">
+                <i class="fas fa-exclamation-triangle"></i> 特殊属性
+              </div>
+            </div>
+            <div class="form-section-content">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="是否剧毒">
+                  <el-tag :type="data.isHighlyToxic === '是' ? 'danger' : 'info'">{{ data.isHighlyToxic || '—'
+                    }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="是否易制爆">
+                  <el-tag :type="data.isExplosive === '是' ? 'danger' : 'info'">{{ data.isExplosive || '—' }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="是否易制毒">
+                  <el-tag :type="data.isDrugPrecursor === '是' ? 'danger' : 'info'">{{ data.isDrugPrecursor || '—'
+                    }}</el-tag>
+                </el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-          <div class="form-section-content">
-            <el-collapse v-model="activeMsdsPanels">
-              <!-- 第1章 -->
-              <el-collapse-item name="c1" title="第1章：化学品及企业标识">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="产品名称">{{ getMsdsValue('chapter1.product') }}</el-descriptions-item>
-                    <el-descriptions-item label="推荐用途">{{ getMsdsValue('chapter1.use') }}</el-descriptions-item>
-                    <el-descriptions-item label="供应商">{{ getMsdsValue('chapter1.supplier') }}</el-descriptions-item>
-                    <el-descriptions-item label="地址">{{ getMsdsValue('chapter1.address') }}</el-descriptions-item>
-                    <el-descriptions-item label="联系电话">{{ getMsdsValue('chapter1.phone') }}</el-descriptions-item>
-                    <el-descriptions-item label="应急电话">{{ getMsdsValue('chapter1.emergency') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
 
-              <!-- 第2章 -->
-              <el-collapse-item name="c2" title="第2章：危险性概述">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="GHS分类">{{ getMsdsValue('chapter2.ghs') }}</el-descriptions-item>
-                    <el-descriptions-item label="信号词">{{ getMsdsValue('chapter2.signalWord') }}</el-descriptions-item>
-                    <el-descriptions-item label="象形图" :span="2">
-                      <div v-if="data.msds?.chapter2?.pictograms">
-                        <img :src="data.msds.chapter2.pictograms" style="width: 60px; height: 60px; object-fit: contain;" />
-                      </div>
-                      <span v-else>—</span>
-                    </el-descriptions-item>
-                    <el-descriptions-item label="危险说明(H)" :span="2">{{ getMsdsValue('chapter2.h') }}</el-descriptions-item>
-                    <el-descriptions-item label="防范说明(P)" :span="2">{{ getMsdsValue('chapter2.p') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
-
-              <!-- 第3章 -->
-              <el-collapse-item name="c3" title="第3章：成分/组成信息">
-                <div class="chapter-content">
-                  <!-- 使用原生HTML表格作为备用方案 -->
-                  <div v-if="getTableData().length > 0" style="overflow-x: auto;">
-                    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #e4e7ed;">
-                      <thead>
-                        <tr style="background-color: #f5f7fa;">
-                          <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #606266; border: 1px solid #e4e7ed;">化学名称</th>
-                          <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #606266; border: 1px solid #e4e7ed; width: 180px;">CAS号</th>
-                          <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #606266; border: 1px solid #e4e7ed; width: 120px;">含量(%)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(item, index) in getTableData()" :key="index">
-                          <td style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266;">{{ item.name || '—' }}</td>
-                          <td style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266; font-family: monospace;">{{ item.cas || '—' }}</td>
-                          <td style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266; text-align: right;">{{ item.concentration || '—' }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+          <!-- MSDS信息 -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-header-title">
+                <i class="fas fa-file-alt"></i> MSDS 信息
+              </div>
+            </div>
+            <div class="form-section-content">
+              <el-collapse v-model="activeMsdsPanels">
+                <!-- 第1章 -->
+                <el-collapse-item name="c1" title="第1章：化学品及企业标识">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="产品名称">{{ getMsdsValue('chapter1.product') }}</el-descriptions-item>
+                      <el-descriptions-item label="推荐用途">{{ getMsdsValue('chapter1.use') }}</el-descriptions-item>
+                      <el-descriptions-item label="供应商">{{ getMsdsValue('chapter1.supplier') }}</el-descriptions-item>
+                      <el-descriptions-item label="地址">{{ getMsdsValue('chapter1.address') }}</el-descriptions-item>
+                      <el-descriptions-item label="联系电话">{{ getMsdsValue('chapter1.phone') }}</el-descriptions-item>
+                      <el-descriptions-item label="应急电话">{{ getMsdsValue('chapter1.emergency') }}</el-descriptions-item>
+                    </el-descriptions>
                   </div>
-                  <div v-else style="text-align: center; color: #909399; padding: 40px; border: 1px solid #e4e7ed; border-radius: 4px;">
-                    <div style="font-size: 16px; margin-bottom: 8px;">暂无成分信息</div>
-                    <div style="font-size: 12px;">当前化学品成分数据未提供</div>
+                </el-collapse-item>
+
+                <!-- 第2章 -->
+                <el-collapse-item name="c2" title="第2章：危险性概述">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="GHS分类">{{ getMsdsValue('chapter2.ghs') }}</el-descriptions-item>
+                      <el-descriptions-item label="信号词">{{ getMsdsValue('chapter2.signalWord') }}</el-descriptions-item>
+                      <el-descriptions-item label="象形图" :span="2">
+                        <div v-if="data.msds?.chapter2?.pictograms">
+                          <img :src="data.msds.chapter2.pictograms"
+                            style="width: 60px; height: 60px; object-fit: contain;" />
+                        </div>
+                        <span v-else>—</span>
+                      </el-descriptions-item>
+                      <el-descriptions-item label="危险说明(H)" :span="2">{{ getMsdsValue('chapter2.h')
+                        }}</el-descriptions-item>
+                      <el-descriptions-item label="防范说明(P)" :span="2">{{ getMsdsValue('chapter2.p')
+                        }}</el-descriptions-item>
+                    </el-descriptions>
                   </div>
-                </div>
-              </el-collapse-item>
+                </el-collapse-item>
 
-              <!-- 第4章 -->
-              <el-collapse-item name="c4" title="第4章：急救措施">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="吸入">{{ getMsdsValue('chapter4.inhale') }}</el-descriptions-item>
-                    <el-descriptions-item label="皮肤接触">{{ getMsdsValue('chapter4.skin') }}</el-descriptions-item>
-                    <el-descriptions-item label="眼睛接触">{{ getMsdsValue('chapter4.eye') }}</el-descriptions-item>
-                    <el-descriptions-item label="摄入">{{ getMsdsValue('chapter4.ingest') }}</el-descriptions-item>
-                    <el-descriptions-item label="重要症状">{{ getMsdsValue('chapter4.symptoms') }}</el-descriptions-item>
-                    <el-descriptions-item label="特殊治疗">{{ getMsdsValue('chapter4.treatment') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第3章 -->
+                <el-collapse-item name="c3" title="第3章：成分/组成信息">
+                  <div class="chapter-content">
+                    <!-- 使用原生HTML表格作为备用方案 -->
+                    <div v-if="getTableData().length > 0" style="overflow-x: auto;">
+                      <table border="1" cellpadding="8" cellspacing="0"
+                        style="width: 100%; border-collapse: collapse; border-color: #e4e7ed;">
+                        <thead>
+                          <tr style="background-color: #f5f7fa;">
+                            <th
+                              style="padding: 12px 8px; text-align: left; font-weight: 600; color: #606266; border: 1px solid #e4e7ed;">
+                              化学名称</th>
+                            <th
+                              style="padding: 12px 8px; text-align: left; font-weight: 600; color: #606266; border: 1px solid #e4e7ed; width: 180px;">
+                              CAS号</th>
+                            <th
+                              style="padding: 12px 8px; text-align: right; font-weight: 600; color: #606266; border: 1px solid #e4e7ed; width: 120px;">
+                              含量(%)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(item, index) in getTableData()" :key="index">
+                            <td style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266;">{{ item.name ||
+                              '—' }}</td>
+                            <td
+                              style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266; font-family: monospace;">
+                              {{ item.cas || '—' }}</td>
+                            <td
+                              style="padding: 12px 8px; border: 1px solid #e4e7ed; color: #606266; text-align: right;">
+                              {{ item.concentration || '—' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div v-else
+                      style="text-align: center; color: #909399; padding: 40px; border: 1px solid #e4e7ed; border-radius: 4px;">
+                      <div style="font-size: 16px; margin-bottom: 8px;">暂无成分信息</div>
+                      <div style="font-size: 12px;">当前化学品成分数据未提供</div>
+                    </div>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第5章 -->
-              <el-collapse-item name="c5" title="第5章：消防措施">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="适用灭火剂">{{ getMsdsValue('chapter5.agent') }}</el-descriptions-item>
-                    <el-descriptions-item label="不适用灭火剂">{{ getMsdsValue('chapter5.noagent') }}</el-descriptions-item>
-                    <el-descriptions-item label="特别危害">{{ getMsdsValue('chapter5.hazard') }}</el-descriptions-item>
-                    <el-descriptions-item label="保护装备">{{ getMsdsValue('chapter5.protect') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第4章 -->
+                <el-collapse-item name="c4" title="第4章：急救措施">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="吸入">{{ getMsdsValue('chapter4.inhale') }}</el-descriptions-item>
+                      <el-descriptions-item label="皮肤接触">{{ getMsdsValue('chapter4.skin') }}</el-descriptions-item>
+                      <el-descriptions-item label="眼睛接触">{{ getMsdsValue('chapter4.eye') }}</el-descriptions-item>
+                      <el-descriptions-item label="摄入">{{ getMsdsValue('chapter4.ingest') }}</el-descriptions-item>
+                      <el-descriptions-item label="重要症状">{{ getMsdsValue('chapter4.symptoms') }}</el-descriptions-item>
+                      <el-descriptions-item label="特殊治疗">{{ getMsdsValue('chapter4.treatment') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第6章 -->
-              <el-collapse-item name="c6" title="第6章：泄漏应急处理">
-                <div class="chapter-content">
-                  <el-descriptions :column="1" border>
-                    <el-descriptions-item label="个人防护">{{ getMsdsValue('chapter6.pp') }}</el-descriptions-item>
-                    <el-descriptions-item label="环境保护措施">{{ getMsdsValue('chapter6.env') }}</el-descriptions-item>
-                    <el-descriptions-item label="清理方法">{{ getMsdsValue('chapter6.clean') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第5章 -->
+                <el-collapse-item name="c5" title="第5章：消防措施">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="适用灭火剂">{{ getMsdsValue('chapter5.agent') }}</el-descriptions-item>
+                      <el-descriptions-item label="不适用灭火剂">{{ getMsdsValue('chapter5.noagent') }}</el-descriptions-item>
+                      <el-descriptions-item label="特别危害">{{ getMsdsValue('chapter5.hazard') }}</el-descriptions-item>
+                      <el-descriptions-item label="保护装备">{{ getMsdsValue('chapter5.protect') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第7章 -->
-              <el-collapse-item name="c7" title="第7章：操作处置与储存">
-                <div class="chapter-content">
-                  <el-descriptions :column="1" border>
-                    <el-descriptions-item label="操作注意">{{ getMsdsValue('chapter7.op') }}</el-descriptions-item>
-                    <el-descriptions-item label="储存条件">{{ getMsdsValue('chapter7.store') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第6章 -->
+                <el-collapse-item name="c6" title="第6章：泄漏应急处理">
+                  <div class="chapter-content">
+                    <el-descriptions :column="1" border>
+                      <el-descriptions-item label="个人防护">{{ getMsdsValue('chapter6.pp') }}</el-descriptions-item>
+                      <el-descriptions-item label="环境保护措施">{{ getMsdsValue('chapter6.env') }}</el-descriptions-item>
+                      <el-descriptions-item label="清理方法">{{ getMsdsValue('chapter6.clean') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第8章 -->
-              <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="接触限值">{{ getMsdsValue('chapter8.ec') }}</el-descriptions-item>
-                    <el-descriptions-item label="个体防护">{{ getMsdsValue('chapter8.ppe') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第7章 -->
+                <el-collapse-item name="c7" title="第7章：操作处置与储存">
+                  <div class="chapter-content">
+                    <el-descriptions :column="1" border>
+                      <el-descriptions-item label="操作注意">{{ getMsdsValue('chapter7.op') }}</el-descriptions-item>
+                      <el-descriptions-item label="储存条件">{{ getMsdsValue('chapter7.store') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第9章 -->
-              <el-collapse-item name="c9" title="第9章：理化特性">
-                <div class="chapter-content">
-                  <el-descriptions :column="3" border>
-                    <el-descriptions-item label="外观与性状">{{ getMsdsValue('chapter9.appearance') }}</el-descriptions-item>
-                    <el-descriptions-item label="pH值">{{ getMsdsValue('chapter9.ph') }}</el-descriptions-item>
-                    <el-descriptions-item label="闪点(℃)">{{ getMsdsValue('chapter9.fp') }}</el-descriptions-item>
-                    <el-descriptions-item label="蒸气压(kPa)">{{ getMsdsValue('chapter9.vp') }}</el-descriptions-item>
-                    <el-descriptions-item label="蒸气密度(空气=1)">{{ getMsdsValue('chapter9.vd') }}</el-descriptions-item>
-                    <el-descriptions-item label="相对密度(水=1)">{{ getMsdsValue('chapter9.d') }}</el-descriptions-item>
-                    <el-descriptions-item label="溶解性">{{ getMsdsValue('chapter9.sol') }}</el-descriptions-item>
-                    <el-descriptions-item label="自燃温度(℃)">{{ getMsdsValue('chapter9.sa') }}</el-descriptions-item>
-                    <el-descriptions-item label="粘度(mPa·s)">{{ getMsdsValue('chapter9.vis') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第8章 -->
+                <el-collapse-item name="c8" title="第8章：接触控制/个体防护">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="接触限值">{{ getMsdsValue('chapter8.ec') }}</el-descriptions-item>
+                      <el-descriptions-item label="个体防护">{{ getMsdsValue('chapter8.ppe') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第10章 -->
-              <el-collapse-item name="c10" title="第10章：稳定性和反应性">
-                <div class="chapter-content">
-                  <el-descriptions :column="1" border>
-                    <el-descriptions-item label="稳定性">{{ getMsdsValue('chapter10.stable') }}</el-descriptions-item>
-                    <el-descriptions-item label="禁配物">{{ getMsdsValue('chapter10.incompat') }}</el-descriptions-item>
-                    <el-descriptions-item label="应避免的条件">{{ getMsdsValue('chapter10.avoid') }}</el-descriptions-item>
-                    <el-descriptions-item label="分解产物">{{ getMsdsValue('chapter10.decompose') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第9章 -->
+                <el-collapse-item name="c9" title="第9章：理化特性">
+                  <div class="chapter-content">
+                    <el-descriptions :column="3" border>
+                      <el-descriptions-item label="外观与性状">{{ getMsdsValue('chapter9.appearance')
+                        }}</el-descriptions-item>
+                      <el-descriptions-item label="pH值">{{ getMsdsValue('chapter9.ph') }}</el-descriptions-item>
+                      <el-descriptions-item label="闪点(℃)">{{ getMsdsValue('chapter9.fp') }}</el-descriptions-item>
+                      <el-descriptions-item label="蒸气压(kPa)">{{ getMsdsValue('chapter9.vp') }}</el-descriptions-item>
+                      <el-descriptions-item label="蒸气密度(空气=1)">{{ getMsdsValue('chapter9.vd') }}</el-descriptions-item>
+                      <el-descriptions-item label="相对密度(水=1)">{{ getMsdsValue('chapter9.d') }}</el-descriptions-item>
+                      <el-descriptions-item label="溶解性">{{ getMsdsValue('chapter9.sol') }}</el-descriptions-item>
+                      <el-descriptions-item label="自燃温度(℃)">{{ getMsdsValue('chapter9.sa') }}</el-descriptions-item>
+                      <el-descriptions-item label="粘度(mPa·s)">{{ getMsdsValue('chapter9.vis') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第11章 -->
-              <el-collapse-item name="c11" title="第11章：毒理学信息">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="侵入途径">{{ getMsdsValue('chapter11.route') }}</el-descriptions-item>
-                    <el-descriptions-item label="急性毒性">{{ getMsdsValue('chapter11.acute') }}</el-descriptions-item>
-                    <el-descriptions-item label="刺激性">{{ getMsdsValue('chapter11.irritation') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第10章 -->
+                <el-collapse-item name="c10" title="第10章：稳定性和反应性">
+                  <div class="chapter-content">
+                    <el-descriptions :column="1" border>
+                      <el-descriptions-item label="稳定性">{{ getMsdsValue('chapter10.stable') }}</el-descriptions-item>
+                      <el-descriptions-item label="禁配物">{{ getMsdsValue('chapter10.incompat') }}</el-descriptions-item>
+                      <el-descriptions-item label="应避免的条件">{{ getMsdsValue('chapter10.avoid') }}</el-descriptions-item>
+                      <el-descriptions-item label="分解产物">{{ getMsdsValue('chapter10.decompose')
+                        }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第12章 -->
-              <el-collapse-item name="c12" title="第12章：生态学信息">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="生态毒性">{{ getMsdsValue('chapter12.eco') }}</el-descriptions-item>
-                    <el-descriptions-item label="持久性">{{ getMsdsValue('chapter12.persistent') }}</el-descriptions-item>
-                    <el-descriptions-item label="生物累积性">{{ getMsdsValue('chapter12.bioacc') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第11章 -->
+                <el-collapse-item name="c11" title="第11章：毒理学信息">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="侵入途径">{{ getMsdsValue('chapter11.route') }}</el-descriptions-item>
+                      <el-descriptions-item label="急性毒性">{{ getMsdsValue('chapter11.acute') }}</el-descriptions-item>
+                      <el-descriptions-item label="刺激性">{{ getMsdsValue('chapter11.irritation')
+                        }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第13章 -->
-              <el-collapse-item name="c13" title="第13章：废弃处置">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="废弃处置方法">{{ getMsdsValue('chapter13.disp') }}</el-descriptions-item>
-                    <el-descriptions-item label="废弃包装处理">{{ getMsdsValue('chapter13.pack') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第12章 -->
+                <el-collapse-item name="c12" title="第12章：生态学信息">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="生态毒性">{{ getMsdsValue('chapter12.eco') }}</el-descriptions-item>
+                      <el-descriptions-item label="持久性">{{ getMsdsValue('chapter12.persistent')
+                        }}</el-descriptions-item>
+                      <el-descriptions-item label="生物累积性">{{ getMsdsValue('chapter12.bioacc') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第14章 -->
-              <el-collapse-item name="c14" title="第14章：运输信息">
-                <div class="chapter-content">
-                  <el-descriptions :column="3" border>
-                    <el-descriptions-item label="UN编号">{{ getMsdsValue('chapter14.un') }}</el-descriptions-item>
-                    <el-descriptions-item label="运输名称">{{ getMsdsValue('chapter14.name') }}</el-descriptions-item>
-                    <el-descriptions-item label="危险性类别">{{ getMsdsValue('chapter14.class') }}</el-descriptions-item>
-                    <el-descriptions-item label="包装类别">{{ getMsdsValue('chapter14.pack') }}</el-descriptions-item>
-                    <el-descriptions-item label="环境危害">{{ getMsdsValue('chapter14.env') }}</el-descriptions-item>
-                    <el-descriptions-item label="特殊预防措施">{{ getMsdsValue('chapter14.sp') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第13章 -->
+                <el-collapse-item name="c13" title="第13章：废弃处置">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="废弃处置方法">{{ getMsdsValue('chapter13.disp') }}</el-descriptions-item>
+                      <el-descriptions-item label="废弃包装处理">{{ getMsdsValue('chapter13.pack') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第15章 -->
-              <el-collapse-item name="c15" title="第15章：法规信息">
-                <div class="chapter-content">
-                  <el-descriptions :column="1" border>
-                    <el-descriptions-item label="法规信息">{{ getMsdsValue('chapter15.laws') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
+                <!-- 第14章 -->
+                <el-collapse-item name="c14" title="第14章：运输信息">
+                  <div class="chapter-content">
+                    <el-descriptions :column="3" border>
+                      <el-descriptions-item label="UN编号">{{ getMsdsValue('chapter14.un') }}</el-descriptions-item>
+                      <el-descriptions-item label="运输名称">{{ getMsdsValue('chapter14.name') }}</el-descriptions-item>
+                      <el-descriptions-item label="危险性类别">{{ getMsdsValue('chapter14.class') }}</el-descriptions-item>
+                      <el-descriptions-item label="包装类别">{{ getMsdsValue('chapter14.pack') }}</el-descriptions-item>
+                      <el-descriptions-item label="环境危害">{{ getMsdsValue('chapter14.env') }}</el-descriptions-item>
+                      <el-descriptions-item label="特殊预防措施">{{ getMsdsValue('chapter14.sp') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
 
-              <!-- 第16章 -->
-              <el-collapse-item name="c16" title="第16章：其他信息">
-                <div class="chapter-content">
-                  <el-descriptions :column="2" border>
-                    <el-descriptions-item label="填表时间">{{ getMsdsValue('chapter16.date') }}</el-descriptions-item>
-                    <el-descriptions-item label="修订版本">{{ getMsdsValue('chapter16.revision') }}</el-descriptions-item>
-                    <el-descriptions-item label="参考文献">{{ getMsdsValue('chapter16.refs') }}</el-descriptions-item>
-                    <el-descriptions-item label="其他信息">{{ getMsdsValue('chapter16.note') }}</el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
+                <!-- 第15章 -->
+                <el-collapse-item name="c15" title="第15章：法规信息">
+                  <div class="chapter-content">
+                    <el-descriptions :column="1" border>
+                      <el-descriptions-item label="法规信息">{{ getMsdsValue('chapter15.laws') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
+
+                <!-- 第16章 -->
+                <el-collapse-item name="c16" title="第16章：其他信息">
+                  <div class="chapter-content">
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="填表时间">{{ getMsdsValue('chapter16.date') }}</el-descriptions-item>
+                      <el-descriptions-item label="修订版本">{{ getMsdsValue('chapter16.revision') }}</el-descriptions-item>
+                      <el-descriptions-item label="参考文献">{{ getMsdsValue('chapter16.refs') }}</el-descriptions-item>
+                      <el-descriptions-item label="其他信息">{{ getMsdsValue('chapter16.note') }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="footer-bar">
-        <el-button @click="goBack">
-          <i class="fas fa-arrow-left"></i> 返回
-        </el-button>
-        <el-button type="primary" @click="editItem">
-          <i class="fas fa-edit"></i> 编辑
-        </el-button>
+        <div class="footer-bar">
+          <el-button @click="goBack">
+            <i class="fas fa-arrow-left"></i> 返回
+          </el-button>
+          <el-button type="primary" @click="editItem">
+            <i class="fas fa-edit"></i> 编辑
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
-<script>
-const { createApp } = Vue;
-const { ElMessage } = ElementPlus;
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
 
-// 获取URL参数
-function getParam(key) {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(key);
-}
+    // 获取URL参数
+    function getParam(key) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(key);
+    }
 
-// 创建空的MSDS数据结构
-const createEmptyMsds = () => ({
-  chapter1:{ product:'', use:'', supplier:'', address:'', phone:'', emergency:'' },
-  chapter2:{ ghs:'', pictograms:'', signalWord:'', h:'', p:'' },
-  chapter3:{ components:[] },
-  chapter4:{ inhale:'', skin:'', eye:'', ingest:'', symptoms:'', treatment:'' },
-  chapter5:{ agent:'', noagent:'', hazard:'', protect:'' },
-  chapter6:{ pp:'', env:'', clean:'' },
-  chapter7:{ op:'', store:'' },
-  chapter8:{ ec:'', ppe:'' },
-  chapter9:{ appearance:'', ph:'', fp:'', vp:'', vd:'', d:'', sol:'', sa:'', vis:'' },
-  chapter10:{ react:'', stable:'', danger:'', avoid:'', incompat:'', decompose:'' },
-  chapter11:{ route:'', acute:'', irritation:'' },
-  chapter12:{ eco:'', persistent:'', bioacc:'' },
-  chapter13:{ disp:'', pack:'' },
-  chapter14:{ un:'', name:'', class:'', pack:'', env:'', sp:'' },
-  chapter15:{ laws:'' },
-  chapter16:{ date:'', revision:'', refs:'', note:'' }
-});
+    // 创建空的MSDS数据结构
+    const createEmptyMsds = () => ({
+      chapter1: { product: '', use: '', supplier: '', address: '', phone: '', emergency: '' },
+      chapter2: { ghs: '', pictograms: '', signalWord: '', h: '', p: '' },
+      chapter3: { components: [] },
+      chapter4: { inhale: '', skin: '', eye: '', ingest: '', symptoms: '', treatment: '' },
+      chapter5: { agent: '', noagent: '', hazard: '', protect: '' },
+      chapter6: { pp: '', env: '', clean: '' },
+      chapter7: { op: '', store: '' },
+      chapter8: { ec: '', ppe: '' },
+      chapter9: { appearance: '', ph: '', fp: '', vp: '', vd: '', d: '', sol: '', sa: '', vis: '' },
+      chapter10: { react: '', stable: '', danger: '', avoid: '', incompat: '', decompose: '' },
+      chapter11: { route: '', acute: '', irritation: '' },
+      chapter12: { eco: '', persistent: '', bioacc: '' },
+      chapter13: { disp: '', pack: '' },
+      chapter14: { un: '', name: '', class: '', pack: '', env: '', sp: '' },
+      chapter15: { laws: '' },
+      chapter16: { date: '', revision: '', refs: '', note: '' }
+    });
 
-createApp({
-  data() {
-    return {
-      loading: false,
-      data: {
-        name: '',
-        englishName: '',
-        alias: '',
-        cas: '',
-        formula: '',
-        hazards: '',
-        flashPoint: '',
-        density: '',
-        mw: '',
-        location: '',
-        stockQty: null,
-        unit: '',
-        stockStatus: '',
-        supplier: '',
-        batchNo: '',
-        prodDate: '',
-        expireDate: '',
-        labelStatus: '',
-        pkgType: '',
-        pkgMaterial: '',
-        pkgQty: null,
-        pkgCapacity: '',
-        isHighlyToxic: '',
-        isExplosive: '',
-        isDrugPrecursor: '',
-        msds: createEmptyMsds(),
-        createTime: '',
-        updateTime: ''
+    createApp({
+      data() {
+        return {
+          loading: false,
+          data: {
+            name: '',
+            englishName: '',
+            alias: '',
+            cas: '',
+            formula: '',
+            hazards: '',
+            flashPoint: '',
+            density: '',
+            mw: '',
+            storageArea: '',
+            unitType: '',
+            stockQty: null,
+            criticalQty: null,
+            unit: '',
+            stockStatus: '',
+            supplier: '',
+            batchNo: '',
+            prodDate: '',
+            expireDate: '',
+            labelStatus: '',
+            pkgType: '',
+            pkgMaterial: '',
+            pkgQty: null,
+            pkgCapacity: '',
+            isHighlyToxic: '',
+            isExplosive: '',
+            isDrugPrecursor: '',
+            msds: createEmptyMsds(),
+            createTime: '',
+            updateTime: ''
+          },
+          activeMsdsPanels: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16']
+        }
       },
-      activeMsdsPanels: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16']
-    }
-  },
-  mounted() {
-    this.loadData();
-  },
-  methods: {
-    // 获取MSDS值的辅助方法
-    getMsdsValue(path) {
-      const keys = path.split('.');
-      let value = this.data.msds;
-      for (const key of keys) {
-        value = value?.[key];
-      }
-      return value || '—';
-    },
-
-    // 获取表格数据
-    getTableData() {
-      const components = this.data.msds?.chapter3?.components || [];
-      console.log('Table data:', components);
-      return components;
-    },
-
-    loadData() {
-      const cas = getParam('cas');
-      console.log('开始加载数据，CAS:', cas);
-
-      if (cas) {
-        this.loading = true;
-
-        // 模拟从后端加载数据
-        setTimeout(() => {
-          try {
-            // 先从sessionStorage获取数据
-            const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
-            let data = 台账List.find(item => item.cas === cas);
-
-            console.log('从sessionStorage找到的数据:', data);
-
-            // 如果没有找到，使用模拟数据
-            if (!data) {
-              console.log('使用模拟数据');
-              data = {
-                name: '乙醇',
-                englishName: 'Ethanol',
-                alias: '酒精',
-                cas: cas,
-                formula: 'C2H6O',
-                hazards: ['易燃液体'],
-                flashPoint: '12.8',
-                density: '0.789',
-                mw: '46.07',
-                location: '危化仓A-01-05',
-                stockQty: 120,
-                unit: 'L',
-                stockStatus: '正常',
-                supplier: 'XX化工有限公司',
-                batchNo: 'B202511-01',
-                prodDate: '2025-10-12',
-                expireDate: '2027-10-12',
-                pkgType: '200L铁桶',
-                pkgMaterial: '不锈钢',
-                pkgQty: 10,
-                pkgCapacity: '200L',
-                isHighlyToxic: '否',
-                isExplosive: '否',
-                isDrugPrecursor: '否',
-                msds: {
-                  chapter1: {
-                    product: '乙醇',
-                    use: '有机溶剂、消毒剂等',
-                    supplier: 'XX化工有限公司',
-                    address: '北京市朝阳区XX街道XX号',
-                    phone: '010-12345678',
-                    emergency: '400-888-9999'
-                  },
-                  chapter2: {
-                    ghs: '易燃液体 类别2',
-                    pictograms: '',
-                    signalWord: 'Warning',
-                    h: '易燃液体和蒸气；吞咽有害；造成眼刺激。',
-                    p: '远离热源/火花/明火/热表面。禁止吸烟。保持容器密闭。使用防爆电器/通风/防静电设备。'
-                  },
-                  chapter3: {
-                    components: [
-                      { name: '乙醇', cas: '64-17-5', concentration: '95' }
-                    ]
-                  },
-                  chapter4: {
-                    inhale: '脱离现场至空气新鲜处。如呼吸困难，给输氧。',
-                    skin: '脱去污染的衣着，用大量流动清水冲洗。',
-                    eye: '立即提起眼睑，用大量流动清水或生理盐水彻底冲洗至少15分钟。',
-                    ingest: '饮水，禁止催吐。',
-                    symptoms: '对中枢神经系统有麻醉作用；对视神经和视网膜有特殊选择作用，引起病变；可致代谢性酸中毒。',
-                    treatment: '立即就医。'
-                  },
-                  chapter5: {
-                    agent: '抗溶性泡沫、干粉、二氧化碳',
-                    noagent: '直流水不宜用于扑救',
-                    hazard: '蒸气比空气重，易在低处聚集',
-                    protect: '消防人员必须佩戴空气呼吸器'
-                  },
-                  chapter6: {
-                    pp: '佩戴防毒面具和防静电工作服',
-                    env: '防止进入下水道、地表水和地下水',
-                    clean: '用抗溶性泡沫覆盖，用砂土吸收'
-                  },
-                  chapter7: {
-                    op: '密闭操作，全面通风。防止蒸气泄漏到工作场所空气中。操作人员必须经过专门培训，严格遵守操作规程。',
-                    store: '储存于阴凉、通风的库房。远离火种、热源。库温不宜超过37℃。保持容器密封。应与氧化剂分开存放，切忌混储。'
-                  },
-                  chapter8: {
-                    ec: '中国MAC(mg/m³)：未制定标准；前苏联MAC(mg/m³)：1000',
-                    ppe: '空气中浓度超标时，必须佩戴自吸过滤式防毒面具（半面罩）。紧急事态抢救或撤离时，应该佩戴空气呼吸器。'
-                  },
-                  chapter9: {
-                    appearance: '无色液体，有酒香',
-                    ph: '中性',
-                    fp: '12.8',
-                    vp: '5.33',
-                    vd: '0.79',
-                    d: '1.59',
-                    sol: '与水混溶，可混溶于醚、氯仿、甘油等多数有机溶剂',
-                    sa: '363',
-                    vis: '1.074(20℃)'
-                  },
-                  chapter10: {
-                    stable: '稳定',
-                    incompat: '强氧化剂、强酸、强碱',
-                    avoid: '避免接触的条件：明火、高热',
-                    decompose: '一氧化碳、二氧化碳'
-                  },
-                  chapter11: {
-                    route: '吸入、食入、经皮吸收',
-                    acute: 'LD50：7060 mg/kg(大鼠经口)；7340 mg/kg(兔经皮)',
-                    irritation: '对眼睛有刺激性'
-                  },
-                  chapter12: {
-                    eco: '该物质对环境可能有危害，对水体应给予特别注意',
-                    persistent: '不易生物降解',
-                    bioacc: '无生物蓄积性'
-                  },
-                  chapter13: {
-                    disp: '用焚烧法处置',
-                    pack: '处置前应参阅国家和地方有关法规'
-                  },
-                  chapter14: {
-                    un: '1170',
-                    name: '乙醇',
-                    class: '3',
-                    pack: 'II',
-                    env: '无危害',
-                    sp: '无特殊要求'
-                  },
-                  chapter15: {
-                    laws: '危险化学品安全管理条例、易制毒化学品管理条例'
-                  },
-                  chapter16: {
-                    date: '2025-11-19',
-                    revision: '第1版',
-                    refs: '参考相关化学品安全技术说明书',
-                    note: '本SDS按GB/T 16483-2008和GB/T 17519-2013编制'
-                  }
-                },
-                createTime: '2025-11-19 10:30:00',
-                updateTime: '2025-11-19 15:45:00'
-              };
-            }
-
-            this.data = { ...data };
-            console.log('加载完成的数据:', this.data);
-            console.log('MSDS数据:', this.data.msds);
-            this.loading = false;
-
-            ElMessage.success('数据加载成功');
-          } catch (error) {
-            console.error('加载数据失败:', error);
-            this.loading = false;
-            ElMessage.error('加载数据失败');
+      mounted() {
+        this.loadData();
+      },
+      methods: {
+        // 获取MSDS值的辅助方法
+        getMsdsValue(path) {
+          const keys = path.split('.');
+          let value = this.data.msds;
+          for (const key of keys) {
+            value = value?.[key];
           }
-        }, 500);
-      } else {
-        ElMessage.error('缺少CAS参数');
+          return value || '—';
+        },
+
+        // 获取表格数据
+        getTableData() {
+          const components = this.data.msds?.chapter3?.components || [];
+          console.log('Table data:', components);
+          return components;
+        },
+
+        loadData() {
+          const cas = getParam('cas');
+          console.log('开始加载数据，CAS:', cas);
+
+          if (cas) {
+            this.loading = true;
+
+            // 模拟从后端加载数据
+            setTimeout(() => {
+              try {
+                // 先从sessionStorage获取数据
+                const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
+                let data = 台账List.find(item => item.cas === cas);
+
+                console.log('从sessionStorage找到的数据:', data);
+
+                // 如果没有找到，使用模拟数据
+                if (!data) {
+                  console.log('使用模拟数据');
+                  data = {
+                    name: '乙醇',
+                    englishName: 'Ethanol',
+                    alias: '酒精',
+                    cas: cas,
+                    formula: 'C2H6O',
+                    hazards: ['易燃液体'],
+                    flashPoint: '12.8',
+                    density: '0.789',
+                    mw: '46.07',
+                    storageArea: 'hazchem-a',
+                    unitType: 'storage',
+                    stockQty: 120,
+                    criticalQty: 200,
+                    unit: 'L',
+                    stockStatus: '正常',
+                    supplier: 'XX化工有限公司',
+                    batchNo: 'B202511-01',
+                    prodDate: '2025-10-12',
+                    expireDate: '2027-10-12',
+                    pkgType: '200L铁桶',
+                    pkgMaterial: '不锈钢',
+                    pkgQty: 10,
+                    pkgCapacity: '200L',
+                    isHighlyToxic: '否',
+                    isExplosive: '否',
+                    isDrugPrecursor: '否',
+                    msds: {
+                      chapter1: {
+                        product: '乙醇',
+                        use: '有机溶剂、消毒剂等',
+                        supplier: 'XX化工有限公司',
+                        address: '北京市朝阳区XX街道XX号',
+                        phone: '010-12345678',
+                        emergency: '400-888-9999'
+                      },
+                      chapter2: {
+                        ghs: '易燃液体 类别2',
+                        pictograms: '',
+                        signalWord: 'Warning',
+                        h: '易燃液体和蒸气；吞咽有害；造成眼刺激。',
+                        p: '远离热源/火花/明火/热表面。禁止吸烟。保持容器密闭。使用防爆电器/通风/防静电设备。'
+                      },
+                      chapter3: {
+                        components: [
+                          { name: '乙醇', cas: '64-17-5', concentration: '95' }
+                        ]
+                      },
+                      chapter4: {
+                        inhale: '脱离现场至空气新鲜处。如呼吸困难，给输氧。',
+                        skin: '脱去污染的衣着，用大量流动清水冲洗。',
+                        eye: '立即提起眼睑，用大量流动清水或生理盐水彻底冲洗至少15分钟。',
+                        ingest: '饮水，禁止催吐。',
+                        symptoms: '对中枢神经系统有麻醉作用；对视神经和视网膜有特殊选择作用，引起病变；可致代谢性酸中毒。',
+                        treatment: '立即就医。'
+                      },
+                      chapter5: {
+                        agent: '抗溶性泡沫、干粉、二氧化碳',
+                        noagent: '直流水不宜用于扑救',
+                        hazard: '蒸气比空气重，易在低处聚集',
+                        protect: '消防人员必须佩戴空气呼吸器'
+                      },
+                      chapter6: {
+                        pp: '佩戴防毒面具和防静电工作服',
+                        env: '防止进入下水道、地表水和地下水',
+                        clean: '用抗溶性泡沫覆盖，用砂土吸收'
+                      },
+                      chapter7: {
+                        op: '密闭操作，全面通风。防止蒸气泄漏到工作场所空气中。操作人员必须经过专门培训，严格遵守操作规程。',
+                        store: '储存于阴凉、通风的库房。远离火种、热源。库温不宜超过37℃。保持容器密封。应与氧化剂分开存放，切忌混储。'
+                      },
+                      chapter8: {
+                        ec: '中国MAC(mg/m³)：未制定标准；前苏联MAC(mg/m³)：1000',
+                        ppe: '空气中浓度超标时，必须佩戴自吸过滤式防毒面具（半面罩）。紧急事态抢救或撤离时，应该佩戴空气呼吸器。'
+                      },
+                      chapter9: {
+                        appearance: '无色液体，有酒香',
+                        ph: '中性',
+                        fp: '12.8',
+                        vp: '5.33',
+                        vd: '0.79',
+                        d: '1.59',
+                        sol: '与水混溶，可混溶于醚、氯仿、甘油等多数有机溶剂',
+                        sa: '363',
+                        vis: '1.074(20℃)'
+                      },
+                      chapter10: {
+                        stable: '稳定',
+                        incompat: '强氧化剂、强酸、强碱',
+                        avoid: '避免接触的条件：明火、高热',
+                        decompose: '一氧化碳、二氧化碳'
+                      },
+                      chapter11: {
+                        route: '吸入、食入、经皮吸收',
+                        acute: 'LD50：7060 mg/kg(大鼠经口)；7340 mg/kg(兔经皮)',
+                        irritation: '对眼睛有刺激性'
+                      },
+                      chapter12: {
+                        eco: '该物质对环境可能有危害，对水体应给予特别注意',
+                        persistent: '不易生物降解',
+                        bioacc: '无生物蓄积性'
+                      },
+                      chapter13: {
+                        disp: '用焚烧法处置',
+                        pack: '处置前应参阅国家和地方有关法规'
+                      },
+                      chapter14: {
+                        un: '1170',
+                        name: '乙醇',
+                        class: '3',
+                        pack: 'II',
+                        env: '无危害',
+                        sp: '无特殊要求'
+                      },
+                      chapter15: {
+                        laws: '危险化学品安全管理条例、易制毒化学品管理条例'
+                      },
+                      chapter16: {
+                        date: '2025-11-19',
+                        revision: '第1版',
+                        refs: '参考相关化学品安全技术说明书',
+                        note: '本SDS按GB/T 16483-2008和GB/T 17519-2013编制'
+                      }
+                    },
+                    createTime: '2025-11-19 10:30:00',
+                    updateTime: '2025-11-19 15:45:00'
+                  };
+                }
+
+                this.data = { ...data };
+                console.log('加载完成的数据:', this.data);
+                console.log('MSDS数据:', this.data.msds);
+                this.loading = false;
+
+                ElMessage.success('数据加载成功');
+              } catch (error) {
+                console.error('加载数据失败:', error);
+                this.loading = false;
+                ElMessage.error('加载数据失败');
+              }
+            }, 500);
+          } else {
+            ElMessage.error('缺少CAS参数');
+          }
+        },
+
+        goBack() {
+          window.location.href = './危险化学品台账.html';
+        },
+
+        editItem() {
+          window.location.href = `./危险化学品台账-编辑.html?cas=${encodeURIComponent(this.data.cas)}`;
+        },
+
+        printLabel() {
+          ElMessage.info('打印功能开发中...');
+        },
+
+        formatHazards(hazards) {
+          if (!hazards) return '—';
+          if (Array.isArray(hazards)) {
+            return hazards.join(', ');
+          }
+          return hazards;
+        },
+
+        getStatusType(status) {
+          const statusMap = {
+            '正常': 'success',
+            '超期': 'warning',
+            '冻结': 'danger',
+            '待检': 'info'
+          };
+          return statusMap[status] || 'info';
+        },
+
+        getLabelStatusType(status) {
+          const statusMap = {
+            '已粘贴': 'success',
+            '未粘贴': 'warning',
+            '破损': 'danger',
+            '缺失': 'danger'
+          };
+          return statusMap[status] || 'info';
+        },
+
+        getPackageSpec(data) {
+          if (data.pkgType && data.pkgMaterial) {
+            return `${data.pkgType}(${data.pkgMaterial})`;
+          }
+          return data.pkgType || data.pkgMaterial || '—';
+        },
+
+        formatDate(dateStr) {
+          if (!dateStr) return '—';
+          try {
+            return new Date(dateStr).toLocaleString('zh-CN');
+          } catch (e) {
+            return dateStr;
+          }
+        },
+
+        formatStorageArea(code) {
+          const areaMap = {
+            'hazchem-a': '危化仓-A区',
+            'hazchem-b': '危化仓-B区',
+            'hazchem-c': '危化仓-C区',
+            'solvent-01': '溶剂仓库-01区',
+            'solvent-02': '溶剂仓库-02区',
+            'material-east': '原料仓库-东区',
+            'material-west': '原料仓库-西区'
+          };
+          return areaMap[code] || code || '—';
+        }
       }
-    },
-
-    goBack() {
-      window.location.href = './危险化学品台账.html';
-    },
-
-    editItem() {
-      window.location.href = `./危险化学品台账-编辑.html?cas=${encodeURIComponent(this.data.cas)}`;
-    },
-
-    printLabel() {
-      ElMessage.info('打印功能开发中...');
-    },
-
-    formatHazards(hazards) {
-      if (!hazards) return '—';
-      if (Array.isArray(hazards)) {
-        return hazards.join(', ');
-      }
-      return hazards;
-    },
-
-    getStatusType(status) {
-      const statusMap = {
-        '正常': 'success',
-        '超期': 'warning',
-        '冻结': 'danger',
-        '待检': 'info'
-      };
-      return statusMap[status] || 'info';
-    },
-
-    getLabelStatusType(status) {
-      const statusMap = {
-        '已粘贴': 'success',
-        '未粘贴': 'warning',
-        '破损': 'danger',
-        '缺失': 'danger'
-      };
-      return statusMap[status] || 'info';
-    },
-
-    getPackageSpec(data) {
-      if (data.pkgType && data.pkgMaterial) {
-        return `${data.pkgType}(${data.pkgMaterial})`;
-      }
-      return data.pkgType || data.pkgMaterial || '—';
-    },
-
-    formatDate(dateStr) {
-      if (!dateStr) return '—';
-      try {
-        return new Date(dateStr).toLocaleString('zh-CN');
-      } catch (e) {
-        return dateStr;
-      }
-    }
-  }
-}).use(ElementPlus).mount('#app');
-</script>
+    }).use(ElementPlus).mount('#app');
+  </script>
 </body>
+
 </html>

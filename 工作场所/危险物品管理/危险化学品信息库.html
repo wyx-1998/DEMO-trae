@@ -95,6 +95,7 @@
                     <el-table-column prop="cas" label="CAS号" width="140" sortable="custom"></el-table-column>
                     <el-table-column prop="hazards" label="危险性分类" min-width="200" sortable="custom"></el-table-column>
                     <el-table-column prop="formula" label="分子式" min-width="140" sortable="custom"></el-table-column>
+                    <el-table-column prop="criticalQty" label="临界量" width="120" sortable="custom"></el-table-column>
                     <el-table-column prop="signalWord" label="信号词" width="120" sortable="custom"></el-table-column>
                     <el-table-column label="操作" width="180" fixed="right">
                         <template #default="scope">
@@ -356,8 +357,8 @@ createApp({
     },
     exportData() {
       // export filtered to CSV
-      const headers = ['分子式','化学品名称','别名','英文名','CAS号','危险性分类','信号词'];
-      const rows = this.filteredData.map(d=>[d.formula||'',d.name,d.alias||'',d.englishName||'',d.cas||'',d.hazards||'',d.signalWord||'']);
+      const headers = ['分子式','化学品名称','别名','英文名','CAS号','危险性分类','临界量','信号词'];
+      const rows = this.filteredData.map(d=>[d.formula||'',d.name,d.alias||'',d.englishName||'',d.cas||'',d.hazards||'',d.criticalQty||'',d.signalWord||'']);
       const csv = [headers.join(','), ...rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'\"')}"`).join(','))].join('\n');
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);

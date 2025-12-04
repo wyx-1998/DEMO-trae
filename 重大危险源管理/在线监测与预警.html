@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重大危险源管理 - 在线监测与预警</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .app-container {
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .page-header {
+      background: #fff;
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .search-area {
+      background: #fff;
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: end;
+    }
+
+    .search-form .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .search-form .el-form-item .el-input,
+    .search-form .el-form-item .el-select {
+      width: 100%;
+    }
+
+    .search-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .stat-icon.normal {
+      background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+    }
+
+    .stat-icon.warning {
+      background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
+    }
+
+    .stat-icon.alarm {
+      background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+    }
+
+    .stat-icon.total {
+      background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+    }
+
+    .stat-info {
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #909399;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .content-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #409EFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: #409EFF;
+    }
+
+    .monitoring-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .monitoring-card {
+      background: #f5f7fa;
+      border-radius: 8px;
+      padding: 16px;
+      border-left: 4px solid #409EFF;
+      transition: all 0.3s;
+    }
+
+    .monitoring-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .monitoring-card.normal {
+      border-left-color: #67c23a;
+    }
+
+    .monitoring-card.warning {
+      border-left-color: #e6a23c;
+    }
+
+    .monitoring-card.alarm {
+      border-left-color: #f56c6c;
+    }
+
+    .monitoring-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .monitoring-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .monitoring-status {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .monitoring-status.normal {
+      background-color: #67c23a;
+      color: #fff;
+    }
+
+    .monitoring-status.warning {
+      background-color: #e6a23c;
+      color: #fff;
+    }
+
+    .monitoring-status.alarm {
+      background-color: #f56c6c;
+      color: #fff;
+    }
+
+    .monitoring-info {
+      margin-bottom: 12px;
+    }
+
+    .monitoring-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .monitoring-label {
+      color: #909399;
+    }
+
+    .monitoring-value {
+      color: #303133;
+      font-weight: 500;
+    }
+
+    .monitoring-value.exceed {
+      color: #f56c6c;
+      font-weight: 600;
+    }
+
+    .monitoring-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e4e7ed;
+    }
+
+    .alarm-time {
+      font-size: 12px;
+      color: #909399;
+    }
+
+    .monitoring-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .timeline-section {
+      margin-top: 24px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      background: #f5f7fa;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border-left: 4px solid #409EFF;
+    }
+
+    .timeline-item.warning {
+      border-left-color: #e6a23c;
+    }
+
+    .timeline-item.alarm {
+      border-left-color: #f56c6c;
+    }
+
+    .timeline-time {
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
+      min-width: 160px;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+
+    .timeline-detail {
+      font-size: 12px;
+      color: #606266;
+    }
+
+    .table-view {
+      margin-top: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="page-title">
+        <i class="fas fa-chart-line"></i>
+        在线监测与预警
+      </div>
+      <div>
+        <el-button type="primary" @click="exportData">
+          <i class="fas fa-file-export"></i> 导出报表
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 搜索筛选区 -->
+    <div class="search-area">
+      <el-form :model="searchForm" label-position="left" class="search-form">
+        <el-form-item label="指标名称">
+          <el-select v-model="searchForm.indicator" placeholder="请选择指标" clearable style="width: 100%">
+            <el-option label="压力" value="pressure" />
+            <el-option label="液位" value="level" />
+            <el-option label="温度" value="temperature" />
+            <el-option label="流量" value="flow" />
+            <el-option label="气体浓度" value="concentration" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="告警状态">
+          <el-select v-model="searchForm.alarmStatus" placeholder="请选择状态" clearable style="width: 100%">
+            <el-option label="正常" value="normal" />
+            <el-option label="预警" value="warning" />
+            <el-option label="告警" value="alarm" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="企业/单元">
+          <el-input v-model="searchForm.unit" placeholder="请输入企业/单元" clearable />
+        </el-form-item>
+        <el-form-item label="重大危险源编号">
+          <el-input v-model="searchForm.code" placeholder="请输入编号" clearable />
+        </el-form-item>
+      </el-form>
+      <div class="search-buttons">
+        <el-button type="primary" @click="search">
+          <i class="fas fa-search"></i> 查询
+        </el-button>
+        <el-button @click="reset">
+          <i class="fas fa-redo"></i> 重置
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">监测点总数</div>
+          <div class="stat-value">{{ stats.total }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon normal">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">正常</div>
+          <div class="stat-value">{{ stats.normal }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon warning">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">预警</div>
+          <div class="stat-value">{{ stats.warning }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon alarm">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">告警</div>
+          <div class="stat-value">{{ stats.alarm }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 监测指标展示 -->
+    <div class="content-card">
+      <div class="card-title">
+        <i class="fas fa-list"></i>
+        监测指标列表
+      </div>
+      <div class="monitoring-grid">
+        <div v-for="(item, index) in filteredMonitoringData" :key="index"
+          :class="['monitoring-card', item.alarmStatus]">
+          <div class="monitoring-header">
+            <div class="monitoring-name">{{ item.indicatorName }}</div>
+            <span :class="['monitoring-status', item.alarmStatus]">
+              {{ getAlarmStatusLabel(item.alarmStatus) }}
+            </span>
+          </div>
+          <div class="monitoring-info">
+            <div class="monitoring-item">
+              <span class="monitoring-label">重大危险源编号：</span>
+              <span class="monitoring-value">{{ item.code }}</span>
+            </div>
+            <div class="monitoring-item">
+              <span class="monitoring-label">阈值：</span>
+              <span class="monitoring-value">{{ item.threshold }} {{ item.unit }}</span>
+            </div>
+            <div class="monitoring-item">
+              <span class="monitoring-label">当前值：</span>
+              <span :class="['monitoring-value', item.currentValue > item.threshold ? 'exceed' : '']">
+                {{ item.currentValue }} {{ item.unit }}
+              </span>
+            </div>
+            <div class="monitoring-item">
+              <span class="monitoring-label">数据源：</span>
+              <span class="monitoring-value">{{ item.dataSource }}</span>
+            </div>
+          </div>
+          <div class="monitoring-footer">
+            <div class="alarm-time" v-if="item.lastAlarmTime">
+              <i class="fas fa-clock"></i> 最近告警：{{ item.lastAlarmTime }}
+            </div>
+            <div class="monitoring-actions">
+              <el-button size="small" text type="primary" @click="viewTrend(item)">
+                <i class="fas fa-chart-line"></i> 趋势
+              </el-button>
+              <el-button size="small" text type="primary" @click="viewRecord(item)" v-if="item.alarmStatus !== 'normal'">
+                <i class="fas fa-file-alt"></i> 记录
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 告警时间线 -->
+    <div class="content-card" v-if="alarmTimeline.length > 0">
+      <div class="card-title">
+        <i class="fas fa-history"></i>
+        告警时间线
+      </div>
+      <div class="timeline-section">
+        <div v-for="(item, index) in alarmTimeline" :key="index"
+          :class="['timeline-item', item.status]">
+          <div class="timeline-time">{{ item.time }}</div>
+          <div class="timeline-content">
+            <div class="timeline-title">{{ item.title }}</div>
+            <div class="timeline-detail">
+              {{ item.detail }} | 重大危险源编号：{{ item.code }} | 指标：{{ item.indicator }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表格视图 -->
+    <div class="content-card table-view">
+      <el-table :data="filteredMonitoringData" style="width:100%" stripe border>
+        <el-table-column prop="code" label="重大危险源编号" width="160"></el-table-column>
+        <el-table-column prop="indicatorName" label="指标名称" width="120"></el-table-column>
+        <el-table-column prop="threshold" label="阈值" width="120">
+          <template #default="{ row }">
+            {{ row.threshold }} {{ row.unit }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="currentValue" label="当前值" width="120">
+          <template #default="{ row }">
+            <span :style="{ color: row.currentValue > row.threshold ? '#f56c6c' : '#303133', fontWeight: row.currentValue > row.threshold ? '600' : 'normal' }">
+              {{ row.currentValue }} {{ row.unit }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="alarmStatus" label="告警状态" width="100">
+          <template #default="{ row }">
+            <span :class="['monitoring-status', row.alarmStatus]">
+              {{ getAlarmStatusLabel(row.alarmStatus) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lastAlarmTime" label="最近告警时间" width="180"></el-table-column>
+        <el-table-column prop="dataSource" label="数据源标识" min-width="160"></el-table-column>
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="scope">
+            <el-button size="small" type="primary" text @click="viewTrend(scope.row)">
+              <i class="fas fa-chart-line"></i> 趋势
+            </el-button>
+            <el-button size="small" type="primary" text @click="viewRecord(scope.row)">
+              <i class="fas fa-file-alt"></i> 记录
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    createApp({
+      data() {
+        return {
+          searchForm: {
+            indicator: '',
+            alarmStatus: '',
+            unit: '',
+            code: ''
+          },
+          monitoringData: [
+            {
+              code: 'WH-2024-001',
+              indicatorName: '压力',
+              threshold: 0.8,
+              unit: 'MPa',
+              currentValue: 0.75,
+              alarmStatus: 'normal',
+              lastAlarmTime: '',
+              dataSource: '压力传感器-001'
+            },
+            {
+              code: 'WH-2024-001',
+              indicatorName: '液位',
+              threshold: 80,
+              unit: '%',
+              currentValue: 85,
+              alarmStatus: 'warning',
+              lastAlarmTime: '2024-03-15 14:30:00',
+              dataSource: '液位计-002'
+            },
+            {
+              code: 'WH-2024-002',
+              indicatorName: '温度',
+              threshold: 60,
+              unit: '℃',
+              currentValue: 65,
+              alarmStatus: 'alarm',
+              lastAlarmTime: '2024-03-15 15:20:00',
+              dataSource: '温度传感器-003'
+            },
+            {
+              code: 'WH-2024-002',
+              indicatorName: '气体浓度',
+              threshold: 50,
+              unit: 'ppm',
+              currentValue: 45,
+              alarmStatus: 'normal',
+              lastAlarmTime: '',
+              dataSource: '气体传感器-004'
+            }
+          ],
+          alarmTimeline: [
+            {
+              time: '2024-03-15 15:20:00',
+              title: '温度告警',
+              detail: '当前值65℃超过阈值60℃',
+              code: 'WH-2024-002',
+              indicator: '温度',
+              status: 'alarm'
+            },
+            {
+              time: '2024-03-15 14:30:00',
+              title: '液位预警',
+              detail: '当前值85%接近阈值80%',
+              code: 'WH-2024-001',
+              indicator: '液位',
+              status: 'warning'
+            }
+          ]
+        }
+      },
+      computed: {
+        filteredMonitoringData() {
+          let data = this.monitoringData.filter(d => {
+            const indicatorOk = !this.searchForm.indicator || 
+              (this.searchForm.indicator === 'pressure' && d.indicatorName === '压力') ||
+              (this.searchForm.indicator === 'level' && d.indicatorName === '液位') ||
+              (this.searchForm.indicator === 'temperature' && d.indicatorName === '温度') ||
+              (this.searchForm.indicator === 'flow' && d.indicatorName === '流量') ||
+              (this.searchForm.indicator === 'concentration' && d.indicatorName === '气体浓度');
+            const statusOk = !this.searchForm.alarmStatus || d.alarmStatus === this.searchForm.alarmStatus;
+            const unitOk = !this.searchForm.unit || d.code.includes(this.searchForm.unit);
+            const codeOk = !this.searchForm.code || d.code.includes(this.searchForm.code);
+            return indicatorOk && statusOk && unitOk && codeOk;
+          });
+          return data;
+        },
+        stats() {
+          const total = this.filteredMonitoringData.length;
+          const normal = this.filteredMonitoringData.filter(d => d.alarmStatus === 'normal').length;
+          const warning = this.filteredMonitoringData.filter(d => d.alarmStatus === 'warning').length;
+          const alarm = this.filteredMonitoringData.filter(d => d.alarmStatus === 'alarm').length;
+          return { total, normal, warning, alarm };
+        }
+      },
+      methods: {
+        search() {
+          ElMessage.success('查询完成');
+        },
+        reset() {
+          this.searchForm = {
+            indicator: '',
+            alarmStatus: '',
+            unit: '',
+            code: ''
+          };
+        },
+        exportData() {
+          ElMessage.success('导出功能开发中');
+        },
+        viewTrend(item) {
+          ElMessage.info(`查看${item.indicatorName}趋势图`);
+        },
+        viewRecord(item) {
+          ElMessage.info(`查看${item.indicatorName}处置记录`);
+        },
+        getAlarmStatusLabel(status) {
+          const map = {
+            'normal': '正常',
+            'warning': '预警',
+            'alarm': '告警'
+          };
+          return map[status] || status;
+        }
+      }
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+
+</html>
+
+

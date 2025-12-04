@@ -1,0 +1,3841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大坝安全管理</title>
+
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Element Plus JS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #3366CC;
+            --primary-light: #e6f7ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #303133;
+            --text-secondary: #606266;
+            --text-tertiary: #909399;
+            --bg-light: #f5f7fa;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+            --border-light: #f0f0f0;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            --radius-large: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            padding-bottom: 80px; /* 为固定的按钮条留出空间 */
+        }
+
+        /* 顶部导航栏 - 固定定位 */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 24px;
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #66b3ff 100%);
+            color: white;
+        }
+
+        .nav-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-title i {
+            font-size: 24px;
+        }
+
+        .nav-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: var(--radius-small);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-content {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 大坝切换器 - 单行横向滚动设计 */
+        .dam-switcher {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .switcher-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .dam-tabs {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            padding: 8px 0;
+            flex: 1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dam-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .dam-tabs::-webkit-scrollbar-track {
+            background: var(--bg-light);
+            border-radius: 3px;
+        }
+
+        .dam-tabs::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .dam-tabs::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        .dam-tab {
+            padding: 8px 16px;
+            border-radius: var(--radius-small);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+        }
+
+        .dam-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(51, 102, 204, 0.2);
+        }
+
+        .dam-tab:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        /* 大坝卡片样式 - 图片名称左右排列 */
+        .dam-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-white);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: fit-content;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: var(--shadow-light);
+            height: 60px;
+        }
+
+        .dam-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-1px);
+        }
+
+        .dam-card.active {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(51, 102, 204, 0.3);
+        }
+
+        .dam-card.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 0 0 3px;
+        }
+
+        .dam-card-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--bg-light);
+            color: var(--primary-color);
+            border-radius: 50%;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .dam-card.active .dam-card-image {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .dam-card-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            line-height: 1.4;
+        }
+
+        .dam-card.active .dam-card-name {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* 核心指标区域 */
+        .core-metrics {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: nowrap;
+            margin-left: 24px;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-light);
+            border-radius: var(--radius-small);
+            font-size: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .metric-icon {
+            font-size: 14px;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .metric-label {
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        /* 主内容区域 - 调整为上下布局 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 新增内容区域容器 */
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* 左侧内容区域 */
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 大坝图片区域样式优化 */
+        .overview-card .section-header {
+            margin-bottom: 16px;
+        }
+
+        .overview-card .section-content {
+            padding: 0;
+        }
+
+        #overviewTitle {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-medium);
+            background: var(--bg-light);
+            transition: all 0.3s ease;
+        }
+
+        #overviewTitle:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        /* 左侧表单区域 */
+        .form-section {
+            background: var(--bg-white);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .section-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            color: var(--text-secondary);
+            border-radius: var(--radius-small);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .section-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .section-btn.primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .section-btn.primary:hover {
+            background: #2952a3;
+        }
+
+        /* 表单内容区域 */
+        .section-content {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: var(--danger-color);
+            margin-right: 2px;
+        }
+
+        .form-control {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-small);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--bg-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-input:disabled {
+            background: var(--bg-light);
+            color: var(--text-tertiary);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233366CC' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .form-select:hover {
+            border-color: var(--primary-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232952a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(51, 102, 204, 0.1);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233366CC' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        .form-select:disabled {
+            background-color: var(--bg-light);
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23c0c4cc' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* 大坝图片上传 - 概览区域 */
+        .overview-image-upload {
+            position: relative;
+            width: 80px;
+            height: 60px;
+            margin-right: 12px;
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-medium);
+            background: var(--bg-light);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 大图片上传区域样式 */
+        .overview-image-upload.large-upload {
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            max-height: 300px;
+            margin: 0;
+            border: 3px dashed var(--border-light);
+            border-radius: var(--radius-large);
+            background: var(--bg-white);
+        }
+
+        .overview-image-upload.large-upload:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .overview-image-upload:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(51, 102, 204, 0.15);
+        }
+
+        .overview-image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-small);
+        }
+
+        .overview-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: var(--text-tertiary);
+            font-size: 20px;
+        }
+
+        .overview-image-upload input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .overview-image-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--danger-color);
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .overview-image-upload.has-image .overview-image-remove {
+            display: flex;
+        }
+
+        .overview-image-remove:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* 大图片上传区域的删除按钮 */
+        .overview-image-upload.large-upload .overview-image-remove {
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+        }
+
+        /* 台账记录表格样式 - 参考标准样式 */
+        .records-table-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .records-table-header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .records-table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr 1fr 1.5fr 1fr 0.8fr;
+            gap: 0;
+            align-items: center;
+        }
+
+        .records-table-row.inspection-columns {
+            grid-template-columns: 1fr 1.2fr 1.5fr 1fr 0.8fr;
+        }
+
+        .records-table-cell {
+            padding: 16px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-right: 1px solid var(--border-light);
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .records-table-header .records-table-cell {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+        }
+
+        .records-table-cell:last-child {
+            border-right: none;
+            text-align: center;
+            padding: 12px 8px;
+            overflow: visible;
+        }
+
+        .records-table-body .records-table-row {
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.2s ease;
+        }
+
+        .records-table-body .records-table-row:hover {
+            background: var(--primary-light);
+        }
+
+        .records-table-body .records-table-row:last-child {
+            border-bottom: none;
+        }
+
+        .records-table-cell .file-attachment {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .records-table-cell .file-attachment:hover {
+            color: #2952a3;
+        }
+
+        .records-table-cell .file-attachment i {
+            font-size: 16px;
+        }
+
+        /* 操作按钮容器样式 - 确保按钮不被割掉 */
+        .record-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            padding: 0 4px;
+            margin: 0 -2px;
+        }
+
+        /* 操作按钮基础样式 */
+        .record-action-btn {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            padding: 0 4px;
+            margin: 0 -2px;
+        }
+
+        .record-action-btn {
+            padding: 6px 8px;
+            border: none;
+            border-radius: var(--radius-small);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            min-width: auto;
+            width: auto;
+            white-space: nowrap;
+            overflow: visible;
+        }
+
+        .record-action-btn.edit {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .record-action-btn.edit:hover {
+            background: #2952a3;
+        }
+
+        .record-action-btn.delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .record-action-btn.delete:hover {
+            background: #d63031;
+        }
+
+        .no-records-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .no-records-message i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-records-message p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* 新增记录表单样式 */
+        .record-form-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .record-form-content {
+            background: white;
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-medium);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .record-form-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .record-form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .record-form-body {
+            padding: 24px;
+        }
+
+        .record-form-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单网格样式 */
+        .record-form-body .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* 优化表单组布局 - 左右分布 */
+        .record-form-body .form-group {
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .record-form-body .form-group.full-width {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .record-form-body .form-group.full-width .form-label {
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        .record-form-body .form-label {
+            margin-bottom: 0;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 14px;
+            min-width: 100px;
+            max-width: 120px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .record-form-body .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* 台账记录管理区域样式 */
+        .records-tabs-container {
+            background: var(--bg-white);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .records-tabs-header {
+            display: flex;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .records-tab {
+            flex: 1;
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .records-tab:hover {
+            color: var(--primary-color);
+            background: rgba(51, 102, 204, 0.05);
+        }
+
+        .records-tab.active {
+            color: var(--primary-color);
+            background: white;
+        }
+
+        .records-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        .records-tab i {
+            font-size: 16px;
+        }
+
+        .records-tab-content {
+            padding: 24px;
+        }
+
+        .records-tab-panel {
+            display: none;
+        }
+
+        .records-tab-panel.active {
+            display: block;
+        }
+
+        /* 台账记录表格样式优化 */
+        .records-table-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .records-table-header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .records-table-row {
+            display: grid;
+            gap: 0;
+            align-items: center;
+        }
+
+        /* 注册备案表格列宽 - 防止换行 */
+        .records-table-row.registration-columns {
+            grid-template-columns: 120px 100px 120px 100px 150px 80px 120px;
+        }
+
+        /* 定期检查表格列宽 - 防止换行 */
+        .records-table-row.inspection-columns {
+            grid-template-columns: 100px 130px 200px 80px 120px;
+        }
+
+        .records-table-cell {
+            padding: 12px 10px;
+            font-size: 13px;
+            color: var(--text-primary);
+            border-right: 1px solid var(--border-light);
+            text-align: left;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .records-table-header .records-table-cell {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            font-size: 12px;
+        }
+
+        .records-table-cell:last-child {
+            border-right: none;
+            text-align: center;
+            padding: 12px 8px;
+            overflow: visible;
+        }
+
+        .records-table-body .records-table-row {
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.2s ease;
+        }
+
+        .records-table-body .records-table-row:hover {
+            background: var(--primary-light);
+        }
+
+        .records-table-body .records-table-row:last-child {
+            border-bottom: none;
+        }
+
+        .records-table-cell .file-attachment {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .records-table-cell .file-attachment:hover {
+            color: #2952a3;
+        }
+
+        .records-table-cell .file-attachment i {
+            font-size: 14px;
+        }
+
+        /* 操作按钮样式 - 防止换行 */
+        /* 操作按钮容器样式 - 确保按钮不被割掉 */
+        .record-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            padding: 0 4px;
+            margin: 0 -2px;
+        }
+
+        /* 操作按钮基础样式 */
+        .record-action-btn {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            align-items: center;
+            white-space: nowrap;
+            padding: 0 2px;
+            margin: 0 -1px;
+        }
+
+        .record-action-btn {
+            padding: 4px 6px;
+            border: none;
+            border-radius: var(--radius-small);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+            min-width: auto;
+            overflow: visible;
+        }
+
+        .record-action-btn.edit {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .record-action-btn.edit:hover {
+            background: #2952a3;
+        }
+
+        .record-action-btn.delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .record-action-btn.delete:hover {
+            background: #d63031;
+        }
+
+        /* 无记录消息样式 */
+        .no-records-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .no-records-message i {
+            font-size: 36px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .no-records-message p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 文件上传提示 */
+        .file-upload-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        /* 优化文件上传样式 */
+        .file-upload-container {
+            position: relative;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-medium);
+            padding: 20px;
+            text-align: center;
+            background: var(--bg-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-container:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .file-upload-container.dragover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            transform: scale(1.02);
+        }
+
+        .file-upload-icon {
+            font-size: 32px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .file-upload-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .file-upload-format {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .file-input-hidden {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        /* 已选择的文件列表 */
+        .selected-files {
+            margin-top: 12px;
+            text-align: left;
+        }
+
+        .selected-file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-small);
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .selected-file-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .selected-file-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 8px;
+        }
+
+        .selected-file-remove {
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 4px;
+            border-radius: var(--radius-small);
+            transition: background 0.2s ease;
+        }
+
+        .selected-file-remove:hover {
+            background: rgba(255, 77, 79, 0.1);
+        }
+
+        /* 增强下拉框样式 */
+        .form-select {
+            position: relative;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-small);
+            padding: 12px 40px 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-select:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px rgba(51, 102, 204, 0.1);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(51, 102, 204, 0.15);
+            outline: none;
+        }
+
+        .form-select option {
+            padding: 8px 12px;
+            background: white;
+            color: var(--text-primary);
+        }
+
+        .form-select option:hover {
+            background: var(--primary-light);
+        }
+
+        .form-select option:checked {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 自定义下拉箭头动画 */
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233366CC' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+        }
+
+        .form-select:hover {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232952a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        .form-select:focus {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233366CC' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        /* 记录表单中的下拉框特殊样式 */
+        .record-form-body .form-select {
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .record-form-body .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        /* 下拉框悬停效果 */
+        .form-select option {
+            padding: 10px 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .form-select option:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        /* 禁用状态下的下拉框 */
+        .form-select:disabled {
+            background-color: var(--bg-light);
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+            border-color: var(--border-light);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23c0c4cc' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        /* 下拉框动画效果 */
+        .form-select {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-select:active {
+            transform: scale(0.98);
+        }
+
+        /* 模态框中的下拉框增强样式 */
+        .record-form-body .form-select {
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .record-form-body .form-select:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px rgba(51, 102, 204, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .record-form-body .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 必填字段标识 */
+        .form-label.required::after {
+            content: ' *';
+            color: var(--danger-color);
+            font-weight: normal;
+        }
+
+        /* 下拉框占位符样式 */
+        .form-select option[value=""] {
+            color: var(--text-tertiary);
+            font-style: italic;
+        }
+
+        /* 响应式下拉框 */
+        @media (max-width: 768px) {
+            .form-select {
+                padding: 10px 36px 10px 12px;
+                background-size: 14px;
+                background-position: right 10px center;
+            }
+
+            .record-form-body .form-select {
+                font-size: 16px; /* 防止iOS缩放 */
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            /* 页签响应式样式 */
+            .records-tabs-header {
+                flex-direction: column;
+            }
+
+            .records-tab {
+                padding: 12px 16px;
+                font-size: 13px;
+                border-bottom: 1px solid var(--border-light);
+            }
+
+            .records-tab:last-child {
+                border-bottom: none;
+            }
+
+            .records-tab.active::after {
+                height: 3px;
+                bottom: 0;
+            }
+
+            /* 台账表格响应式样式 */
+            .records-table-row.registration-columns,
+            .records-table-row.inspection-columns {
+                grid-template-columns: 1fr !important;
+                gap: 8px;
+            }
+
+            .records-table-cell {
+                padding: 8px 12px;
+                font-size: 12px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-light);
+                white-space: normal;
+                text-align: left;
+            }
+
+            .records-table-header {
+                display: none;
+            }
+
+            .records-table-body .records-table-row {
+                display: block;
+                padding: 12px;
+                margin-bottom: 8px;
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-medium);
+                background: white;
+            }
+
+            .records-table-cell::before {
+                content: attr(data-label);
+                display: block;
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-bottom: 2px;
+                font-size: 11px;
+            }
+
+            /* 操作按钮响应式样式 */
+            /* 操作按钮容器样式 - 确保按钮不被割掉 */
+        .record-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            padding: 0 4px;
+            margin: 0 -2px;
+        }
+
+        /* 操作按钮基础样式 */
+        .record-action-btn {
+                justify-content: flex-end;
+                margin-top: 8px;
+                padding: 0;
+                margin: 0;
+            }
+
+            .record-action-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            /* 文件附件响应式样式 */
+            .records-table-cell .file-attachment {
+                justify-content: flex-start;
+            }
+
+            /* 减少内边距 */
+            .records-tab-content {
+                padding: 16px;
+            }
+
+            /* 模态框响应式样式 */
+            .record-form-content {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            /* 弹窗字段响应式布局 */
+            .record-form-body .form-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .record-form-body .form-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .record-form-body .form-label {
+                min-width: auto;
+                max-width: none;
+                text-align: left;
+                margin-bottom: 4px;
+            }
+
+            /* 修复按钮被割掉的问题 */
+            .records-table-cell:last-child .record-actions {
+                position: relative;
+                z-index: 1;
+            }
+
+            .records-table-cell:last-child {
+                overflow: visible !important;
+                position: relative;
+                z-index: 1;
+            }
+
+            .record-action-btn {
+                position: relative;
+                z-index: 2;
+            }
+
+            /* 文件上传区域响应式样式 */
+            .record-form-body .form-group.full-width .file-upload-container {
+                margin-top: 8px;
+            }
+
+            .record-form-body {
+                padding: 16px;
+            }
+
+            .record-form-body .form-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .record-form-footer {
+                padding: 12px 16px;
+            }
+
+            /* 页签标题响应式样式 */
+            .records-tab-panel h4 {
+                font-size: 14px;
+            }
+
+            .section-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .overview-image-upload {
+                width: 60px;
+                height: 45px;
+            }
+
+            .overview-image-upload.large-upload {
+                max-width: 100%;
+                max-height: 200px;
+            }
+
+            .overview-image-upload.large-upload .overview-image-placeholder i {
+                font-size: 32px !important;
+            }
+
+            .overview-image-upload.large-upload .overview-image-placeholder span {
+                font-size: 12px !important;
+            }
+        }
+
+        /* 查看模式样式 */
+        .view-mode .form-input,
+        .view-mode .form-select,
+        .view-mode .form-textarea {
+            display: none;
+        }
+
+        .view-mode .view-content {
+            display: block !important;
+            padding: 10px 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-small);
+            font-size: 14px;
+            color: var(--text-primary);
+            min-height: 20px;
+            line-height: 1.5;
+        }
+
+        .view-content {
+            display: none;
+        }
+
+        /* 右侧概览区域 */
+        .overview-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: sticky;
+            top: 24px;
+            height: fit-content;
+            min-height: 400px; /* 确保最小高度 */
+        }
+
+        .overview-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+
+        .overview-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #66b3ff 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .overview-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .overview-status {
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .overview-content {
+            padding: 20px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .overview-item {
+            text-align: center;
+        }
+
+        .overview-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .overview-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .overview-extra {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 12px;
+            text-align: center;
+            background: var(--bg-light);
+            border-radius: var(--radius-small);
+        }
+
+        .stat-icon {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-safe {
+            background: rgba(82, 196, 26, 0.1);
+            color: #389e0d;
+            border: 1px solid rgba(82, 196, 26, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(250, 173, 20, 0.1);
+            color: #d48806;
+            border: 1px solid rgba(250, 173, 20, 0.3);
+        }
+
+        .status-danger {
+            background: rgba(255, 77, 79, 0.1);
+            color: #cf1322;
+            border: 1px solid rgba(255, 77, 79, 0.3);
+        }
+
+        /* 底部操作栏 */
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-white);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 999;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-small);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .action-btn-secondary {
+            background: var(--bg-white);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .action-btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .action-btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+        }
+
+        .action-btn-danger {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+            color: white;
+        }
+
+        .action-btn-danger:hover {
+            background: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .action-btn-danger {
+            margin-left: auto;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .dam-card {
+                min-width: fit-content;
+                padding: 10px 14px;
+                height: 56px;
+                gap: 10px;
+            }
+
+            .dam-card-image {
+                width: 32px;
+                height: 32px;
+                font-size: 15px;
+            }
+
+            .dam-card-name {
+                font-size: 13px;
+                max-width: 100px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .dam-switcher {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .dam-tabs {
+                width: 100%;
+            }
+
+            .dam-card {
+                padding: 8px 12px;
+                height: 52px;
+                gap: 8px;
+            }
+
+            .dam-card-image {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .dam-card-name {
+                font-size: 12px;
+                max-width: 80px;
+            }
+
+            .core-metrics {
+                justify-content: center;
+                flex-wrap: nowrap;
+                margin-left: 16px;
+            }
+
+            .metric-item {
+                padding: 6px 10px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .metric-icon {
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+
+            .metric-value,
+            .metric-label {
+                white-space: nowrap;
+            }
+
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .dam-switcher {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .dam-tabs {
+                width: 100%;
+            }
+
+            .dam-card {
+                padding: 6px 10px;
+                height: 48px;
+                gap: 6px;
+            }
+
+            .dam-card-image {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+
+            .dam-card-name {
+                font-size: 11px;
+                max-width: 60px;
+            }
+
+            .core-metrics {
+                justify-content: center;
+                flex-wrap: nowrap;
+                margin-left: 0;
+                margin-top: 12px;
+            }
+
+            .metric-item {
+                padding: 6px 10px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .metric-icon {
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+
+            .metric-value,
+            .metric-label {
+                white-space: nowrap;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-section {
+                order: -1;
+            }
+
+            .container {
+                padding: 16px;
+                padding-bottom: 80px;
+            }
+
+            .bottom-actions {
+                padding: 12px 16px;
+            }
+
+            .action-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .action-btn-danger {
+                margin-left: 8px;
+            }
+        }
+
+        /* 图片上传脉冲动画 */
+        @keyframes uploadPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border-color);
+        }
+
+        .empty-state-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-desc {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        /* 加载状态 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 隐藏元素 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 只读模式 */
+        .readonly-mode .form-input,
+        .readonly-mode .form-select,
+        .readonly-mode .form-textarea {
+            background: var(--bg-light);
+            border-color: var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .readonly-mode .section-actions {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="top-nav">
+            <div class="nav-header">
+                <div class="nav-title">
+                    <i class="fas fa-water"></i>
+                    <div>
+                        <div>大坝安全管理</div>
+                        <div class="nav-subtitle">多坝模式 · 简洁高效</div>
+                    </div>
+                </div>
+                <div class="nav-actions">
+                    <button class="nav-btn" onclick="testScenarios()">
+                        <i class="fas fa-flask"></i>
+                        测试场景
+                    </button>
+                    <button class="nav-btn" onclick="printPage()">
+                        <i class="fas fa-print"></i>
+                        打印
+                    </button>
+                    <button class="nav-btn" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        导出
+                    </button>
+                </div>
+            </div>
+            <div class="nav-content">
+                <div class="dam-switcher">
+                    <div class="switcher-label">当前大坝：</div>
+                    <div class="dam-tabs" id="damTabs">
+                        <!-- 大坝标签将在这里动态生成 -->
+                    </div>
+                    <button class="section-btn" onclick="addNewDam()">
+                        <i class="fas fa-plus"></i>
+                        新增
+                    </button>
+                </div>
+                <div class="core-metrics" id="coreMetrics">
+                    <!-- 核心指标将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content" id="mainContent">
+            <!-- 内容包装器：左侧内容和右侧栏 -->
+            <div class="content-wrapper">
+                <!-- 左侧内容区域 -->
+                <div class="left-content">
+                    <!-- 基本信息区域 -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                大坝基本信息
+                            </div>
+                            <div class="section-actions">
+                                <button class="section-btn" onclick="toggleViewMode()" id="viewModeBtn">
+                                    <i class="fas fa-eye"></i>
+                                    查看
+                                </button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid" id="basicInfoGrid">
+                                <!-- 基本信息表单将在这里动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 台账记录区域 - 移动到基本信息下方 -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <i class="fas fa-file-alt"></i>
+                                台账记录管理
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="records-tabs-container">
+                                <div class="records-tabs-header">
+                                    <button class="records-tab active" onclick="switchRecordsTab('registration')">
+                                        <i class="fas fa-file-contract"></i>
+                                        注册备案记录
+                                    </button>
+                                    <button class="records-tab" onclick="switchRecordsTab('inspection')">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        定期检查记录
+                                    </button>
+                                </div>
+
+                                <div class="records-tab-content">
+                                    <!-- 注册备案记录页签 -->
+                                    <div class="records-tab-panel active" id="registrationTabPanel">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                            <h4 style="margin: 0; font-size: 16px; color: var(--text-primary);">注册备案概况</h4>
+                                            <button class="section-btn" onclick="toggleRegistrationRecords()">
+                                                <i class="fas fa-plus"></i>
+                                                新增记录
+                                            </button>
+                                        </div>
+                                        <div class="records-table-container" id="registrationRecordsContainer">
+                                            <div class="records-table-header">
+                                                <div class="records-table-row registration-columns">
+                                                    <div class="records-table-cell">注册类型</div>
+                                                    <div class="records-table-cell">注册等级</div>
+                                                    <div class="records-table-cell">注册时间</div>
+                                                    <div class="records-table-cell">目前情况</div>
+                                                    <div class="records-table-cell">注册证号</div>
+                                                    <div class="records-table-cell">附件</div>
+                                                    <div class="records-table-cell">操作</div>
+                                                </div>
+                                            </div>
+                                            <div class="records-table-body" id="registrationRecordsBody">
+                                                <!-- 注册备案记录将在这里动态生成 -->
+                                            </div>
+                                        </div>
+                                        <div class="no-records-message" id="noRegistrationRecords" style="display: none;">
+                                            <i class="fas fa-inbox"></i>
+                                            <p>暂无注册备案记录</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- 定期检查记录页签 -->
+                                    <div class="records-tab-panel" id="inspectionTabPanel">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                            <h4 style="margin: 0; font-size: 16px; color: var(--text-primary);">定期检查记录</h4>
+                                            <button class="section-btn" onclick="toggleInspectionRecords()">
+                                                <i class="fas fa-plus"></i>
+                                                新增记录
+                                            </button>
+                                        </div>
+                                        <div class="records-table-container" id="inspectionRecordsContainer">
+                                            <div class="records-table-header">
+                                                <div class="records-table-row inspection-columns">
+                                                    <div class="records-table-cell">定检次数</div>
+                                                    <div class="records-table-cell">审查结束时间</div>
+                                                    <div class="records-table-cell">定检结论</div>
+                                                    <div class="records-table-cell">附件</div>
+                                                    <div class="records-table-cell">操作</div>
+                                                </div>
+                                            </div>
+                                            <div class="records-table-body" id="inspectionRecordsBody">
+                                                <!-- 定期检查记录将在这里动态生成 -->
+                                            </div>
+                                        </div>
+                                        <div class="no-records-message" id="noInspectionRecords" style="display: none;">
+                                            <i class="fas fa-inbox"></i>
+                                            <p>暂无定期检查记录</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧概览区域 - 包含图片 -->
+                <div class="overview-section">
+                    <!-- 大坝图片展示区域 -->
+                    <div class="overview-card" style="padding: 20px;">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <i class="fas fa-image"></i>
+                                大坝图片
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div id="overviewTitle" style="display: flex; justify-content: center; align-items: center; min-height: 250px;">
+                                <!-- 图片上传区域将在这里动态生成 -->
+                            </div>
+                        </div>
+                        <div id="overviewStatus" style="display: none;">
+                            <!-- 状态元素保留但隐藏 -->
+                        </div>
+                        <div id="overviewGrid" style="display: none;">
+                            <!-- 概览网格保留但隐藏 -->
+                        </div>
+                        <div id="overviewExtra" style="display: none;">
+                            <!-- 额外信息保留但隐藏 -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 底部操作栏 -->
+        <div class="bottom-actions">
+            <button class="action-btn action-btn-secondary" onclick="cancelEdit()">
+                <i class="fas fa-times"></i>
+                取消
+            </button>
+            <button class="action-btn action-btn-secondary" onclick="saveDraft()">
+                <i class="fas fa-save"></i>
+                保存草稿
+            </button>
+            <button class="action-btn action-btn-primary" onclick="saveData()">
+                <i class="fas fa-check"></i>
+                提交保存
+            </button>
+            <button class="action-btn action-btn-danger" onclick="deleteDam()">
+                <i class="fas fa-trash"></i>
+                删除大坝
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let dams = [];
+        let currentDamId = null;
+        let nextDamId = 1;
+        let isViewMode = false;
+
+        // 大坝数据模板
+        const damTemplate = {
+            id: null,
+            name: '',
+            code: '',
+            unit: '',
+            location: '',
+            coordinates: '',
+            damType: '',
+            projectGrade: '',
+            damHeight: 0,
+            capacity: 0,
+            installedCapacity: 0,
+            province: '',
+            buildDate: '',
+            completionDate: '',
+            impoundmentDate: '',
+            manager: '',
+            phone: '',
+            operatingUnit: '',
+            damImage: '',
+            safetyLevel: '安全',
+            completionRate: 0,
+            lastInspectionDate: '',
+            nextInspectionDate: '',
+            registrationNumber: '',
+            registrationDate: '',
+            expiryDate: '',
+            status: '在册',
+            monitoringStatus: '正常',
+            dataIntegrity: 0,
+            emergencyScore: 0,
+            emergencyType: '综合预案',
+            teamSize: 0,
+            lastDrillDate: '',
+            drillType: '',
+            drillScore: 0,
+            createdAt: '',
+            updatedAt: ''
+        };
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+            setupEventListeners();
+            checkUrlParams();
+            setupDragAndDrop();
+            setupFileUploadHandlers();
+        });
+
+        // 初始化数据
+        function initializeData() {
+            // 模拟数据 - 支持1-5个大坝，测试不同场景
+            dams = [
+                {
+                    ...damTemplate,
+                    id: 1,
+                    name: '大朝山',
+                    code: 'DB001',
+                    unit: '国投云南大朝山水电有限公司',
+                    province: '云南省',
+                    operatingUnit: '国投云南大朝山水电有限公司',
+                    location: 'XX省XX市XX县',
+                    coordinates: '116.4074, 39.9042',
+                    damType: '重力坝',
+                    projectGrade: '大(1)型',
+                    damHeight: 85,
+                    capacity: 1200,
+                    installedCapacity: 1350,
+                    buildDate: '2010-06-15',
+                    completionDate: '2010-06-30',
+                    impoundmentDate: '2010-07-15',
+                    manager: '李四',
+                    phone: '13800138000',
+                    damImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZDFlN2ZmIi8+CjxwYXRoIGQ9Ik0wIDEwMEgyMDBWMTUwSDBWMTAwWiIgZmlsbD0iIzMzNjZDQyIvPgo8cGF0aCBkPSJNNDAgMTAwSDE2MFY4MEg0MFYxMDBaIiBmaWxsPSIjMjk1MmEzIi8+CjxwYXRoIGQ9Ik02MCA4MEgxNDBWNjBINjBWODBaIiBmaWxsPSIjMDA2NmNjIi8+CjxwYXRoIGQ9Ik0xMjAgNjBIMTMwVjQwSDEyMFY2MFoiIGZpbGw9IiM2NjY2NjYiLz4KPHBhdGggZD0iTTcwIDkwSDExMFY3MEg3MFY5MFoiIGZpbGw9IiNGRkQ3MDAiLz4KPHJlY3QgeD0iMTAiIHk9IjExMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjNjY2Ii8+CjxyZWN0IHg9IjE2MCIgeT0iMTEwIiB3aWR0aD0iMzAiIGhlaWdodD0iNDAiIGZpbGw9IiM2NjYiLz4KPHBhdGggZD0iTTUwIDEyMEgxNTBWMTMwSDUwVjEyMFoiIGZpbGw9IiM5OTkiLz4KPHBhdGggZD0iTTgwIDEzMEgxMzBWMTQwSDgwVjEzMFoiIGZpbGw9IiNjY2MiLz4KPHRleHQgeD0iMTAwIiB5PSIxMzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMzMzMiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+5ZuJ6ZmQ5Zu+5qCHPC90ZXh0Pgo8L3N2Zz4=',
+                    completionRate: 92,
+                    lastInspectionDate: '2024-01-15',
+                    nextInspectionDate: '2025-01-15',
+                    registrationNumber: 'DBR2024001',
+                    registrationDate: '2020-03-15',
+                    expiryDate: '2030-03-15',
+                    monitoringStatus: '正常',
+                    dataIntegrity: 92,
+                    emergencyScore: 86,
+                    emergencyType: '综合预案',
+                    teamSize: 25,
+                    lastDrillDate: '2023-11-15',
+                    drillType: '综合演练',
+                    drillScore: 88,
+                    createdAt: '2024-01-01',
+                    updatedAt: '2024-01-15'
+                },
+                {
+                    ...damTemplate,
+                    id: 2,
+                    name: '小湾',
+                    code: 'DB002',
+                    unit: '华能澜沧江水电股份有限公司',
+                    province: '云南省',
+                    operatingUnit: '华能澜沧江水电股份有限公司',
+                    location: 'XX省YY市ZZ县',
+                    coordinates: '117.1234, 38.5678',
+                    damType: '重力坝',
+                    projectGrade: '大(2)型',
+                    damHeight: 65,
+                    capacity: 800,
+                    installedCapacity: 4200,
+                    buildDate: '2015-08-20',
+                    completionDate: '2015-12-31',
+                    impoundmentDate: '2016-01-15',
+                    manager: '王五',
+                    phone: '13900139000',
+                    safetyLevel: '基本安全',
+                    completionRate: 85,
+                    lastInspectionDate: '2024-02-10',
+                    nextInspectionDate: '2025-02-10',
+                    registrationNumber: 'DBR2024002',
+                    registrationDate: '2021-01-10',
+                    expiryDate: '2031-01-10',
+                    monitoringStatus: '正常',
+                    dataIntegrity: 85,
+                    emergencyScore: 78,
+                    emergencyType: '专项预案',
+                    teamSize: 18,
+                    lastDrillDate: '2023-09-20',
+                    drillType: '专项演练',
+                    drillScore: 82,
+                    createdAt: '2024-01-01',
+                    updatedAt: '2024-02-10'
+                }
+            ];
+
+            nextDamId = Math.max(...dams.map(d => d.id)) + 1;
+
+            // 为每个大坝添加备案记录和定期检查记录模拟数据
+            dams.forEach(dam => {
+                dam.registrationRecords = generateRegistrationRecords();
+                dam.inspectionRecords = generateInspectionRecords();
+            });
+
+            // 渲染界面
+            renderDamTabs();
+            selectDam(dams[0].id);
+        }
+
+        // 渲染大坝标签
+        function renderDamTabs() {
+            const tabsContainer = document.getElementById('damTabs');
+
+            // 大坝卡片设计 - 图片和名称左右排列
+            tabsContainer.innerHTML = dams.map(dam => `
+                <div class="dam-card ${dam.id === currentDamId ? 'active' : ''}" onclick="selectDam(${dam.id})" style="cursor: pointer;">
+                    <div class="dam-card-image">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <div class="dam-card-name">${dam.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // 选择大坝
+        function selectDam(damId) {
+            currentDamId = damId;
+            const dam = dams.find(d => d.id === damId);
+
+            if (dam) {
+                // 更新标签状态
+                renderDamTabs();
+
+                // 更新核心指标
+                updateCoreMetrics(dam);
+
+                // 更新概览信息
+                updateOverview(dam);
+
+                // 更新表单数据
+                updateFormData(dam);
+
+                // 统计信息功能已移除
+                // updateStats(dam);
+
+                // 更新注册备案记录
+                renderRegistrationRecords();
+
+                // 更新定期检查记录
+                renderInspectionRecords();
+
+                // 显示主内容区域
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+        }
+
+        // 更新核心指标
+        function updateCoreMetrics(dam) {
+            const metricsContainer = document.getElementById('coreMetrics');
+
+            metricsContainer.innerHTML = `
+                <div class="metric-item">
+                    <i class="metric-icon fas fa-chart-line"></i>
+                    <span class="metric-value">${dam.completionRate}%</span>
+                    <span class="metric-label">完备度</span>
+                </div>
+                <div class="metric-item">
+                    <i class="metric-icon fas fa-calendar-check"></i>
+                    <span class="metric-value">${dam.lastInspectionDate}</span>
+                </div>
+            `;
+        }
+
+        // 更新概览信息 - 仅保留图片上传和显示
+        function updateOverview(dam) {
+            // 仅显示图片上传区域 - 大图片区域
+            document.getElementById('overviewTitle').innerHTML = `
+                <div class="overview-image-upload large-upload ${dam.damImage ? 'has-image' : ''}" onclick="document.getElementById('overviewImageInput').click()">
+                    <div class="overview-image-placeholder" style="display: ${!dam.damImage ? 'flex' : 'none'}; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <i class="fas fa-image" style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 10px;"></i>
+                        <span style="color: var(--text-tertiary); font-size: 14px;">点击上传大坝图片</span>
+                    </div>
+                    <img src="${dam.damImage || ''}" class="overview-image-preview" style="display: ${dam.damImage ? 'block' : 'none'}; width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius-medium);" alt="大坝图片">
+                    <input type="file" id="overviewImageInput" accept="image/*" onchange="handleOverviewImageUpload(this)" style="display: none;">
+                    <button type="button" class="overview-image-remove" onclick="removeOverviewImage(event)" style="display: ${dam.damImage ? 'flex' : 'none'};" title="删除图片">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            // 清空状态元素
+            document.getElementById('overviewStatus').innerHTML = '';
+            document.getElementById('overviewStatus').className = 'overview-status';
+
+            // 清空概览网格
+            document.getElementById('overviewGrid').innerHTML = '';
+
+            // 清空额外信息
+            document.getElementById('overviewExtra').innerHTML = '';
+        }
+
+        // 处理概览图片上传
+        function handleOverviewImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                // 文件大小检查 (5MB限制)
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('图片大小不能超过5MB', 'error');
+                    return;
+                }
+
+                // 文件类型检查
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    showMessage('请上传 JPG、PNG 或 GIF 格式的图片', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dam = dams.find(d => d.id === currentDamId);
+                    if (dam) {
+                        dam.damImage = e.target.result;
+                        updateOverview(dam);
+                        showMessage('大坝图片上传成功', 'success');
+                    }
+                };
+                reader.onerror = function() {
+                    showMessage('图片上传失败，请重试', 'error');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 删除概览图片
+        function removeOverviewImage(event) {
+            event.stopPropagation();
+
+            if (confirm('确定要删除这张大坝图片吗？')) {
+                const dam = dams.find(d => d.id === currentDamId);
+                if (dam) {
+                    dam.damImage = '';
+                    updateOverview(dam);
+                    showMessage('大坝图片已删除', 'success');
+                }
+            }
+        }
+
+        // 更新表单数据
+        function updateFormData(dam) {
+            const formGrid = document.getElementById('basicInfoGrid');
+
+            formGrid.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label required">大坝名称</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.name}" placeholder="请输入大坝名称">
+                        <div class="view-content">${dam.name}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">大坝编号</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.code}" placeholder="请输入大坝编号">
+                        <div class="view-content">${dam.code}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">省份</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.province}" placeholder="请输入省份">
+                        <div class="view-content">${dam.province}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">所属单位</label>
+                    <div class="form-control">
+                        <select class="form-input form-select">
+                            <option value="">请选择所属单位</option>
+                            <option value="unit1" ${dam.unit === 'XX水电公司' ? 'selected' : ''}>XX水电公司</option>
+                            <option value="unit2" ${dam.unit === 'YY水电集团' ? 'selected' : ''}>YY水电集团</option>
+                            <option value="unit3" ${dam.unit === 'ZZ电力' ? 'selected' : ''}>ZZ电力</option>
+                        </select>
+                        <div class="view-content">${dam.unit}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">运行单位</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.operatingUnit}" placeholder="请输入运行单位">
+                        <div class="view-content">${dam.operatingUnit}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">坝型</label>
+                    <div class="form-control">
+                        <select class="form-input form-select">
+                            <option value="">请选择坝型</option>
+                            <option value="earth" ${dam.damType === '土石坝' ? 'selected' : ''}>土石坝</option>
+                            <option value="gravity" ${dam.damType === '重力坝' ? 'selected' : ''}>重力坝</option>
+                            <option value="arch" ${dam.damType === '拱坝' ? 'selected' : ''}>拱坝</option>
+                            <option value="panel" ${dam.damType === '面板堆石坝' ? 'selected' : ''}>面板堆石坝</option>
+                        </select>
+                        <div class="view-content">${dam.damType}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">工程等别</label>
+                    <div class="form-control">
+                        <select class="form-input form-select">
+                            <option value="">请选择工程等别</option>
+                            <option value="large1" ${dam.projectGrade === '大(1)型' ? 'selected' : ''}>大(1)型</option>
+                            <option value="large2" ${dam.projectGrade === '大(2)型' ? 'selected' : ''}>大(2)型</option>
+                            <option value="medium" ${dam.projectGrade === '中型' ? 'selected' : ''}>中型</option>
+                        </select>
+                        <div class="view-content">${dam.projectGrade}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">坝高(m)</label>
+                    <div class="form-control">
+                        <input type="number" class="form-input" value="${dam.damHeight}" placeholder="请输入坝高">
+                        <div class="view-content">${dam.damHeight}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">库容(万m³)</label>
+                    <div class="form-control">
+                        <input type="number" class="form-input" value="${dam.capacity}" placeholder="请输入库容">
+                        <div class="view-content">${dam.capacity}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">装机(MW)</label>
+                    <div class="form-control">
+                        <input type="number" class="form-input" value="${dam.installedCapacity}" placeholder="请输入装机容量">
+                        <div class="view-content">${dam.installedCapacity}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">建成时间</label>
+                    <div class="form-control">
+                        <input type="date" class="form-input" value="${dam.buildDate}">
+                        <div class="view-content">${dam.buildDate}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">竣工时间</label>
+                    <div class="form-control">
+                        <input type="date" class="form-input" value="${dam.completionDate}">
+                        <div class="view-content">${dam.completionDate}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">蓄水时间</label>
+                    <div class="form-control">
+                        <input type="date" class="form-input" value="${dam.impoundmentDate}">
+                        <div class="view-content">${dam.impoundmentDate}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">管理责任人</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.manager}" placeholder="请输入管理责任人">
+                        <div class="view-content">${dam.manager}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系方式</label>
+                    <div class="form-control">
+                        <input type="tel" class="form-input" value="${dam.phone}" placeholder="请输入联系方式">
+                        <div class="view-content">${dam.phone}</div>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">地理位置</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.location}" placeholder="请输入地理位置">
+                        <div class="view-content">${dam.location}</div>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">坐标信息</label>
+                    <div class="form-control">
+                        <input type="text" class="form-input" value="${dam.coordinates}" placeholder="经度, 纬度">
+                        <div class="view-content">${dam.coordinates}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 统计功能已移除 - 原updateStats函数不再使用
+        function updateStats(dam) {
+            // 此函数已废弃，统计卡片已删除
+            // 保留函数结构以便后续需要时重新启用
+        }
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            const statusMap = {
+                '安全': 'safe',
+                '基本安全': 'warning',
+                '存在问题': 'problem',
+                '危情': 'danger'
+            };
+            return statusMap[status] || 'safe';
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveData();
+                }
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    printPage();
+                }
+            });
+
+            // 表单变化监听
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('form-input')) {
+                    // 实时更新查看模式内容
+                    const viewElement = e.target.parentElement.querySelector('.view-content');
+                    if (viewElement) {
+                        viewElement.textContent = e.target.value;
+                    }
+                }
+            });
+
+            // 大坝卡片横向滚动支持
+            const damTabsContainer = document.getElementById('damTabs');
+            if (damTabsContainer) {
+                // 鼠标滚轮横向滚动
+                damTabsContainer.addEventListener('wheel', function(e) {
+                    if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                        e.preventDefault();
+                        this.scrollLeft += e.deltaY;
+                    }
+                });
+
+                // 触摸滑动支持
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                damTabsContainer.addEventListener('mousedown', function(e) {
+                    isDown = true;
+                    startX = e.pageX - this.offsetLeft;
+                    scrollLeft = this.scrollLeft;
+                    this.style.cursor = 'grabbing';
+                });
+
+                damTabsContainer.addEventListener('mouseleave', function() {
+                    isDown = false;
+                    this.style.cursor = 'grab';
+                });
+
+                damTabsContainer.addEventListener('mouseup', function() {
+                    isDown = false;
+                    this.style.cursor = 'grab';
+                });
+
+                damTabsContainer.addEventListener('mousemove', function(e) {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - this.offsetLeft;
+                    const walk = (x - startX) * 2; // 滑动速度
+                    this.scrollLeft = scrollLeft - walk;
+                });
+
+                // 设置初始光标
+                damTabsContainer.style.cursor = 'grab';
+            }
+        }
+
+        // 检查URL参数
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const damId = urlParams.get('damId');
+            const action = urlParams.get('action');
+
+            if (damId) {
+                const dam = dams.find(d => d.id == damId);
+                if (dam) {
+                    selectDam(dam.id);
+                }
+            }
+
+            if (action === 'view') {
+                setViewMode(true);
+            }
+        }
+
+        // 切换查看模式
+        function toggleViewMode() {
+            setViewMode(!isViewMode);
+        }
+
+        function setViewMode(viewMode) {
+            isViewMode = viewMode;
+            const container = document.getElementById('mainContent');
+            const btn = document.getElementById('viewModeBtn');
+
+            if (viewMode) {
+                container.classList.add('view-mode');
+                btn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+            } else {
+                container.classList.remove('view-mode');
+                btn.innerHTML = '<i class="fas fa-eye"></i> 查看';
+            }
+        }
+
+        // 添加新大坝
+        function addNewDam() {
+            const name = prompt('请输入新大坝名称：');
+            if (name && name.trim()) {
+                const newDam = {
+                    ...damTemplate,
+                    id: nextDamId++,
+                    name: name.trim(),
+                    code: `DB${String(nextDamId - 1).padStart(3, '0')}`,
+                    lastChangeDate: new Date().toISOString().split('T')[0],
+                    changeReason: '新建大坝',
+                    createdAt: new Date().toISOString().split('T')[0],
+                    updatedAt: new Date().toISOString().split('T')[0]
+                };
+
+                dams.push(newDam);
+                renderDamTabs();
+                selectDam(newDam.id);
+
+                // 显示成功提示
+                showMessage('新大坝添加成功，请完善相关信息', 'success');
+            }
+        }
+
+        // 测试不同场景
+        function testScenarios() {
+            const scenarios = [
+                { name: '单个大坝', count: 1 },
+                { name: '两个大坝', count: 2 },
+                { name: '三个大坝', count: 3 },
+                { name: '五个大坝', count: 5 },
+                { name: '八个大坝', count: 8 }
+            ];
+
+            let scenarioHtml = scenarios.map((scenario, index) => `
+                <div style="margin: 10px 0;">
+                    <button class="section-btn" onclick="loadTestScenario(${index})" style="margin-right: 10px;">
+                        加载场景 ${index + 1}
+                    </button>
+                    <span>${scenario.name} - ${scenario.count}个</span>
+                </div>
+            `).join('');
+
+            // 创建测试对话框
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 400px; width: 90%;">
+                        <h3 style="margin-bottom: 20px; color: #303133;">测试场景选择</h3>
+                        <div style="margin-bottom: 20px;">
+                            ${scenarioHtml}
+                        </div>
+                        <div style="text-align: right;">
+                            <button class="section-btn" onclick="this.parentElement.parentElement.parentElement.remove()">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // 文件上传处理函数
+        function setupFileUploadHandlers() {
+            // 为文件输入添加change事件监听
+            const registrationInput = document.getElementById('registrationAttachments');
+            const inspectionInput = document.getElementById('inspectionAttachments');
+
+            if (registrationInput) {
+                registrationInput.addEventListener('change', function() {
+                    handleFileSelect(this, 'registration');
+                });
+            }
+
+            if (inspectionInput) {
+                inspectionInput.addEventListener('change', function() {
+                    handleFileSelect(this, 'inspection');
+                });
+            }
+        }
+
+        // 文件选择处理函数
+        function handleFileSelect(input, type) {
+            const files = Array.from(input.files);
+            const containerId = type === 'registration' ? 'registrationSelectedFiles' : 'inspectionSelectedFiles';
+            const container = document.getElementById(containerId);
+
+            container.innerHTML = '';
+
+            if (files.length > 0) {
+                const filesList = document.createElement('div');
+                files.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'selected-file-item';
+                    fileItem.innerHTML = `
+                        <span class="selected-file-name">${file.name}</span>
+                        <span class="selected-file-remove" onclick="removeSelectedFile('${containerId}', ${index})" title="移除文件">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    `;
+                    filesList.appendChild(fileItem);
+                });
+                container.appendChild(filesList);
+            }
+        }
+
+        // 移除选中的文件
+        function removeSelectedFile(containerId, index) {
+            const container = document.getElementById(containerId);
+            const input = container.parentElement.querySelector('input[type="file"]');
+            const files = Array.from(input.files);
+
+            files.splice(index, 1);
+
+            // 创建新的FileList
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+
+            // 重新渲染文件列表
+            handleFileSelect(input, containerId.includes('registration') ? 'registration' : 'inspection');
+        }
+
+        // 拖拽上传功能
+        function setupDragAndDrop() {
+            const uploadContainers = document.querySelectorAll('.file-upload-container');
+
+            uploadContainers.forEach(container => {
+                container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    container.classList.add('dragover');
+                });
+
+                container.addEventListener('dragleave', () => {
+                    container.classList.remove('dragover');
+                });
+
+                container.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    container.classList.remove('dragover');
+
+                    const files = Array.from(e.dataTransfer.files);
+                    const input = container.querySelector('input[type="file"]');
+
+                    // 合并文件
+                    const existingFiles = Array.from(input.files);
+                    const newFiles = [...existingFiles, ...files];
+
+                    const dataTransfer = new DataTransfer();
+                    newFiles.forEach(file => dataTransfer.items.add(file));
+                    input.files = dataTransfer.files;
+
+                    // 触发change事件
+                    input.dispatchEvent(new Event('change'));
+                });
+            });
+        }
+
+        // 生成备案记录模拟数据
+        function generateRegistrationRecords() {
+            const registrationTypes = ['安全注册', '备案登记', '变更注册', '延续注册'];
+            const registrationGrades = ['甲级', '乙级', '丙级'];
+            const statuses = ['有效', '即将到期', '已过期', '已注销'];
+
+            const records = [];
+            const recordCount = Math.floor(Math.random() * 4) + 2; // 2-5条记录
+
+            for (let i = 0; i < recordCount; i++) {
+                const year = 2020 + Math.floor(Math.random() * 4); // 2020-2023年
+                const month = Math.floor(Math.random() * 12) + 1;
+                const day = Math.floor(Math.random() * 28) + 1;
+
+                records.push({
+                    id: Date.now() + i,
+                    type: registrationTypes[Math.floor(Math.random() * registrationTypes.length)],
+                    grade: registrationGrades[Math.floor(Math.random() * registrationGrades.length)],
+                    date: `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`,
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    number: `DBR${year}${Math.floor(Math.random() * 9000) + 1000}`,
+                    attachments: []
+                });
+            }
+
+            return records.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // 生成定期检查记录模拟数据
+        function generateInspectionRecords() {
+            const inspectionNumbers = ['第一次', '第二次', '第三次', '第四次', '第五次', '第六次'];
+            const conclusions = ['正常坝（A级）', '病坝（B级）', '险坝（C级）', '需要进一步检查'];
+
+            const records = [];
+            const recordCount = Math.floor(Math.random() * 5) + 3; // 3-7条记录
+
+            for (let i = 0; i < recordCount; i++) {
+                const year = 2021 + Math.floor(Math.random() * 3); // 2021-2023年
+                const month = Math.floor(Math.random() * 12) + 1;
+                const day = Math.floor(Math.random() * 28) + 1;
+
+                records.push({
+                    id: Date.now() + i,
+                    number: inspectionNumbers[i % inspectionNumbers.length],
+                    endDate: `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`,
+                    conclusion: conclusions[Math.floor(Math.random() * conclusions.length)],
+                    attachments: []
+                });
+            }
+
+            return records.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+        }
+
+        // 加载测试场景
+        function loadTestScenario(scenarioIndex) {
+            const scenarios = [
+                { name: '单个大坝', count: 1 },
+                { name: '两个大坝', count: 2 },
+                { name: '三个大坝', count: 3 },
+                { name: '五个大坝', count: 5 },
+                { name: '八个大坝', count: 8 }
+            ];
+
+            const scenario = scenarios[scenarioIndex];
+            if (!scenario) return;
+
+            // 清除现有数据
+            dams = [];
+
+            // 生成测试数据
+            for (let i = 0; i < scenario.count; i++) {
+                const damNames = ['大朝山', '小湾', '漫湾', '糯扎渡', '景洪', '金安桥', '龙开口', '鲁地拉', '观音岩', '乌东德', '白鹤滩', '溪洛渡'];
+                const damTypes = ['土石坝', '重力坝', '拱坝', '面板堆石坝'];
+                const units = ['国投云南大朝山水电有限公司', '华能澜沧江水电股份有限公司', '三峡金沙江云川水电开发有限公司', '雅砻江流域水电开发有限公司'];
+                const provinces = ['云南省', '四川省', '贵州省', '广西省', '广东省', '湖南省', '湖北省', '江西省', '福建省', '浙江省', '江苏省', '安徽省'];
+                const operatingUnits = ['国投云南大朝山水电有限公司', '华能澜沧江水电股份有限公司', '三峡金沙江云川水电开发有限公司', '雅砻江流域水电开发有限公司', '国电大渡河流域水电开发有限公司', '华电金沙江上游水电开发有限公司', '大唐观音岩水电开发有限公司', '中电投黄河上游水电开发有限责任公司'];
+                const safetyLevels = ['安全', '基本安全', '存在问题'];
+
+                const newDam = {
+                    ...damTemplate,
+                    id: i + 1,
+                    name: damNames[i] || `测试坝${i + 1}`,
+                    code: `DB${String(i + 1).padStart(3, '0')}`,
+                    unit: units[i % units.length],
+                    province: provinces[i % provinces.length],
+                    operatingUnit: operatingUnits[i % operatingUnits.length],
+                    location: `${provinces[i % provinces.length]}${String.fromCharCode(65 + (i % 26))}市${String.fromCharCode(97 + (i % 26))}县`,
+                    coordinates: `${116 + i * 0.1}, ${39 + i * 0.1}`,
+                    damType: damTypes[i % damTypes.length],
+                    projectGrade: i % 2 === 0 ? '大(1)型' : '大(2)型',
+                    damHeight: 50 + i * 8,
+                    capacity: 500 + i * 150,
+                    installedCapacity: 1000 + i * 200,
+                    buildDate: `201${i % 10}-06-15`,
+                    completionDate: `201${i % 10}-12-31`,
+                    impoundmentDate: `201${(i + 1) % 10}-01-15`,
+                    manager: `负责人${i + 1}`,
+                    phone: `138001380${String(i).padStart(2, '0')}`,
+                    damImage: i === 0 ? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZDFlN2ZmIi8+CjxwYXRoIGQ9Ik0wIDEwMEgyMDBWMTUwSDBWMTAwWiIgZmlsbD0iIzMzNjZDQyIvPgo8cGF0aCBkPSJNNDAgMTAwSDE2MFY4MEg0MFYxMDBaIiBmaWxsPSIjMjk1MmEzIi8+CjxwYXRoIGQ9Ik02MCA4MEgxNDBWNjBINjBWODBaIiBmaWxsPSIjMDA2NmNjIi8+CjxwYXRoIGQ9Ik0xMjAgNjBIMTMwVjQwSDEyMFY2MFoiIGZpbGw9IiM2NjY2NjYiLz4KPHBhdGggZD0iTTcwIDkwSDExMFY3MEg3MFY5MFoiIGZpbGw9IiNGRkQ3MDAiLz4KPHJlY3QgeD0iMTAiIHk9IjExMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjNjY2Ii8+CjxyZWN0IHg9IjE2MCIgeT0iMTEwIiB3aWR0aD0iMzAiIGhlaWdodD0iNDAiIGZpbGw9IiM2NjYiLz4KPHBhdGggZD0iTTUwIDEyMEgxNTBWMTMwSDUwVjEyMFoiIGZpbGw9IiM5OTkiLz4KPHBhdGggZD0iTTgwIDEzMEgxMzBWMTQwSDgwVjEzMFoiIGZpbGw9IiNjY2MiLz4KPHRleHQgeD0iMTAwIiB5PSIxMzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMzMzMiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+5ZuJ6ZmQ5Zu+5qCHPC90ZXh0Pgo8L3N2Zz4=' : '',
+                    lastInspectionDate: `2024-${String((i % 12) + 1).padStart(2, '0')}-15`,
+                    nextInspectionDate: `2025-${String((i % 12) + 1).padStart(2, '0')}-15`,
+                    registrationNumber: `DBR2024${String(i + 1).padStart(4, '0')}`,
+                    registrationDate: `2020-${String((i % 12) + 1).padStart(2, '0')}-15`,
+                    expiryDate: `2030-${String((i % 12) + 1).padStart(2, '0')}-15`,
+                    monitoringStatus: '正常',
+                    dataIntegrity: Math.min(70 + i * 2, 100),
+                    emergencyScore: Math.min(70 + i * 2, 100),
+                    emergencyType: i % 2 === 0 ? '综合预案' : '专项预案',
+                    teamSize: 15 + Math.floor(i / 2),
+                    lastDrillDate: `2023-${String((i % 12) + 1).padStart(2, '0')}-15`,
+                    drillType: i % 2 === 0 ? '综合演练' : '专项演练',
+                    drillScore: Math.min(75 + i * 1.5, 100),
+                    createdAt: '2024-01-01',
+                    updatedAt: '2024-01-15'
+                };
+
+                dams.push(newDam);
+            }
+
+            // 为每个新创建的大坝添加备案记录和定期检查记录模拟数据
+            dams.forEach(dam => {
+                dam.registrationRecords = generateRegistrationRecords();
+                dam.inspectionRecords = generateInspectionRecords();
+            });
+
+            nextDamId = scenario.count + 1;
+            currentDamId = 1;
+
+            // 重新渲染界面
+            renderDamTabs();
+            selectDam(1);
+
+            // 关闭模态框
+            document.querySelector('[style*="position: fixed; top: 0;"]').remove();
+
+            // 显示成功消息
+            showMessage(`已加载 ${scenario.name} 场景（${scenario.count}个大坝）`, 'success');
+        }
+
+        // 保存数据
+        function saveData() {
+            if (!validateForm()) {
+                return;
+            }
+
+            const dam = dams.find(d => d.id === currentDamId);
+            if (dam) {
+                // 收集表单数据
+                collectFormData(dam);
+                dam.updatedAt = new Date().toISOString().split('T')[0];
+
+                showMessage('数据保存成功', 'success');
+
+                // 保存后切换到查看模式
+                setTimeout(() => {
+                    setViewMode(true);
+                }, 1000);
+            }
+        }
+
+        // 收集表单数据
+        function collectFormData(dam) {
+            // 获取所有表单组
+            const formGroups = document.querySelectorAll('.form-group');
+
+            formGroups.forEach(group => {
+                const label = group.querySelector('.form-label').textContent.trim();
+                const input = group.querySelector('.form-input');
+                const select = group.querySelector('.form-select');
+
+                if (input || select) {
+                    const field = input || select;
+                    const value = field.value.trim();
+
+                    // 根据标签文本映射到对应的dam属性
+                    switch(label) {
+                        case '大坝名称':
+                            dam.name = value;
+                            break;
+                        case '大坝编号':
+                            dam.code = value;
+                            break;
+                        case '所属单位':
+                            // 处理下拉选择
+                            const unitMap = {
+                                'unit1': 'XX水电公司',
+                                'unit2': 'YY水电集团',
+                                'unit3': 'ZZ电力'
+                            };
+                            dam.unit = unitMap[value] || value;
+                            break;
+                        case '坝型':
+                            const damTypeMap = {
+                                'earth': '土石坝',
+                                'gravity': '重力坝',
+                                'arch': '拱坝',
+                                'panel': '面板堆石坝'
+                            };
+                            dam.damType = damTypeMap[value] || value;
+                            break;
+                        case '工程等别':
+                            const gradeMap = {
+                                'large1': '大(1)型',
+                                'large2': '大(2)型',
+                                'medium': '中型'
+                            };
+                            dam.projectGrade = gradeMap[value] || value;
+                            break;
+                        case '坝高(m)':
+                            dam.damHeight = parseFloat(value) || 0;
+                            break;
+                        case '库容(万m³)':
+                            dam.capacity = parseFloat(value) || 0;
+                            break;
+                        case '建成时间':
+                            dam.buildDate = value;
+                            break;
+                        case '管理责任人':
+                            dam.manager = value;
+                            break;
+                        case '联系方式':
+                            dam.phone = value;
+                            break;
+                        case '地理位置':
+                            dam.location = value;
+                            break;
+                        case '省份':
+                            dam.province = value;
+                            break;
+                        case '运行单位':
+                            dam.operatingUnit = value;
+                            break;
+                        case '装机(MW)':
+                            dam.installedCapacity = parseFloat(value) || 0;
+                            break;
+                        case '竣工时间':
+                            dam.completionDate = value;
+                            break;
+                        case '蓄水时间':
+                            dam.impoundmentDate = value;
+                            break;
+                        case '地理位置':
+                            dam.location = value;
+                            break;
+                        case '坐标信息':
+                            dam.coordinates = value;
+                            break;
+                    }
+                }
+            });
+
+            // 更新计算字段
+            dam.completionRate = calculateCompletionRate(dam);
+            dam.dataIntegrity = calculateDataIntegrity(dam);
+        }
+
+        // 计算完成率
+        function calculateCompletionRate(dam) {
+            let completedFields = 0;
+            let totalFields = 0;
+
+            const requiredFields = ['name', 'unit', 'damType', 'projectGrade', 'buildDate'];
+            const optionalFields = ['code', 'damHeight', 'capacity', 'installedCapacity', 'province', 'operatingUnit', 'completionDate', 'impoundmentDate', 'manager', 'phone', 'location', 'coordinates', 'damImage'];
+
+            // 检查必填字段
+            requiredFields.forEach(field => {
+                totalFields++;
+                if (dam[field] && dam[field].toString().trim() !== '') {
+                    completedFields++;
+                }
+            });
+
+            // 检查可选字段
+            optionalFields.forEach(field => {
+                totalFields++;
+                if (dam[field] && dam[field].toString().trim() !== '') {
+                    completedFields++;
+                }
+            });
+
+            return Math.round((completedFields / totalFields) * 100);
+        }
+
+        // 计算数据完整性
+        function calculateDataIntegrity(dam) {
+            // 基于完成率和其他因素计算数据完整性
+            let integrity = dam.completionRate;
+
+            // 如果有联系方式，增加完整性
+            if (dam.phone && dam.phone.trim() !== '') {
+                integrity += 5;
+            }
+
+            // 如果有坐标信息，增加完整性
+            if (dam.coordinates && dam.coordinates.trim() !== '') {
+                integrity += 5;
+            }
+
+            return Math.min(integrity, 100);
+        }
+
+        // 表单验证
+        function validateForm() {
+            const requiredFields = document.querySelectorAll('.required');
+            let isValid = true;
+
+            requiredFields.forEach(label => {
+                const input = label.closest('.form-group').querySelector('.form-input');
+                if (input && !input.value.trim()) {
+                    input.style.borderColor = 'var(--danger-color)';
+                    isValid = false;
+                } else if (input) {
+                    input.style.borderColor = 'var(--border-color)';
+                }
+            });
+
+            if (!isValid) {
+                showMessage('请填写所有必填字段', 'error');
+            }
+
+            return isValid;
+        }
+
+        // 显示消息
+        function showMessage(message, type) {
+            // 使用Element Plus的消息提示
+            if (typeof ElementPlus !== 'undefined') {
+                ElementPlus.ElMessage({
+                    message: message,
+                    type: type,
+                    duration: 3000,
+                    showClose: true
+                });
+            } else {
+                // 备用方案：使用alert或console
+                console.log(`${type}: ${message}`);
+                if (type === 'error') {
+                    alert(`错误：${message}`);
+                } else if (type === 'success') {
+                    alert(`成功：${message}`);
+                }
+            }
+        }
+
+        // 快捷操作函数
+        function scheduleInspection() {
+            showMessage('检查安排功能开发中...', 'info');
+        }
+
+        function viewReports() {
+            showMessage('报告查看功能开发中...', 'info');
+        }
+
+        function manageAttachments() {
+            showMessage('附件管理功能开发中...', 'info');
+        }
+
+        function emergencyPlan() {
+            showMessage('应急预案功能开发中...', 'info');
+        }
+
+        // 基础操作函数
+        function printPage() {
+            window.print();
+        }
+
+        function exportData() {
+            showMessage('正在导出数据...', 'info');
+        }
+
+        function saveDraft() {
+            showMessage('草稿已保存', 'success');
+        }
+
+        function cancelEdit() {
+            if (confirm('确定要取消编辑吗？未保存的修改将会丢失。')) {
+                setViewMode(true);
+            }
+        }
+
+        // 删除大坝
+        function deleteDam() {
+            // 检查是否至少有一个大坝
+            if (dams.length <= 1) {
+                showMessage('至少需要保留一个大坝信息', 'error');
+                return;
+            }
+
+            // 二次确认
+            const firstConfirm = confirm(`确定要删除大坝 "${dams.find(d => d.id === currentDamId)?.name || '当前大坝'}" 吗？此操作不可恢复。`);
+            if (!firstConfirm) {
+                return;
+            }
+
+            // 最终确认
+            const secondConfirm = confirm('⚠️ 最后确认：删除后将无法恢复，请确保已备份重要数据。是否继续删除？');
+            if (!secondConfirm) {
+                return;
+            }
+
+            // 执行删除操作
+            const damName = dams.find(d => d.id === currentDamId)?.name || '大坝';
+
+            // 从数组中删除当前大坝
+            dams = dams.filter(d => d.id !== currentDamId);
+
+            // 显示成功消息
+            showMessage(`大坝 "${damName}" 已成功删除`, 'success');
+
+            // 重新选择第一个大坝
+            if (dams.length > 0) {
+                selectDam(dams[0].id);
+            }
+
+            // 如果删除后没有大坝了，创建一个新的默认大坝
+            if (dams.length === 0) {
+                createDefaultDam();
+            }
+        }
+
+        // 创建默认大坝
+        function createDefaultDam() {
+            const defaultDam = {
+                ...damTemplate,
+                id: nextDamId++,
+                name: '默认大坝',
+                code: `DB${String(nextDamId - 1).padStart(3, '0')}`,
+                unit: '示例单位',
+                location: '示例位置',
+                damType: '土石坝',
+                projectGrade: '大(1)型',
+                damHeight: 80,
+                capacity: 1000,
+                buildDate: '2020-01-01',
+                manager: '管理员',
+                phone: '13800000000',
+                safetyLevel: '安全',
+                completionRate: 90,
+                lastInspectionDate: '2024-01-01',
+                nextInspectionDate: '2025-01-01',
+                registrationNumber: `DBR${String(nextDamId - 1).padStart(4, '0')}`,
+                registrationDate: '2020-01-01',
+                expiryDate: '2030-01-01',
+                monitoringStatus: '正常',
+                dataIntegrity: 90,
+                emergencyScore: 85,
+                emergencyType: '综合预案',
+                teamSize: 20,
+                lastDrillDate: '2023-12-01',
+                drillType: '综合演练',
+                drillScore: 85,
+                createdAt: new Date().toISOString().split('T')[0],
+                updatedAt: new Date().toISOString().split('T')[0]
+            };
+
+            // 为默认大坝添加备案记录和定期检查记录模拟数据
+            defaultDam.registrationRecords = generateRegistrationRecords();
+            defaultDam.inspectionRecords = generateInspectionRecords();
+
+            dams.push(defaultDam);
+            selectDam(defaultDam.id);
+        }
+
+        // 注册备案记录管理
+        function toggleRegistrationRecords() {
+            const modal = document.getElementById('registrationModal');
+            modal.style.display = 'flex';
+            resetRegistrationForm();
+        }
+
+        function resetRegistrationForm() {
+            document.getElementById('registrationType').value = '';
+            document.getElementById('registrationGrade').value = '';
+            document.getElementById('registrationDate').value = '';
+            document.getElementById('registrationStatus').value = '';
+            document.getElementById('registrationNumber').value = '';
+            document.getElementById('registrationAttachments').value = '';
+        }
+
+        function saveRegistrationRecord() {
+            const type = document.getElementById('registrationType').value;
+            const grade = document.getElementById('registrationGrade').value;
+            const date = document.getElementById('registrationDate').value;
+            const status = document.getElementById('registrationStatus').value;
+            const number = document.getElementById('registrationNumber').value;
+            const attachments = document.getElementById('registrationAttachments').files;
+
+            if (!type || !grade || !date) {
+                showMessage('请填写必填项', 'error');
+                return;
+            }
+
+            const currentDam = dams.find(d => d.id === currentDamId);
+            if (!currentDam.registrationRecords) {
+                currentDam.registrationRecords = [];
+            }
+
+            const record = {
+                id: Date.now(),
+                type: type,
+                grade: grade,
+                date: date,
+                status: status,
+                number: number,
+                attachments: []
+            };
+
+            // 处理文件上传
+            if (attachments.length > 0) {
+                Array.from(attachments).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        record.attachments.push({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            currentDam.registrationRecords.push(record);
+            renderRegistrationRecords();
+            closeRegistrationModal();
+            showMessage('注册备案记录保存成功', 'success');
+        }
+
+        function renderRegistrationRecords() {
+            const currentDam = dams.find(d => d.id === currentDamId);
+            const tbody = document.getElementById('registrationRecordsBody');
+            const noRecords = document.getElementById('noRegistrationRecords');
+            const container = document.getElementById('registrationRecordsContainer');
+
+            if (!currentDam.registrationRecords || currentDam.registrationRecords.length === 0) {
+                tbody.innerHTML = '';
+                container.style.display = 'none';
+                noRecords.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'block';
+            noRecords.style.display = 'none';
+
+            tbody.innerHTML = currentDam.registrationRecords.map(record => `
+                <div class="records-table-row registration-columns">
+                    <div class="records-table-cell" title="${record.type}">${record.type}</div>
+                    <div class="records-table-cell" title="${record.grade}">${record.grade}</div>
+                    <div class="records-table-cell" title="${record.date}">${record.date}</div>
+                    <div class="records-table-cell" title="${record.status || '-'}">${record.status || '-'}</div>
+                    <div class="records-table-cell" title="${record.number || '-'}">${record.number || '-'}</div>
+                    <div class="records-table-cell">
+                        ${record.attachments && record.attachments.length > 0
+                            ? `<div class="file-attachment" onclick="viewAttachments(${record.id}, 'registration')" title="${record.attachments.length} 个附件">
+                                <i class="fas fa-paperclip"></i>
+                                <span>${record.attachments.length}</span>
+                              </div>`
+                            : '-'
+                        }
+                    </div>
+                    <div class="records-table-cell">
+                        <div class="record-actions">
+                            <button class="record-action-btn edit" onclick="editRegistrationRecord(${record.id})" title="编辑">
+                                <i class="fas fa-edit"></i>
+                                编辑
+                            </button>
+                            <button class="record-action-btn delete" onclick="deleteRegistrationRecord(${record.id})" title="删除">
+                                <i class="fas fa-trash"></i>
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editRegistrationRecord(id) {
+            const currentDam = dams.find(d => d.id === currentDamId);
+            const record = currentDam.registrationRecords.find(r => r.id === id);
+            if (record) {
+                document.getElementById('registrationType').value = record.type;
+                document.getElementById('registrationGrade').value = record.grade;
+                document.getElementById('registrationDate').value = record.date;
+                document.getElementById('registrationStatus').value = record.status;
+                document.getElementById('registrationNumber').value = record.number;
+
+                const modal = document.getElementById('registrationModal');
+                modal.style.display = 'flex';
+                modal.dataset.editId = id;
+            }
+        }
+
+        function deleteRegistrationRecord(id) {
+            if (confirm('确定要删除这条注册备案记录吗？')) {
+                const currentDam = dams.find(d => d.id === currentDamId);
+                currentDam.registrationRecords = currentDam.registrationRecords.filter(r => r.id !== id);
+                renderRegistrationRecords();
+                showMessage('记录已删除', 'success');
+            }
+        }
+
+        function closeRegistrationModal() {
+            document.getElementById('registrationModal').style.display = 'none';
+            delete document.getElementById('registrationModal').dataset.editId;
+        }
+
+        // 定期检查记录管理
+        function toggleInspectionRecords() {
+            const modal = document.getElementById('inspectionModal');
+            modal.style.display = 'flex';
+            resetInspectionForm();
+        }
+
+        function resetInspectionForm() {
+            document.getElementById('inspectionNumber').value = '';
+            document.getElementById('inspectionEndDate').value = '';
+            document.getElementById('inspectionConclusion').value = '';
+            document.getElementById('inspectionAttachments').value = '';
+        }
+
+        function saveInspectionRecord() {
+            const number = document.getElementById('inspectionNumber').value;
+            const endDate = document.getElementById('inspectionEndDate').value;
+            const conclusion = document.getElementById('inspectionConclusion').value;
+            const attachments = document.getElementById('inspectionAttachments').files;
+
+            if (!number || !endDate) {
+                showMessage('请填写必填项', 'error');
+                return;
+            }
+
+            const currentDam = dams.find(d => d.id === currentDamId);
+            if (!currentDam.inspectionRecords) {
+                currentDam.inspectionRecords = [];
+            }
+
+            const record = {
+                id: Date.now(),
+                number: number,
+                endDate: endDate,
+                conclusion: conclusion,
+                attachments: []
+            };
+
+            // 处理文件上传
+            if (attachments.length > 0) {
+                Array.from(attachments).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        record.attachments.push({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            currentDam.inspectionRecords.push(record);
+            renderInspectionRecords();
+            closeInspectionModal();
+            showMessage('定期检查记录保存成功', 'success');
+        }
+
+        function renderInspectionRecords() {
+            const currentDam = dams.find(d => d.id === currentDamId);
+            const tbody = document.getElementById('inspectionRecordsBody');
+            const noRecords = document.getElementById('noInspectionRecords');
+            const container = document.getElementById('inspectionRecordsContainer');
+
+            if (!currentDam.inspectionRecords || currentDam.inspectionRecords.length === 0) {
+                tbody.innerHTML = '';
+                container.style.display = 'none';
+                noRecords.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'block';
+            noRecords.style.display = 'none';
+
+            tbody.innerHTML = currentDam.inspectionRecords.map(record => `
+                <div class="records-table-row inspection-columns">
+                    <div class="records-table-cell" title="${record.number}">${record.number}</div>
+                    <div class="records-table-cell" title="${record.endDate}">${record.endDate}</div>
+                    <div class="records-table-cell" title="${record.conclusion || '-'}">${record.conclusion || '-'}</div>
+                    <div class="records-table-cell">
+                        ${record.attachments && record.attachments.length > 0
+                            ? `<div class="file-attachment" onclick="viewAttachments(${record.id}, 'inspection')" title="${record.attachments.length} 个附件">
+                                <i class="fas fa-paperclip"></i>
+                                <span>${record.attachments.length}</span>
+                              </div>`
+                            : '-'
+                        }
+                    </div>
+                    <div class="records-table-cell">
+                        <div class="record-actions">
+                            <button class="record-action-btn edit" onclick="editInspectionRecord(${record.id})" title="编辑">
+                                <i class="fas fa-edit"></i>
+                                编辑
+                            </button>
+                            <button class="record-action-btn delete" onclick="deleteInspectionRecord(${record.id})" title="删除">
+                                <i class="fas fa-trash"></i>
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editInspectionRecord(id) {
+            const currentDam = dams.find(d => d.id === currentDamId);
+            const record = currentDam.inspectionRecords.find(r => r.id === id);
+            if (record) {
+                document.getElementById('inspectionNumber').value = record.number;
+                document.getElementById('inspectionEndDate').value = record.endDate;
+                document.getElementById('inspectionConclusion').value = record.conclusion;
+
+                const modal = document.getElementById('inspectionModal');
+                modal.style.display = 'flex';
+                modal.dataset.editId = id;
+            }
+        }
+
+        function deleteInspectionRecord(id) {
+            if (confirm('确定要删除这条定期检查记录吗？')) {
+                const currentDam = dams.find(d => d.id === currentDamId);
+                currentDam.inspectionRecords = currentDam.inspectionRecords.filter(r => r.id !== id);
+                renderInspectionRecords();
+                showMessage('记录已删除', 'success');
+            }
+        }
+
+        function closeInspectionModal() {
+            document.getElementById('inspectionModal').style.display = 'none';
+            delete document.getElementById('inspectionModal').dataset.editId;
+        }
+
+        function viewAttachments(recordId, type) {
+            // 实现查看附件功能
+            showMessage('附件查看功能待实现', 'info');
+        }
+
+        // 台账页签切换功能
+        function switchRecordsTab(tabName) {
+            // 移除所有活动状态
+            document.querySelectorAll('.records-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.records-tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // 激活选中的页签
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'TabPanel').classList.add('active');
+
+            // 重新渲染对应的数据
+            if (tabName === 'registration') {
+                renderRegistrationRecords();
+            } else if (tabName === 'inspection') {
+                renderInspectionRecords();
+            }
+        }
+    </script>
+
+    <!-- 注册备案记录模态框 -->
+    <div class="record-form-modal" id="registrationModal" style="display: none;">
+        <div class="record-form-content">
+            <div class="record-form-header">
+                <div class="record-form-title">注册备案记录</div>
+                <button class="record-action-btn" onclick="closeRegistrationModal()" style="background: none; border: none; font-size: 20px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="record-form-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">注册类型</label>
+                        <div class="form-control">
+                            <select class="form-select" id="registrationType">
+                                <option value="">请选择注册类型</option>
+                                <option value="安全注册">安全注册</option>
+                                <option value="备案登记">备案登记</option>
+                                <option value="变更注册">变更注册</option>
+                                <option value="延续注册">延续注册</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">注册等级</label>
+                        <div class="form-control">
+                            <select class="form-select" id="registrationGrade">
+                                <option value="">请选择注册等级</option>
+                                <option value="甲级">甲级</option>
+                                <option value="乙级">乙级</option>
+                                <option value="丙级">丙级</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">注册时间</label>
+                        <div class="form-control">
+                            <input type="date" class="form-input" id="registrationDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">目前情况</label>
+                        <div class="form-control">
+                            <select class="form-select" id="registrationStatus">
+                                <option value="">请选择目前情况</option>
+                                <option value="有效">有效</option>
+                                <option value="即将到期">即将到期</option>
+                                <option value="已过期">已过期</option>
+                                <option value="已注销">已注销</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">注册证号</label>
+                        <div class="form-control">
+                            <input type="text" class="form-input" id="registrationNumber" placeholder="请输入注册证号">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">附件</label>
+                        <div class="file-upload-container" onclick="document.getElementById('registrationAttachments').click()">
+                            <input type="file" class="file-input-hidden" id="registrationAttachments" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFileSelect(this, 'registration')">
+                            <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <div class="file-upload-text">点击或拖拽文件到此处上传</div>
+                            <div class="file-upload-format">支持 PDF、Word、图片格式文件</div>
+                        </div>
+                        <div class="selected-files" id="registrationSelectedFiles"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="record-form-footer">
+                <button class="section-btn" onclick="closeRegistrationModal()">取消</button>
+                <button class="section-btn primary" onclick="saveRegistrationRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 定期检查记录模态框 -->
+    <div class="record-form-modal" id="inspectionModal" style="display: none;">
+        <div class="record-form-content">
+            <div class="record-form-header">
+                <div class="record-form-title">定期检查记录</div>
+                <button class="record-action-btn" onclick="closeInspectionModal()" style="background: none; border: none; font-size: 20px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="record-form-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">定检次数</label>
+                        <div class="form-control">
+                            <select class="form-select" id="inspectionNumber">
+                                <option value="">请选择定检次数</option>
+                                <option value="第一次">第一次</option>
+                                <option value="第二次">第二次</option>
+                                <option value="第三次">第三次</option>
+                                <option value="第四次">第四次</option>
+                                <option value="第五次">第五次</option>
+                                <option value="第六次">第六次</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">审查结束时间</label>
+                        <div class="form-control">
+                            <input type="date" class="form-input" id="inspectionEndDate">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">定检结论</label>
+                        <div class="form-control">
+                            <select class="form-select" id="inspectionConclusion">
+                                <option value="">请选择定检结论</option>
+                                <option value="正常坝（A级）">正常坝（A级）</option>
+                                <option value="病坝（B级）">病坝（B级）</option>
+                                <option value="险坝（C级）">险坝（C级）</option>
+                                <option value="需要进一步检查">需要进一步检查</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">附件</label>
+                        <div class="file-upload-container" onclick="document.getElementById('inspectionAttachments').click()">
+                            <input type="file" class="file-input-hidden" id="inspectionAttachments" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFileSelect(this, 'inspection')">
+                            <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <div class="file-upload-text">点击或拖拽文件到此处上传</div>
+                            <div class="file-upload-format">支持 PDF、Word、图片格式文件</div>
+                        </div>
+                        <div class="selected-files" id="inspectionSelectedFiles"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="record-form-footer">
+                <button class="section-btn" onclick="closeInspectionModal()">取消</button>
+                <button class="section-btn primary" onclick="saveInspectionRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

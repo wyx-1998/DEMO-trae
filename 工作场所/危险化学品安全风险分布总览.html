@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>危险化学品安全风险分布总览</title>
+
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ECharts -->
+    <script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.5;
+        }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: #3b82f6;
+        }
+
+        /* Metrics Bar */
+        .metrics-section {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .metrics-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .metrics-row {
+            display: grid;
+            gap: 20px;
+        }
+
+        .metrics-row.overview-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .metrics-row.hazard-levels-row {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            border-color: #e0e7ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .metric-card.large {
+            padding: 28px;
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .metric-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .metric-icon.primary {
+            background: #3b82f6;
+        }
+
+        .metric-icon.danger {
+            background: #ef4444;
+        }
+
+        .metric-icon.level1 {
+            background: #dc2626;
+        }
+
+        .metric-icon.level2 {
+            background: #f59e0b;
+        }
+
+        .metric-icon.level3 {
+            background: #fbbf24;
+        }
+
+        .metric-icon.level4 {
+            background: #3b82f6;
+        }
+
+        .metric-info {
+            flex: 1;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            font-family: 'DIN', sans-serif;
+            line-height: 1;
+        }
+
+        .metric-value .unit {
+            font-size: 14px;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-left: 6px;
+        }
+
+        .metric-trend {
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-container {
+            height: 350px;
+        }
+
+        .heatmap-container {
+            height: 400px;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .tips-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tips-title i {
+            color: #3b82f6;
+        }
+
+        .tips-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .tips-item h4 {
+            font-size: 14px;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .tips-item p {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .summary-row:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .summary-row-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .summary-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .summary-name {
+            font-size: 14px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .summary-val {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        @media (max-width: 1200px) {
+            .metrics-row.overview-row {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-row.hazard-levels-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .tips-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-row.hazard-levels-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-chart-pie"></i>
+                    危险化学品安全风险分布总览
+                </h1>
+                <div>
+                    <el-button type="primary" size="small" @click="refreshData">
+                        <i class="fas fa-sync-alt"></i> 刷新数据
+                    </el-button>
+                    <el-button type="success" size="small" @click="goToLedger">
+                        <i class="fas fa-table"></i> 查看台账
+                    </el-button>
+                </div>
+            </div>
+
+            <!-- Metrics Section -->
+            <div class="metrics-section">
+                <div class="metrics-grid">
+                    <!-- Row 1: Overview Metrics -->
+                    <div class="metrics-row overview-row" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon primary">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">总区域数</div>
+                                    <div class="metric-value">{{ dashboardData.totalAreas }} <span class="unit">个</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">重大危险源区域</div>
+                                    <div class="metric-value">{{ dashboardData.majorHazards }} <span class="unit">个
+                                            (R≥10)</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon" style="background: #10b981;">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">非重大危险源区域</div>
+                                    <div class="metric-value">{{ dashboardData.nonMajorHazards }} <span class="unit">
+                                            个 (R<10) </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Major Hazard Level Distribution -->
+                    <div class="metrics-row hazard-levels-row">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon level1">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">一级重大危险源</div>
+                                    <div class="metric-value">{{ dashboardData.level1Hazards }} <span
+                                            class="unit">个</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon level2">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">二级重大危险源</div>
+                                    <div class="metric-value">{{ dashboardData.level2Hazards }} <span
+                                            class="unit">个</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon level3">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">三级重大危险源</div>
+                                    <div class="metric-value">{{ dashboardData.level3Hazards }} <span
+                                            class="unit">个</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon level4">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <div class="metric-label">四级重大危险源</div>
+                                    <div class="metric-value">{{ dashboardData.level4Hazards }} <span
+                                            class="unit">个</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-th"></i>
+                            重大危险源分布热力图
+                        </div>
+                    </div>
+                    <div id="heatmapChart" class="heatmap-container"></div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-bar"></i>
+                            完整风险分布统计
+                        </div>
+                    </div>
+                    <div id="hazardStatsChart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="tips-section">
+                <div class="tips-title">
+                    <i class="fas fa-lightbulb"></i> 数据说明
+                </div>
+                <div class="tips-content">
+                    <div class="tips-item">
+                        <h4><i class="fas fa-info-circle"></i> 统计范围</h4>
+                        <p>涵盖企业全部{{ dashboardData.totalAreas }}个区域，包括重大危险源区域和非重大危险源区域</p>
+                    </div>
+                    <div class="tips-item">
+                        <h4><i class="fas fa-layer-group"></i> 分类标准</h4>
+                        <p><strong>重大危险源区域 (R≥10)：</strong>细分为一级(R≥100)、二级(100>R≥50)、三级(50>R≥10)、四级(10≤R&lt;50)，需重点监管
+                        </p>
+                        <p><strong>非重大危险源区域 (R&lt;10)：</strong>包括有危化品但未达到重大危险源临界量的区域，以及无危化品的安全区域</p>
+                    </div>
+                    <div class="tips-item">
+                        <h4><i class="fas fa-sync-alt"></i> 数据更新</h4>
+                        <p>数据每日自动更新,确保风险评估的时效性</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 & Element Plus -->
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            data() {
+                return {
+                    dashboardData: {
+                        totalAreas: 28,
+                        majorHazards: 12,
+                        nonMajorHazards: 16,
+                        level1Hazards: 2,
+                        level2Hazards: 3,
+                        level3Hazards: 4,
+                        level4Hazards: 3
+                    }
+                };
+            },
+            mounted() {
+                this.initCharts();
+            },
+            methods: {
+                initCharts() {
+                    this.initHeatmap();
+                    this.initHazardStatsChart();
+                },
+                initHeatmap() {
+                    const chart = echarts.init(document.getElementById('heatmapChart'));
+                    const option = {
+                        tooltip: {
+                            position: 'top'
+                        },
+                        grid: {
+                            left: '10%',
+                            right: '15%',
+                            bottom: '15%',
+                            top: '15%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: ['A区', 'B区', 'C区', 'D区', 'E区', 'F区', 'G区', '01区', '02区', '03区', '04区', '05区', '东区', '西区'],
+                            splitArea: { show: true }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: ['生产单元', '存储单元'],
+                            splitArea: { show: true }
+                        },
+                        visualMap: {
+                            min: 0,
+                            max: 120,
+                            calculable: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            text: ['高', '低'],
+                            inRange: {
+                                color: ['#10b981', '#fbbf24', '#f59e0b', '#dc2626']
+                            },
+                            splitNumber: 4,
+                            pieces: [
+                                { min: 100, label: '一级 (R≥100)', color: '#dc2626' },
+                                { min: 50, max: 99, label: '二级 (50≤R<100)', color: '#f59e0b' },
+                                { min: 10, max: 49, label: '三级 (10≤R<50)', color: '#fbbf24' },
+                                { max: 9, label: '四级 (R<10)', color: '#10b981' }
+                            ]
+                        },
+                        series: [{
+                            name: '风险等级',
+                            type: 'heatmap',
+                            data: [
+                                // Production Units (Y=0)
+                                [0, 0, 120], [1, 0, 85], [2, 0, 45], [3, 0, 15], [4, 0, 8], [5, 0, 5], [6, 0, 2],
+                                [7, 0, 92], [8, 0, 38], [9, 0, 22], [10, 0, 12], [11, 0, 6], [12, 0, 0], [13, 0, 0],
+                                // Storage Units (Y=1)
+                                [0, 1, 95], [1, 1, 68], [2, 1, 52], [3, 1, 35], [4, 1, 18], [5, 1, 9], [6, 1, 4],
+                                [7, 1, 76], [8, 1, 28], [9, 1, 14], [10, 1, 7], [11, 1, 3], [12, 1, 0], [13, 1, 0]
+                            ],
+                            label: { show: true }
+                        }]
+                    };
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+                initHazardStatsChart() {
+                    const chart = echarts.init(document.getElementById('hazardStatsChart'));
+
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' },
+                            formatter: '{b}<br/>{a}: {c}个'
+                        },
+                        legend: {
+                            bottom: '0%',
+                            left: 'center',
+                            textStyle: { fontSize: 12 },
+                            itemGap: 20
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '15%',
+                            top: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: ['一级', '二级', '三级', '四级', '非重大危险源'],
+                            axisLabel: {
+                                fontSize: 11,
+                                rotate: 0
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '数量(个)',
+                            minInterval: 1
+                        },
+                        series: [{
+                            name: '区域数量',
+                            type: 'bar',
+                            data: [
+                                { value: this.dashboardData.level1Hazards, itemStyle: { color: '#dc2626' } },
+                                { value: this.dashboardData.level2Hazards, itemStyle: { color: '#f59e0b' } },
+                                { value: this.dashboardData.level3Hazards, itemStyle: { color: '#fbbf24' } },
+                                { value: this.dashboardData.level4Hazards, itemStyle: { color: '#3b82f6' } },
+                                { value: this.dashboardData.nonMajorHazards, itemStyle: { color: '#10b981' } }
+                            ],
+                            barWidth: '60%',
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '{c}个',
+                                fontSize: 11
+                            }
+                        }]
+                    };
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                },
+                refreshData() {
+                    ElMessage.success('数据刷新成功');
+                },
+                goToLedger() {
+                    window.location.href = '危险化学品安全风险分布台账.html';
+                },
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

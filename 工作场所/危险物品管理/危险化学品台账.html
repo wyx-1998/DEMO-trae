@@ -1,314 +1,440 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工作场所 - 危险化学品台账</title>
-    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif; background-color: #f5f7fa; }
-        .app-container { height: 100vh; display: flex; flex-direction: column; }
-        .main-content { flex: 1; padding: 24px; overflow-y: auto; }
-        .content-card { background: #ffffff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
-        .function-bar { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .function-left { display: flex; gap: 12px; flex-wrap: wrap; }
-        .search-area { padding: 20px 24px; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
-        .search-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: end; }
-        .search-form .el-form-item { margin-bottom: 0; }
-        .search-form .el-form-item .el-input { width: 100%; }
-        .search-buttons { display: flex; gap: 12px; margin-top: 16px; }
-        .more-filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: end; margin-top: 12px; }
-        .more-filters .el-form-item { margin-bottom: 0; }
-        .more-filters .el-form-item .el-input { width: 100%; }
-        .table-area { padding: 24px; overflow-x: auto; }
-        .table-area .el-table { min-width: 1300px; }
-        .el-table__header .cell { white-space: nowrap; }
-        .pagination-bar { padding: 16px 24px; background: #f8f9fa; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; }
-        .el-button--primary { --el-button-bg-color: #409EFF; --el-button-border-color: #409EFF; }
-    </style>
- </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作场所 - 危险化学品台账</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .app-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .content-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .function-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .function-left {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-area {
+      padding: 20px 24px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: end;
+    }
+
+    .search-form .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .search-form .el-form-item .el-input {
+      width: 100%;
+    }
+
+    .search-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .more-filters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    .more-filters .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .more-filters .el-form-item .el-select {
+      width: 100%;
+    }
+
+    .table-area {
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .table-area .el-table {
+      min-width: 1300px;
+    }
+
+    .el-table__header .cell {
+      white-space: nowrap;
+    }
+
+    .pagination-bar {
+      padding: 16px 24px;
+      background: #f8f9fa;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .el-button--primary {
+      --el-button-bg-color: #409EFF;
+      --el-button-border-color: #409EFF;
+    }
+  </style>
+</head>
+
 <body>
-<div id="app" class="app-container">
+  <div id="app" class="app-container">
     <div class="main-content">
-        <div class="content-card">
-            <div class="function-bar">
-                <div class="function-left">
-                    <el-button type="primary" @click="openCreate"><i class="fas fa-plus"></i> 新增化学品</el-button>
-                    <el-button type="warning" @click="exportData"><i class="fas fa-file-export"></i> 导出</el-button>
-                    <el-button @click="batchDelete" type="danger"><i class="fas fa-trash"></i> 批量删除</el-button>
-                </div>
-            </div>
-
-            <div class="search-area">
-                <el-form :model="searchForm" label-position="left" class="search-form">
-                    <el-form-item label="化学品名称">
-                        <el-input v-model="searchForm.name" placeholder="请输入化学品名称" clearable />
-                    </el-form-item>
-                    <el-form-item label="CAS号">
-                        <el-input v-model="searchForm.cas" placeholder="XXXXX-XX-X" clearable />
-                    </el-form-item>
-                    <el-form-item label="储存位置">
-                        <el-input v-model="searchForm.location" placeholder="仓库-库区-货位" clearable />
-                    </el-form-item>
-                    <div v-show="showMoreFilters" class="more-filters">
-                        <el-form-item label="供应商">
-                            <el-input v-model="searchForm.supplier" placeholder="供应商名称" clearable />
-                        </el-form-item>
-                        <el-form-item label="危险性分类">
-                            <el-select v-model="searchForm.categories" multiple clearable placeholder="请选择" style="width:320px">
-                                <el-option v-for="opt in hazardOptions" :key="opt" :label="opt" :value="opt" />
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="剧毒">
-                            <el-select v-model="searchForm.isHighlyToxic" clearable style="width:160px">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="是" value="是"></el-option>
-                                <el-option label="否" value="否"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="易制爆">
-                            <el-select v-model="searchForm.isExplosive" clearable style="width:160px">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="是" value="是"></el-option>
-                                <el-option label="否" value="否"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="库存状态">
-                            <el-select v-model="searchForm.stockStatus" clearable style="width:160px">
-                                <el-option label="全部" value=""></el-option>
-                                <el-option label="正常" value="正常"></el-option>
-                                <el-option label="超期" value="超期"></el-option>
-                                <el-option label="冻结" value="冻结"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </div>
-                </el-form>
-                <div class="search-buttons">
-                    <el-button type="primary" @click="search"><i class="fas fa-search"></i> 查询</el-button>
-                    <el-button @click="reset"><i class="fas fa-redo"></i> 重置</el-button>
-                    <el-button text type="primary" @click="toggleMore">
-                        <i :class="showMoreFilters ? 'fas fa-angle-up' : 'fas fa-angle-down'"></i>
-                        {{ showMoreFilters ? '收起' : '展开更多' }}
-                    </el-button>
-                </div>
-            </div>
-
-            <div class="table-area">
-                <el-table :data="tableData" style="width:100%" stripe border @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column prop="name" label="化学品名称" min-width="160"></el-table-column>
-                    <el-table-column prop="cas" label="CAS号" width="140"></el-table-column>
-                    <el-table-column prop="hazards" label="危险性分类" min-width="200"></el-table-column>
-                    <el-table-column prop="isHighlyToxic" label="剧毒" width="90"></el-table-column>
-                    <el-table-column prop="isExplosive" label="易制爆" width="90"></el-table-column>
-                    <el-table-column prop="location" label="储存位置" min-width="160"></el-table-column>
-                    <el-table-column prop="stockQty" label="当前库存" width="120"></el-table-column>
-                    <el-table-column prop="unit" label="计量单位" width="100"></el-table-column>
-                    <el-table-column prop="stockStatus" label="库存状态" width="110"></el-table-column>
-                    <el-table-column prop="supplier" label="供应商" min-width="160"></el-table-column>
-                    <el-table-column prop="batchNo" label="批次号" width="120"></el-table-column>
-                    <el-table-column prop="prodDate" label="生产日期" width="120"></el-table-column>
-                    <el-table-column prop="expireDate" label="有效期至" width="120"></el-table-column>
-                    <el-table-column prop="pkgType" label="包装类型" min-width="140"></el-table-column>
-                    <el-table-column prop="pkgMaterial" label="包装材质" min-width="120"></el-table-column>
-                    <el-table-column prop="pkgQty" label="包装数量" width="110"></el-table-column>
-                    <el-table-column prop="pkgCapacity" label="单包装容量" width="120"></el-table-column>
-                    <el-table-column prop="msdsVersion" label="MSDS版本" width="120"></el-table-column>
-                    <el-table-column prop="msdsDate" label="MSDS获取日期" width="140"></el-table-column>
-                    <el-table-column prop="labelStatus" label="标签状态" width="120"></el-table-column>
-                    <el-table-column label="操作" width="280" fixed="right">
-                        <template #default="scope">
-                            <el-button size="small" type="primary" @click="goView(scope.row)"><i class="fas fa-eye"></i></el-button>
-                            <el-button size="small" type="warning" @click="goEdit(scope.row)"><i class="fas fa-edit"></i></el-button>
-                            <el-button size="small" type="success" @click="printLabel(scope.row)"><i class="fas fa-print"></i></el-button>
-                            <el-button size="small" type="danger" @click="deleteRow(scope.row)"><i class="fas fa-trash"></i></el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
-
-            <div class="pagination-bar">
-                <el-pagination background size="small" v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10,20,50]" :total="filteredData.length" layout="total, ->, sizes, prev, pager, next, jumper" />
-            </div>
+      <div class="content-card">
+        <div class="function-bar">
+          <div class="function-left">
+            <el-button type="primary" @click="openCreate"><i class="fas fa-plus"></i> 新增化学品</el-button>
+            <el-button type="warning" @click="exportData"><i class="fas fa-file-export"></i> 导出</el-button>
+            <el-button @click="batchDelete" type="danger"><i class="fas fa-trash"></i> 批量删除</el-button>
+          </div>
         </div>
+
+        <div class="search-area">
+          <el-form :model="searchForm" label-position="left" class="search-form">
+            <el-form-item label="化学品名称">
+              <el-input v-model="searchForm.name" placeholder="请输入化学品名称" clearable />
+            </el-form-item>
+            <el-form-item label="CAS号">
+              <el-input v-model="searchForm.cas" placeholder="XXXXX-XX-X" clearable />
+            </el-form-item>
+            <el-form-item label="存储区域">
+              <el-select v-model="searchForm.storageArea" placeholder="请选择存储区域" clearable style="width: 100%">
+                <el-option v-for="area in storageAreaOptions" :key="area.value" :label="area.label"
+                  :value="area.value" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+
+          <el-form v-show="showMoreFilters" :model="searchForm" label-position="left" class="more-filters">
+            <el-form-item label="单元类型">
+              <el-select v-model="searchForm.unitType" clearable placeholder="请选择单元类型" style="width:100%">
+                <el-option label="生产单元" value="production"></el-option>
+                <el-option label="存储单元" value="storage"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="危险性分类">
+              <el-select v-model="searchForm.categories" multiple clearable placeholder="请选择" style="width:100%">
+                <el-option v-for="opt in hazardOptions" :key="opt" :label="opt" :value="opt" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="剧毒">
+              <el-select v-model="searchForm.isHighlyToxic" clearable style="width:100%">
+                <el-option label="全部" value=""></el-option>
+                <el-option label="是" value="是"></el-option>
+                <el-option label="否" value="否"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="易制爆">
+              <el-select v-model="searchForm.isExplosive" clearable style="width:100%">
+                <el-option label="全部" value=""></el-option>
+                <el-option label="是" value="是"></el-option>
+                <el-option label="否" value="否"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+
+          <div class="search-buttons">
+            <el-button type="primary" @click="search"><i class="fas fa-search"></i> 查询</el-button>
+            <el-button @click="reset"><i class="fas fa-redo"></i> 重置</el-button>
+            <el-button text type="primary" @click="toggleMore">
+              <i :class="showMoreFilters ? 'fas fa-angle-up' : 'fas fa-angle-down'"></i>
+              {{ showMoreFilters ? '收起' : '展开更多' }}
+            </el-button>
+          </div>
+        </div>
+
+        <div class="table-area">
+          <el-table :data="tableData" style="width:100%" stripe border @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column prop="name" label="化学品名称" min-width="160"></el-table-column>
+            <el-table-column prop="cas" label="CAS号" width="140"></el-table-column>
+            <el-table-column prop="hazards" label="危险性分类" min-width="200"></el-table-column>
+            <el-table-column prop="unitType" label="单元类型" width="120">
+              <template #default="{ row }">
+                <el-tag :type="row.unitType === 'production' ? 'success' : 'primary'" v-if="row.unitType">
+                  {{ row.unitType === 'production' ? '生产单元' : '存储单元' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="isHighlyToxic" label="剧毒" width="90"></el-table-column>
+            <el-table-column prop="isExplosive" label="易制爆" width="90"></el-table-column>
+            <el-table-column prop="storageArea" label="存储区域" min-width="140">
+              <template #default="{ row }">
+                {{ storageAreaOptions.find(a => a.value === row.storageArea)?.label || row.storageArea || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="stockQty" label="当前库存" width="120"></el-table-column>
+            <el-table-column prop="criticalQty" label="临界量" width="120"></el-table-column>
+            <el-table-column prop="unit" label="计量单位" width="100"></el-table-column>
+            <el-table-column prop="stockStatus" label="库存状态" width="110"></el-table-column>
+            <el-table-column prop="supplier" label="供应商" min-width="160"></el-table-column>
+            <el-table-column prop="batchNo" label="批次号" width="120"></el-table-column>
+            <el-table-column prop="prodDate" label="生产日期" width="120"></el-table-column>
+            <el-table-column prop="expireDate" label="有效期至" width="120"></el-table-column>
+            <el-table-column prop="pkgType" label="包装类型" min-width="140"></el-table-column>
+            <el-table-column prop="pkgMaterial" label="包装材质" min-width="120"></el-table-column>
+            <el-table-column prop="pkgQty" label="包装数量" width="110"></el-table-column>
+            <el-table-column prop="pkgCapacity" label="单包装容量" width="120"></el-table-column>
+            <el-table-column prop="msdsVersion" label="MSDS版本" width="120"></el-table-column>
+            <el-table-column prop="msdsDate" label="MSDS获取日期" width="140"></el-table-column>
+            <el-table-column prop="labelStatus" label="标签状态" width="120"></el-table-column>
+            <el-table-column label="操作" width="280" fixed="right">
+              <template #default="scope">
+                <el-button size="small" type="primary" @click="goView(scope.row)"><i class="fas fa-eye"></i></el-button>
+                <el-button size="small" type="warning" @click="goEdit(scope.row)"><i
+                    class="fas fa-edit"></i></el-button>
+                <el-button size="small" type="success" @click="printLabel(scope.row)"><i
+                    class="fas fa-print"></i></el-button>
+                <el-button size="small" type="danger" @click="deleteRow(scope.row)"><i
+                    class="fas fa-trash"></i></el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="pagination-bar">
+          <el-pagination background size="small" v-model:current-page="currentPage" v-model:page-size="pageSize"
+            :page-sizes="[10,20,50]" :total="filteredData.length"
+            layout="total, ->, sizes, prev, pager, next, jumper" />
+        </div>
+      </div>
     </div>
 
     <el-dialog v-model="showDetail" title="化学品台账详情" width="900px">
-        <el-descriptions :column="2" border>
-            <el-descriptions-item label="名称">{{ detail.name }}</el-descriptions-item>
-            <el-descriptions-item label="别名">{{ detail.alias || '—' }}</el-descriptions-item>
-            <el-descriptions-item label="英文名">{{ detail.englishName || '—' }}</el-descriptions-item>
-            <el-descriptions-item label="CAS">{{ detail.cas }}</el-descriptions-item>
-            <el-descriptions-item label="危险性分类" :span="2">{{ detail.hazards }}</el-descriptions-item>
-            <el-descriptions-item label="危险性类别" :span="2">{{ detail.hazardCategory || '—' }}</el-descriptions-item>
-            <el-descriptions-item label="储存位置">{{ detail.location }}</el-descriptions-item>
-            <el-descriptions-item label="库存">{{ detail.stockQty }} {{ detail.unit }}</el-descriptions-item>
-            <el-descriptions-item label="供应商">{{ detail.supplier }}</el-descriptions-item>
-            <el-descriptions-item label="批次号">{{ detail.batchNo }}</el-descriptions-item>
-            <el-descriptions-item label="生产日期">{{ detail.prodDate }}</el-descriptions-item>
-            <el-descriptions-item label="有效期至">{{ detail.expireDate }}</el-descriptions-item>
-            <el-descriptions-item label="包装">{{ detail.pkgType }} / {{ detail.pkgMaterial }}</el-descriptions-item>
-            <el-descriptions-item label="MSDS版本">{{ detail.msdsVersion }}</el-descriptions-item>
-            <el-descriptions-item label="MSDS获取日期">{{ detail.msdsDate }}</el-descriptions-item>
-            <el-descriptions-item label="标签状态"><el-tag>{{ detail.labelStatus }}</el-tag></el-descriptions-item>
-        </el-descriptions>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="名称">{{ detail.name }}</el-descriptions-item>
+        <el-descriptions-item label="别名">{{ detail.alias || '—' }}</el-descriptions-item>
+        <el-descriptions-item label="英文名">{{ detail.englishName || '—' }}</el-descriptions-item>
+        <el-descriptions-item label="CAS">{{ detail.cas }}</el-descriptions-item>
+        <el-descriptions-item label="危险性分类" :span="2">{{ detail.hazards }}</el-descriptions-item>
+        <el-descriptions-item label="危险性类别" :span="2">{{ detail.hazardCategory || '—' }}</el-descriptions-item>
+        <el-descriptions-item label="储存位置">{{ detail.location }}</el-descriptions-item>
+        <el-descriptions-item label="库存">{{ detail.stockQty }} {{ detail.unit }}</el-descriptions-item>
+        <el-descriptions-item label="供应商">{{ detail.supplier }}</el-descriptions-item>
+        <el-descriptions-item label="批次号">{{ detail.batchNo }}</el-descriptions-item>
+        <el-descriptions-item label="生产日期">{{ detail.prodDate }}</el-descriptions-item>
+        <el-descriptions-item label="有效期至">{{ detail.expireDate }}</el-descriptions-item>
+        <el-descriptions-item label="包装">{{ detail.pkgType }} / {{ detail.pkgMaterial }}</el-descriptions-item>
+        <el-descriptions-item label="MSDS版本">{{ detail.msdsVersion }}</el-descriptions-item>
+        <el-descriptions-item label="MSDS获取日期">{{ detail.msdsDate }}</el-descriptions-item>
+        <el-descriptions-item label="标签状态"><el-tag>{{ detail.labelStatus }}</el-tag></el-descriptions-item>
+      </el-descriptions>
     </el-dialog>
-</div>
+  </div>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
-<script>
-const { createApp } = Vue; 
-const { ElMessage } = ElementPlus;
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue;
+    const { ElMessage } = ElementPlus;
 
-createApp({
-  data() {
-    return {
-      searchForm: { name:'', cas:'', location:'', supplier:'', categories:[], isHighlyToxic:'', isExplosive:'', stockStatus:'' },
-      showMoreFilters: false,
-      hazardOptions: ['爆炸物','易燃气体','易燃液体','易燃固体','自反应物质/混合物','自燃液体','自燃固体','遇水放出易燃气体物质','氧化性气体','氧化性液体','氧化性固体','有机过氧化物','腐蚀性物质','高压气体'],
-      tableData: [],
-      selectedRows: [],
-      currentPage: 1,
-      pageSize: 20,
-      showDetail: false,
-      detail: {},
-      loading: false,
-      showFormDialog:false,
-      formMode:'create',
-      formData:{ name:'',englishName:'',alias:'',cas:'',hazards:'',hazardCategory:'',location:'',stockQty:'',unit:'',stockStatus:'',supplier:'',batchNo:'',prodDate:'',expireDate:'',pkgType:'',pkgMaterial:'',pkgQty:'',pkgCapacity:'',msdsVersion:'',msdsDate:'',labelStatus:'' },
-      formRules:{
-        name:[{required:true,message:'请输入名称',trigger:'blur'}],
-        cas:[{required:true,message:'请输入CAS',trigger:'blur'},{ validator:(r,v,cb)=>{ const ok=/^\d{2,7}-\d{2}-\d$/.test(v); ok?cb():cb(new Error('CAS格式不正确')); }, trigger:'blur'}],
-        location:[{required:true,message:'请输入储存位置',trigger:'blur'}],
-        stockQty:[{required:true,message:'请输入库存数量',trigger:'blur'},{ validator:(r,v,cb)=>{ if(isNaN(Number(v))||Number(v)<0) return cb(new Error('库存需为非负数')); cb(); }, trigger:'blur'}],
-        unit:[{required:true,message:'请选择计量单位',trigger:'change'}],
-        stockStatus:[{required:true,message:'请选择库存状态',trigger:'change'}],
-        supplier:[{required:true,message:'请输入供应商',trigger:'blur'}],
-        batchNo:[{required:true,message:'请输入批次号',trigger:'blur'}],
-        prodDate:[{required:true,message:'请选择生产日期',trigger:'change'}],
-        labelStatus:[{required:true,message:'请选择标签状态',trigger:'change'}]
+    createApp({
+      data() {
+        return {
+          searchForm: { name: '', cas: '', storageArea: '', unitType: '', categories: [], isHighlyToxic: '', isExplosive: '' },
+          showMoreFilters: false,
+          hazardOptions: ['爆炸物', '易燃气体', '易燃液体', '易燃固体', '自反应物质/混合物', '自燃液体', '自燃固体', '遇水放出易燃气体物质', '氧化性气体', '氧化性液体', '氧化性固体', '有机过氧化物', '腐蚀性物质', '高压气体'],
+          // 存储区域选项
+          storageAreaOptions: [
+            { label: '危化仓-A区', value: 'hazchem-a' },
+            { label: '危化仓-B区', value: 'hazchem-b' },
+            { label: '危化仓-C区', value: 'hazchem-c' },
+            { label: '溶剂仓库-01区', value: 'solvent-01' },
+            { label: '溶剂仓库-02区', value: 'solvent-02' },
+            { label: '原料仓库-东区', value: 'material-east' },
+            { label: '原料仓库-西区', value: 'material-west' }
+          ],
+
+          tableData: [],
+          selectedRows: [],
+          currentPage: 1,
+          pageSize: 20,
+          showDetail: false,
+          detail: {},
+          loading: false,
+          showFormDialog: false,
+          formMode: 'create',
+          formData: { name: '', englishName: '', alias: '', cas: '', hazards: '', hazardCategory: '', location: '', stockQty: '', unit: '', stockStatus: '', supplier: '', batchNo: '', prodDate: '', expireDate: '', pkgType: '', pkgMaterial: '', pkgQty: '', pkgCapacity: '', msdsVersion: '', msdsDate: '', labelStatus: '' },
+          formRules: {
+            name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+            cas: [{ required: true, message: '请输入CAS', trigger: 'blur' }, { validator: (r, v, cb) => { const ok = /^\d{2,7}-\d{2}-\d$/.test(v); ok ? cb() : cb(new Error('CAS格式不正确')); }, trigger: 'blur' }],
+            location: [{ required: true, message: '请选择储存位置', trigger: 'change' }],
+            stockQty: [{ required: true, message: '请输入库存数量', trigger: 'blur' }, { validator: (r, v, cb) => { if (isNaN(Number(v)) || Number(v) < 0) return cb(new Error('库存需为非负数')); cb(); }, trigger: 'blur' }],
+            unit: [{ required: true, message: '请选择计量单位', trigger: 'change' }],
+            stockStatus: [{ required: true, message: '请选择库存状态', trigger: 'change' }],
+            supplier: [{ required: true, message: '请输入供应商', trigger: 'blur' }],
+            batchNo: [{ required: true, message: '请输入批次号', trigger: 'blur' }],
+            prodDate: [{ required: true, message: '请选择生产日期', trigger: 'change' }],
+            labelStatus: [{ required: true, message: '请选择标签状态', trigger: 'change' }]
+          },
+          formRef: null,
+          editBackup: null,
+          showSortDialog: false,
+          sortConfig: { primary: { field: 'name', order: 'asc' }, secondary: { field: '', order: 'asc' } },
+          sortableFields: [
+            { label: '名称', value: 'name' }, { label: 'CAS', value: 'cas' }, { label: '危险性类别', value: 'hazardCategory' }, { label: '库存', value: 'stockQty' }, { label: '库存状态', value: 'stockStatus' }, { label: '供应商', value: 'supplier' }, { label: '生产日期', value: 'prodDate' }
+          ]
+        }
       },
-      formRef:null,
-      editBackup:null,
-      showSortDialog:false,
-      sortConfig:{ primary:{ field:'name', order:'asc' }, secondary:{ field:'', order:'asc' } },
-      sortableFields:[
-        {label:'名称',value:'name'},{label:'CAS',value:'cas'},{label:'危险性类别',value:'hazardCategory'},{label:'库存',value:'stockQty'},{label:'库存状态',value:'stockStatus'},{label:'供应商',value:'supplier'},{label:'生产日期',value:'prodDate'}
-      ]
-    }
-  },
-  computed:{
-    filteredData(){
-      let data=this.tableData.filter(d=>{
-        const nameOk=!this.searchForm.name || d.name.includes(this.searchForm.name) || (d.alias||'').includes(this.searchForm.name) || (d.englishName||'').toLowerCase().includes(this.searchForm.name.toLowerCase());
-        const casOk=!this.searchForm.cas || d.cas.includes(this.searchForm.cas);
-        const locOk=!this.searchForm.location || (d.location||'').includes(this.searchForm.location);
-        const supOk=!this.searchForm.supplier || (d.supplier||'').includes(this.searchForm.supplier);
-        const catOk=!this.searchForm.categories.length || this.searchForm.categories.every(c => (Array.isArray(d.hazards)?d.hazards:d.hazards?.split(',')).includes(c));
-        const toxOk=!this.searchForm.isHighlyToxic || (d.isHighlyToxic||'否')===this.searchForm.isHighlyToxic;
-        const expOk=!this.searchForm.isExplosive || (d.isExplosive||'否')===this.searchForm.isExplosive;
-        const stOk=!this.searchForm.stockStatus || (d.stockStatus||'')===this.searchForm.stockStatus;
-        return nameOk && casOk && locOk && supOk && catOk && toxOk && expOk && stOk;
-      });
-      const cmp=(a,b,f,o)=>{ const va=a[f]??''; const vb=b[f]??''; const na=isNaN(Number(va))?va:Number(va); const nb=isNaN(Number(vb))?vb:Number(vb); if(na<nb) return o==='asc'?-1:1; if(na>nb) return o==='asc'?1:-1; return 0; };
-      data.sort((a,b)=>{ let r=cmp(a,b,this.sortConfig.primary.field,this.sortConfig.primary.order); if(r!==0 || !this.sortConfig.secondary.field) return r; return cmp(a,b,this.sortConfig.secondary.field,this.sortConfig.secondary.order); });
-      return data;
-    },
-    pagedData(){ const s=(this.currentPage-1)*this.pageSize; return this.filteredData.slice(s,s+this.pageSize); }
-  },
-  methods: {
-    search(){ try{ this.loading=true; setTimeout(()=>{ this.loading=false; ElMessage.success('查询已执行'); }, 500); } catch(e){ this.loading=false; ElMessage.error('查询失败'); } },
-    reset(){ this.searchForm = { name:'', cas:'', location:'', supplier:'', categories:[], isHighlyToxic:'', isExplosive:'', stockStatus:'' }; },
-    toggleMore(){ this.showMoreFilters = !this.showMoreFilters; },
-    exportData(){ const headers=['名称','别名','英文名','CAS','危险性分类','危险性类别','储存位置','库存','单位','库存状态','供应商','批次号','生产日期','有效期至','包装类型','包装材质','MSDS版本','MSDS获取日期','标签状态']; const rows=this.filteredData.map(d=>[d.name,d.alias||'',d.englishName||'',d.cas||'',d.hazards||'',d.hazardCategory||'',d.location||'',d.stockQty||'',d.unit||'',d.stockStatus||'',d.supplier||'',d.batchNo||'',d.prodDate||'',d.expireDate||'',d.pkgType||'',d.pkgMaterial||'',d.msdsVersion||'',d.msdsDate||'',d.labelStatus||'']); const csv=[headers.join(','),...rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'\"')}"`).join(','))].join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='台账-导出.csv'; a.click(); URL.revokeObjectURL(url); ElMessage.success('导出成功'); },
-    batchDelete(){
-      if(this.selectedRows.length === 0){
-        ElMessage.warning('请选择要删除的记录');
-        return;
-      }
-      ElMessageBox.confirm(
-        `确定要删除选中的 ${this.selectedRows.length} 条记录吗？`,
-        '确认批量删除',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }
-      ).then(() => {
-        const selectedIds = this.selectedRows.map(row => row.cas);
-        this.tableData = this.tableData.filter(item => !selectedIds.includes(item.cas));
-        this.selectedRows = [];
-        ElMessage.success(`成功删除 ${selectedIds.length} 条记录`);
-      }).catch(() => {
-        ElMessage.info('已取消删除');
-      });
-    },
-    goView(row){ window.location.href = `./危险化学品台账-查看.html?cas=${encodeURIComponent(row.cas)}`; },
-    openCreate(){ window.location.href = './危险化学品台账-新建.html'; },
-    goEdit(row){ window.location.href = `./危险化学品台账-编辑.html?cas=${encodeURIComponent(row.cas)}`; },
-    onCancelForm(){ if(this.formMode==='edit' && this.editBackup){ Object.assign(this.findRowByKey(this.editBackup.cas), this.editBackup); } this.showFormDialog=false; },
-    onSubmitForm(){ this.$refs.formRef.validate((valid)=>{ if(!valid){ ElMessage.warning('请完善表单'); return; } if(this.formMode==='create'){ if(this.tableData.some(d=>d.cas===this.formData.cas)){ ElMessage.error('CAS已存在'); return; } this.tableData.unshift({...this.formData}); ElMessage.success('新增成功'); } else { const row=this.findRowByKey(this.formData.cas); if(row){ Object.assign(row,this.formData); ElMessage.success('保存成功'); } else { ElMessage.error('未找到编辑对象'); } } this.showFormDialog=false; }); },
-    findRowByKey(cas){ return this.tableData.find(d=>d.cas===cas); },
-    openSortConfig(){ this.showSortDialog=true; },
-    applySortConfig(){ this.showSortDialog=false; ElMessage.success('已应用排序配置'); },
-    onSortChange({prop,order}){ if(!order) return; this.sortConfig.primary.field=prop; this.sortConfig.primary.order= order==='ascending'? 'asc':'desc'; },
-    handleSelectionChange(selection){ this.selectedRows = selection; },
-    deleteRow(row){
-      ElMessageBox.confirm(
-        `确定要删除化学品 "${row.name}" 吗？`,
-        '确认删除',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }
-      ).then(() => {
-        const index = this.tableData.findIndex(item => item.cas === row.cas);
-        if (index !== -1) {
-          this.tableData.splice(index, 1);
-          ElMessage.success('删除成功');
-        }
-      }).catch(() => {
-        ElMessage.info('已取消删除');
-      });
-    },
-    runTests(){ const results=[]; const ok1=/^\d{2,7}-\d{2}-\d$/.test('64-17-5'); results.push(ok1); const ok2=/^\d{2,7}-\d{2}-\d$/.test('6417-55'); results.push(!ok2); const pass=results.filter(Boolean).length; ElMessage.success(`测试通过 ${pass}/${results.length}`); },
-    printLabel(row){
-      // 创建标签内容
-      const labelContent = this.generateLabelContent(row);
+      computed: {
+        filteredData() {
+          let data = this.tableData.filter(d => {
+            const nameOk = !this.searchForm.name || d.name.includes(this.searchForm.name) || (d.alias || '').includes(this.searchForm.name) || (d.englishName || '').toLowerCase().includes(this.searchForm.name.toLowerCase());
+            const casOk = !this.searchForm.cas || d.cas.includes(this.searchForm.cas);
 
-      // 创建临时 iframe 用于生成 PDF
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.left = '-9999px';
-      iframe.style.width = '400px';
-      iframe.style.height = '300px';
-      document.body.appendChild(iframe);
+            // 存储区域过滤
+            const areaOk = !this.searchForm.storageArea || (d.storageArea || '') === this.searchForm.storageArea;
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.write(labelContent);
-      iframeDoc.close();
+            // 单元类型过滤
+            const unitTypeOk = !this.searchForm.unitType || (d.unitType || '') === this.searchForm.unitType;
 
-      // 等待内容加载完成后生成 PDF
-      iframe.onload = () => {
-        setTimeout(() => {
-          // 使用浏览器的打印功能，选择"保存为 PDF"
-          iframe.contentWindow.print();
-          // 清理临时 iframe
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-            ElMessage.success('标签下载已准备，请选择"保存为 PDF"');
-          }, 1000);
-        }, 500);
-      };
-    },
-    generateLabelContent(row) {
-      const currentDate = new Date().toLocaleDateString('zh-CN');
+            const catOk = !this.searchForm.categories.length || this.searchForm.categories.every(c => (Array.isArray(d.hazards) ? d.hazards : d.hazards?.split(',')).includes(c));
+            const toxOk = !this.searchForm.isHighlyToxic || (d.isHighlyToxic || '否') === this.searchForm.isHighlyToxic;
+            const expOk = !this.searchForm.isExplosive || (d.isExplosive || '否') === this.searchForm.isExplosive;
+            return nameOk && casOk && areaOk && unitTypeOk && catOk && toxOk && expOk;
+          });
+          const cmp = (a, b, f, o) => { const va = a[f] ?? ''; const vb = b[f] ?? ''; const na = isNaN(Number(va)) ? va : Number(va); const nb = isNaN(Number(vb)) ? vb : Number(vb); if (na < nb) return o === 'asc' ? -1 : 1; if (na > nb) return o === 'asc' ? 1 : -1; return 0; };
+          data.sort((a, b) => { let r = cmp(a, b, this.sortConfig.primary.field, this.sortConfig.primary.order); if (r !== 0 || !this.sortConfig.secondary.field) return r; return cmp(a, b, this.sortConfig.secondary.field, this.sortConfig.secondary.order); });
+          return data;
+        },
+        pagedData() { const s = (this.currentPage - 1) * this.pageSize; return this.filteredData.slice(s, s + this.pageSize); }
+      },
+      methods: {
+        search() { try { this.loading = true; setTimeout(() => { this.loading = false; ElMessage.success('查询已执行'); }, 500); } catch (e) { this.loading = false; ElMessage.error('查询失败'); } },
+        reset() { this.searchForm = { name: '', cas: '', storageArea: '', unitType: '', categories: [], isHighlyToxic: '', isExplosive: '' }; },
+        toggleMore() { this.showMoreFilters = !this.showMoreFilters; },
+        exportData() { const headers = ['名称', '别名', '英文名', 'CAS', '危险性分类', '单元类型', '危险性类别', '储存位置', '库存', '临界量', '单位', '库存状态', '供应商', '批次号', '生产日期', '有效期至', '包装类型', '包装材质', 'MSDS版本', 'MSDS获取日期', '标签状态']; const rows = this.filteredData.map(d => [d.name, d.alias || '', d.englishName || '', d.cas || '', d.hazards || '', d.unitType === 'production' ? '生产单元' : (d.unitType === 'storage' ? '存储单元' : ''), d.hazardCategory || '', d.location || '', d.stockQty || '', d.criticalQty || '', d.unit || '', d.stockStatus || '', d.supplier || '', d.batchNo || '', d.prodDate || '', d.expireDate || '', d.pkgType || '', d.pkgMaterial || '', d.msdsVersion || '', d.msdsDate || '', d.labelStatus || '']); const csv = [headers.join(','), ...rows.map(r => r.map(x => `"${String(x).replace(/"/g, '\"')}"`).join(','))].join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '台账-导出.csv'; a.click(); URL.revokeObjectURL(url); ElMessage.success('导出成功'); },
+        batchDelete() {
+          if (this.selectedRows.length === 0) {
+            ElMessage.warning('请选择要删除的记录');
+            return;
+          }
+          ElMessageBox.confirm(
+            `确定要删除选中的 ${this.selectedRows.length} 条记录吗？`,
+            '确认批量删除',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+            }
+          ).then(() => {
+            const selectedIds = this.selectedRows.map(row => row.cas);
+            this.tableData = this.tableData.filter(item => !selectedIds.includes(item.cas));
+            this.selectedRows = [];
+            ElMessage.success(`成功删除 ${selectedIds.length} 条记录`);
+          }).catch(() => {
+            ElMessage.info('已取消删除');
+          });
+        },
+        goView(row) { window.location.href = `./危险化学品台账-查看.html?cas=${encodeURIComponent(row.cas)}`; },
+        openCreate() { window.location.href = './危险化学品台账-新建.html'; },
+        goEdit(row) { window.location.href = `./危险化学品台账-编辑.html?cas=${encodeURIComponent(row.cas)}`; },
+        onCancelForm() { if (this.formMode === 'edit' && this.editBackup) { Object.assign(this.findRowByKey(this.editBackup.cas), this.editBackup); } this.showFormDialog = false; },
+        onSubmitForm() { this.$refs.formRef.validate((valid) => { if (!valid) { ElMessage.warning('请完善表单'); return; } if (this.formMode === 'create') { if (this.tableData.some(d => d.cas === this.formData.cas)) { ElMessage.error('CAS已存在'); return; } this.tableData.unshift({ ...this.formData }); ElMessage.success('新增成功'); } else { const row = this.findRowByKey(this.formData.cas); if (row) { Object.assign(row, this.formData); ElMessage.success('保存成功'); } else { ElMessage.error('未找到编辑对象'); } } this.showFormDialog = false; }); },
+        findRowByKey(cas) { return this.tableData.find(d => d.cas === cas); },
+        openSortConfig() { this.showSortDialog = true; },
+        applySortConfig() { this.showSortDialog = false; ElMessage.success('已应用排序配置'); },
+        onSortChange({ prop, order }) { if (!order) return; this.sortConfig.primary.field = prop; this.sortConfig.primary.order = order === 'ascending' ? 'asc' : 'desc'; },
+        handleSelectionChange(selection) { this.selectedRows = selection; },
+        deleteRow(row) {
+          ElMessageBox.confirm(
+            `确定要删除化学品 "${row.name}" 吗？`,
+            '确认删除',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+            }
+          ).then(() => {
+            const index = this.tableData.findIndex(item => item.cas === row.cas);
+            if (index !== -1) {
+              this.tableData.splice(index, 1);
+              ElMessage.success('删除成功');
+            }
+          }).catch(() => {
+            ElMessage.info('已取消删除');
+          });
+        },
+        runTests() { const results = []; const ok1 = /^\d{2,7}-\d{2}-\d$/.test('64-17-5'); results.push(ok1); const ok2 = /^\d{2,7}-\d{2}-\d$/.test('6417-55'); results.push(!ok2); const pass = results.filter(Boolean).length; ElMessage.success(`测试通过 ${pass}/${results.length}`); },
+        printLabel(row) {
+          // 创建标签内容
+          const labelContent = this.generateLabelContent(row);
 
-      return `
+          // 创建临时 iframe 用于生成 PDF
+          const iframe = document.createElement('iframe');
+          iframe.style.position = 'absolute';
+          iframe.style.left = '-9999px';
+          iframe.style.width = '400px';
+          iframe.style.height = '300px';
+          document.body.appendChild(iframe);
+
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          iframeDoc.write(labelContent);
+          iframeDoc.close();
+
+          // 等待内容加载完成后生成 PDF
+          iframe.onload = () => {
+            setTimeout(() => {
+              // 使用浏览器的打印功能，选择"保存为 PDF"
+              iframe.contentWindow.print();
+              // 清理临时 iframe
+              setTimeout(() => {
+                document.body.removeChild(iframe);
+                ElMessage.success('标签下载已准备，请选择"保存为 PDF"');
+              }, 1000);
+            }, 500);
+          };
+        },
+        generateLabelContent(row) {
+          const currentDate = new Date().toLocaleDateString('zh-CN');
+
+          return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -460,86 +586,91 @@ createApp({
     </div>
 </body>
 </html>`;
-    },
-    loadData(){
-      try {
-        // 从sessionStorage获取数据
-        const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
+        },
+        loadData() {
+          try {
+            // 从sessionStorage获取数据
+            const 台账List = JSON.parse(sessionStorage.getItem('chemicalLedgerList') || '[]');
 
-        // 如果没有数据，使用默认示例数据
-        if (台账List.length === 0) {
-          this.tableData = [
-            {
-              name:'乙醇',
-              alias:'酒精',
-              englishName:'Ethanol',
-              cas:'64-17-5',
-              hazards:'易燃液体',
-              hazardCategory:'易燃液体类别2',
-              isHighlyToxic:'否',
-              isExplosive:'否',
-              location:'危化仓A-01-05',
-              stockQty:120,
-              unit:'L',
-              stockStatus:'正常',
-              supplier:'XX化工有限公司',
-              batchNo:'B202511-01',
-              prodDate:'2025-10-12',
-              expireDate:'2027-10-12',
-              pkgType:'200L铁桶',
-              pkgMaterial:'不锈钢',
-              pkgQty:10,
-              pkgCapacity:'200L',
-              msdsVersion:'V1.2',
-              msdsDate:'2025-10-12',
-              labelStatus:'已粘贴',
-              createTime: '2025-11-19 10:30:00',
-              updateTime: '2025-11-19 15:45:00'
+            // 如果没有数据，使用默认示例数据
+            if (台账List.length === 0) {
+              this.tableData = [
+                {
+                  name: '乙醇',
+                  alias: '酒精',
+                  englishName: 'Ethanol',
+                  cas: '64-17-5',
+                  hazards: '易燃液体',
+                  hazardCategory: '易燃液体类别2',
+                  isHighlyToxic: '否',
+                  isExplosive: '否',
+                  storageArea: 'hazchem-a',
+                  unitType: 'storage',
+                  stockQty: 120,
+                  criticalQty: 200,
+                  unit: 'L',
+                  stockStatus: '正常',
+                  supplier: 'XX化工有限公司',
+                  batchNo: 'B202511-01',
+                  prodDate: '2025-10-12',
+                  expireDate: '2027-10-12',
+                  pkgType: '200L铁桶',
+                  pkgMaterial: '不锈钢',
+                  pkgQty: 10,
+                  pkgCapacity: '200L',
+                  msdsVersion: 'V1.2',
+                  msdsDate: '2025-10-12',
+                  labelStatus: '已粘贴',
+                  createTime: '2025-11-19 10:30:00',
+                  updateTime: '2025-11-19 15:45:00'
+                }
+              ];
+            } else {
+              this.tableData = 台账List;
             }
-          ];
-        } else {
-          this.tableData = 台账List;
-        }
-      } catch (error) {
-        console.error('加载数据失败:', error);
-        ElMessage.error('加载数据失败');
-        // 使用默认数据
-        this.tableData = [
-          {
-            name:'乙醇',
-            alias:'酒精',
-            englishName:'Ethanol',
-            cas:'64-17-5',
-            hazards:'易燃液体',
-            hazardCategory:'易燃液体类别2',
-            isHighlyToxic:'否',
-            isExplosive:'否',
-            location:'危化仓A-01-05',
-            stockQty:120,
-            unit:'L',
-            stockStatus:'正常',
-            supplier:'XX化工有限公司',
-            batchNo:'B202511-01',
-            prodDate:'2025-10-12',
-            expireDate:'2027-10-12',
-            pkgType:'200L铁桶',
-            pkgMaterial:'不锈钢',
-            pkgQty:10,
-            pkgCapacity:'200L',
-            msdsVersion:'V1.2',
-            msdsDate:'2025-10-12',
-            labelStatus:'已粘贴',
-            createTime: '2025-11-19 10:30:00',
-            updateTime: '2025-11-19 15:45:00'
+          } catch (error) {
+            console.error('加载数据失败:', error);
+            ElMessage.error('加载数据失败');
+            // 使用默认数据
+            this.tableData = [
+              {
+                name: '乙醇',
+                alias: '酒精',
+                englishName: 'Ethanol',
+                cas: '64-17-5',
+                hazards: '易燃液体',
+                hazardCategory: '易燃液体类别2',
+                isHighlyToxic: '否',
+                isExplosive: '否',
+                storageArea: 'hazchem-a',
+                unitType: 'storage',
+                  stockQty: 120,
+                  criticalQty: 200,
+                  unit: 'L',
+                  stockStatus: '正常',
+                  supplier: 'XX化工有限公司',
+                batchNo: 'B202511-01',
+                prodDate: '2025-10-12',
+                expireDate: '2027-10-12',
+                pkgType: '200L铁桶',
+                pkgMaterial: '不锈钢',
+                pkgQty: 10,
+                pkgCapacity: '200L',
+                msdsVersion: 'V1.2',
+                msdsDate: '2025-10-12',
+                labelStatus: '已粘贴',
+                createTime: '2025-11-19 10:30:00',
+                updateTime: '2025-11-19 15:45:00'
+              }
+            ];
           }
-        ];
+        }
+      },
+      mounted() {
+        this.loadData();
       }
-    }
-  },
-  mounted() {
-    this.loadData();
-  }
-}).use(ElementPlus).mount('#app');
-</script>
+    }).use(ElementPlus).mount('#app');
+  </script>
 </body>
+
 </html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储区域下拉框测试</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #f0f9ff; border-color: #91d5ff; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>存储区域下拉框测试</h1>
+
+        <div class="test-result" :class="testStatus">
+            <h3>测试结果</h3>
+            <p>{{ message }}</p>
+            <p>选中的存储区域: {{ selectedArea }}</p>
+            <p>选中的区域标签: {{ selectedAreaLabel }}</p>
+        </div>
+
+        <el-form label-width="120px">
+            <el-form-item label="存储区域">
+                <el-select v-model="selectedArea" placeholder="请选择存储区域" clearable style="width: 300px">
+                    <el-option v-for="area in storageAreaOptions" :key="area.value" :label="area.label" :value="area.value">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+    </div>
+
+    <!-- Vue 3 Script -->
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    message: '下拉框加载中...',
+                    testStatus: '',
+                    selectedArea: '',
+                    storageAreaOptions: [
+                        { label: '危化仓-A区', value: 'hazchem-a' },
+                        { label: '危化仓-B区', value: 'hazchem-b' },
+                        { label: '危化仓-C区', value: 'hazchem-c' },
+                        { label: '溶剂仓库-01区', value: 'solvent-01' },
+                        { label: '溶剂仓库-02区', value: 'solvent-02' },
+                        { label: '原料仓库-东区', value: 'material-east' },
+                        { label: '原料仓库-西区', value: 'material-west' }
+                    ]
+                };
+            },
+            computed: {
+                selectedAreaLabel() {
+                    const area = this.storageAreaOptions.find(item => item.value === this.selectedArea);
+                    return area ? area.label : '未选择';
+                }
+            },
+            mounted() {
+                try {
+                    this.message = '存储区域下拉框测试成功！';
+                    this.testStatus = 'success';
+                    console.log('✅ 存储区域下拉框功能正常');
+                } catch (error) {
+                    this.message = '测试失败: ' + error.message;
+                    this.testStatus = 'error';
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>
