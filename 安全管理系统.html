@@ -1364,8 +1364,11 @@
 
                 // 添加页面导航处理功能
                 const handlePageNavigation = (event) => {
+                    // 添加调试信息
+                    console.log('收到消息:', event.data);
                     // 检查消息来源和类型
                     if (event.data && event.data.type === 'navigate') {
+                        console.log('处理导航消息:', event.data);
                         const { page, data, mode, title, icon } = event.data;
 
                         // 保存当前页面到导航历史（只有在页面内跳转时才保存）

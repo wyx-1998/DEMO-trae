@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重大危险源配置管理</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .config-page {
+      padding: 24px;
+      background-color: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    .config-header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      margin-bottom: 24px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .config-header h2 {
+      margin: 0;
+      color: #303133;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .config-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .config-card {
+      margin-bottom: 0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .card-header i {
+      color: #409EFF;
+    }
+
+    .basic-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 1200px) {
+      .basic-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .basic-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .basic-info-grid .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .basic-info-grid .info-item label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #606266;
+    }
+
+    .basic-info-grid .info-item .el-input {
+      background-color: #f5f7fa;
+    }
+
+    .responsible-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .responsible-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .responsible-icon.main {
+      background-color: #f56c6c;
+    }
+
+    .responsible-icon.technical {
+      background-color: #e6a23c;
+    }
+
+    .responsible-icon.operation {
+      background-color: #409EFF;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- 配置页面 -->
+    <div class="config-page">
+      <div class="config-header">
+        <el-button @click="goBack" type="default">
+          <i class="fas fa-arrow-left"></i> 返回列表
+        </el-button>
+        <h2>重大危险源配置管理</h2>
+        <div></div>
+      </div>
+
+      <div class="config-content">
+        <el-card class="config-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <i class="fas fa-info-circle"></i>
+              <span>基本信息</span>
+            </div>
+          </template>
+
+          <div class="basic-info-grid">
+            <div class="info-item">
+              <label>重大危险源编号</label>
+              <el-input v-model="configFormData.code" disabled />
+            </div>
+            <div class="info-item">
+              <label>重大危险源级别</label>
+              <el-input :value="getRiskLevelLabel(configFormData.riskLevel)" disabled />
+            </div>
+            <div class="info-item">
+              <label>所属单元</label>
+              <el-input v-model="configFormData.unit" disabled />
+            </div>
+            <div class="info-item">
+              <label>危险化学品种类</label>
+              <el-input :value="configFormData.chemicalCount + '种'" disabled />
+            </div>
+            <div class="info-item">
+              <label>R值</label>
+              <el-input :value="getRValueDisplay(configFormData.rValue)" disabled />
+            </div>
+            <div class="info-item">
+              <label>配置状态</label>
+              <el-input :value="configFormData.configStatus === 'configured' ? '已完成配置' : '未完成配置'" disabled />
+            </div>
+          </div>
+        </el-card>
+
+        <el-card class="config-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <i class="fas fa-users-cog"></i>
+              <span>包保责任人配置</span>
+            </div>
+          </template>
+
+          <el-form ref="configFormRef" :model="configFormData" :rules="configFormRules" label-width="120px" label-position="left">
+            <el-row :gutter="24">
+              <el-col :span="24">
+                <h3 class="responsible-title">
+                  <span class="responsible-icon main">主</span>
+                  主要负责人
+                </h3>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="负责人" prop="mainPerson.id">
+                  <el-select v-model="configFormData.mainPerson.id"
+                             placeholder="请选择主要负责人"
+                             filterable
+                             remote
+                             :remote-method="searchMainResponsiblePersons"
+                             :loading="searchLoading"
+                             style="width: 100%"
+                             @change="onMainPersonChange">
+                    <el-option
+                      v-for="person in mainResponsiblePersonList"
+                      :key="person.id"
+                      :label="person.name + ' - ' + person.position"
+                      :value="person.id">
+                      <div style="display: flex; justify-content: space-between;">
+                        <span>{{ person.name }} - {{ person.position }}</span>
+                        <span style="color: #8492a6; font-size: 13px">{{ person.department }}</span>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系方式">
+                  <el-input v-model="configFormData.mainPerson.phone" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="24">
+                <h3 class="responsible-title">
+                  <span class="responsible-icon technical">技</span>
+                  技术负责人
+                </h3>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="负责人" prop="technicalPerson.id">
+                  <el-select v-model="configFormData.technicalPerson.id"
+                             placeholder="请选择技术负责人"
+                             filterable
+                             remote
+                             :remote-method="searchTechnicalResponsiblePersons"
+                             :loading="searchLoading"
+                             style="width: 100%"
+                             @change="onTechnicalPersonChange">
+                    <el-option
+                      v-for="person in technicalResponsiblePersonList"
+                      :key="person.id"
+                      :label="person.name + ' - ' + person.position"
+                      :value="person.id">
+                      <div style="display: flex; justify-content: space-between;">
+                        <span>{{ person.name }} - {{ person.position }}</span>
+                        <span style="color: #8492a6; font-size: 13px">{{ person.department }}</span>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系方式">
+                  <el-input v-model="configFormData.technicalPerson.phone" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="24">
+                <h3 class="responsible-title">
+                  <span class="responsible-icon operation">操</span>
+                  操作负责人
+                </h3>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="负责人" prop="operationalPerson.id">
+                  <el-select v-model="configFormData.operationalPerson.id"
+                             placeholder="请选择操作负责人"
+                             filterable
+                             remote
+                             :remote-method="searchOperationalResponsiblePersons"
+                             :loading="searchLoading"
+                             style="width: 100%"
+                             @change="onOperationalPersonChange">
+                    <el-option
+                      v-for="person in operationalResponsiblePersonList"
+                      :key="person.id"
+                      :label="person.name + ' - ' + person.position"
+                      :value="person.id">
+                      <div style="display: flex; justify-content: space-between;">
+                        <span>{{ person.name }} - {{ person.position }}</span>
+                        <span style="color: #8492a6; font-size: 13px">{{ person.department }}</span>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系方式">
+                  <el-input v-model="configFormData.operationalPerson.phone" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-divider content-position="left">其他配置</el-divider>
+            <el-row :gutter="24">
+              <el-col :span="12">
+                <el-form-item label="监测接入状态">
+                  <el-switch v-model="configFormData.monitoringConnected"
+                             active-text="已接入"
+                             inactive-text="未接入" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="承诺公告配置">
+                  <el-switch v-model="configFormData.announcementConfigured"
+                             active-text="已配置"
+                             inactive-text="未配置" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-form-item>
+              <el-button type="primary" @click="submitConfig" :loading="configSubmitting" size="large">
+                <i class="fas fa-save"></i> 保存配置
+              </el-button>
+              <el-button @click="goBack" size="large">
+                <i class="fas fa-times"></i> 取消
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp, ref, reactive } = Vue;
+    const { ElMessage } = ElementPlus;
+
+    createApp({
+      data() {
+        return {
+          configSubmitting: false,
+          configFormRef: null,
+          searchLoading: false,
+          mainResponsiblePersonList: [],
+          technicalResponsiblePersonList: [],
+          operationalResponsiblePersonList: [],
+          configFormData: {
+            code: '',
+            riskLevel: '',
+            unit: '',
+            chemicalCount: 0,
+            rValue: 0,
+            configStatus: '',
+            mainPerson: {
+              id: '',
+              name: '',
+              phone: '',
+              position: '',
+              department: ''
+            },
+            technicalPerson: {
+              id: '',
+              name: '',
+              phone: '',
+              position: '',
+              department: ''
+            },
+            operationalPerson: {
+              id: '',
+              name: '',
+              phone: '',
+              position: '',
+              department: ''
+            },
+            monitoringConnected: false,
+            announcementConfigured: false
+          },
+          configFormRules: {
+            'mainPerson.id': [{ required: true, message: '请选择主要负责人', trigger: 'change' }],
+            'technicalPerson.id': [{ required: true, message: '请选择技术负责人', trigger: 'change' }],
+            'operationalPerson.id': [{ required: true, message: '请选择操作负责人', trigger: 'change' }]
+          },
+          // 模拟人员数据
+          allPersonnel: [
+            { id: '1', name: '张三', phone: '13800138001', position: '总经理', department: '管理层', type: 'main' },
+            { id: '2', name: '李四', phone: '13800138002', position: '技术总监', department: '技术部', type: 'technical' },
+            { id: '3', name: '王五', phone: '13800138003', position: '操作主管', department: '生产部', type: 'operational' },
+            { id: '4', name: '赵六', phone: '13800138004', position: '安全总监', department: '安全部', type: 'main' },
+            { id: '5', name: '孙七', phone: '13800138005', position: '高级工程师', department: '技术部', type: 'technical' },
+            { id: '6', name: '周八', phone: '13800138006', position: '班组长', department: '生产部', type: 'operational' },
+            { id: '7', name: '吴九', phone: '13800138007', position: '副总经理', department: '管理层', type: 'main' },
+            { id: '8', name: '郑十', phone: '13800138008', position: '工程师', department: '技术部', type: 'technical' },
+            { id: '9', name: '钱十一', phone: '13800138009', position: '操作员', department: '生产部', type: 'operational' }
+          ]
+        }
+      },
+      mounted() {
+        this.loadConfigData();
+        this.initPersonData();
+      },
+      methods: {
+        // 从URL参数或localStorage加载配置数据
+        loadConfigData() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const configData = urlParams.get('data');
+
+          if (configData) {
+            try {
+              const data = JSON.parse(decodeURIComponent(configData));
+              this.configFormData = { ...this.configFormData, ...data };
+            } catch (e) {
+              ElMessage.error('配置数据加载失败');
+              this.goBack();
+            }
+          } else {
+            // 从localStorage获取数据
+            const savedData = localStorage.getItem('majorHazardConfig');
+            if (savedData) {
+              const data = JSON.parse(savedData);
+              this.configFormData = { ...this.configFormData, ...data };
+            }
+          }
+        },
+        // 返回列表页
+        goBack() {
+          // 清除localStorage中的数据
+          localStorage.removeItem('majorHazardConfig');
+          // 返回到列表页
+          window.location.href = '包保责任制管理台账.html';
+        },
+        // 获取风险等级标签
+        getRiskLevelLabel(level) {
+          const map = {
+            'level1': '一级',
+            'level2': '二级',
+            'level3': '三级',
+            'level4': '四级'
+          };
+          return map[level] || level;
+        },
+        // 获取R值显示
+        getRValueDisplay(rValue) {
+          // 如果rValue是字符串且包含'R='，提取数值部分
+          if (typeof rValue === 'string' && rValue.includes('R=')) {
+            return rValue.replace('R=', '');
+          }
+          // 如果是数字，直接返回
+          return rValue;
+        },
+        initPersonData() {
+          // 初始化人员列表
+          this.mainResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'main');
+          this.technicalResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'technical');
+          this.operationalResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'operational');
+        },
+        // 主要负责人搜索
+        searchMainResponsiblePersons(query) {
+          this.searchLoading = true;
+          setTimeout(() => {
+            if (query) {
+              this.mainResponsiblePersonList = this.allPersonnel
+                .filter(p => p.type === 'main')
+                .filter(person =>
+                  person.name.includes(query) ||
+                  person.position.includes(query) ||
+                  person.department.includes(query)
+                );
+            } else {
+              this.mainResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'main');
+            }
+            this.searchLoading = false;
+          }, 300);
+        },
+        // 技术负责人搜索
+        searchTechnicalResponsiblePersons(query) {
+          this.searchLoading = true;
+          setTimeout(() => {
+            if (query) {
+              this.technicalResponsiblePersonList = this.allPersonnel
+                .filter(p => p.type === 'technical')
+                .filter(person =>
+                  person.name.includes(query) ||
+                  person.position.includes(query) ||
+                  person.department.includes(query)
+                );
+            } else {
+              this.technicalResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'technical');
+            }
+            this.searchLoading = false;
+          }, 300);
+        },
+        // 操作负责人搜索
+        searchOperationalResponsiblePersons(query) {
+          this.searchLoading = true;
+          setTimeout(() => {
+            if (query) {
+              this.operationalResponsiblePersonList = this.allPersonnel
+                .filter(p => p.type === 'operational')
+                .filter(person =>
+                  person.name.includes(query) ||
+                  person.position.includes(query) ||
+                  person.department.includes(query)
+                );
+            } else {
+              this.operationalResponsiblePersonList = this.allPersonnel.filter(p => p.type === 'operational');
+            }
+            this.searchLoading = false;
+          }, 300);
+        },
+        // 人员选择变更处理
+        onMainPersonChange(personId) {
+          const person = this.allPersonnel.find(p => p.id === personId);
+          if (person) {
+            this.configFormData.mainPerson = { ...person };
+          }
+        },
+        onTechnicalPersonChange(personId) {
+          const person = this.allPersonnel.find(p => p.id === personId);
+          if (person) {
+            this.configFormData.technicalPerson = { ...person };
+          }
+        },
+        onOperationalPersonChange(personId) {
+          const person = this.allPersonnel.find(p => p.id === personId);
+          if (person) {
+            this.configFormData.operationalPerson = { ...person };
+          }
+        },
+        submitConfig() {
+          this.$refs.configFormRef.validate((valid) => {
+            if (!valid) {
+              ElMessage.warning('请完善配置信息');
+              return;
+            }
+            this.configSubmitting = true;
+
+            // 模拟保存配置到后端
+            setTimeout(() => {
+              // 保存配置数据到localStorage，供列表页使用
+              localStorage.setItem('majorHazardConfigResult', JSON.stringify({
+                code: this.configFormData.code,
+                mainPerson: {
+                  id: this.configFormData.mainPerson.id,
+                  name: this.configFormData.mainPerson.name,
+                  phone: this.configFormData.mainPerson.phone
+                },
+                technicalPerson: {
+                  id: this.configFormData.technicalPerson.id,
+                  name: this.configFormData.technicalPerson.name,
+                  phone: this.configFormData.technicalPerson.phone
+                },
+                operationalPerson: {
+                  id: this.configFormData.operationalPerson.id,
+                  name: this.configFormData.operationalPerson.name,
+                  phone: this.configFormData.operationalPerson.phone
+                },
+                monitoringConnected: this.configFormData.monitoringConnected,
+                announcementConfigured: this.configFormData.announcementConfigured
+              }));
+
+              this.configSubmitting = false;
+              ElMessage.success('配置保存成功');
+              this.goBack();
+            }, 1000);
+          });
+        }
+      }
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+
+</html>
