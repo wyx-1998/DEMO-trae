@@ -128,6 +128,7 @@
       border-radius: 4px;
       font-size: 12px;
       font-weight: 500;
+      color: white;
     }
 
     .risk-level-low {
@@ -136,61 +137,39 @@
     }
 
     .risk-level-medium {
-      background-color: #e6a23c;
-      color: #fff;
+      background-color: #f7ba2a;
+      color: #606266;
     }
 
     .risk-level-high {
-      background-color: #f56c6c;
+      background-color: #e6a23c;
       color: #fff;
     }
 
     .risk-level-critical {
-      background-color: #c41d7f;
-      color: #fff;
-    }
-
-    /* 状态色标 */
-    .status-tag {
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .status-active {
-      background-color: #67c23a;
-      color: #fff;
-    }
-
-    .status-changing {
-      background-color: #e6a23c;
-      color: #fff;
-    }
-
-    .status-cancelling {
       background-color: #f56c6c;
       color: #fff;
     }
 
-    .status-cancelled {
-      background-color: #909399;
-      color: #fff;
+    /* 页签样式 */
+    .el-tabs {
+      background: #fff;
+      padding: 0 4px;
     }
 
-    .monitoring-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .el-tabs__header {
+      margin: 0 0 16px 0;
     }
 
-    .monitoring-status.connected {
-      color: #67c23a;
+    .el-tabs__item {
+      font-size: 14px;
+      padding: 0 20px;
     }
 
-    .monitoring-status.disconnected {
-      color: #909399;
+    .el-tabs__item i {
+      margin-right: 6px;
     }
+
   </style>
 </head>
 
@@ -204,15 +183,20 @@
             <el-button type="warning" @click="exportData"><i class="fas fa-file-export"></i> 导出</el-button>
             <el-button @click="batchExport" type="success"><i class="fas fa-download"></i> 批量导出</el-button>
           </div>
-          <div style="font-size: 12px; color: #909399;">
-            <i class="fas fa-info-circle"></i> 数据来源于危险化学品安全风险分布台账
-          </div>
         </div>
 
         <div class="search-area">
           <el-form :model="searchForm" label-position="left" class="search-form">
-            <el-form-item label="关键字">
-              <el-input v-model="searchForm.keyword" placeholder="请输入编号/化学品名称" clearable />
+            <el-form-item label="重大危险级别">
+              <el-select v-model="searchForm.riskLevel" clearable placeholder="请选择重大危险级别" style="width: 100%">
+                <el-option label="一级" value="critical" />
+                <el-option label="二级" value="high" />
+                <el-option label="三级" value="medium" />
+                <el-option label="四级" value="low" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="重大危险源编号">
+              <el-input v-model="searchForm.keyword" placeholder="请输入重大危险源编号" clearable />
             </el-form-item>
             <el-form-item label="所属单元">
               <el-select v-model="searchForm.unit" placeholder="请选择所属单元" clearable style="width: 100%">
@@ -222,35 +206,17 @@
                 <el-option label="搬运" value="transport" />
               </el-select>
             </el-form-item>
-            <el-form-item label="危险化学品类别">
-              <el-select v-model="searchForm.category" placeholder="请选择类别" clearable style="width: 100%">
-                <el-option v-for="cat in categoryOptions" :key="cat.value" :label="cat.label" :value="cat.value" />
-              </el-select>
-            </el-form-item>
           </el-form>
 
           <el-form v-show="showMoreFilters" :model="searchForm" label-position="left" class="more-filters">
-            <el-form-item label="风险等级">
-              <el-select v-model="searchForm.riskLevel" clearable placeholder="请选择风险等级" style="width:100%">
-                <el-option label="一级重大危险源" value="critical" />
-                <el-option label="二级重大危险源" value="high" />
-                <el-option label="三级重大危险源" value="medium" />
-                <el-option label="四级重大危险源" value="low" />
-              </el-select>
+            <el-form-item label="主要负责人">
+              <el-input v-model="searchForm.responsiblePersonMain" placeholder="请输入主要负责人" clearable />
             </el-form-item>
-            <el-form-item label="状态">
-              <el-select v-model="searchForm.status" clearable placeholder="请选择状态" style="width:100%">
-                <el-option label="在册" value="active" />
-                <el-option label="变更中" value="changing" />
-                <el-option label="核销中" value="cancelling" />
-                <el-option label="已核销" value="cancelled" />
-              </el-select>
+            <el-form-item label="技术负责人">
+              <el-input v-model="searchForm.responsiblePersonTechnical" placeholder="请输入技术负责人" clearable />
             </el-form-item>
-            <el-form-item label="监测接入状态">
-              <el-select v-model="searchForm.monitoringStatus" clearable placeholder="请选择" style="width:100%">
-                <el-option label="已接入" value="connected" />
-                <el-option label="未接入" value="disconnected" />
-              </el-select>
+            <el-form-item label="操作负责人">
+              <el-input v-model="searchForm.responsiblePersonOperational" placeholder="请输入操作负责人" clearable />
             </el-form-item>
           </el-form>
 
@@ -265,6 +231,18 @@
         </div>
 
         <div class="table-area">
+          <el-tabs v-model="activeTab" @tab-change="handleTabChange" style="margin-bottom: 16px;">
+            <el-tab-pane label="当前重大危险源" name="current">
+              <template #label>
+                <span><i class="fas fa-check-circle"></i> 当前重大危险源</span>
+              </template>
+            </el-tab-pane>
+            <el-tab-pane label="历史重大危险源" name="history">
+              <template #label>
+                <span><i class="fas fa-history"></i> 历史重大危险源</span>
+              </template>
+            </el-tab-pane>
+          </el-tabs>
           <el-table :data="pagedData" style="width:100%" stripe border @selection-change="handleSelectionChange"
             v-loading="loading">
             <el-table-column type="selection" width="55"></el-table-column>
@@ -297,52 +275,40 @@
                 {{ row.chemicalCount || 0 }}种
               </template>
             </el-table-column>
-            <el-table-column prop="criticalJudgment" label="临界量判定" width="120">
+            <el-table-column prop="riskLevel" label="重大危险级别" width="120">
               <template #default="{ row }">
-                <el-tag :type="row.criticalJudgment === '≥临界量' ? 'danger' : 'info'" size="small">
-                  {{ row.criticalJudgment }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="riskLevel" label="风险等级" width="100">
-              <template #default="{ row }">
-                <span :class="['risk-level-tag', getRiskLevelClass(row.riskLevel)]">
+                <span v-if="row.riskLevel && ['critical', 'high', 'medium', 'low'].includes(row.riskLevel)" 
+                      :class="['risk-level-tag', getRiskLevelClass(row.riskLevel)]">
                   {{ getRiskLevelLabel(row.riskLevel) }}
                 </span>
+                <span v-else style="color: #909399;">已核销</span>
               </template>
             </el-table-column>
-            <el-table-column prop="responsiblePersons" label="包保责任人" min-width="200">
+            <el-table-column prop="deactivateDate" label="核销日期" width="120">
               <template #default="{ row }">
-                <div style="font-size: 12px; line-height: 1.6;">
-                  <div>主要负责人：{{ row.responsiblePersons.main || '-' }}</div>
-                  <div>技术负责人：{{ row.responsiblePersons.technical || '-' }}</div>
-                  <div>操作负责人：{{ row.responsiblePersons.operational || '-' }}</div>
-                </div>
+                <span v-if="activeTab === 'history'">{{ row.deactivateDate || '-' }}</span>
+                <span v-else style="color: #c0c4cc;">-</span>
               </template>
             </el-table-column>
-            <el-table-column prop="recordDate" label="备案日期" width="120"></el-table-column>
-            <el-table-column prop="monitoringStatus" label="监测接入状态" width="120">
+            <el-table-column prop="responsiblePersonMain" label="主要负责人" min-width="120">
               <template #default="{ row }">
-                <span :class="['monitoring-status', row.monitoringStatus === '已接入' ? 'connected' : 'disconnected']">
-                  <i :class="row.monitoringStatus === '已接入' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
-                  {{ row.monitoringStatus }}
-                </span>
+                {{ row.responsiblePersons?.main || '-' }}
               </template>
             </el-table-column>
-            <el-table-column prop="status" label="状态" width="100">
+            <el-table-column prop="responsiblePersonTechnical" label="技术负责人" min-width="120">
               <template #default="{ row }">
-                <span :class="['status-tag', getStatusClass(row.status)]">
-                  {{ getStatusLabel(row.status) }}
-                </span>
+                {{ row.responsiblePersons?.technical || '-' }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="200" fixed="right">
+            <el-table-column prop="responsiblePersonOperational" label="操作负责人" min-width="120">
+              <template #default="{ row }">
+                {{ row.responsiblePersons?.operational || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="120" fixed="right">
               <template #default="scope">
                 <el-button size="small" type="primary" @click="goView(scope.row)">
                   <i class="fas fa-eye"></i> 查看
-                </el-button>
-                <el-button size="small" type="warning" @click="goEdit(scope.row)">
-                  <i class="fas fa-edit"></i> 编辑
                 </el-button>
               </template>
             </el-table-column>
@@ -370,21 +336,13 @@
           searchForm: {
             keyword: '',
             unit: '',
-            category: '',
             riskLevel: '',
-            status: '',
-            monitoringStatus: ''
+            responsiblePersonMain: '',
+            responsiblePersonTechnical: '',
+            responsiblePersonOperational: ''
           },
           showMoreFilters: false,
-          categoryOptions: [
-            { label: '爆炸物', value: 'explosive' },
-            { label: '易燃气体', value: 'flammable_gas' },
-            { label: '易燃液体', value: 'flammable_liquid' },
-            { label: '易燃固体', value: 'flammable_solid' },
-            { label: '氧化性物质', value: 'oxidizing' },
-            { label: '毒性物质', value: 'toxic' },
-            { label: '腐蚀性物质', value: 'corrosive' }
-          ],
+          activeTab: 'current',
           tableData: [],
           selectedRows: [],
           currentPage: 1,
@@ -394,19 +352,32 @@
       },
       computed: {
         filteredData() {
+          // 先根据页签过滤当前/历史数据
           let data = this.tableData.filter(d => {
+            if (this.activeTab === 'current') {
+              // 当前重大危险源：riskLevel 为 1-4 且 isActive 不为 false
+              return d.isActive !== false && d.riskLevel && ['critical', 'high', 'medium', 'low'].includes(d.riskLevel);
+            } else {
+              // 历史重大危险源：isActive 为 false 或 riskLevel 不在 1-4 范围内
+              return d.isActive === false || !d.riskLevel || !['critical', 'high', 'medium', 'low'].includes(d.riskLevel);
+            }
+          });
+          
+          // 再根据搜索条件过滤
+          data = data.filter(d => {
             const keywordOk = !this.searchForm.keyword ||
               d.code.includes(this.searchForm.keyword) ||
               (d.warehouseName && d.warehouseName.includes(this.searchForm.keyword)) ||
               (d.areaName && d.areaName.includes(this.searchForm.keyword));
             const unitOk = !this.searchForm.unit || d.unit === this.searchForm.unit;
-            const categoryOk = !this.searchForm.category || true; // 简化处理
             const riskLevelOk = !this.searchForm.riskLevel || d.riskLevel === this.searchForm.riskLevel;
-            const statusOk = !this.searchForm.status || d.status === this.searchForm.status;
-            const monitoringOk = !this.searchForm.monitoringStatus ||
-              (this.searchForm.monitoringStatus === 'connected' && d.monitoringStatus === '已接入') ||
-              (this.searchForm.monitoringStatus === 'disconnected' && d.monitoringStatus === '未接入');
-            return keywordOk && unitOk && categoryOk && riskLevelOk && statusOk && monitoringOk;
+            const responsiblePersonMainOk = !this.searchForm.responsiblePersonMain ||
+              (d.responsiblePersons?.main && d.responsiblePersons.main.includes(this.searchForm.responsiblePersonMain));
+            const responsiblePersonTechnicalOk = !this.searchForm.responsiblePersonTechnical ||
+              (d.responsiblePersons?.technical && d.responsiblePersons.technical.includes(this.searchForm.responsiblePersonTechnical));
+            const responsiblePersonOperationalOk = !this.searchForm.responsiblePersonOperational ||
+              (d.responsiblePersons?.operational && d.responsiblePersons.operational.includes(this.searchForm.responsiblePersonOperational));
+            return keywordOk && unitOk && riskLevelOk && responsiblePersonMainOk && responsiblePersonTechnicalOk && responsiblePersonOperationalOk;
           });
           return data;
         },
@@ -461,10 +432,8 @@
         },
         // 将危险化学品安全风险分布台账数据转换为重大危险源格式
         convertRiskLedgerToMajorHazard(riskLedgerData) {
-          // 只筛选出重大危险源（riskLevel为1、2、3、4）
-          const majorHazards = riskLedgerData.filter(item => 
-            item.riskLevel && item.riskLevel >= 1 && item.riskLevel <= 4
-          );
+          // 包含所有数据（包括当前和历史），不再过滤
+          const majorHazards = riskLedgerData;
           
           this.tableData = majorHazards.map(item => ({
             code: item.areaCode || `WH-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -477,17 +446,16 @@
             chemicalCount: item.chemicalCount || 0,
             totalInventory: item.totalInventory || '0kg',
             judgmentType: item.judgmentType || 'single',
-            criticalJudgment: item.rValue >= 10 ? '≥临界量' : '<临界量',
             responsiblePersons: {
               main: item.responsiblePerson || '-',
               technical: '-',
               operational: '-'
             },
             recordDate: item.lastUpdateTime ? this.formatDate(item.lastUpdateTime) : new Date().toISOString().split('T')[0],
-            monitoringStatus: '未接入', // 默认未接入，需要单独配置
-            status: 'active',
             chemicals: item.chemicals || [],
-            calculationResult: item.calculationResult || 0
+            calculationResult: item.calculationResult || 0,
+            isActive: item.isActive !== undefined ? item.isActive : true, // 默认为当前
+            deactivateDate: item.deactivateDate || null // 核销日期
           }));
         },
         // 加载模拟数据（基于危险化学品安全风险分布台账的结构）
@@ -636,7 +604,54 @@
               ]
             }
           ];
-          this.convertRiskLedgerToMajorHazard(mockRiskLedgerData);
+          
+          // 添加一些历史重大危险源数据示例
+          const historicalData = [
+            {
+              areaCode: 'WH-D01',
+              unitType: 'storage',
+              storageArea: '危化仓-D区',
+              warehouseName: '危化仓',
+              areaName: 'D区',
+              riskLevel: 0, // 不再是重大危险源
+              rValue: 8.5, // R值下降，低于10
+              calculationResult: 0.08,
+              chemicalCount: 2,
+              totalInventory: '200kg',
+              judgmentType: 'single',
+              lastUpdateTime: '2024-10-15 09:30:00',
+              responsiblePerson: '陈十',
+              isActive: false,
+              deactivateDate: '2024-10-15',
+              chemicals: [
+                { chemicalName: '乙醇', casNo: '64-17-5' },
+                { chemicalName: '甲醇', casNo: '67-56-1' }
+              ]
+            },
+            {
+              areaCode: 'WH-E01',
+              unitType: 'storage',
+              storageArea: '危化仓-E区',
+              warehouseName: '危化仓',
+              areaName: 'E区',
+              riskLevel: 0, // 不再是重大危险源
+              rValue: 5.2,
+              calculationResult: 0.05,
+              chemicalCount: 1,
+              totalInventory: '150kg',
+              judgmentType: 'single',
+              lastUpdateTime: '2024-09-20 14:20:00',
+              responsiblePerson: '郑十一',
+              isActive: false,
+              deactivateDate: '2024-09-20',
+              chemicals: [
+                { chemicalName: '丙酮', casNo: '67-64-1' }
+              ]
+            }
+          ];
+          
+          const allData = [...mockRiskLedgerData, ...historicalData];
+          this.convertRiskLedgerToMajorHazard(allData);
         },
         // 转换风险等级
         convertRiskLevel(level) {
@@ -675,15 +690,18 @@
           this.searchForm = {
             keyword: '',
             unit: '',
-            category: '',
             riskLevel: '',
-            status: '',
-            monitoringStatus: ''
+            responsiblePersonMain: '',
+            responsiblePersonTechnical: '',
+            responsiblePersonOperational: ''
           };
           this.currentPage = 1;
         },
         toggleMore() {
           this.showMoreFilters = !this.showMoreFilters;
+        },
+        handleTabChange(tabName) {
+          this.currentPage = 1; // 切换页签时重置到第一页
         },
         exportData() {
           ElMessage.success('导出功能开发中');
@@ -699,22 +717,128 @@
           this.selectedRows = selection;
         },
         goView(row) {
-          window.parent.postMessage({
-            type: 'navigate',
-            page: 'major-hazard-detail',
-            data: { code: row.code },
-            title: '重大危险源台账详情',
-            icon: 'fas fa-info-circle'
-          }, '*');
+          try {
+            const message = {
+              type: 'navigate',
+              page: 'major-hazard-detail',
+              data: { code: row.code },
+              title: '重大危险源台账详情',
+              icon: 'fas fa-info-circle'
+            };
+            console.log('发送查看消息:', message);
+            
+            // 检测是否在iframe中
+            const isInIframe = window.self !== window.top;
+            
+            if (isInIframe) {
+              // 在iframe中，发送消息给父窗口
+              try {
+                window.parent.postMessage(message, '*');
+                console.log('消息已发送到父窗口');
+              } catch (e) {
+                console.error('发送消息失败:', e);
+                // 备用方案：尝试使用window.top
+                try {
+                  window.top.postMessage(message, '*');
+                } catch (e2) {
+                  console.error('使用window.top也失败:', e2);
+                  // 最后的备用方案：直接跳转
+                  this.fallbackNavigate('major-hazard-detail', row.code);
+                }
+              }
+            } else {
+              // 不在iframe中，直接跳转
+              console.log('不在iframe中，使用直接跳转');
+              this.fallbackNavigate('major-hazard-detail', row.code);
+            }
+          } catch (error) {
+            console.error('跳转失败:', error);
+            ElMessage.error('跳转失败: ' + error.message);
+            // 备用方案：直接跳转
+            this.fallbackNavigate('major-hazard-detail', row.code);
+          }
         },
         goEdit(row) {
-          window.parent.postMessage({
-            type: 'navigate',
-            page: 'major-hazard-edit',
-            data: { code: row.code, mode: 'edit' },
-            title: '编辑重大危险源',
-            icon: 'fas fa-edit'
-          }, '*');
+          try {
+            const message = {
+              type: 'navigate',
+              page: 'major-hazard-edit',
+              data: { code: row.code, mode: 'edit' },
+              title: '编辑重大危险源',
+              icon: 'fas fa-edit'
+            };
+            console.log('发送编辑消息:', message);
+            
+            // 检测是否在iframe中
+            const isInIframe = window.self !== window.top;
+            
+            if (isInIframe) {
+              // 在iframe中，发送消息给父窗口
+              try {
+                window.parent.postMessage(message, '*');
+                console.log('消息已发送到父窗口');
+              } catch (e) {
+                console.error('发送消息失败:', e);
+                // 备用方案：尝试使用window.top
+                try {
+                  window.top.postMessage(message, '*');
+                } catch (e2) {
+                  console.error('使用window.top也失败:', e2);
+                  // 最后的备用方案：直接跳转
+                  this.fallbackNavigate('major-hazard-edit', row.code, 'edit');
+                }
+              }
+            } else {
+              // 不在iframe中，直接跳转
+              console.log('不在iframe中，使用直接跳转');
+              this.fallbackNavigate('major-hazard-edit', row.code, 'edit');
+            }
+          } catch (error) {
+            console.error('跳转失败:', error);
+            ElMessage.error('跳转失败: ' + error.message);
+            // 备用方案：直接跳转
+            this.fallbackNavigate('major-hazard-edit', row.code, 'edit');
+          }
+        },
+        // 备用导航方案：直接跳转到对应页面
+        fallbackNavigate(page, code, mode) {
+          try {
+            let fileName = '';
+            if (page === 'major-hazard-detail') {
+              fileName = '重大危险源台账-详情.html';
+            } else if (page === 'major-hazard-edit') {
+              fileName = '重大危险源台账-新建.html';
+            }
+            
+            if (fileName) {
+              // 将数据存储到sessionStorage
+              if (code) {
+                sessionStorage.setItem(`${page}_data`, JSON.stringify({ code: code }));
+              }
+              if (mode) {
+                sessionStorage.setItem(`${page}_mode`, mode);
+              }
+              
+              // 构建URL：基于当前文件路径
+              const currentPath = window.location.pathname;
+              const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+              const url = currentDir + fileName;
+              
+              console.log('备用跳转信息:');
+              console.log('当前路径:', currentPath);
+              console.log('当前目录:', currentDir);
+              console.log('目标文件名:', fileName);
+              console.log('目标URL:', url);
+              
+              // 直接跳转
+              window.location.href = url;
+            } else {
+              ElMessage.error('无法确定跳转页面');
+            }
+          } catch (error) {
+            console.error('备用跳转失败:', error);
+            ElMessage.error('跳转失败: ' + error.message);
+          }
         },
         getUnitLabel(unit) {
           const map = {
@@ -736,10 +860,10 @@
         },
         getRiskLevelLabel(level) {
           const map = {
-            'low': '四级重大危险源',
-            'medium': '三级重大危险源',
-            'high': '二级重大危险源',
-            'critical': '一级重大危险源'
+            'low': '四级',
+            'medium': '三级',
+            'high': '二级',
+            'critical': '一级'
           };
           return map[level] || level;
         },
@@ -752,24 +876,6 @@
           };
           return map[level] || '';
         },
-        getStatusLabel(status) {
-          const map = {
-            'active': '在册',
-            'changing': '变更中',
-            'cancelling': '核销中',
-            'cancelled': '已核销'
-          };
-          return map[status] || status;
-        },
-        getStatusClass(status) {
-          const map = {
-            'active': 'status-active',
-            'changing': 'status-changing',
-            'cancelling': 'status-cancelling',
-            'cancelled': 'status-cancelled'
-          };
-          return map[status] || '';
-        }
       }
     }).use(ElementPlus).mount('#app');
   </script>

@@ -67,7 +67,7 @@
 
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
 
@@ -251,6 +251,171 @@
       margin-left: 12px;
     }
 
+    .chemical-list {
+      margin-top: 12px;
+    }
+
+    .chemical-item {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #e4e7ed;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    .chemical-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .chemical-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .chemical-name-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .chemical-icon {
+      font-size: 24px;
+      color: #409EFF;
+      margin-top: 2px;
+    }
+
+    .chemical-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 6px;
+    }
+
+    .chemical-cas {
+      font-size: 13px;
+      color: #909399;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chemical-cas i {
+      font-size: 12px;
+    }
+
+    .chemical-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .chemical-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #909399;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-label i {
+      font-size: 12px;
+      color: #409EFF;
+    }
+
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .stat-number {
+      font-size: 20px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .stat-unit {
+      font-size: 14px;
+      color: #909399;
+    }
+
+    .chemical-info-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .chemical-info-section:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .info-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-section-title i {
+      color: #409EFF;
+      font-size: 14px;
+    }
+
+    .info-section-content {
+      font-size: 14px;
+      color: #606266;
+      line-height: 1.6;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid #409EFF;
+    }
+
+    .chemical-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: #909399;
+    }
+
+    .chemical-empty i {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .chemical-empty div {
+      font-size: 14px;
+    }
+
     .status-badge {
       padding: 4px 12px;
       border-radius: 4px;
@@ -281,9 +446,6 @@
     <div class="detail-header">
       <div class="detail-title">重大危险源台账详情</div>
       <div>
-        <el-button type="primary" @click="goEdit">
-          <i class="fas fa-edit"></i> 编辑
-        </el-button>
         <el-button @click="goBack">
           <i class="fas fa-arrow-left"></i> 返回
         </el-button>
@@ -310,41 +472,112 @@
           </div>
         </div>
         <div class="info-item">
-          <div class="info-label">危险化学品名称</div>
-          <div class="info-value">{{ detailData.chemicalName }}</div>
+          <div class="info-label">存储区域</div>
+          <div class="info-value">{{ detailData.warehouseName && detailData.areaName ? detailData.warehouseName + ' - ' + detailData.areaName : '-' }}</div>
         </div>
         <div class="info-item">
-          <div class="info-label">CAS号</div>
-          <div class="info-value">{{ detailData.cas }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">临界量判定</div>
+          <div class="info-label">R值</div>
           <div class="info-value">
-            <el-tag :type="detailData.criticalJudgment === '≥临界量' ? 'danger' : 'info'" size="small">
-              {{ detailData.criticalJudgment }}
+            <el-tag :type="getRValueTagType(detailData.rValue)" size="small">
+              {{ detailData.rValue ? detailData.rValue.toFixed(1) : '0.0' }}
             </el-tag>
           </div>
         </div>
         <div class="info-item">
-          <div class="info-label">风险等级</div>
+          <div class="info-label">化学品种类</div>
+          <div class="info-value">{{ detailData.chemicalCount || 0 }}种</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">重大危险级别</div>
           <div class="info-value">
             <span :class="['risk-level-tag', getRiskLevelClass(detailData.riskLevel)]">
               {{ getRiskLevelLabel(detailData.riskLevel) }}
             </span>
           </div>
         </div>
-        <div class="info-item full-width">
-          <div class="info-label">最大库存/最大操作量</div>
-          <div class="info-value">{{ detailData.maxStock }} {{ detailData.unit }}</div>
+      </div>
+    </div>
+
+    <!-- 危化品信息卡 -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-flask"></i>
+        危化品信息
+      </div>
+      <div class="chemical-list">
+        <div class="chemical-item" v-for="(chemical, index) in detailData.chemicals" :key="index">
+          <div class="chemical-header">
+            <div class="chemical-name-wrapper">
+              <i class="fas fa-flask chemical-icon"></i>
+              <div>
+                <div class="chemical-name">{{ chemical.chemicalName }}</div>
+                <div class="chemical-cas" v-if="chemical.casNo">
+                  <i class="fas fa-barcode"></i> CAS: {{ chemical.casNo }}
+                </div>
+              </div>
+            </div>
+            <el-tag v-if="chemical.hazardCategory" :type="getHazardTagType(chemical.hazardCategory)" size="small" effect="dark">
+              <i class="fas fa-exclamation-triangle"></i> {{ chemical.hazardCategory }}
+            </el-tag>
+          </div>
+          
+          <div class="chemical-stats" v-if="chemical.quantity || chemical.criticalQty || chemical.rValue">
+            <div class="stat-item" v-if="chemical.quantity">
+              <div class="stat-label">
+                <i class="fas fa-box"></i> 当前存量
+              </div>
+              <div class="stat-value">
+                <span class="stat-number">{{ chemical.quantity }}</span>
+                <span class="stat-unit">{{ chemical.unit || 'kg' }}</span>
+              </div>
+            </div>
+            <div class="stat-item" v-if="chemical.criticalQty">
+              <div class="stat-label">
+                <i class="fas fa-balance-scale"></i> 临界量
+              </div>
+              <div class="stat-value">
+                <span class="stat-number">{{ chemical.criticalQty }}</span>
+                <span class="stat-unit">{{ chemical.unit || 'kg' }}</span>
+              </div>
+            </div>
+            <div class="stat-item" v-if="chemical.rValue !== undefined && chemical.rValue !== null">
+              <div class="stat-label">
+                <i class="fas fa-chart-line"></i> R值
+              </div>
+              <div class="stat-value">
+                <el-tag :type="getRValueTagType(chemical.rValue)" size="small" effect="dark">
+                  {{ chemical.rValue ? chemical.rValue.toFixed(1) : '0.0' }}
+                </el-tag>
+              </div>
+            </div>
+          </div>
+
+          <div class="chemical-info-section" v-if="chemical.hazardInfo">
+            <div class="info-section-title">
+              <i class="fas fa-exclamation-circle"></i> 危险信息
+            </div>
+            <div class="info-section-content">{{ chemical.hazardInfo }}</div>
+          </div>
+
+          <div class="chemical-info-section" v-if="chemical.storageCondition">
+            <div class="info-section-title">
+              <i class="fas fa-warehouse"></i> 储存条件
+            </div>
+            <div class="info-section-content">{{ chemical.storageCondition }}</div>
+          </div>
+        </div>
+        <div v-if="!detailData.chemicals || detailData.chemicals.length === 0" class="chemical-empty">
+          <i class="fas fa-inbox"></i>
+          <div>暂无危化品信息</div>
         </div>
       </div>
     </div>
 
-    <!-- 包保与公示卡 -->
+    <!-- 包保责任制卡 -->
     <div class="info-card">
       <div class="card-title">
         <i class="fas fa-users"></i>
-        包保与公示
+        包保责任制
       </div>
       <div class="responsible-persons">
         <div class="person-card" v-for="(person, key) in detailData.responsiblePersons" :key="key">
@@ -353,82 +586,6 @@
           <div class="person-info">
             <div>职务：{{ person.position }}</div>
             <div>联系方式：{{ person.contact }}</div>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top: 24px;">
-        <div class="info-label">公示牌位置</div>
-        <div class="info-value" style="margin-top: 8px;">{{ detailData.publicityLocation }}</div>
-      </div>
-      <div style="margin-top: 20px;">
-        <div class="info-label">公示牌照片</div>
-        <div class="photo-gallery">
-          <div class="photo-item" v-for="(photo, index) in detailData.publicityPhotos" :key="index">
-            <img v-if="photo" :src="photo" alt="公示牌照片" />
-            <div v-else class="photo-placeholder">
-              <i class="fas fa-image"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top: 20px;">
-        <div class="info-label">承诺公告</div>
-        <div class="info-value" style="margin-top: 8px;">
-          <el-link :href="detailData.commitmentNotice" target="_blank" type="primary" v-if="detailData.commitmentNotice">
-            <i class="fas fa-external-link-alt"></i> 查看承诺公告
-          </el-link>
-          <span v-else style="color: #909399;">未上传</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 监测接入卡 -->
-    <div class="info-card">
-      <div class="card-title">
-        <i class="fas fa-chart-line"></i>
-        监测接入
-      </div>
-      <div class="monitoring-list">
-        <div class="monitoring-item" v-for="(item, index) in detailData.monitoringItems" :key="index">
-          <div class="monitoring-info">
-            <div class="monitoring-name">{{ item.name }}</div>
-            <div class="monitoring-detail">
-              阈值：{{ item.threshold }} {{ item.unit }} | 数据源：{{ item.dataSource }}
-            </div>
-          </div>
-          <div :class="['monitoring-status', item.status === '已接入' ? 'connected' : 'disconnected']">
-            <i :class="item.status === '已接入' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
-            {{ item.status }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 备案信息卡 -->
-    <div class="info-card">
-      <div class="card-title">
-        <i class="fas fa-file-alt"></i>
-        备案信息
-      </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <div class="info-label">属地部门</div>
-          <div class="info-value">{{ detailData.localDepartment }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">报备日期</div>
-          <div class="info-value">{{ detailData.recordDate }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">登记系统ID</div>
-          <div class="info-value">{{ detailData.systemId }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">状态</div>
-          <div class="info-value">
-            <span :class="['status-badge', getStatusClass(detailData.status)]">
-              {{ getStatusLabel(detailData.status) }}
-            </span>
           </div>
         </div>
       </div>
@@ -518,12 +675,11 @@
           detailData: {
             code: 'WH-2024-001',
             unit: 'production',
-            chemicalName: '乙醇 (64-17-5)',
-            cas: '64-17-5',
-            criticalJudgment: '≥临界量',
+            warehouseName: '危化仓',
+            areaName: 'A区',
+            rValue: 120.5,
+            chemicalCount: 3,
             riskLevel: 'high',
-            maxStock: 150,
-            unit: 'L',
             responsiblePersons: {
               main: {
                 name: '张三',
@@ -544,38 +700,47 @@
             publicityLocation: '生产车间入口处',
             publicityPhotos: [],
             commitmentNotice: 'https://example.com/commitment.pdf',
-            monitoringItems: [
-              {
-                name: '压力监测',
-                threshold: '0.8',
-                unit: 'MPa',
-                dataSource: '压力传感器-001',
-                status: '已接入'
-              },
-              {
-                name: '液位监测',
-                threshold: '80',
-                unit: '%',
-                dataSource: '液位计-002',
-                status: '已接入'
-              },
-              {
-                name: '温度监测',
-                threshold: '60',
-                unit: '℃',
-                dataSource: '温度传感器-003',
-                status: '已接入'
-              }
-            ],
-            localDepartment: 'XX市应急管理局',
-            recordDate: '2024-01-15',
-            systemId: 'REG-2024-001',
             status: 'active',
             statusChange: {
               processId: 'CHG-2024-001',
               approvalResult: '通过',
               completeTime: '2024-01-20 10:30:00'
             },
+            chemicals: [
+              {
+                chemicalName: '乙醇',
+                casNo: '64-17-5',
+                quantity: 500,
+                unit: 'kg',
+                criticalQty: 500,
+                rValue: 45.2,
+                hazardCategory: '易燃液体',
+                hazardInfo: '易燃，其蒸气与空气可形成爆炸性混合物，遇明火、高热能引起燃烧爆炸',
+                storageCondition: '储存于阴凉、通风的库房。远离火种、热源。库温不宜超过30℃'
+              },
+              {
+                chemicalName: '甲醇',
+                casNo: '67-56-1',
+                quantity: 300,
+                unit: 'kg',
+                criticalQty: 500,
+                rValue: 38.5,
+                hazardCategory: '易燃液体',
+                hazardInfo: '易燃，其蒸气与空气可形成爆炸性混合物，遇明火、高热能引起燃烧爆炸',
+                storageCondition: '储存于阴凉、通风的库房。远离火种、热源。库温不宜超过30℃'
+              },
+              {
+                chemicalName: '丙酮',
+                casNo: '67-64-1',
+                quantity: 200,
+                unit: 'kg',
+                criticalQty: 500,
+                rValue: 36.8,
+                hazardCategory: '易燃液体',
+                hazardInfo: '极度易燃，其蒸气与空气可形成爆炸性混合物，遇明火、高热极易燃烧爆炸',
+                storageCondition: '储存于阴凉、通风的库房。远离火种、热源。库温不宜超过30℃'
+              }
+            ],
             hiddenDangers: [
               {
                 id: 'HD-2024-001',
@@ -624,20 +789,11 @@
                 this.detailData = {
                   code: item.areaCode,
                   unit: item.unitType || 'storage',
-                  chemicalName: item.chemicals && item.chemicals.length > 0 
-                    ? item.chemicals.map(c => `${c.chemicalName} (${c.casNo})`).join('、')
-                    : '未指定',
-                  cas: item.chemicals && item.chemicals.length > 0 
-                    ? item.chemicals[0].casNo 
-                    : '',
-                  criticalJudgment: item.rValue >= 10 ? '≥临界量' : '<临界量',
-                  riskLevel: item.riskLevel === 1 ? 'critical' : item.riskLevel === 2 ? 'high' : item.riskLevel === 3 ? 'medium' : 'low',
-                  maxStock: item.totalInventory ? parseFloat(item.totalInventory) : 0,
-                  unit: 'kg',
+                  warehouseName: item.warehouseName || '',
+                  areaName: item.areaName || '',
                   rValue: item.rValue || 0,
-                  calculationResult: item.calculationResult || 0,
                   chemicalCount: item.chemicalCount || 0,
-                  judgmentType: item.judgmentType || 'single',
+                  riskLevel: item.riskLevel === 1 ? 'critical' : item.riskLevel === 2 ? 'high' : item.riskLevel === 3 ? 'medium' : 'low',
                   responsiblePersons: {
                     main: {
                       name: item.responsiblePerson || '-',
@@ -655,33 +811,24 @@
                       contact: '-'
                     }
                   },
-                  publicityLocation: `${item.warehouseName} - ${item.areaName}`,
+                  publicityLocation: `${item.warehouseName || ''} - ${item.areaName || ''}`,
                   publicityPhotos: [],
                   commitmentNotice: '',
-                  monitoringItems: [
-                    {
-                      name: '压力监测',
-                      threshold: '0.8',
-                      unit: 'MPa',
-                      dataSource: '压力传感器-001',
-                      status: '已接入'
-                    },
-                    {
-                      name: '液位监测',
-                      threshold: '80',
-                      unit: '%',
-                      dataSource: '液位计-002',
-                      status: '已接入'
-                    }
-                  ],
-                  localDepartment: 'XX市应急管理局',
-                  recordDate: item.lastUpdateTime ? item.lastUpdateTime.split(' ')[0] : new Date().toISOString().split('T')[0],
-                  systemId: `REG-${item.areaCode}`,
                   status: 'active',
                   statusChange: null,
                   hiddenDangers: [],
                   emergencyPlans: [],
-                  chemicals: item.chemicals || []
+                  chemicals: (item.chemicals || []).map(chem => ({
+                    chemicalName: chem.chemicalName || '-',
+                    casNo: chem.casNo || '-',
+                    quantity: chem.quantity || null,
+                    unit: chem.unit || 'kg',
+                    criticalQty: chem.criticalQty || null,
+                    rValue: chem.rValue || null,
+                    hazardCategory: chem.hazardCategory || null,
+                    hazardInfo: chem.hazardInfo || null,
+                    storageCondition: chem.storageCondition || null
+                  }))
                 };
                 return;
               }
@@ -698,15 +845,6 @@
             page: 'major-hazard-ledger',
             title: '重大危险源台账',
             icon: 'fas fa-table'
-          }, '*');
-        },
-        goEdit() {
-          window.parent.postMessage({
-            type: 'navigate',
-            page: 'major-hazard-edit',
-            data: { code: this.detailData.code, mode: 'edit' },
-            title: '编辑重大危险源',
-            icon: 'fas fa-edit'
           }, '*');
         },
         viewStatusChange() {
@@ -730,6 +868,25 @@
           };
           return map[unit] || '';
         },
+        getRValueTagType(value) {
+          if (!value) return 'info';
+          if (value >= 100) return 'danger';
+          if (value >= 50) return 'warning';
+          if (value >= 10) return 'warning';
+          return 'success';
+        },
+        getHazardTagType(category) {
+          const map = {
+            '爆炸物': 'danger',
+            '易燃气体': 'danger',
+            '易燃液体': 'warning',
+            '易燃固体': 'warning',
+            '氧化性物质': 'warning',
+            '毒性物质': 'danger',
+            '腐蚀性物质': 'warning'
+          };
+          return map[category] || 'info';
+        },
         getPersonTitle(key) {
           const map = {
             'main': '主要负责人',
@@ -740,10 +897,10 @@
         },
         getRiskLevelLabel(level) {
           const map = {
-            'low': '可容许',
-            'medium': '可容许',
-            'high': '超限',
-            'critical': '超限'
+            'low': '四级',
+            'medium': '三级',
+            'high': '二级',
+            'critical': '一级'
           };
           return map[level] || level;
         },
