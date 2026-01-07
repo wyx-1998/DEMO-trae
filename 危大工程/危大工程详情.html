@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>危大工程详情 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-right: 240px; /* 为右侧导航留出空间 */
+            padding-bottom: 40px;
+            transition: padding-right 0.3s ease;
+        }
+
+        /* 当导航收起时减少右侧padding */
+        .container.nav-collapsed {
+            padding-right: 88px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-header:hover {
+            background-color: #f5f7fa;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 120px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .form-value {
+            flex: 1;
+            padding-top: 12px;
+            color: #303133;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #606266;
+        }
+
+        .table-container {
+            margin-top: 16px;
+        }
+
+        .personnel-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #409eff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+        }
+
+        /* 右侧导航 */
+        .module-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 200px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 140px);
+            overflow: hidden;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .module-nav.collapsed {
+            width: 48px;
+            right: 20px;
+        }
+
+        .module-nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .module-nav.collapsed .module-nav-header {
+            padding: 12px;
+            border-bottom: none;
+            justify-content: center;
+        }
+
+        .module-nav-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-nav.collapsed .module-nav-title {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .module-nav-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            color: #909399;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .module-nav-toggle:hover {
+            background-color: #f5f7fa;
+            color: #3366CC;
+        }
+
+        .module-nav-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .module-nav.collapsed .module-nav-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .module-nav-content {
+            padding: 16px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .module-nav.collapsed .module-nav-content {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .module-nav-list {
+            list-style: none;
+        }
+
+        .module-nav-item {
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #606266;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .module-nav-item i {
+            margin-right: 6px;
+            font-size: 12px;
+            color: #909399;
+            flex-shrink: 0;
+        }
+
+        .module-nav-item:hover {
+            background-color: #f5f7fa;
+            color: #3366CC;
+        }
+
+        .module-nav-item:hover i {
+            color: #3366CC;
+        }
+
+        .module-nav-item.active {
+            background-color: #ecf5ff;
+            color: #3366CC;
+            font-weight: 500;
+        }
+
+        .module-nav-item.active i {
+            color: #3366CC;
+        }
+
+        /* 收起状态的提示 */
+        .module-nav.collapsed .module-nav-toggle {
+            position: relative;
+        }
+
+        .module-nav.collapsed .module-nav-toggle::after {
+            content: '展开导航';
+            position: absolute;
+            right: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .module-nav.collapsed .module-nav-toggle:hover::after {
+            opacity: 1;
+        }
+
+        /* 收起状态下的激活指示器 */
+        .module-nav.collapsed::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 60px;
+            width: 3px;
+            height: 24px;
+            background: #3366CC;
+            border-radius: 0 2px 2px 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .module-nav.collapsed:hover::before {
+            opacity: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                padding-right: 20px !important;
+            }
+
+            .module-nav {
+                display: none;
+            }
+        }
+
+        @media (min-width: 1201px) and (max-width: 1400px) {
+            .container {
+                padding-right: 220px;
+            }
+
+            .container.nav-collapsed {
+                padding-right: 88px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-module {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" :class="{ 'nav-collapsed': navCollapsed }" v-cloak>
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">危大工程详情</h1>
+            <div>
+                <el-button icon="el-icon-back" @click="handleBack">返回列表</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="handleEdit" v-if="mode !== 'edit'">编辑</el-button>
+            </div>
+        </div>
+
+        <!-- 右侧导航 -->
+        <div class="module-nav" :class="{ collapsed: navCollapsed }">
+            <div class="module-nav-header">
+                <div class="module-nav-title">模块导览</div>
+                <div class="module-nav-toggle" @click="toggleNav" :title="navCollapsed ? '展开导航' : '收起导航'">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            <div class="module-nav-content">
+                <ul class="module-nav-list">
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-basic' }" @click="scrollToModule('module-basic')">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-plan' }" @click="scrollToModule('module-plan')">
+                        <i class="fas fa-file-alt"></i>
+                        专项施工方案
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-personnel' }" @click="scrollToModule('module-personnel')">
+                        <i class="fas fa-users"></i>
+                        作业人员
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-disclosure' }" @click="scrollToModule('module-disclosure')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        交底记录
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-work' }" @click="scrollToModule('module-work')">
+                        <i class="fas fa-clipboard-list"></i>
+                        作业登记
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-supervision' }" @click="scrollToModule('module-supervision')">
+                        <i class="fas fa-binoculars"></i>
+                        监督记录
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-progress' }" @click="scrollToModule('module-progress')">
+                        <i class="fas fa-tasks"></i>
+                        工程进展
+                    </li>
+                    <li class="module-nav-item" :class="{ active: activeNav === 'module-acceptance' }" @click="scrollToModule('module-acceptance')">
+                        <i class="fas fa-check-circle"></i>
+                        验收记录
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 表单容器 -->
+        <div class="form-container">
+            <!-- 基本信息模块 -->
+            <div class="form-module" id="module-basic">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.basic }">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">编号</label>
+                            <div class="form-value">{{ detailData.code }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">危大工程名称</label>
+                            <div class="form-value">{{ detailData.name }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">是否超危大</label>
+                            <div class="form-value">
+                                <el-tag :type="detailData.isSuperDangerous === '是' ? 'danger' : 'info'" size="small">
+                                    {{ detailData.isSuperDangerous }}
+                                </el-tag>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">类别</label>
+                            <div class="form-value">{{ detailData.category }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">详细类别</label>
+                            <div class="form-value">{{ detailData.detailCategory }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">状态</label>
+                            <div class="form-value">
+                                <el-tag type="success" size="small">进行中</el-tag>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">工程范围</label>
+                            <div class="form-value">{{ detailData.scope }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">工程规模</label>
+                            <div class="form-value">{{ detailData.scale }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">工程风险点描述</label>
+                            <div class="form-value" v-html="detailData.riskDescription"></div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="detailData.attachments && detailData.attachments.length">
+                        <div class="form-item full-width">
+                            <label class="form-label">附件</label>
+                            <div class="form-value">
+                                <el-button type="text" v-for="(file, index) in detailData.attachments" :key="index" @click="downloadFile(file)">
+                                    <i class="el-icon-document"></i> {{ file.name }}
+                                </el-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专项施工方案模块 -->
+            <div class="form-module" id="module-plan">
+                <div class="module-header" @click="toggleModule('plan')">
+                    <div class="module-title">
+                        <i class="fas fa-file-alt"></i>
+                        专项施工方案
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.plan }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.plan }">
+                    <div class="section-header">
+                        <div class="section-title">方案信息</div>
+                        <el-button type="primary" size="small" icon="el-icon-view" @click="handleViewProcess">查看审批流程</el-button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">施工单位名称</label>
+                            <div class="form-value">{{ schemeData.constructionUnit }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">施工单位负责人</label>
+                            <div class="form-value">{{ schemeData.constructionManager }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">负责人联系电话</label>
+                            <div class="form-value">{{ schemeData.managerPhone }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">计划开工日期</label>
+                            <div class="form-value">{{ schemeData.planStartDate }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">计划竣工日期</label>
+                            <div class="form-value">{{ schemeData.planEndDate }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">审批状态</label>
+                            <div class="form-value">
+                                <el-tag type="success" size="small">已审批</el-tag>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">是否需要第三方监测</label>
+                            <div class="form-value">
+                                <el-tag :type="schemeData.needThirdPartyMonitoring === 'yes' ? 'success' : 'info'" size="small">
+                                    {{ schemeData.needThirdPartyMonitoring === 'yes' ? '是' : '否' }}
+                                </el-tag>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="schemeData.needThirdPartyMonitoring === 'yes'">
+                        <div class="form-item full-width">
+                            <label class="form-label">检测内容概述</label>
+                            <div class="form-value">{{ schemeData.monitoringContent }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">专项施工方案</label>
+                            <div class="form-value">
+                                <el-button type="text" v-if="schemeData.schemeFile" @click="downloadFile(schemeData.schemeFile)">
+                                    <i class="el-icon-document"></i> {{ schemeData.schemeFile.name }}
+                                </el-button>
+                                <span v-else style="color: #909399;">未上传</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="detailData.isSuperDangerous === '是'">
+                        <div class="form-item full-width">
+                            <label class="form-label">专家论证报告</label>
+                            <div class="form-value">
+                                <el-button type="text" v-if="schemeData.expertReportFile" @click="downloadFile(schemeData.expertReportFile)">
+                                    <i class="el-icon-document"></i> {{ schemeData.expertReportFile.name }}
+                                </el-button>
+                                <span v-else style="color: #909399;">未上传</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作业人员模块 -->
+            <div class="form-module" id="module-personnel">
+                <div class="module-header" @click="toggleModule('personnel')">
+                    <div class="module-title">
+                        <i class="fas fa-users"></i>
+                        作业人员
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.personnel }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.personnel }">
+                    <div class="section-header">
+                        <div class="section-title">人员列表（共{{ personnelData.length }}人）</div>
+                        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAddPersonnel" v-if="mode === 'edit'">添加人员</el-button>
+                    </div>
+                    <div class="table-container">
+                        <el-table :data="personnelData" border style="width: 100%">
+                            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                            <el-table-column prop="avatar" label="头像" width="80" align="center">
+                                <template slot-scope="scope">
+                                    <div class="personnel-avatar">{{ scope.row.name.charAt(0) }}</div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="name" label="姓名" width="100"></el-table-column>
+                            <el-table-column prop="company" label="企业" min-width="150"></el-table-column>
+                            <el-table-column prop="department" label="部门" width="120"></el-table-column>
+                            <el-table-column prop="phone" label="联系电话" width="130"></el-table-column>
+                            <el-table-column prop="gender" label="性别" width="70" align="center"></el-table-column>
+                            <el-table-column prop="certificateType" label="证书类型" min-width="150"></el-table-column>
+                            <el-table-column label="操作" width="100" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="text" size="small" @click="handleViewPersonnel(scope.row)">查看</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交底记录模块 -->
+            <div class="form-module" id="module-disclosure">
+                <div class="module-header" @click="toggleModule('disclosure')">
+                    <div class="module-title">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        交底记录
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.disclosure }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.disclosure }">
+                    <div class="section-header">
+                        <div class="section-title">记录列表（共{{ briefingData.length }}条）</div>
+                        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleNewBriefing">新建记录</el-button>
+                    </div>
+                    <div class="table-container">
+                        <el-table :data="briefingData" border style="width: 100%">
+                            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                            <el-table-column prop="briefingName" label="交底名称" min-width="200"></el-table-column>
+                            <el-table-column prop="briefingType" label="交底方式" width="180"></el-table-column>
+                            <el-table-column prop="briefingPerson" label="交底人" width="100"></el-table-column>
+                            <el-table-column prop="receiverCount" label="接收人数" width="100" align="center"></el-table-column>
+                            <el-table-column prop="briefingDate" label="交底日期" width="120"></el-table-column>
+                            <el-table-column label="操作" width="100" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="text" size="small" @click="handleViewBriefing(scope.row)">查看</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作业登记模块 -->
+            <div class="form-module" id="module-work">
+                <div class="module-header" @click="toggleModule('work')">
+                    <div class="module-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        作业登记
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.work }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.work }">
+                    <div class="section-header">
+                        <div class="section-title">登记列表（共{{ registrationData.length }}条）</div>
+                        <el-date-picker
+                            v-model="registrationDateRange"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            size="small"
+                            @change="handleRegistrationDateChange">
+                        </el-date-picker>
+                    </div>
+                    <div class="table-container">
+                        <el-table :data="registrationData" border style="width: 100%">
+                            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                            <el-table-column prop="code" label="编号" width="150"></el-table-column>
+                            <el-table-column prop="checkInDate" label="作业日期" width="120"></el-table-column>
+                            <el-table-column prop="workContent" label="工作内容" min-width="200"></el-table-column>
+                            <el-table-column prop="totalCount" label="总人数" width="90" align="center"></el-table-column>
+                            <el-table-column prop="checkedInCount" label="已打卡" width="90" align="center"></el-table-column>
+                            <el-table-column prop="notCheckedInCount" label="未打卡" width="90" align="center"></el-table-column>
+                            <el-table-column label="操作" width="100" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="text" size="small" @click="handleViewRegistration(scope.row)">查看</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 监督记录模块 -->
+            <div class="form-module" id="module-supervision">
+                <div class="module-header" @click="toggleModule('supervision')">
+                    <div class="module-title">
+                        <i class="fas fa-binoculars"></i>
+                        监督记录
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.supervision }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.supervision }">
+                    <div class="section-header">
+                        <div class="section-title">监督记录（共{{ supervisionData.length }}条）</div>
+                        <div style="display: flex; gap: 12px;">
+                            <el-date-picker
+                                v-model="supervisionDateRange"
+                                type="daterange"
+                                range-separator="至"
+                                start-placeholder="开始日期"
+                                end-placeholder="结束日期"
+                                size="small"
+                                @change="handleSupervisionDateChange">
+                            </el-date-picker>
+                            <el-select v-model="supervisionType" placeholder="请选择类型" clearable size="small" style="width: 120px;">
+                                <el-option label="巡查" value="inspection"></el-option>
+                                <el-option label="旁站" value="supervision"></el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <el-table :data="supervisionData" border style="width: 100%">
+                            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                            <el-table-column prop="code" label="编号" width="150"></el-table-column>
+                            <el-table-column prop="type" label="类型" width="80" align="center">
+                                <template slot-scope="scope">
+                                    <el-tag :type="scope.row.type === '巡查' ? 'primary' : 'success'" size="small">
+                                        {{ scope.row.type }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                            <el-table-column prop="person" label="监督人" width="100"></el-table-column>
+                            <el-table-column prop="time" label="监督时间" width="180"></el-table-column>
+                            <el-table-column prop="photoCount" label="照片数量" width="100" align="center"></el-table-column>
+                            <el-table-column label="操作" width="100" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="text" size="small" @click="handleViewSupervision(scope.row)">查看</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工程进展模块 -->
+            <div class="form-module" id="module-progress">
+                <div class="module-header" @click="toggleModule('progress')">
+                    <div class="module-title">
+                        <i class="fas fa-tasks"></i>
+                        工程进展
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.progress }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.progress }">
+                    <div class="section-header">
+                        <div class="section-title">进度信息</div>
+                        <el-button type="primary" size="small" icon="el-icon-edit" @click="handleUpdateProgress" v-if="mode === 'edit'">更新进度</el-button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">工程建设状态</label>
+                            <div class="form-value">
+                                <el-tag :type="progressData.status === '建设' ? 'primary' : 'success'" size="small">
+                                    {{ progressData.status }}
+                                </el-tag>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">实际开工日期</label>
+                            <div class="form-value">{{ progressData.actualStartDate }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">实际竣工日期</label>
+                            <div class="form-value">{{ progressData.actualEndDate || '进行中' }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">当前工程进展</label>
+                            <div class="form-value">
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <el-progress :percentage="progressData.completionPercentage" :color="getProgressColor(progressData.completionPercentage)"></el-progress>
+                                    </div>
+                                    <span style="font-weight: 600; color: #409eff;">{{ progressData.completionPercentage }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">当前进展阶段</label>
+                            <div class="form-value">{{ progressData.currentStage }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 验收记录模块 -->
+            <div class="form-module" id="module-acceptance">
+                <div class="module-header" @click="toggleModule('acceptance')">
+                    <div class="module-title">
+                        <i class="fas fa-check-circle"></i>
+                        验收记录
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.acceptance }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.acceptance }">
+                    <div class="section-header">
+                        <div class="section-title">验收信息</div>
+                        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAddAcceptance" v-if="mode === 'edit'">新建验收</el-button>
+                    </div>
+                    <div class="form-row" v-if="acceptanceData.photos && acceptanceData.photos.length">
+                        <div class="form-item full-width">
+                            <label class="form-label">验收照片</label>
+                            <div class="form-value">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px;">
+                                    <div v-for="(photo, index) in acceptanceData.photos" :key="index" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; cursor: pointer;" @click="previewPhoto(photo)">
+                                        <img :src="photo.url" style="width: 100%; height: 150px; object-fit: cover;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">验收日期</label>
+                            <div class="form-value">{{ acceptanceData.acceptanceDate || '未验收' }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">验收结果</label>
+                            <div class="form-value">
+                                <el-tag v-if="acceptanceData.acceptanceDate" type="success" size="small">合格</el-tag>
+                                <span v-else style="color: #909399;">待验收</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="acceptanceData.acceptanceReason">
+                        <div class="form-item full-width">
+                            <label class="form-label">验收情况说明</label>
+                            <div class="form-value">{{ acceptanceData.acceptanceReason }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="acceptanceData.attachments && acceptanceData.attachments.length">
+                        <div class="form-item full-width">
+                            <label class="form-label">验收附件</label>
+                            <div class="form-value">
+                                <el-button type="text" v-for="(file, index) in acceptanceData.attachments" :key="index" @click="downloadFile(file)">
+                                    <i class="el-icon-document"></i> {{ file.name }}
+                                </el-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    mode: 'view', // view, edit
+                    activeNav: 'module-basic', // 当前激活的导航项
+                    navCollapsed: false, // 导航栏是否收起
+                    scrollTimer: null, // 滚动节流定时器
+                    modules: {
+                        basic: true,
+                        plan: true,
+                        personnel: true,
+                        disclosure: true,
+                        work: true,
+                        supervision: true,
+                        progress: true,
+                        acceptance: true
+                    },
+                    registrationDateRange: null,
+                    supervisionDateRange: null,
+                    supervisionType: '',
+                    detailData: {
+                        code: 'WD20240115001',
+                        name: '基坑开挖工程',
+                        isSuperDangerous: '是',
+                        category: '基坑工程',
+                        detailCategory: '开挖深度超过3m（含3m）的基坑（槽）的土方开挖工程',
+                        scope: '基坑开挖深度5m，面积约500平方米',
+                        scale: '基坑面积500平方米，开挖深度5m，土方量约2500立方米',
+                        riskDescription: '1. 基坑开挖深度大，边坡稳定性要求高<br>2. 周边有既有建筑物，需防止不均匀沉降<br>3. 地下水位高，需采取降水措施',
+                        attachments: [
+                            { name: '工程地质报告.pdf', url: '#' },
+                            { name: '水文地质资料.pdf', url: '#' }
+                        ]
+                    },
+                    schemeData: {
+                        constructionUnit: 'XX建设公司',
+                        constructionManager: '张三',
+                        managerPhone: '13800138000',
+                        planStartDate: '2024-01-15',
+                        planEndDate: '2024-12-31',
+                        needThirdPartyMonitoring: 'yes',
+                        monitoringContent: '对基坑变形、周边建筑物沉降、地下水位、支护结构应力等进行实时监测',
+                        schemeFile: { name: '专项施工方案.pdf', url: '#' },
+                        expertReportFile: { name: '专家论证报告.pdf', url: '#' }
+                    },
+                    personnelData: [
+                        { name: '张三', company: 'XX建设公司', department: '工程部', phone: '13800138001', gender: '男', healthStatus: '良好', birthDate: '1990-01-01', certificateType: '特种作业操作证' },
+                        { name: '李四', company: 'XX建设公司', department: '工程部', phone: '13800138002', gender: '男', healthStatus: '良好', birthDate: '1992-05-15', certificateType: '安全员证' },
+                        { name: '王五', company: 'XX建设公司', department: '安全部', phone: '13800138003', gender: '男', healthStatus: '良好', birthDate: '1988-03-20', certificateType: '建筑施工特种作业证' }
+                    ],
+                    briefingData: [
+                        { briefingName: '基坑开挖安全技术交底', briefingType: '线上教育培训交底', briefingPerson: '王五', receiverCount: 10, briefingDate: '2024-01-20' },
+                        { briefingName: '支护结构施工安全交底', briefingType: '线下交底，纸质签字上传', briefingPerson: '赵六', receiverCount: 8, briefingDate: '2024-02-01' }
+                    ],
+                    registrationData: [
+                        { code: 'REG001', checkInDate: '2024-01-20', workContent: '基坑开挖作业', totalCount: 10, checkedInCount: 8, notCheckedInCount: 2 },
+                        { code: 'REG002', checkInDate: '2024-01-21', workContent: '基坑支护作业', totalCount: 10, checkedInCount: 10, notCheckedInCount: 0 },
+                        { code: 'REG003', checkInDate: '2024-01-22', workContent: '降水作业', totalCount: 5, checkedInCount: 5, notCheckedInCount: 0 }
+                    ],
+                    supervisionData: [
+                        { code: 'INS001', type: '巡查', date: '2024-01-20', person: '安全员A', time: '2024-01-20 09:00-11:00', photoCount: 5 },
+                        { code: 'SUP001', type: '旁站', date: '2024-01-21', person: '安全员B', time: '2024-01-21 14:00-18:00', photoCount: 8 },
+                        { code: 'INS002', type: '巡查', date: '2024-01-22', person: '安全员A', time: '2024-01-22 10:00-12:00', photoCount: 6 }
+                    ],
+                    progressData: {
+                        status: '建设',
+                        actualStartDate: '2024-01-20',
+                        actualEndDate: '',
+                        completionPercentage: 45,
+                        currentStage: '当前处于基坑开挖阶段，已完成45%的工程量。基坑支护结构施工完成，正在进行土方开挖作业。'
+                    },
+                    acceptanceData: {
+                        photos: [
+                            { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0Y1RjdGQSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5MDkzOTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7mo4Dmn6XnjrDlnLo8L3RleHQ+PC9zdmc+', name: '验收照片1.jpg' }
+                        ],
+                        acceptanceDate: '',
+                        acceptanceReason: '',
+                        attachments: []
+                    }
+                };
+            },
+            methods: {
+                toggleNav() {
+                    this.navCollapsed = !this.navCollapsed;
+                    // 保存状态到localStorage
+                    localStorage.setItem('navCollapsed', this.navCollapsed);
+                },
+                toggleModule(name) {
+                    this.modules[name] = !this.modules[name];
+                },
+                scrollToModule(moduleId) {
+                    const element = document.getElementById(moduleId);
+                    if (element) {
+                        // 计算滚动位置，减去header高度
+                        const headerHeight = 100;
+                        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = elementPosition - headerHeight;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // 更新激活状态
+                        this.activeNav = moduleId;
+                        
+                        // 展开对应模块
+                        const moduleName = moduleId.replace('module-', '');
+                        if (!this.modules[moduleName]) {
+                            this.modules[moduleName] = true;
+                        }
+                        
+                        // 如果导航栏是收起状态，点击后不自动展开（保持用户选择）
+                        // 用户可以通过toggle按钮手动控制
+                    }
+                },
+                handleScroll() {
+                    // 节流处理
+                    if (this.scrollTimer) {
+                        clearTimeout(this.scrollTimer);
+                    }
+                    this.scrollTimer = setTimeout(() => {
+                        const moduleIds = ['module-basic', 'module-plan', 'module-personnel', 'module-disclosure', 'module-work', 'module-supervision', 'module-progress', 'module-acceptance'];
+                        const scrollPosition = window.pageYOffset + 150; // 偏移量
+                        
+                        for (let i = moduleIds.length - 1; i >= 0; i--) {
+                            const element = document.getElementById(moduleIds[i]);
+                            if (element && element.offsetTop <= scrollPosition) {
+                                this.activeNav = moduleIds[i];
+                                break;
+                            }
+                        }
+                    }, 100);
+                },
+                handleEdit() {
+                    this.$confirm('确定要进入编辑模式吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.mode = 'edit';
+                        this.$message.success('已切换到编辑模式');
+                    }).catch(() => {});
+                },
+                handleBack() {
+                    window.history.back();
+                },
+                handleViewProcess() {
+                    this.$message.info('查看审批流程功能需要集成审批流程组件');
+                },
+                handleAddPersonnel() {
+                    this.$message.info('添加作业人员功能需要集成人员选择组件');
+                },
+                handleViewPersonnel(row) {
+                    this.$message.info('查看人员详情');
+                },
+                handleNewBriefing() {
+                    window.location.href = `新建交底详情.html?projectId=${this.detailData.code}`;
+                },
+                handleViewBriefing(row) {
+                    this.$message.info('查看交底记录详情');
+                },
+                handleRegistrationDateChange() {
+                    console.log('日期范围变更', this.registrationDateRange);
+                },
+                handleViewRegistration(row) {
+                    // 跳转到作业登记详情页面
+                    window.location.href = `作业登记详情.html?id=${row.code}`;
+                },
+                handleSupervisionDateChange() {
+                    console.log('监督记录筛选', this.supervisionDateRange, this.supervisionType);
+                },
+                handleViewSupervision(row) {
+                    // 根据类型跳转到不同的详情页面
+                    if (row.type === '巡查') {
+                        window.location.href = `巡查详情.html?id=${row.code}`;
+                    } else {
+                        window.location.href = `旁站详情.html?id=${row.code}`;
+                    }
+                },
+                handleUpdateProgress() {
+                    this.$message.info('更新工程进度');
+                },
+                handleAddAcceptance() {
+                    window.location.href = `验收详情.html?projectId=${this.detailData.code}`;
+                },
+                previewPhoto(photo) {
+                    this.$message.info('预览照片');
+                },
+                downloadFile(file) {
+                    this.$message.info(`下载文件: ${file.name}`);
+                },
+                getProgressColor(percentage) {
+                    if (percentage < 30) return '#f56c6c';
+                    if (percentage < 70) return '#e6a23c';
+                    return '#67c23a';
+                }
+            },
+            mounted() {
+                // 从URL参数获取模式
+                const urlParams = new URLSearchParams(window.location.search);
+                this.mode = urlParams.get('mode') || 'view';
+                const id = urlParams.get('id');
+                if (id) {
+                    console.log('加载项目数据，ID:', id);
+                }
+
+                // 从localStorage读取导航栏状态
+                const savedNavState = localStorage.getItem('navCollapsed');
+                if (savedNavState !== null) {
+                    this.navCollapsed = savedNavState === 'true';
+                }
+
+                // 监听滚动，更新导航激活状态
+                window.addEventListener('scroll', this.handleScroll);
+            },
+            beforeDestroy() {
+                window.removeEventListener('scroll', this.handleScroll);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旁站详情 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-header:hover {
+            background-color: #f5f7fa;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 120px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .form-value {
+            flex: 1;
+            padding-top: 12px;
+            color: #303133;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .photo-item {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .photo-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .issue-list {
+            list-style: none;
+        }
+
+        .issue-item {
+            padding: 12px;
+            background: #fafbfc;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .issue-item:hover {
+            background: #f5f7fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .issue-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .issue-link {
+            color: #3366CC;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .issue-link:hover {
+            color: #2952a3;
+            text-decoration: underline;
+        }
+
+        .signature-section {
+            margin-top: 24px;
+        }
+
+        .signature-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .signature-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .signature-card {
+            position: relative;
+            background: #fafbfc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .signature-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .signature-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        .signature-info {
+            margin-bottom: 12px;
+        }
+
+        .signature-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 4px;
+        }
+
+        .signature-dept {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .signature-photo {
+            width: 100%;
+            height: 100px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .signature-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .signature-photo.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c0c4cc;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">旁站详情</h1>
+            <div>
+                <el-button icon="el-icon-back" @click="handleBack">返回</el-button>
+            </div>
+        </div>
+
+        <!-- 表单容器 -->
+        <div class="form-container">
+            <!-- 基本信息模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.basic }">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">编号</label>
+                            <div class="form-value">{{ detailData.code }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">旁站日期</label>
+                            <div class="form-value">{{ detailData.supervisionDate }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">旁站人</label>
+                            <div class="form-value">
+                                <el-tag v-for="(person, index) in detailData.supervisors" :key="index" size="small" style="margin-right: 8px;">
+                                    {{ person }}
+                                </el-tag>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">旁站内容</label>
+                            <div class="form-value" v-html="detailData.supervisionContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 旁站情况模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('situation')">
+                    <div class="module-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        旁站情况
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.situation }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.situation }">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">旁站开始时间</label>
+                            <div class="form-value">{{ detailData.startTime }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">旁站结束时间</label>
+                            <div class="form-value">{{ detailData.endTime }}</div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">旁站时长</label>
+                            <div class="form-value">{{ detailData.duration }}</div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="detailData.photos && detailData.photos.length">
+                        <div class="form-item full-width">
+                            <label class="form-label">旁站照片</label>
+                            <div class="form-value">
+                                <div class="photo-grid">
+                                    <div class="photo-item" v-for="(photo, index) in detailData.photos" :key="index" @click="previewPhoto(photo)">
+                                        <img :src="photo.url" :alt="photo.name">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">旁站情况</label>
+                            <div class="form-value" v-html="detailData.supervisionResult"></div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="detailData.relatedIssues && detailData.relatedIssues.length">
+                        <div class="form-item full-width">
+                            <label class="form-label">关联问题</label>
+                            <div class="form-value">
+                                <ul class="issue-list">
+                                    <li class="issue-item" v-for="(issue, index) in detailData.relatedIssues" :key="index">
+                                        <a class="issue-link" @click="viewIssue(issue)">
+                                            <i class="el-icon-link"></i> {{ issue.title }}
+                                        </a>
+                                        <el-tag :type="getIssueStatusType(issue.status)" size="mini" style="margin-left: 8px;">
+                                            {{ issue.status }}
+                                        </el-tag>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 旁站人签字模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('signature')">
+                    <div class="module-title">
+                        <i class="fas fa-signature"></i>
+                        旁站人签字
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.signature }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.signature }">
+                    <div class="signature-section">
+                        <div class="signature-header">
+                            <div class="signature-title">
+                                签字情况
+                                <span style="margin-left: 16px; font-size: 14px; font-weight: normal; color: #67c23a;">
+                                    已签: {{ signedCount }} 人
+                                </span>
+                                <span style="margin-left: 12px; font-size: 14px; font-weight: normal; color: #f56c6c;">
+                                    未签: {{ unsignedCount }} 人
+                                </span>
+                            </div>
+                        </div>
+                        <div class="signature-grid">
+                            <div class="signature-card" v-for="signature in signatureData" :key="signature.id">
+                                <div class="signature-status">
+                                    <el-tag :type="signature.status === 'signed' ? 'success' : 'info'" size="small">
+                                        {{ signature.status === 'signed' ? '已签' : '未签' }}
+                                    </el-tag>
+                                </div>
+                                <div class="signature-info">
+                                    <div class="signature-name">{{ signature.name }}</div>
+                                    <div class="signature-dept">{{ signature.department }}</div>
+                                </div>
+                                <div class="signature-photo" :class="{ empty: !signature.photo }">
+                                    <img v-if="signature.photo" :src="signature.photo" :alt="signature.name + '的签名'">
+                                    <span v-else>暂无签名</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    modules: {
+                        basic: true,
+                        situation: true,
+                        signature: true
+                    },
+                    detailData: {
+                        code: 'SUP001',
+                        supervisionDate: '2024-01-21',
+                        supervisors: ['监理工程师A', '安全员B'],
+                        supervisionContent: '对基坑支护关键工序进行旁站监督，重点监控：<br>1. 混凝土浇筑质量<br>2. 钢筋绑扎规范性<br>3. 振捣密实度<br>4. 施工安全措施落实情况',
+                        startTime: '2024-01-21 14:00',
+                        endTime: '2024-01-21 18:00',
+                        duration: '4小时',
+                        photos: [
+                            { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0Y1RjdGQSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5MDkzOTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ml4bnoZnnhabnkuow8L3RleHQ+PC9zdmc+', name: '旁站照片1' },
+                            { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0Y1RjdGQSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5MDkzOTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ml4bnoZnnhabnkuow8L3RleHQ+PC9zdmc+', name: '旁站照片2' },
+                            { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0Y1RjdGQSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5MDkzOTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ml4bnoZnnhabnkuow8L3RleHQ+PC9zdmc+', name: '旁站照片3' }
+                        ],
+                        supervisionResult: '旁站监督情况：<br>1. 混凝土配合比符合设计要求，现场取样检测<br>2. 钢筋规格型号正确，绑扎牢固，保护层厚度符合要求<br>3. 模板支撑稳固，接缝严密<br>4. 振捣充分，无漏振现象<br>5. 作业人员持证上岗，安全措施到位<br>6. 浇筑过程连续，无中断现象<br><br>综合评价：本次关键工序施工质量良好，符合设计及规范要求，可进入下一道工序。',
+                        relatedIssues: []
+                    },
+                    signatureData: [
+                        {
+                            id: 1,
+                            name: '监理工程师A',
+                            department: '监理单位',
+                            photo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0id2hpdGUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjMzAzMTMzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+55uR55CG5bel56iL5biIQeetvuWQjTwvdGV4dD48L3N2Zz4=',
+                            status: 'signed'
+                        },
+                        {
+                            id: 2,
+                            name: '安全员B',
+                            department: '施工单位',
+                            photo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0id2hpdGUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjMzAzMTMzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+5a6J5YWo5ZGYQeetvuWQjTwvdGV4dD48L3N2Zz4=',
+                            status: 'signed'
+                        }
+                    ]
+                };
+            },
+            computed: {
+                signedCount() {
+                    return this.signatureData.filter(s => s.status === 'signed').length;
+                },
+                unsignedCount() {
+                    return this.signatureData.filter(s => s.status === 'unsigned').length;
+                }
+            },
+            methods: {
+                toggleModule(name) {
+                    this.modules[name] = !this.modules[name];
+                },
+                handleBack() {
+                    window.history.back();
+                },
+                previewPhoto(photo) {
+                    this.$message.info('预览照片');
+                },
+                viewIssue(issue) {
+                    this.$message.info(`查看问题：${issue.title}`);
+                    // 实际应该跳转到问题详情页
+                    // window.open(`/issue-detail.html?id=${issue.id}`, '_blank');
+                },
+                getIssueStatusType(status) {
+                    const typeMap = {
+                        '整改中': 'warning',
+                        '已整改': 'success',
+                        '待整改': 'info',
+                        '已关闭': ''
+                    };
+                    return typeMap[status] || 'info';
+                }
+            },
+            mounted() {
+                // 从URL参数获取数据
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id');
+                if (id) {
+                    console.log('加载旁站数据，ID:', id);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

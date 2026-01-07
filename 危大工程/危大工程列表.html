@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>危大工程管理 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .container {
+            padding: 20px;
+            padding-top: 0;
+        }
+
+        /* 固定区域容器 */
+        .fixed-area {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #f5f7fa;
+            padding-top: 20px;
+            margin: 0 -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .button-group {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tabs-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .operation-button {
+            padding: 0;
+            margin: 0 4px;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .status-draft {
+            background: #f5f5f5;
+            color: #8c8c8c;
+        }
+
+        .status-approving {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-building {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .status-completed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-accepted {
+            background: #f0f9ff;
+            color: #1890ff;
+        }
+
+        .scheme-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .scheme-uploaded {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .scheme-not-uploaded {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 黄色提示矩形样式 */
+        .button-with-tip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tip-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 10;
+        }
+
+        .yellow-square {
+            width: 12px;
+            height: 12px;
+            background-color: #faad14;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(250, 173, 20, 0.4);
+        }
+
+        .yellow-square:hover {
+            background-color: #ffc53d;
+            transform: scale(1.1);
+        }
+
+        .tip-popover {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border: 1px solid #faad14;
+            border-radius: 4px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #303133;
+        }
+
+        .tip-popover::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid #faad14;
+        }
+
+        .tip-popover::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <!-- 固定区域 -->
+        <div class="fixed-area">
+            <!-- 功能按钮组 -->
+            <div class="button-group">
+                <div class="button-with-tip">
+                    <el-button type="primary" icon="el-icon-plus" @click="handleNew">新建</el-button>
+                    <div class="tip-indicator">
+                        <div class="yellow-square" @click.stop="toggleTip"></div>
+                        <div class="tip-popover" v-if="showTip">
+                            这里是提示提示提示123444
+                        </div>
+                    </div>
+                </div>
+                <el-button type="danger" icon="el-icon-delete" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除</el-button>
+                <el-button type="success" icon="el-icon-download">导出</el-button>
+            </div>
+
+            <!-- Tab切换 -->
+            <div class="tabs-wrapper">
+                <el-tabs v-model="activeTab" @tab-click="handleTabClick" style="background: white; padding: 12px 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                    <el-tab-pane label="全部" name="all"></el-tab-pane>
+                    <el-tab-pane label="进行中" name="ongoing"></el-tab-pane>
+                    <el-tab-pane label="已验收" name="accepted"></el-tab-pane>
+                </el-tabs>
+            </div>
+
+            <!-- 搜索表单 -->
+            <div class="search-form">
+                <el-form :model="searchForm" ref="searchForm" :inline="true" label-width="100px">
+                    <template v-for="(field, index) in visibleSearchFields">
+                        <el-form-item :label="field.label" :key="field.prop">
+                            <el-input 
+                                v-if="field.type === 'input'"
+                                v-model="searchForm[field.prop]"
+                                :placeholder="'请输入' + field.label"
+                                clearable
+                                style="width: 200px;">
+                            </el-input>
+                            <el-select
+                                v-if="field.type === 'select'"
+                                v-model="searchForm[field.prop]"
+                                :placeholder="'请选择' + field.label"
+                                clearable
+                                style="width: 200px;">
+                                <el-option
+                                    v-for="item in field.options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </template>
+                    <el-form-item>
+                        <el-button type="primary" @click="handleSearch">搜索</el-button>
+                        <el-button @click="handleReset">重置</el-button>
+                        <el-button type="text" @click="toggleSearchFields">
+                            {{ isExpanded ? '收起' : '展开' }}
+                            <i :class="['el-icon-arrow-' + (isExpanded ? 'up' : 'down')]"></i>
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+        <!-- 固定区域结束 -->
+
+        <!-- 表格 -->
+        <div class="table-container">
+            <el-table
+                :data="tableData"
+                border
+                stripe
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55" align="center"></el-table-column>
+                <el-table-column prop="code" label="编号" width="150" align="center"></el-table-column>
+                <el-table-column prop="name" label="危大工程名称" min-width="200">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.name" placement="top" :disabled="scope.row.name.length <= 20">
+                            <div class="text-ellipsis">{{ scope.row.name }}</div>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="isSuperDangerous" label="是否超危大" width="120" align="center">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.isSuperDangerous === '是' ? 'danger' : 'info'" size="small">
+                            {{ scope.row.isSuperDangerous }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="category" label="类别" width="180" align="center"></el-table-column>
+                <el-table-column prop="status" label="工程状态" width="120" align="center">
+                    <template slot-scope="scope">
+                        <span :class="getStatusClass(scope.row.status)">
+                            {{ scope.row.status }}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="schemeStatus" label="专项施工方案" width="140" align="center">
+                    <template slot-scope="scope">
+                        <span :class="scope.row.schemeStatus === '已上传' ? 'scheme-status scheme-uploaded' : 'scheme-status scheme-not-uploaded'">
+                            {{ scope.row.schemeStatus }}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="planStartDate" label="计划开工时间" width="120" align="center"></el-table-column>
+                <el-table-column prop="actualStartDate" label="实际开工时间" width="120" align="center"></el-table-column>
+                <el-table-column prop="planEndDate" label="计划竣工时间" width="120" align="center"></el-table-column>
+                <el-table-column prop="actualEndDate" label="实际竣工时间" width="120" align="center"></el-table-column>
+                <el-table-column prop="progress" label="当前工程进度" width="150" align="center">
+                    <template slot-scope="scope">
+                        <el-progress :percentage="scope.row.progress" :color="getProgressColor(scope.row.progress)"></el-progress>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="inspectionCount" label="巡查次数" width="100" align="center"></el-table-column>
+                <el-table-column prop="supervisionCount" label="旁站次数" width="100" align="center"></el-table-column>
+                <el-table-column label="操作" width="400" align="center" fixed="right">
+                    <template slot-scope="scope">
+                        <el-tooltip content="查看" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-view"
+                                class="operation-button"
+                                @click="handleView(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="编辑" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-edit"
+                                class="operation-button"
+                                @click="handleEdit(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="上传专项施工方案" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-upload"
+                                class="operation-button"
+                                @click="handleUploadScheme(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="添加作业人员" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-user"
+                                class="operation-button"
+                                @click="handleAddPersonnel(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="更新工程进度" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-refresh"
+                                class="operation-button"
+                                @click="handleUpdateProgress(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="新建交底记录" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-document"
+                                class="operation-button"
+                                @click="handleNewBriefing(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                        <el-tooltip content="验收" placement="top">
+                            <el-button
+                                type="text"
+                                icon="el-icon-check"
+                                class="operation-button"
+                                @click="handleAcceptance(scope.row)">
+                            </el-button>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div style="margin-top: 20px; text-align: right;">
+                <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="currentPage"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 更新工程进度弹窗 -->
+        <el-dialog title="更新工程进度" :visible.sync="progressDialogVisible" width="600px">
+            <el-form :model="progressForm" label-width="120px">
+                <el-form-item label="项目状态">
+                    <el-select v-model="progressForm.projectStatus" placeholder="请选择项目状态" style="width: 100%;">
+                        <el-option label="建设" value="building"></el-option>
+                        <el-option label="竣工" value="completed"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="实际开工日期">
+                    <el-date-picker
+                        v-model="progressForm.actualStartDate"
+                        type="date"
+                        placeholder="选择日期"
+                        style="width: 100%;">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="实际竣工日期">
+                    <el-date-picker
+                        v-model="progressForm.actualEndDate"
+                        type="date"
+                        placeholder="选择日期"
+                        style="width: 100%;">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="项目完成百分比">
+                    <el-slider v-model="progressForm.completionPercentage" :show-tooltip="true"></el-slider>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <el-input-number v-model="progressForm.completionPercentage" :min="0" :max="100" size="small"></el-input-number>
+                        <span style="margin-left: 10px;">%</span>
+                    </div>
+                </el-form-item>
+                <el-form-item label="当前进展阶段">
+                    <el-input
+                        type="textarea"
+                        v-model="progressForm.currentStage"
+                        placeholder="请输入当前进展阶段"
+                        :rows="4">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="progressDialogVisible = false">关闭</el-button>
+                <el-button type="primary" @click="saveProgress">保存</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 添加作业人员弹窗 -->
+        <el-dialog title="添加作业人员" :visible.sync="personnelDialogVisible" width="900px">
+            <div style="text-align: center; padding: 40px;">
+                <p style="color: #909399;">人员选择功能需要集成组织树选择组件</p>
+                <el-button type="primary" @click="personnelDialogVisible = false">确定</el-button>
+            </div>
+        </el-dialog>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    activeTab: 'all',
+                    isExpanded: false,
+                    showTip: false,
+                    searchFields: [
+                        { label: '危大工程名称', prop: 'name', type: 'input' },
+                        { 
+                            label: '类别', 
+                            prop: 'category', 
+                            type: 'select',
+                            options: [
+                                { label: '基坑工程', value: 'foundation' },
+                                { label: '模板工程及支撑体系', value: 'template' },
+                                { label: '起重吊装及起重机械安装拆卸工程', value: 'lifting' },
+                                { label: '脚手架工程', value: 'scaffold' },
+                                { label: '拆除工程', value: 'demolition' },
+                                { label: '暗挖工程', value: 'tunneling' },
+                                { label: '其他', value: 'other' }
+                            ]
+                        },
+                        { 
+                            label: '是否超危大', 
+                            prop: 'isSuperDangerous', 
+                            type: 'select',
+                            options: [
+                                { label: '是', value: 'yes' },
+                                { label: '否', value: 'no' }
+                            ]
+                        }
+                    ],
+                    searchForm: {},
+                    tableData: [],
+                    selectedRows: [],
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    progressDialogVisible: false,
+                    progressForm: {
+                        projectStatus: '',
+                        actualStartDate: '',
+                        actualEndDate: '',
+                        completionPercentage: 0,
+                        currentStage: ''
+                    },
+                    personnelDialogVisible: false
+                };
+            },
+            computed: {
+                visibleSearchFields() {
+                    return this.isExpanded 
+                        ? this.searchFields 
+                        : this.searchFields.slice(0, 3);
+                }
+            },
+            methods: {
+                toggleTip() {
+                    this.showTip = !this.showTip;
+                },
+                loadData() {
+                    // 模拟数据加载
+                    const mockData = Array.from({ length: 30 }, (_, index) => ({
+                        id: index + 1,
+                        code: `WD${String(index + 1).padStart(4, '0')}`,
+                        name: `危大工程${index + 1} - ${['基坑开挖', '模板支撑', '起重吊装', '脚手架搭设', '拆除工程'][index % 5]}`,
+                        isSuperDangerous: index % 3 === 0 ? '是' : '否',
+                        category: ['基坑工程', '模板工程及支撑体系', '起重吊装及起重机械安装拆卸工程', '脚手架工程', '拆除工程'][index % 5],
+                        status: ['草稿', '审批中', '建设中', '已竣工', '已验收'][index % 5],
+                        schemeStatus: index % 2 === 0 ? '已上传' : '未上传',
+                        planStartDate: '2024-01-15',
+                        actualStartDate: index > 2 ? '2024-01-20' : '',
+                        planEndDate: '2024-12-31',
+                        actualEndDate: index % 5 === 4 ? '2024-12-20' : '',
+                        progress: [0, 25, 50, 75, 100][index % 5],
+                        inspectionCount: Math.floor(Math.random() * 20) + 1,
+                        supervisionCount: Math.floor(Math.random() * 15) + 1
+                    }));
+                    
+                    // 根据tab筛选数据
+                    let filteredData = mockData;
+                    if (this.activeTab === 'ongoing') {
+                        filteredData = mockData.filter(item => ['建设中', '审批中'].includes(item.status));
+                    } else if (this.activeTab === 'accepted') {
+                        filteredData = mockData.filter(item => item.status === '已验收');
+                    }
+                    
+                    this.total = filteredData.length;
+                    
+                    // 分页
+                    const start = (this.currentPage - 1) * this.pageSize;
+                    const end = start + this.pageSize;
+                    this.tableData = filteredData.slice(start, end);
+                },
+                handleTabClick(tab) {
+                    this.currentPage = 1;
+                    this.loadData();
+                },
+                handleSelectionChange(val) {
+                    this.selectedRows = val;
+                },
+                handleNew() {
+                    window.location.href = '新建危大工程.html';
+                },
+                handleView(row) {
+                    window.location.href = `危大工程详情.html?id=${row.id}&mode=view`;
+                },
+                handleEdit(row) {
+                    window.location.href = `危大工程详情.html?id=${row.id}&mode=edit`;
+                },
+                handleUploadScheme(row) {
+                    window.location.href = `专项施工方案详情.html?projectId=${row.id}`;
+                },
+                handleAddPersonnel(row) {
+                    this.personnelDialogVisible = true;
+                },
+                handleUpdateProgress(row) {
+                    this.progressForm = {
+                        projectStatus: row.status === '建设中' ? 'building' : 'completed',
+                        actualStartDate: row.actualStartDate,
+                        actualEndDate: row.actualEndDate,
+                        completionPercentage: row.progress,
+                        currentStage: ''
+                    };
+                    this.progressDialogVisible = true;
+                },
+                saveProgress() {
+                    this.$message.success('工程进度更新成功');
+                    this.progressDialogVisible = false;
+                    this.loadData();
+                },
+                handleNewBriefing(row) {
+                    window.location.href = `新建交底详情.html?projectId=${row.id}`;
+                },
+                handleAcceptance(row) {
+                    window.location.href = `验收详情.html?projectId=${row.id}`;
+                },
+                handleDelete(row) {
+                    this.$confirm('确定要删除该危大工程吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message.success('删除成功');
+                        this.loadData();
+                    }).catch(() => {});
+                },
+                handleBatchDelete() {
+                    this.$confirm(`确定要删除选中的 ${this.selectedRows.length} 个危大工程吗?`, '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message.success('批量删除成功');
+                        this.selectedRows = [];
+                        this.loadData();
+                    }).catch(() => {});
+                },
+                handleSearch() {
+                    console.log('搜索条件：', this.searchForm);
+                    this.currentPage = 1;
+                    this.loadData();
+                },
+                handleReset() {
+                    this.$refs.searchForm.resetFields();
+                    this.handleSearch();
+                },
+                toggleSearchFields() {
+                    this.isExpanded = !this.isExpanded;
+                },
+                handleSizeChange(val) {
+                    this.pageSize = val;
+                    this.loadData();
+                },
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                    this.loadData();
+                },
+                getStatusClass(status) {
+                    const statusMap = {
+                        '草稿': 'status-tag status-draft',
+                        '审批中': 'status-tag status-approving',
+                        '建设中': 'status-tag status-building',
+                        '已竣工': 'status-tag status-completed',
+                        '已验收': 'status-tag status-accepted'
+                    };
+                    return statusMap[status] || 'status-tag';
+                },
+                getProgressColor(percentage) {
+                    if (percentage < 30) return '#f56c6c';
+                    if (percentage < 70) return '#e6a23c';
+                    return '#67c23a';
+                }
+            },
+            created() {
+                // 初始化搜索表单
+                this.searchFields.forEach(field => {
+                    this.$set(this.searchForm, field.prop, '');
+                });
+                this.loadData();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

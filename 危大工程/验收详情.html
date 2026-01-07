@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验收详情 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 120px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            background: #fafafa;
+            text-align: center;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #409eff;
+            background: #f5f7fa;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #c0c4cc;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .photo-item {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .photo-action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .photo-action-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .photo-action-btn.delete:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <div class="page-header">
+            <h1 class="page-title">验收详情</h1>
+        </div>
+
+        <div class="form-container">
+            <div class="form-module">
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-check-circle"></i>
+                        验收信息
+                    </div>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">验收照片</label>
+                            <div class="form-control">
+                                <div class="upload-area" @click="triggerPhotoUpload">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <div class="upload-text">点击上传或拖拽照片到此处</div>
+                                    <div class="upload-hint">支持 JPG、PNG 格式，单张不超过 5MB</div>
+                                    <input type="file" ref="photoInput" multiple style="display: none;" @change="handlePhotoChange" accept="image/*">
+                                </div>
+                                <div v-if="formData.acceptancePhotos && formData.acceptancePhotos.length > 0" class="photo-grid">
+                                    <div v-for="(photo, index) in formData.acceptancePhotos" :key="index" class="photo-item">
+                                        <img :src="photo.url" :alt="photo.name">
+                                        <div class="photo-actions">
+                                            <button class="photo-action-btn" @click="previewPhoto(photo)" title="预览">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="photo-action-btn delete" @click="removePhoto(index)" title="删除">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">验收日期</label>
+                            <div class="form-control">
+                                <el-date-picker
+                                    v-model="formData.acceptanceDate"
+                                    type="date"
+                                    placeholder="选择日期"
+                                    style="width: 100%;">
+                                </el-date-picker>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">验收情况说明</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.acceptanceDescription" placeholder="请输入验收情况说明"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">验收附件</label>
+                            <div class="form-control">
+                                <el-upload
+                                    class="upload-demo"
+                                    action="#"
+                                    :file-list="formData.acceptanceAttachments"
+                                    :on-preview="handlePreview"
+                                    :on-remove="handleRemove">
+                                    <el-button size="small" type="primary">点击上传</el-button>
+                                    <div slot="tip" class="el-upload__tip">支持上传PDF、DOC、DOCX等格式文件，单个文件不超过10MB</div>
+                                </el-upload>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单操作按钮 -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @click="handleCancel">
+                <i class="fas fa-times"></i>
+                关闭
+            </button>
+            <button type="button" class="btn btn-primary" @click="handleSave">
+                <i class="fas fa-save"></i>
+                保存
+            </button>
+        </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    formData: {
+                        acceptancePhotos: [],
+                        acceptanceDate: '',
+                        acceptanceDescription: '',
+                        acceptanceAttachments: []
+                    }
+                };
+            },
+            methods: {
+                triggerPhotoUpload() {
+                    this.$refs.photoInput.click();
+                },
+                handlePhotoChange(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        if (file.size > 5 * 1024 * 1024) {
+                            this.$message.warning(`${file.name} 文件大小超过5MB`);
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.formData.acceptancePhotos.push({
+                                name: file.name,
+                                url: e.target.result,
+                                file: file
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                },
+                removePhoto(index) {
+                    this.formData.acceptancePhotos.splice(index, 1);
+                },
+                previewPhoto(photo) {
+                    // 创建预览弹窗
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.8);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10000;
+                        cursor: pointer;
+                    `;
+                    const img = document.createElement('img');
+                    img.src = photo.url;
+                    img.style.cssText = `
+                        max-width: 90%;
+                        max-height: 90%;
+                        border-radius: 8px;
+                    `;
+                    modal.appendChild(img);
+                    modal.addEventListener('click', () => {
+                        document.body.removeChild(modal);
+                    });
+                    document.body.appendChild(modal);
+                },
+                handlePreview(file) {
+                    console.log('预览', file);
+                },
+                handleRemove(file, fileList) {
+                    this.formData.acceptanceAttachments = fileList;
+                },
+                handleCancel() {
+                    this.$confirm('确定要关闭吗？未保存的数据将丢失。', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        window.history.back();
+                    }).catch(() => {});
+                },
+                handleSave() {
+                    // 表单验证
+                    if (this.formData.acceptancePhotos.length === 0) {
+                        this.$message.warning('请上传验收照片');
+                        return;
+                    }
+                    if (!this.formData.acceptanceDate) {
+                        this.$message.warning('请选择验收日期');
+                        return;
+                    }
+                    if (!this.formData.acceptanceDescription) {
+                        this.$message.warning('请输入验收情况说明');
+                        return;
+                    }
+
+                    this.$message.success('保存成功');
+                    setTimeout(() => {
+                        window.history.back();
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

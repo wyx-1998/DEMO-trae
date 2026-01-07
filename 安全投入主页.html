@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全投入管理系统</title>
+
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏样式 */
+        .header {
+            height: 64px;
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #409EFF;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: #409EFF;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+            margin-left: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+            color: #333;
+        }
+
+        .user-info:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 顶部导航样式 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-left: 30px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #666;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background-color: #f5f5f5;
+            color: #409EFF;
+        }
+
+        .nav-item.active .nav-link {
+            background-color: #409EFF;
+            color: #fff;
+        }
+
+        .nav-item.active .nav-link:hover {
+            background-color: #66b1ff;
+            color: #fff;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            height: calc(100vh - 64px);
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 256px;
+            background: #ffffff;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            transition: width 0.3s;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar.collapsed {
+            width: 64px;
+        }
+
+        .menu-toggle {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e4e7ed;
+            cursor: pointer;
+            color: #409EFF;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .menu-toggle:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 菜单容器 */
+        .el-menu {
+            flex: 1;
+            border-right: none;
+        }
+
+        /* 菜单图标间距 */
+        .el-menu .el-menu-item i,
+        .el-menu .el-sub-menu__title i {
+            margin-right: 12px;
+        }
+
+        /* 白色主题菜单样式 */
+        .el-menu--vertical .el-menu-item:hover,
+        .el-menu--vertical .el-sub-menu__title:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+        .el-menu--vertical .el-menu-item.is-active {
+            background-color: #e6f7ff !important;
+            border-right: 3px solid #409EFF;
+            color: #409EFF !important;
+        }
+
+        .el-sub-menu .el-menu-item {
+            background-color: #fafafa !important;
+        }
+
+        .el-sub-menu .el-menu-item:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+        .el-sub-menu .el-menu-item.is-active {
+            background-color: #e6f7ff !important;
+            color: #409EFF !important;
+        }
+
+        /* 内容区域 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .page-nav-container {
+            background: #fff;
+            border-bottom: 1px solid #e4e7ed;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: #606266;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            color: #409eff;
+        }
+
+        .page-nav-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .page-nav-title i {
+            font-size: 20px;
+            color: #409EFF;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 0;
+            overflow-y: auto;
+            background: #f0f2f5;
+        }
+
+        /* 页面内容样式 */
+        .content-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e4e7ed;
+        }
+
+        .page-header i {
+            font-size: 24px;
+            color: #409EFF;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+        }
+
+        .page-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 64px;
+            }
+
+            .header-left .breadcrumb {
+                display: none;
+            }
+
+            .main-content {
+                padding: 0;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3366CC;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 顶部导航栏 -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>安全投入管理系统</span>
+                    </div>
+
+                    <!-- 顶部主导航 -->
+                    <nav class="top-nav">
+                        <div class="nav-item active">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-coins"></i>
+                                <span>安全投入</span>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+                <div class="header-right">
+                    <el-dropdown @command="handleUserCommand">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i>
+                            <span>管理员</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item command="profile">
+                                    <i class="fas fa-user"></i> 个人信息
+                                </el-dropdown-item>
+                                <el-dropdown-item command="settings">
+                                    <i class="fas fa-cog"></i> 系统设置
+                                </el-dropdown-item>
+                                <el-dropdown-item divided command="logout">
+                                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                </div>
+            </header>
+
+            <!-- 主体容器 -->
+            <div class="main-container">
+                <!-- 侧边栏 -->
+                <aside class="sidebar" :class="{ collapsed: isCollapsed }">
+                    <div class="menu-toggle" @click="toggleSidebar">
+                        <i :class="isCollapsed ? 'fas fa-angle-double-right' : 'fas fa-angle-double-left'"></i>
+                    </div>
+                    <el-menu :default-active="activeMenu" :collapse="isCollapsed" :unique-opened="true"
+                        @select="handleMenuSelect" background-color="#ffffff" text-color="#666666"
+                        active-text-color="#1890ff">
+
+                        <!-- 安全投入模块菜单 -->
+                        <el-sub-menu index="safety-expense-standard-lib">
+                            <template #title>
+                                <i class="fas fa-database"></i>
+                                <span>安全费用标准库</span>
+                            </template>
+                            <el-menu-item index="accrual-standard">
+                                <i class="fas fa-calculator"></i>
+                                <template #title>计提标准库</template>
+                            </el-menu-item>
+                            <el-menu-item index="investment-category">
+                                <i class="fas fa-tags"></i>
+                                <template #title>投入类别库</template>
+                            </el-menu-item>
+                        </el-sub-menu>
+                        <el-menu-item index="safety-investment-dashboard">
+                            <i class="fas fa-chart-bar"></i>
+                            <template #title>数据看板</template>
+                        </el-menu-item>
+                        <el-sub-menu index="investment-plan-management">
+                            <template #title>
+                                <i class="fas fa-tasks"></i>
+                                <span>投入计划管理</span>
+                            </template>
+                            <el-menu-item index="safety-measures-plan">
+                                <i class="fas fa-shield-alt"></i>
+                                <template #title>安措计划</template>
+                            </el-menu-item>
+                            <el-menu-item index="counter-measures-plan">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <template #title>反措计划</template>
+                            </el-menu-item>
+                            <el-menu-item index="other-plan">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <template #title>其他计划</template>
+                            </el-menu-item>
+                        </el-sub-menu>
+                        <el-sub-menu index="budget-and-investment">
+                            <template #title>
+                                <i class="fas fa-coins"></i>
+                                <span>预算和投入</span>
+                            </template>
+                            <el-menu-item index="safety-budget-management">
+                                <i class="fas fa-building"></i>
+                                <template #title>安全预算</template>
+                            </el-menu-item>
+                            <el-menu-item index="expense-management">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <template #title>安全投入</template>
+                            </el-menu-item>
+                        </el-sub-menu>
+                        <el-menu-item index="safety-expense-accrual">
+                            <i class="fas fa-receipt"></i>
+                            <template #title>安全费用计提管理</template>
+                        </el-menu-item>
+                        <el-menu-item index="safety-investment-analysis">
+                            <i class="fas fa-chart-pie"></i>
+                            <template #title>统计分析</template>
+                        </el-menu-item>
+
+                    </el-menu>
+                </aside>
+
+                <!-- 内容区域 -->
+                <main class="content-area">
+                    <!-- 页面导航栏 -->
+                    <div class="page-nav-container">
+                        <!-- 返回按钮 -->
+                        <button v-if="showBackButton" @click="goBack" class="back-button">
+                            < 返回 </button>
+
+                                <!-- 页面标题 -->
+                                <div class="page-nav-title">
+                                    <i :class="currentPageIcon"></i>
+                                    <span>{{ currentPageTitle }}</span>
+                                </div>
+                    </div>
+
+                    <!-- 主内容区 -->
+                    <div class="main-content">
+                        <!-- 计提标准库列表页面 -->
+                        <div class="content-wrapper" v-if="activeMenu === 'accrual-standard'">
+                            <iframe src="./安全投入/计提标准库.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 计提标准库详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'accrual-standard-detail'">
+                            <iframe src="./安全投入/计提标准库-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 投入类别库页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'investment-category'">
+                            <iframe src="./安全投入/投入类别库.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全预算列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-budget-management'">
+                            <iframe src="./安全投入/安全预算.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全预算详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-budget-detail'">
+                            <iframe src="./安全投入/安全预算-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全投入列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'expense-management'">
+                            <iframe src="./安全投入/安全投入.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全投入详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'expense-management-detail'">
+                            <iframe src="./安全投入/安全投入-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安措计划列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan'">
+                            <iframe src="./安全投入/安措计划.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安措计划详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan-detail'">
+                            <iframe src="./安全投入/安措计划-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 反措计划列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan'">
+                            <iframe src="./安全投入/反措计划.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 反措计划详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan-detail'">
+                            <iframe src="./安全投入/反措计划-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 其他计划列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'other-plan'">
+                            <iframe src="./安全投入/其他计划.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 其他计划详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'other-plan-detail'">
+                            <iframe src="./安全投入/其他计划-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全费用计提列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual'">
+                            <iframe src="./安全投入/安全费用计提.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 安全费用计提详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual-detail'">
+                            <iframe src="./安全投入/安全费用计提-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 数据看板页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-dashboard'">
+                            <iframe src="./安全投入/数据看板.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 统计分析页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-analysis'">
+                            <iframe src="./安全投入/统计查询.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 其他页面的默认内容 -->
+                        <div class="content-wrapper" v-else>
+                            <div class="page-header">
+                                <i :class="getMenuIcon(activeMenu)"></i>
+                                <h2 class="page-title">{{ getMenuTitle(activeMenu) }}</h2>
+                            </div>
+                            <div class="page-content">
+                                <el-empty description="功能开发中...">
+                                    <el-button type="primary" @click="showMessage">
+                                        <i class="fas fa-tools"></i> 敬请期待
+                                    </el-button>
+                                </el-empty>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue/dist/index.iife.js"></script>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, nextTick } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        const app = createApp({
+            setup() {
+                // 响应式数据
+                const isCollapsed = ref(false);
+                const activeMenu = ref('safety-investment-dashboard'); // 默认选中数据看板
+                const currentPageTitle = ref('数据看板');
+                const currentPageIcon = ref('fas fa-chart-bar');
+                const showBackButton = ref(false);
+                const navigationHistory = ref([]);
+
+                // 菜单配置
+                const menuConfig = {
+                    'accrual-standard': { title: '计提标准库', icon: 'fas fa-calculator' },
+                    'accrual-standard-detail': { title: '计提标准库详情', icon: 'fas fa-info-circle' },
+                    'investment-category': { title: '投入类别库', icon: 'fas fa-tags' },
+                    'safety-investment-dashboard': { title: '数据看板', icon: 'fas fa-chart-bar' },
+                    'safety-measures-plan': { title: '安措计划', icon: 'fas fa-shield-alt' },
+                    'safety-measures-plan-detail': { title: '安措计划详情', icon: 'fas fa-info-circle' },
+                    'counter-measures-plan': { title: '反措计划', icon: 'fas fa-exclamation-triangle' },
+                    'counter-measures-plan-detail': { title: '反措计划详情', icon: 'fas fa-info-circle' },
+                    'other-plan': { title: '其他计划', icon: 'fas fa-ellipsis-h' },
+                    'other-plan-detail': { title: '其他计划详情', icon: 'fas fa-info-circle' },
+                    'safety-budget-management': { title: '安全预算', icon: 'fas fa-building' },
+                    'safety-budget-detail': { title: '安全预算详情', icon: 'fas fa-info-circle' },
+                    'expense-management': { title: '安全投入', icon: 'fas fa-file-invoice-dollar' },
+                    'expense-management-detail': { title: '安全投入详情', icon: 'fas fa-info-circle' },
+                    'safety-expense-accrual': { title: '安全费用计提管理', icon: 'fas fa-receipt' },
+                    'safety-expense-accrual-detail': { title: '安全费用计提详情', icon: 'fas fa-info-circle' },
+                    'safety-investment-analysis': { title: '统计分析', icon: 'fas fa-chart-pie' }
+                };
+
+                // 方法
+                const toggleSidebar = () => {
+                    isCollapsed.value = !isCollapsed.value;
+                };
+
+                const handleMenuSelect = (index) => {
+                    activeMenu.value = index;
+                    currentPageTitle.value = menuConfig[index]?.title || '未知页面';
+                    currentPageIcon.value = menuConfig[index]?.icon || 'el-icon-document';
+
+                    // 点击菜单时清空导航历史并隐藏返回按钮
+                    navigationHistory.value = [];
+                    showBackButton.value = false;
+                };
+
+                // 返回上一页功能
+                const goBack = () => {
+                    if (navigationHistory.value.length > 0) {
+                        const lastPage = navigationHistory.value.pop();
+                        activeMenu.value = lastPage.menu;
+                        currentPageTitle.value = lastPage.title;
+                        currentPageIcon.value = lastPage.icon;
+
+                        // 如果导航历史为空，隐藏返回按钮
+                        showBackButton.value = navigationHistory.value.length > 0;
+                    }
+                };
+
+                const handleUserCommand = (command) => {
+                    switch (command) {
+                        case 'profile':
+                            ElMessage.info('个人信息功能开发中...');
+                            break;
+                        case 'settings':
+                            ElMessage.info('系统设置功能开发中...');
+                            break;
+                        case 'logout':
+                            ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                ElMessage.success('已退出登录');
+                            }).catch(() => {
+                                ElMessage.info('已取消退出');
+                            });
+                            break;
+                    }
+                };
+
+                const getMenuIcon = (menuKey) => {
+                    return menuConfig[menuKey]?.icon || 'fas fa-file';
+                };
+
+                const getMenuTitle = (menuKey) => {
+                    return menuConfig[menuKey]?.title || '未知页面';
+                };
+
+                const showMessage = () => {
+                    ElMessage({
+                        message: '该功能正在开发中，敬请期待！',
+                        type: 'info',
+                        duration: 3000
+                    });
+                };
+
+                const handleIframeLoad = () => {
+                    console.log('页面加载完成');
+                };
+
+                // 添加页面导航处理功能
+                const handlePageNavigation = (event) => {
+                    // 检查消息来源和类型
+                    if (event.data && event.data.type === 'navigate') {
+                        const { page, data, mode, title, icon } = event.data;
+
+                        // 保存当前页面到导航历史（只有在页面内跳转时才保存）
+                        if (activeMenu.value) {
+                            navigationHistory.value.push({
+                                menu: activeMenu.value,
+                                title: currentPageTitle.value,
+                                icon: currentPageIcon.value
+                            });
+                        }
+
+                        // 切换到指定页面
+                        activeMenu.value = page;
+
+                        // 使用传递的标题和图标，或者从菜单配置中获取
+                        if (title) {
+                            currentPageTitle.value = title;
+                        } else if (menuConfig[page]) {
+                            currentPageTitle.value = menuConfig[page].title;
+                        } else {
+                            currentPageTitle.value = '未知页面';
+                        }
+
+                        if (icon) {
+                            currentPageIcon.value = icon;
+                        } else if (menuConfig[page]) {
+                            currentPageIcon.value = menuConfig[page].icon;
+                        } else {
+                            currentPageIcon.value = 'el-icon-document';
+                        }
+
+                        // 显示返回按钮
+                        showBackButton.value = true;
+
+                        // 如果有数据传递，存储到sessionStorage
+                        if (data) {
+                            sessionStorage.setItem(`${page}_data`, JSON.stringify(data));
+                        }
+                        if (mode) {
+                            sessionStorage.setItem(`${page}_mode`, mode);
+                        }
+                    }
+                };
+
+                // 生命周期
+                onMounted(() => {
+                    // 添加页面消息监听器
+                    window.addEventListener('message', handlePageNavigation);
+                    ElMessage.success({
+                        message: '欢迎使用安全投入管理系统！',
+                        duration: 3000
+                    });
+                });
+
+                return {
+                    isCollapsed,
+                    activeMenu,
+                    currentPageTitle,
+                    currentPageIcon,
+                    showBackButton,
+                    navigationHistory,
+                    menuConfig,
+                    toggleSidebar,
+                    handleMenuSelect,
+                    goBack,
+                    handleUserCommand,
+                    getMenuIcon,
+                    getMenuTitle,
+                    showMessage,
+                    handleIframeLoad
+                };
+            }
+        });
+
+        // 注册Element Plus图标
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
+        }
+
+        app.use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

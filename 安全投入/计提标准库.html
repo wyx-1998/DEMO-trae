@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全费用标准库 - 计提标准库</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .app-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      gap: 20px;
+    }
+
+    /* 左侧树形结构 */
+    .tree-panel {
+      width: 280px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .tree-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tree-header i {
+      color: #409EFF;
+    }
+
+    .tree-search {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .tree-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    /* 右侧列表区域 */
+    .content-card {
+      flex: 1;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .function-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .function-left {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-area {
+      padding: 20px 24px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .search-form .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .table-area {
+      flex: 1;
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .pagination-bar {
+      padding: 16px 24px;
+      background: #f8f9fa;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* 自定义树样式 */
+    .el-tree {
+      background: transparent;
+    }
+
+    .el-tree-node__content {
+      height: 36px;
+    }
+
+    .custom-tree-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .custom-tree-node i {
+      color: #909399;
+    }
+
+    .custom-tree-node.active i {
+      color: #409EFF;
+    }
+
+    /* 周期类型标签 */
+    .cycle-tag {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .cycle-monthly {
+      background-color: #e6f7ff;
+      color: #1890ff;
+    }
+
+    .cycle-yearly {
+      background-color: #fff7e6;
+      color: #fa8c16;
+    }
+
+    .cycle-project {
+      background-color: #f6ffed;
+      color: #52c41a;
+    }
+
+    /* 规则类型标签 */
+    .rule-tag {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .rule-proportion {
+      background-color: #e8f5e9;
+      color: #4caf50;
+    }
+
+    .rule-excess {
+      background-color: #fce4ec;
+      color: #e91e63;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app-container">
+    <div class="main-content">
+      <!-- 左侧行业树 -->
+      <div class="tree-panel">
+        <div class="tree-search">
+          <el-input v-model="treeFilterText" placeholder="搜索行业分类" clearable size="default">
+            <template #prefix>
+              <i class="fas fa-search"></i>
+            </template>
+          </el-input>
+        </div>
+        <div class="tree-content">
+          <el-tree ref="treeRef" :data="industryTree" :props="treeProps" :filter-node-method="filterNode"
+            @node-click="handleNodeClick" highlight-current default-expand-all>
+            <template #default="{ node, data }">
+              <span class="custom-tree-node" :class="{ active: currentIndustry === data.value }">
+                <i :class="data.icon || 'fas fa-folder'"></i>
+                <span>{{ node.label }}</span>
+              </span>
+            </template>
+          </el-tree>
+        </div>
+      </div>
+
+      <!-- 右侧列表区 -->
+      <div class="content-card">
+        <div class="function-bar">
+          <div class="function-left">
+            <el-button type="primary" @click="handleAdd">
+              <i class="fas fa-plus"></i> 新建
+            </el-button>
+            <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">
+              <i class="fas fa-trash-alt"></i> 批量删除
+            </el-button>
+          </div>
+        </div>
+
+        <div class="search-area">
+          <el-form :model="searchForm" :inline="true" class="search-form"
+            style="display: flex; justify-content: space-between; align-items: center;">
+            <el-form-item label="提取类型">
+              <el-input v-model="searchForm.extractType" placeholder="请输入提取类型" clearable style="width: 200px;" />
+            </el-form-item>
+            <el-form-item style="margin-left: auto;">
+              <el-button type="primary" @click="handleSearch">
+                <i class="fas fa-search"></i> 查询
+              </el-button>
+              <el-button @click="handleReset">
+                <i class="fas fa-redo"></i> 重置
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+
+        <div class="table-area">
+          <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
+            @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column prop="code" label="编码" min-width="140" fixed="left"></el-table-column>
+            <el-table-column prop="industryType" label="所属行业类型" min-width="180"></el-table-column>
+            <el-table-column prop="extractType" label="提取类型" min-width="180">
+              <template #default="{ row }">
+                <a href="javascript:void(0)" @click="handleView(row)"
+                  style="color: #409EFF; text-decoration: underline; cursor: pointer;">{{ row.extractType }}</a>
+              </template>
+            </el-table-column>
+            <el-table-column prop="cycleType" label="提取周期类型" min-width="140"></el-table-column>
+            <el-table-column prop="basisName" label="提取依据名称" min-width="200"></el-table-column>
+            <el-table-column prop="ruleType" label="提取规则类型" min-width="120"></el-table-column>
+            <el-table-column label="操作" width="140" fixed="right" align="center">
+              <template #default="{ row }">
+                <el-button size="small" @click="handleView(row)" link>
+                  <i class="fas fa-eye" style="color: #67C23A;"></i>
+                </el-button>
+                <el-button size="small" @click="handleEdit(row)" link>
+                  <i class="fas fa-edit" style="color: #409EFF;"></i>
+                </el-button>
+                <el-button size="small" @click="handleDelete(row)" link>
+                  <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="pagination-bar">
+          <el-pagination background size="small" v-model:current-page="currentPage" v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
+            layout="total, ->, sizes, prev, pager, next, jumper" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+  <script>
+    const { createApp, ref, computed, watch } = Vue;
+    const { ElMessage, ElMessageBox } = ElementPlus;
+
+    createApp({
+      setup() {
+        const treeRef = ref(null);
+        const treeFilterText = ref('');
+        const currentIndustry = ref('');
+        const currentIndustryLabel = ref('');
+        const loading = ref(false);
+        const selectedRows = ref([]);
+        const currentPage = ref(1);
+        const pageSize = ref(20);
+
+        const searchForm = ref({
+          extractType: ''
+        });
+
+        // 行业树数据
+        const industryTree = ref([
+          {
+            label: '安全投入企业分类',
+            value: '',
+            icon: 'fas fa-building',
+            children: [
+              { label: '煤炭生产企业', value: 'coal', icon: 'fas fa-industry' },
+              { label: '非煤矿山开采企业', value: 'non_coal_mining', icon: 'fas fa-mountain' },
+              { label: '石油天然气开采企业', value: 'oil_gas', icon: 'fas fa-oil-can' },
+              { label: '建设工程施工企业', value: 'construction', icon: 'fas fa-hard-hat' },
+              { label: '危险品生产与存储企业', value: 'hazardous', icon: 'fas fa-exclamation-triangle' },
+              { label: '交通运输企业', value: 'transportation', icon: 'fas fa-truck' },
+              { label: '冶金企业', value: 'metallurgy', icon: 'fas fa-fire' },
+              { label: '机械制造企业', value: 'machinery', icon: 'fas fa-cogs' },
+              { label: '烟花爆竹生产企业', value: 'fireworks', icon: 'fas fa-bomb' },
+              { label: '民用爆炸物品生产企业', value: 'explosives', icon: 'fas fa-radiation' },
+              { label: '武器装备研制生产与实验企业', value: 'weapons', icon: 'fas fa-shield-alt' },
+              { label: '电力生产与供应企业', value: 'power', icon: 'fas fa-bolt' },
+              { label: '其他企业', value: 'other', icon: 'fas fa-ellipsis-h' }
+            ]
+          }
+        ]);
+
+        const treeProps = {
+          children: 'children',
+          label: 'label'
+        };
+
+        // 模拟表格数据
+        const tableData = ref([
+          {
+            id: 1,
+            code: 'AQTR-0001',
+            industryType: '电力生产与供应企业',
+            industryValue: 'power',
+            extractType: '电力生产企业',
+            cycleType: '年度分摊提取',
+            basisName: '上一年度营业收入（元）',
+            ruleType: '超额累退'
+          },
+          {
+            id: 2,
+            code: 'AQTR-0002',
+            industryType: '电力生产与供应企业',
+            industryValue: 'power',
+            extractType: '电力供应企业',
+            cycleType: '年度分摊提取',
+            basisName: '上一年度营业收入（元）',
+            ruleType: '超额累退'
+          },
+          {
+            id: 3,
+            code: 'AQTR-0003',
+            industryType: '煤炭生产企业',
+            industryValue: 'coal',
+            extractType: '原煤产量提取',
+            cycleType: '月度实时提取',
+            basisName: '原煤产量',
+            ruleType: '超额累退'
+          },
+          {
+            id: 4,
+            code: 'AQTR-0004',
+            industryType: '煤炭生产企业',
+            industryValue: 'coal',
+            extractType: '选煤产量提取',
+            cycleType: '月度实时提取',
+            basisName: '选煤产量',
+            ruleType: '比例提取'
+          },
+          {
+            id: 5,
+            code: 'AQTR-0005',
+            industryType: '建设工程施工企业',
+            industryValue: 'construction',
+            extractType: '工程造价提取',
+            cycleType: '项目进度提取',
+            basisName: '工程造价',
+            ruleType: '比例提取'
+          },
+          {
+            id: 6,
+            code: 'AQTR-0006',
+            industryType: '危险品生产与存储企业',
+            industryValue: 'hazardous',
+            extractType: '营业收入提取',
+            cycleType: '年度分摊提取',
+            basisName: '上年度实际营业收入',
+            ruleType: '超额累退'
+          },
+          {
+            id: 7,
+            code: 'AQTR-0007',
+            industryType: '交通运输企业',
+            industryValue: 'transportation',
+            extractType: '营运收入提取',
+            cycleType: '月度实时提取',
+            basisName: '营运收入',
+            ruleType: '比例提取'
+          }
+        ]);
+
+        // 过滤后的数据
+        const filteredData = computed(() => {
+          let data = tableData.value;
+
+          // 按行业过滤
+          if (currentIndustry.value) {
+            data = data.filter(item => item.industryValue === currentIndustry.value);
+          }
+
+          // 按提取类型搜索
+          if (searchForm.value.extractType) {
+            data = data.filter(item =>
+              item.extractType.includes(searchForm.value.extractType)
+            );
+          }
+
+          return data;
+        });
+
+        // 分页数据
+        const pagedData = computed(() => {
+          const start = (currentPage.value - 1) * pageSize.value;
+          return filteredData.value.slice(start, start + pageSize.value);
+        });
+
+        // 树节点过滤
+        const filterNode = (value, data) => {
+          if (!value) return true;
+          return data.label.includes(value);
+        };
+
+        // 监听树搜索文本变化
+        watch(treeFilterText, (val) => {
+          treeRef.value?.filter(val);
+        });
+
+        // 树节点点击
+        const handleNodeClick = (data) => {
+          currentIndustry.value = data.value;
+          currentIndustryLabel.value = data.value ? data.label : '';
+          currentPage.value = 1;
+        };
+
+        // 获取周期类型样式
+        const getCycleClass = (type) => {
+          const map = {
+            '月度实时提取': 'cycle-monthly',
+            '年度分摊提取': 'cycle-yearly',
+            '项目进度提取': 'cycle-project'
+          };
+          return map[type] || '';
+        };
+
+        // 获取规则类型样式
+        const getRuleClass = (type) => {
+          const map = {
+            '比例提取': 'rule-proportion',
+            '超额累退': 'rule-excess'
+          };
+          return map[type] || '';
+        };
+
+        // 搜索
+        const handleSearch = () => {
+          loading.value = true;
+          currentPage.value = 1;
+          setTimeout(() => {
+            loading.value = false;
+            ElMessage.success('查询完成');
+          }, 300);
+        };
+
+        // 重置
+        const handleReset = () => {
+          searchForm.value.extractType = '';
+          currentPage.value = 1;
+        };
+
+        // 选择变化
+        const handleSelectionChange = (selection) => {
+          selectedRows.value = selection;
+        };
+
+        // 新建
+        const handleAdd = () => {
+          window.location.href = '计提标准库-详情.html?mode=add';
+        };
+
+        // 批量删除
+        const handleBatchDelete = () => {
+          ElMessageBox.confirm(
+            `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+            '确认删除',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          ).then(() => {
+            ElMessage.success('删除成功');
+            selectedRows.value = [];
+          }).catch(() => { });
+        };
+
+        // 查看
+        const handleView = (row) => {
+          window.location.href = `计提标准库-详情.html?mode=view&id=${row.id}`;
+        };
+
+        // 编辑
+        const handleEdit = (row) => {
+          window.location.href = `计提标准库-详情.html?mode=edit&id=${row.id}`;
+        };
+
+        // 删除
+        const handleDelete = (row) => {
+          ElMessageBox.confirm(
+            '确定要删除该计提标准吗？',
+            '确认删除',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          ).then(() => {
+            const index = tableData.value.findIndex(item => item.id === row.id);
+            if (index > -1) {
+              tableData.value.splice(index, 1);
+            }
+            ElMessage.success('删除成功');
+          }).catch(() => { });
+        };
+
+        return {
+          treeRef,
+          treeFilterText,
+          currentIndustry,
+          currentIndustryLabel,
+          loading,
+          selectedRows,
+          currentPage,
+          pageSize,
+          searchForm,
+          industryTree,
+          treeProps,
+          tableData,
+          filteredData,
+          pagedData,
+          filterNode,
+          handleNodeClick,
+          getCycleClass,
+          getRuleClass,
+          handleSearch,
+          handleReset,
+          handleSelectionChange,
+          handleAdd,
+          handleBatchDelete,
+          handleView,
+          handleEdit,
+          handleDelete
+        };
+      }
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+
+</html>

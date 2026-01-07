@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建危大工程 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+            margin-bottom: 8px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 120px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            background: #fafafa;
+            text-align: center;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #409eff;
+            background: #f5f7fa;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #c0c4cc;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <div class="page-header">
+            <h1 class="page-title">新建危大工程</h1>
+        </div>
+
+        <div class="form-container">
+            <!-- 基本信息模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基本信息
+                    </div>
+                    <i :class="['fas fa-chevron-down module-toggle', { collapsed: collapsedModules.basic }]"></i>
+                </div>
+                <div :class="['module-content', { collapsed: collapsedModules.basic }]">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label">编号</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.code" placeholder="系统自动生成" disabled>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">危大工程名称</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.name" placeholder="请输入危大工程名称">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">是否超过一定规模</label>
+                            <div class="form-control">
+                                <select class="form-select" v-model="formData.isSuperDangerous">
+                                    <option value="">请选择</option>
+                                    <option value="yes">是</option>
+                                    <option value="no">否</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">类别</label>
+                            <div class="form-control">
+                                <select class="form-select" v-model="formData.category" @change="handleCategoryChange">
+                                    <option value="">请选择</option>
+                                    <option value="foundation">基坑工程</option>
+                                    <option value="template">模板工程及支撑体系</option>
+                                    <option value="lifting">起重吊装及起重机械安装拆卸工程</option>
+                                    <option value="scaffold">脚手架工程</option>
+                                    <option value="demolition">拆除工程</option>
+                                    <option value="tunneling">暗挖工程</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">详细类别</label>
+                            <div class="form-control">
+                                <select class="form-select" v-model="formData.detailCategory" :disabled="!formData.category">
+                                    <option value="">请先选择类别</option>
+                                    <option v-for="item in detailCategoryOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">工程范围</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.scope" placeholder="请输入危大工程的具体范围，例如基坑开挖深度、模板支撑高度等"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">工程规模</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.scale" placeholder="请详细描述危大工程的规模，如基坑面积、模板支撑面积等"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">工程风险点描述</label>
+                            <div class="form-control">
+                                <textarea class="form-input form-textarea" v-model="formData.riskDescription" placeholder="请详细描述现场存在的风险因素，包括环境、地址、机械、作业人员、特种作业人员等方面"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label">附件</label>
+                            <div class="form-control">
+                                <div class="upload-area" @click="triggerFileUpload">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">点击上传或拖拽文件到此处</div>
+                                    <div class="upload-hint">请上传危大工程相关资料，包括工程地质、水文地质和工程周边环境等</div>
+                                    <input type="file" ref="fileInput" multiple style="display: none;" @change="handleFileChange" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                </div>
+                                <div v-if="formData.attachments && formData.attachments.length > 0" style="margin-top: 16px;">
+                                    <div v-for="(file, index) in formData.attachments" :key="index" style="display: flex; align-items: center; padding: 8px; background: #f5f7fa; border-radius: 4px; margin-bottom: 8px;">
+                                        <i class="fas fa-file" style="margin-right: 8px; color: #409eff;"></i>
+                                        <span style="flex: 1;">{{ file.name }}</span>
+                                        <el-button type="text" icon="el-icon-delete" @click="removeFile(index)" style="color: #f56c6c;"></el-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单操作按钮 -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @click="handleCancel">
+                <i class="fas fa-times"></i>
+                关闭
+            </button>
+            <button type="button" class="btn btn-primary" @click="handleSave">
+                <i class="fas fa-save"></i>
+                保存
+            </button>
+        </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    collapsedModules: {
+                        basic: false
+                    },
+                    formData: {
+                        code: '',
+                        name: '',
+                        isSuperDangerous: '',
+                        category: '',
+                        detailCategory: '',
+                        scope: '',
+                        scale: '',
+                        riskDescription: '',
+                        attachments: []
+                    },
+                    detailCategoryOptions: []
+                };
+            },
+            methods: {
+                toggleModule(module) {
+                    this.collapsedModules[module] = !this.collapsedModules[module];
+                },
+                handleCategoryChange() {
+                    // 根据类别加载详细类别选项
+                    const categoryMap = {
+                        'foundation': [
+                            { label: '开挖深度超过3m（含3m）的基坑（槽）的土方开挖工程', value: 'foundation_1' },
+                            { label: '开挖深度虽未超过3m，但地质条件和周围环境复杂的基坑（槽）支护、降水工程', value: 'foundation_2' }
+                        ],
+                        'template': [
+                            { label: '各类工具式模板工程：包括滑模、爬模、飞模、隧道模等工程', value: 'template_1' },
+                            { label: '混凝土模板支撑工程：搭设高度5m及以上', value: 'template_2' }
+                        ],
+                        'lifting': [
+                            { label: '采用非常规起重设备、方法，且单件起吊重量在10kN及以上的起重吊装工程', value: 'lifting_1' },
+                            { label: '采用起重机械进行安装的工程', value: 'lifting_2' }
+                        ],
+                        'scaffold': [
+                            { label: '搭设高度24m及以上的落地式钢管脚手架工程', value: 'scaffold_1' },
+                            { label: '附着式整体和分片提升脚手架工程', value: 'scaffold_2' }
+                        ],
+                        'demolition': [
+                            { label: '建筑物、构筑物拆除工程', value: 'demolition_1' },
+                            { label: '采用爆破拆除的工程', value: 'demolition_2' }
+                        ],
+                        'tunneling': [
+                            { label: '采用矿山法、盾构法、顶管法施工的隧道、洞室工程', value: 'tunneling_1' }
+                        ],
+                        'other': []
+                    };
+                    this.detailCategoryOptions = categoryMap[this.formData.category] || [];
+                    this.formData.detailCategory = '';
+                },
+                triggerFileUpload() {
+                    this.$refs.fileInput.click();
+                },
+                handleFileChange(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        this.formData.attachments.push({
+                            name: file.name,
+                            size: file.size,
+                            file: file
+                        });
+                    });
+                },
+                removeFile(index) {
+                    this.formData.attachments.splice(index, 1);
+                },
+                handleCancel() {
+                    this.$confirm('确定要关闭吗？未保存的数据将丢失。', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        window.history.back();
+                    }).catch(() => {});
+                },
+                handleSave() {
+                    // 表单验证
+                    if (!this.formData.name) {
+                        this.$message.warning('请输入危大工程名称');
+                        return;
+                    }
+                    if (!this.formData.isSuperDangerous) {
+                        this.$message.warning('请选择是否超过一定规模');
+                        return;
+                    }
+                    if (!this.formData.category) {
+                        this.$message.warning('请选择类别');
+                        return;
+                    }
+                    if (!this.formData.detailCategory) {
+                        this.$message.warning('请选择详细类别');
+                        return;
+                    }
+                    if (!this.formData.scope) {
+                        this.$message.warning('请输入工程范围');
+                        return;
+                    }
+                    if (!this.formData.scale) {
+                        this.$message.warning('请输入工程规模');
+                        return;
+                    }
+                    if (!this.formData.riskDescription) {
+                        this.$message.warning('请输入工程风险点描述');
+                        return;
+                    }
+
+                    // 保存逻辑
+                    this.$message.success('保存成功');
+                    setTimeout(() => {
+                        window.location.href = '危大工程列表.html';
+                    }, 1000);
+                }
+            },
+            created() {
+                // 生成编号
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+                this.formData.code = `WD${year}${month}${day}${random}`;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

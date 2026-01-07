@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专项施工方案详情 - 安全管理系统</title>
+    <!-- Element UI -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3366CC;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+        }
+
+        .module-title i {
+            margin-right: 8px;
+            color: #3366CC;
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-item.full-width {
+            flex: none;
+            width: 100%;
+        }
+
+        .form-label {
+            flex-shrink: 0;
+            width: 140px;
+            padding-top: 12px;
+            font-weight: normal;
+            color: #909399;
+            font-size: 14px;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #f56c6c;
+            position: absolute;
+            left: -12px;
+            top: 12px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3366CC;
+            box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            background: #fafafa;
+            text-align: center;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #409eff;
+            background: #f5f7fa;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #c0c4cc;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3366CC;
+            border-color: #3366CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2952a3;
+            border-color: #2952a3;
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #dcdfe6;
+            color: #606266;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container" v-cloak>
+        <div class="page-header">
+            <h1 class="page-title">专项施工方案</h1>
+            <el-button type="primary" icon="el-icon-view" @click="handleViewProcess">流程跟踪</el-button>
+        </div>
+
+        <div class="form-container">
+            <div class="form-module">
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-file-alt"></i>
+                        方案信息
+                    </div>
+                </div>
+                <div class="module-content">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">施工单位名称</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.constructionUnit" placeholder="请输入施工单位名称">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">施工单位负责人</label>
+                            <div class="form-control">
+                                <input type="text" class="form-input" v-model="formData.constructionManager" placeholder="请输入负责人姓名">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">负责人联系电话</label>
+                            <div class="form-control">
+                                <input type="tel" class="form-input" v-model="formData.managerPhone" placeholder="请输入联系电话">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label class="form-label required">计划开工日期</label>
+                            <div class="form-control">
+                                <el-date-picker
+                                    v-model="formData.planStartDate"
+                                    type="date"
+                                    placeholder="选择日期"
+                                    style="width: 100%;">
+                                </el-date-picker>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">计划竣工日期</label>
+                            <div class="form-control">
+                                <el-date-picker
+                                    v-model="formData.planEndDate"
+                                    type="date"
+                                    placeholder="选择日期"
+                                    style="width: 100%;">
+                                </el-date-picker>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label required">是否需要第三方监测</label>
+                            <div class="form-control">
+                                <select class="form-select" v-model="formData.needThirdPartyMonitoring" @change="handleMonitoringChange">
+                                    <option value="">请选择</option>
+                                    <option value="yes">是</option>
+                                    <option value="no">否</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="formData.needThirdPartyMonitoring === 'yes'">
+                        <div class="form-item full-width">
+                            <label class="form-label required">检测内容概述</label>
+                            <div class="form-control">
+                                <textarea class="form-input" style="min-height: 100px;" v-model="formData.monitoringContent" placeholder="请输入检测内容概述"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item full-width">
+                            <label class="form-label required">专项施工方案</label>
+                            <div class="form-control">
+                                <div class="upload-area" @click="triggerFileUpload('scheme')">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">点击上传或拖拽文件到此处</div>
+                                    <div class="upload-hint">请上传专项施工方案，本工程为超危大工程，请同步上传专家论证报告</div>
+                                    <input type="file" ref="schemeInput" style="display: none;" @change="handleFileChange('scheme', $event)" accept=".pdf,.doc,.docx">
+                                </div>
+                                <div v-if="formData.schemeFile" style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px; display: flex; align-items: center;">
+                                    <i class="fas fa-file" style="margin-right: 8px; color: #409eff;"></i>
+                                    <span style="flex: 1;">{{ formData.schemeFile.name }}</span>
+                                    <el-button type="text" icon="el-icon-delete" @click="removeFile('scheme')" style="color: #f56c6c;"></el-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" v-if="isSuperDangerous">
+                        <div class="form-item full-width">
+                            <label class="form-label required">专家论证报告</label>
+                            <div class="form-control">
+                                <div class="upload-area" @click="triggerFileUpload('expert')">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">点击上传或拖拽文件到此处</div>
+                                    <div class="upload-hint">请上传专家论证报告</div>
+                                    <input type="file" ref="expertInput" style="display: none;" @change="handleFileChange('expert', $event)" accept=".pdf,.doc,.docx">
+                                </div>
+                                <div v-if="formData.expertReportFile" style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px; display: flex; align-items: center;">
+                                    <i class="fas fa-file" style="margin-right: 8px; color: #409eff;"></i>
+                                    <span style="flex: 1;">{{ formData.expertReportFile.name }}</span>
+                                    <el-button type="text" icon="el-icon-delete" @click="removeFile('expert')" style="color: #f56c6c;"></el-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单操作按钮 -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @click="handleCancel">
+                <i class="fas fa-times"></i>
+                关闭
+            </button>
+            <button type="button" class="btn btn-secondary" @click="handleSave">
+                <i class="fas fa-save"></i>
+                保存
+            </button>
+            <button type="button" class="btn btn-primary" @click="handleSubmit">
+                <i class="fas fa-check"></i>
+                提交审批
+            </button>
+        </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Element UI -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    isSuperDangerous: false, // 从URL参数或父页面获取
+                    formData: {
+                        constructionUnit: '',
+                        constructionManager: '',
+                        managerPhone: '',
+                        planStartDate: '',
+                        planEndDate: '',
+                        needThirdPartyMonitoring: '',
+                        monitoringContent: '',
+                        schemeFile: null,
+                        expertReportFile: null
+                    }
+                };
+            },
+            methods: {
+                triggerFileUpload(type) {
+                    if (type === 'scheme') {
+                        this.$refs.schemeInput.click();
+                    } else if (type === 'expert') {
+                        this.$refs.expertInput.click();
+                    }
+                },
+                handleFileChange(type, event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        if (type === 'scheme') {
+                            this.formData.schemeFile = {
+                                name: file.name,
+                                size: file.size,
+                                file: file
+                            };
+                        } else if (type === 'expert') {
+                            this.formData.expertReportFile = {
+                                name: file.name,
+                                size: file.size,
+                                file: file
+                            };
+                        }
+                    }
+                },
+                removeFile(type) {
+                    if (type === 'scheme') {
+                        this.formData.schemeFile = null;
+                    } else if (type === 'expert') {
+                        this.formData.expertReportFile = null;
+                    }
+                },
+                handleMonitoringChange() {
+                    if (this.formData.needThirdPartyMonitoring === 'no') {
+                        this.formData.monitoringContent = '';
+                    }
+                },
+                handleViewProcess() {
+                    this.$message.info('流程跟踪功能需要集成审批流程组件');
+                },
+                handleCancel() {
+                    this.$confirm('确定要关闭吗？未保存的数据将丢失。', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        window.history.back();
+                    }).catch(() => {});
+                },
+                handleSave() {
+                    // 表单验证
+                    if (!this.formData.constructionUnit) {
+                        this.$message.warning('请输入施工单位名称');
+                        return;
+                    }
+                    if (!this.formData.constructionManager) {
+                        this.$message.warning('请输入施工单位负责人');
+                        return;
+                    }
+                    if (!this.formData.managerPhone) {
+                        this.$message.warning('请输入负责人联系电话');
+                        return;
+                    }
+                    if (!this.formData.planStartDate) {
+                        this.$message.warning('请选择计划开工日期');
+                        return;
+                    }
+                    if (!this.formData.planEndDate) {
+                        this.$message.warning('请选择计划竣工日期');
+                        return;
+                    }
+                    if (!this.formData.needThirdPartyMonitoring) {
+                        this.$message.warning('请选择是否需要第三方监测');
+                        return;
+                    }
+                    if (this.formData.needThirdPartyMonitoring === 'yes' && !this.formData.monitoringContent) {
+                        this.$message.warning('请输入检测内容概述');
+                        return;
+                    }
+                    if (!this.formData.schemeFile) {
+                        this.$message.warning('请上传专项施工方案');
+                        return;
+                    }
+                    if (this.isSuperDangerous && !this.formData.expertReportFile) {
+                        this.$message.warning('请上传专家论证报告');
+                        return;
+                    }
+
+                    this.$message.success('保存成功');
+                },
+                handleSubmit() {
+                    // 先验证
+                    this.handleSave();
+                    if (!this.formData.constructionUnit) return;
+
+                    this.$confirm('确定要提交审批吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message.success('提交审批成功');
+                        setTimeout(() => {
+                            window.history.back();
+                        }, 1000);
+                    }).catch(() => {});
+                }
+            },
+            created() {
+                // 从URL参数获取是否超危大
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('projectId');
+                // 这里应该根据projectId获取项目信息，判断是否超危大
+                // 暂时使用示例数据
+                this.isSuperDangerous = urlParams.get('isSuperDangerous') === 'true';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

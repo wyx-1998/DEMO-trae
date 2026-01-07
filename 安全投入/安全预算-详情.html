@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全预算管理 - 安全预算详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        /* 三列布局 */
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+        }
+
+        .form-item.full-width {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 表格样式 */
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .budget-table th,
+        .budget-table td {
+            border: 1px solid #ebeef5;
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .budget-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #606266;
+        }
+
+        .budget-table td {
+            color: #303133;
+        }
+
+        .budget-table .number-cell {
+            text-align: right;
+        }
+
+        /* 表单标签右对齐，最多6字换行 */
+        .el-form-item__label {
+            text-align: right !important;
+            justify-content: flex-end !important;
+            display: inline-block !important;
+            max-width: 160px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-item {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="form-container">
+            <!-- 基础数据模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基础数据
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.basic }">
+                    <el-form :model="formData" :rules="formRules" ref="formRef" label-width="160px"
+                        label-position="left">
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="编号" prop="code">
+                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="预算时间" prop="budgetYear" required>
+                                    <el-date-picker v-model="formData.budgetYear" type="year" placeholder="请选择年份"
+                                        value-format="YYYY" style="width: 100%;" :disabled="isView" />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="预算总金额（万元）" prop="totalBudget" required>
+                                    <el-input v-model="formData.totalBudgetDisplay" placeholder="请输入金额"
+                                        :disabled="isView" @input="handleBudgetInput" @blur="formatBudget">
+                                        <template #suffix>
+                                            <span style="color: #909399;">万元</span>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+            </div>
+
+            <!-- 详细预算模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('detail')">
+                    <div class="module-title">
+                        <i class="fas fa-list-alt"></i>
+                        详细预算
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.detail }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.detail }">
+                    <table class="budget-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">序号</th>
+                                <th>投入类别名称</th>
+                                <th style="width: 180px;" class="number-cell">计划投入费用（万元）</th>
+                                <th style="width: 200px;" class="number-cell">投入预算（万元）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in budgetDetails" :key="item.id">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ item.categoryName }}</td>
+                                <td class="number-cell">{{ formatAmount(item.planCost) }}</td>
+                                <td class="number-cell">
+                                    <el-input v-model="item.budgetDisplay" placeholder="请输入预算" :disabled="isView"
+                                        @input="handleItemInput(index)" @blur="formatItemBudget(index)" size="small" />
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="text-align: right; font-weight: 600;">合计</td>
+                                <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}</td>
+                                <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalDetailBudget) }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" @click="handleSave" v-if="!isView">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="primary" @click="switchToEdit" v-if="isView">
+                <i class="fas fa-edit"></i> 编辑
+            </el-button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const formRef = ref(null);
+
+                // 页面模式
+                const mode = ref('add');
+                const isView = computed(() => mode.value === 'view');
+
+                // 模块折叠状态
+                const modules = ref({
+                    basic: true,
+                    detail: true
+                });
+
+                // 表单数据
+                const formData = ref({
+                    code: '',
+                    budgetYear: '2026',
+                    totalBudget: 0,
+                    totalBudgetDisplay: ''
+                });
+
+                // 详细预算数据
+                const budgetDetails = ref([
+                    { id: 1, categoryName: '安全标志及标识', planCost: 50, budget: 60, budgetDisplay: '60.000000' },
+                    { id: 2, categoryName: '安全防护设备', planCost: 120, budget: 150, budgetDisplay: '150.000000' },
+                    { id: 3, categoryName: '安全培训', planCost: 80, budget: 100, budgetDisplay: '100.000000' },
+                    { id: 4, categoryName: '应急救援', planCost: 150, budget: 180, budgetDisplay: '180.000000' },
+                    { id: 5, categoryName: '安全检查与隐患整改', planCost: 200, budget: 250, budgetDisplay: '250.000000' },
+                    { id: 6, categoryName: '消防设施维护', planCost: 100, budget: 120, budgetDisplay: '120.000000' },
+                    { id: 7, categoryName: '职业健康', planCost: 80, budget: 100, budgetDisplay: '100.000000' },
+                    { id: 8, categoryName: '安全科技研发', planCost: 200, budget: 250, budgetDisplay: '250.000000' },
+                    { id: 9, categoryName: '其他安全投入', planCost: 50, budget: 80, budgetDisplay: '80.000000' }
+                ]);
+
+                // 计算总计划费用
+                const totalPlanCost = computed(() => {
+                    return budgetDetails.value.reduce((sum, item) => sum + (item.planCost || 0), 0);
+                });
+
+                // 计算总详细预算
+                const totalDetailBudget = computed(() => {
+                    return budgetDetails.value.reduce((sum, item) => sum + (item.budget || 0), 0);
+                });
+
+                // 表单验证规则
+                const formRules = ref({
+                    budgetYear: [{ required: true, message: '请选择预算时间', trigger: 'change' }],
+                    totalBudget: [{ required: true, message: '请输入预算总金额', trigger: 'blur' }]
+                });
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 6,
+                        maximumFractionDigits: 6
+                    }).format(value);
+                };
+
+                // 解析金额字符串
+                const parseAmount = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(str.replace(/,/g, '')) || 0;
+                };
+
+                // 处理预算输入
+                const handleBudgetInput = (value) => {
+                    formData.value.totalBudgetDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化预算显示
+                const formatBudget = () => {
+                    const value = parseAmount(formData.value.totalBudgetDisplay);
+                    formData.value.totalBudget = value;
+                    formData.value.totalBudgetDisplay = formatAmount(value);
+                };
+
+                // 处理明细项输入
+                const handleItemInput = (index) => {
+                    budgetDetails.value[index].budgetDisplay = budgetDetails.value[index].budgetDisplay.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化明细项预算
+                const formatItemBudget = (index) => {
+                    const value = parseAmount(budgetDetails.value[index].budgetDisplay);
+                    budgetDetails.value[index].budget = value;
+                    budgetDetails.value[index].budgetDisplay = formatAmount(value);
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const year = formData.value.budgetYear || new Date().getFullYear().toString();
+                    const randomNum = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+                    formData.value.code = `AQYS-${year}-${randomNum}`;
+                };
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'add';
+                    const id = urlParams.get('id');
+
+                    if (id && (mode.value === 'view' || mode.value === 'edit')) {
+                        loadData(id);
+                    } else {
+                        generateCode();
+                    }
+                });
+
+                // 加载数据
+                const loadData = (id) => {
+                    const presetData = {
+                        '1': {
+                            code: 'AQYS-2026-001',
+                            budgetYear: '2026',
+                            totalBudget: 1500,
+                            totalBudgetDisplay: '1,500.000000'
+                        }
+                    };
+
+                    if (presetData[id]) {
+                        formData.value = { ...presetData[id] };
+                    } else {
+                        generateCode();
+                    }
+                };
+
+                // 切换模块
+                const toggleModule = (name) => {
+                    modules.value[name] = !modules.value[name];
+                };
+
+                // 保存
+                const handleSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            ElMessage.success('保存成功');
+                            setTimeout(() => {
+                                goBack();
+                            }, 1000);
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                // 切换到编辑模式
+                const switchToEdit = () => {
+                    mode.value = 'edit';
+                };
+
+                // 返回列表
+                const goBack = () => {
+                    window.location.href = '安全预算.html';
+                };
+
+                return {
+                    formRef,
+                    mode,
+                    isView,
+                    modules,
+                    formData,
+                    formRules,
+                    budgetDetails,
+                    totalPlanCost,
+                    totalDetailBudget,
+                    formatAmount,
+                    handleBudgetInput,
+                    formatBudget,
+                    handleItemInput,
+                    formatItemBudget,
+                    toggleModule,
+                    handleSave,
+                    switchToEdit,
+                    goBack
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

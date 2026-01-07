@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全投入 - 数据看板</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* 筛选区域 */
+        .filter-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* 统计卡片区域 */
+        .stats-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .section-title i {
+            color: #409EFF;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 16px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #409EFF 0%, #36D1DC 100%);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #E6A23C 0%, #F7BA2A 100%);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-title {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .stat-card-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .stat-card-value {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-sub {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 11px;
+            opacity: 0.85;
+        }
+
+        .stat-card-sub-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-card-compare {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .compare-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .compare-up {
+            background: #F56C6C;
+        }
+
+        .compare-down {
+            background: #67C23A;
+        }
+
+
+
+        /* 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 16px;
+        }
+
+        .chart-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title i {
+            color: #409EFF;
+        }
+
+        .chart-container {
+            height: 260px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <!-- 统计卡片区域 -->
+            <div class="stats-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>{{ selectedYear }}年度安全投入</span>
+                    </div>
+                    <div class="section-actions">
+                        <el-date-picker v-model="selectedYear" type="year" placeholder="选择年份" value-format="YYYY"
+                            style="width: 120px;" size="small" @change="handleYearChange" />
+                        <el-button type="primary" size="small" @click="refreshData">
+                            <i class="fas fa-sync-alt"></i> 数据刷新
+                        </el-button>
+                    </div>
+                </div>
+                <div class="stats-cards">
+                    <!-- 计划投入费用 -->
+                    <div class="stat-card blue">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">计划投入费用（万元）</div>
+                            <i class="fas fa-clipboard-list stat-card-icon"></i>
+                        </div>
+                        <div class="stat-card-value">{{ formatNumber(statsData.planTotal) }}</div>
+                        <div class="stat-card-sub">
+                            <div class="stat-card-sub-item">
+                                <span>安措计划投入</span>
+                                <span>{{ formatNumber(statsData.planSafety) }}</span>
+                            </div>
+                            <div class="stat-card-sub-item">
+                                <span>反措计划投入</span>
+                                <span>{{ formatNumber(statsData.planCounter) }}</span>
+                            </div>
+                            <div class="stat-card-sub-item">
+                                <span>其他计划投入</span>
+                                <span>{{ formatNumber(statsData.planOther) }}</span>
+                            </div>
+                        </div>
+                        <div class="stat-card-compare">
+                            <div class="compare-item" :class="statsData.planYoy >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>同比</span>
+                                <i :class="statsData.planYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.planYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="statsData.planMom >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>环比</span>
+                                <i :class="statsData.planMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.planMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 投入预算 -->
+                    <div class="stat-card green">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">投入预算（万元）</div>
+                            <i class="fas fa-wallet stat-card-icon"></i>
+                        </div>
+                        <div class="stat-card-value">{{ formatNumber(statsData.budget) }}</div>
+                        <div class="stat-card-compare" style="margin-top: auto; border-top: none; padding-top: 30px;">
+                            <div class="compare-item" :class="statsData.budgetYoy >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>同比</span>
+                                <i :class="statsData.budgetYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.budgetYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="statsData.budgetMom >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>环比</span>
+                                <i :class="statsData.budgetMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.budgetMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 实际投入费用 -->
+                    <div class="stat-card orange">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">实际投入费用（万元）</div>
+                            <i class="fas fa-coins stat-card-icon"></i>
+                        </div>
+                        <div class="stat-card-value">{{ formatNumber(statsData.actual) }}</div>
+                        <div class="stat-card-compare" style="margin-top: auto; border-top: none; padding-top: 30px;">
+                            <div class="compare-item" :class="statsData.actualYoy >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>同比</span>
+                                <i :class="statsData.actualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.actualYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="statsData.actualMom >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>环比</span>
+                                <i :class="statsData.actualMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.actualMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 投入率 -->
+                    <div class="stat-card purple">
+                        <div class="stat-card-header">
+                            <div class="stat-card-title">投入率（%）</div>
+                            <i class="fas fa-percentage stat-card-icon"></i>
+                        </div>
+                        <div class="stat-card-value">{{ statsData.investmentRate.toFixed(2) }}%</div>
+                        <div class="stat-card-compare" style="margin-top: auto; border-top: none; padding-top: 30px;">
+                            <div class="compare-item" :class="statsData.rateYoy >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>同比</span>
+                                <i :class="statsData.rateYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.rateYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="statsData.rateMom >= 0 ? 'compare-up' : 'compare-down'">
+                                <span>环比</span>
+                                <i :class="statsData.rateMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(statsData.rateMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="charts-section">
+                <!-- 安全费用投入分布 -->
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>安全费用投入分布</span>
+                    </div>
+                    <div id="pieChart" class="chart-container"></div>
+                </div>
+
+                <!-- 安全费用投入趋势 -->
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span>安全费用投入趋势</span>
+                    </div>
+                    <div id="lineChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, reactive, onMounted, nextTick, watch } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const selectedYear = ref(new Date().getFullYear().toString());
+
+                // 统计数据
+                const statsData = reactive({
+                    planTotal: 1580.00,
+                    planSafety: 850.00,
+                    planCounter: 480.00,
+                    planOther: 250.00,
+                    planYoy: 12.5,
+                    planMom: 3.2,
+                    budget: 1500.00,
+                    budgetYoy: 8.3,
+                    budgetMom: -2.1,
+                    actual: 1285.50,
+                    actualYoy: 15.6,
+                    actualMom: 5.8,
+                    investmentRate: 85.70,
+                    rateYoy: 6.8,
+                    rateMom: 8.1
+                });
+
+                // 饼图数据
+                const pieData = ref([
+                    { value: 320, name: '安全防护设施' },
+                    { value: 280, name: '安全培训教育' },
+                    { value: 250, name: '劳动防护用品' },
+                    { value: 200, name: '安全检测检验' },
+                    { value: 150, name: '应急救援器材' },
+                    { value: 85.5, name: '其他安全投入' }
+                ]);
+
+                // 趋势数据
+                const trendData = reactive({
+                    months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    plan: [120, 125, 130, 128, 135, 140, 138, 142, 145, 148, 150, 155],
+                    budget: [115, 118, 122, 125, 128, 130, 132, 135, 138, 140, 142, 145],
+                    actual: [98, 105, 110, 108, 115, 120, 118, 125, 130, 135, 138, 142]
+                });
+
+                let pieChart = null;
+                let lineChart = null;
+
+                const formatNumber = (num) => {
+                    if (num === null || num === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(num);
+                };
+
+                const initPieChart = () => {
+                    const chartDom = document.getElementById('pieChart');
+                    if (!chartDom) return;
+
+                    pieChart = echarts.init(chartDom);
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b}: {c}万元 ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            right: '5%',
+                            top: 'center',
+                            itemWidth: 12,
+                            itemHeight: 12,
+                            textStyle: {
+                                fontSize: 12,
+                                color: '#666'
+                            }
+                        },
+                        series: [
+                            {
+                                name: '投入分布',
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                center: ['35%', '50%'],
+                                avoidLabelOverlap: false,
+                                itemStyle: {
+                                    borderRadius: 8,
+                                    borderColor: '#fff',
+                                    borderWidth: 2
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'outside',
+                                    formatter: '{b}\n{c}万元',
+                                    fontSize: 11,
+                                    color: '#666'
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: 14,
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                                labelLine: {
+                                    show: true,
+                                    length: 10,
+                                    length2: 15
+                                },
+                                data: pieData.value,
+                                color: ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399', '#8B5CF6']
+                            }
+                        ]
+                    };
+                    pieChart.setOption(option);
+                };
+
+                const initLineChart = () => {
+                    const chartDom = document.getElementById('lineChart');
+                    if (!chartDom) return;
+
+                    lineChart = echarts.init(chartDom);
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross'
+                            },
+                            formatter: function (params) {
+                                let result = params[0].axisValue + '<br/>';
+                                params.forEach(item => {
+                                    result += `${item.marker} ${item.seriesName}: ${item.value}万元<br/>`;
+                                });
+                                return result;
+                            }
+                        },
+                        legend: {
+                            data: ['计划投入费用', '投入预算', '实际投入费用'],
+                            bottom: 0
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '15%',
+                            top: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: trendData.months,
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#ddd'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#666'
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '单位：万元',
+                            nameTextStyle: {
+                                color: '#999',
+                                fontSize: 12
+                            },
+                            axisLine: {
+                                show: false
+                            },
+                            axisTick: {
+                                show: false
+                            },
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed',
+                                    color: '#eee'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#666'
+                            }
+                        },
+                        series: [
+                            {
+                                name: '计划投入费用',
+                                type: 'line',
+                                smooth: true,
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                lineStyle: {
+                                    width: 3
+                                },
+                                data: trendData.plan,
+                                color: '#409EFF'
+                            },
+                            {
+                                name: '投入预算',
+                                type: 'line',
+                                smooth: true,
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                lineStyle: {
+                                    width: 3
+                                },
+                                data: trendData.budget,
+                                color: '#67C23A'
+                            },
+                            {
+                                name: '实际投入费用',
+                                type: 'line',
+                                smooth: true,
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                lineStyle: {
+                                    width: 3
+                                },
+                                data: trendData.actual,
+                                color: '#E6A23C'
+                            }
+                        ]
+                    };
+                    lineChart.setOption(option);
+                };
+
+                const handleYearChange = () => {
+                    refreshData();
+                };
+
+                const refreshData = () => {
+                    ElMessage.success('数据刷新成功');
+                    // 模拟数据更新
+                    statsData.investmentRate = (statsData.actual / statsData.budget * 100);
+
+                    // 重新渲染图表
+                    nextTick(() => {
+                        if (pieChart) pieChart.resize();
+                        if (lineChart) lineChart.resize();
+                    });
+                };
+
+                onMounted(() => {
+                    nextTick(() => {
+                        initPieChart();
+                        initLineChart();
+                    });
+
+                    // 监听窗口大小变化
+                    window.addEventListener('resize', () => {
+                        if (pieChart) pieChart.resize();
+                        if (lineChart) lineChart.resize();
+                    });
+                });
+
+                return {
+                    selectedYear,
+                    statsData,
+                    pieData,
+                    trendData,
+                    formatNumber,
+                    handleYearChange,
+                    refreshData
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>
