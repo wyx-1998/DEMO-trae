@@ -243,6 +243,13 @@
                         </el-table-column>
                         <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
                         <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                        <el-table-column prop="dataSource" label="数据来源" width="120">
+                            <template #default="{ row }">
+                                <el-tag :type="getDataSourceType(row.dataSource)" size="small">
+                                    {{ row.dataSource || '人工录入' }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" width="120" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
@@ -307,7 +314,8 @@
                         planDate: '2026-03-31',
                         planCost: 50000,
                         responsibleUnit: '设备部',
-                        responsiblePerson: '张三'
+                        responsiblePerson: '张三',
+                        dataSource: '人工录入'
                     },
                     {
                         id: 2,
@@ -318,7 +326,8 @@
                         planDate: '2026-02-28',
                         planCost: 120000,
                         responsibleUnit: '安健环管理部',
-                        responsiblePerson: '李四'
+                        responsiblePerson: '李四',
+                        dataSource: '隐患治理'
                     },
                     {
                         id: 3,
@@ -329,7 +338,8 @@
                         planDate: '2026-06-30',
                         planCost: 80000,
                         responsibleUnit: '安健环管理部',
-                        responsiblePerson: '王五'
+                        responsiblePerson: '王五',
+                        dataSource: '安全培训'
                     },
                     {
                         id: 4,
@@ -340,7 +350,8 @@
                         planDate: '2026-04-30',
                         planCost: 150000,
                         responsibleUnit: '运维部',
-                        responsiblePerson: '赵六'
+                        responsiblePerson: '赵六',
+                        dataSource: '应急演练'
                     },
                     {
                         id: 5,
@@ -351,7 +362,8 @@
                         planDate: '2026-12-31',
                         planCost: 200000,
                         responsibleUnit: '安健环管理部',
-                        responsiblePerson: '张三'
+                        responsiblePerson: '张三',
+                        dataSource: '人工录入'
                     }
                 ]);
 
@@ -477,6 +489,17 @@
                     ElMessage.info('导出功能开发中...');
                 };
 
+                // 获取数据来源标签类型
+                const getDataSourceType = (dataSource) => {
+                    const typeMap = {
+                        '人工录入': '',
+                        '隐患治理': 'warning',
+                        '安全培训': 'success',
+                        '应急演练': 'danger'
+                    };
+                    return typeMap[dataSource] || '';
+                };
+
                 return {
                     loading,
                     selectedRows,
@@ -489,6 +512,7 @@
                     pagedData,
                     toggleExpand,
                     formatAmount,
+                    getDataSourceType,
                     handleSearch,
                     handleReset,
                     handleSelectionChange,

@@ -242,7 +242,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column prop="planDate" label="计划完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="planCost" label="计划投入费用（万元）" min-width="150" align="right">
+                        <el-table-column prop="planCost" label="计划投入费用（元）" min-width="150" align="right">
                             <template #default="{ row }">
                                 {{ formatAmount(row.planCost) }}
                             </template>
@@ -251,6 +251,13 @@
                         <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
                         <el-table-column prop="supportUnit" label="协办单位（部门）" min-width="140"></el-table-column>
                         <el-table-column prop="supportPerson" label="协办人" min-width="100"></el-table-column>
+                        <el-table-column prop="dataSource" label="数据来源" width="120">
+                            <template #default="{ row }">
+                                <el-tag :type="getDataSourceType(row.dataSource)" size="small">
+                                    {{ row.dataSource || '人工录入' }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" width="120" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
@@ -314,11 +321,12 @@
                         basis: '根据年度设备检测报告，主变压器绝缘老化严重，存在安全隐患',
                         effect: '更换绝缘材料，消除设备隐患，确保设备安全稳定运行',
                         planDate: '2026-06-30',
-                        planCost: 80,
+                        planCost: 800000,
                         responsibleUnit: '安健环管理部',
                         responsiblePerson: '张三',
                         supportUnit: '生产部',
-                        supportPerson: '李四'
+                        supportPerson: '李四',
+                        dataSource: '隐患治理'
                     },
                     {
                         id: 2,
@@ -328,11 +336,12 @@
                         basis: '近年暴雨频发，现有排水系统能力不足，多次发生内涝',
                         effect: '扩大排水管道，增设排水泵站，提高防汛能力',
                         planDate: '2026-05-31',
-                        planCost: 150,
+                        planCost: 1500000,
                         responsibleUnit: '设备部',
                         responsiblePerson: '王五',
                         supportUnit: '运维部',
-                        supportPerson: '赵六'
+                        supportPerson: '赵六',
+                        dataSource: '人工录入'
                     },
                     {
                         id: 3,
@@ -342,11 +351,12 @@
                         basis: '现有继电保护设备运行年限超过15年，技术落后',
                         effect: '采用新型数字化保护装置，提高电网保护可靠性',
                         planDate: '2026-09-30',
-                        planCost: 200,
+                        planCost: 2000000,
                         responsibleUnit: '运维部',
                         responsiblePerson: '李四',
                         supportUnit: '设备部',
-                        supportPerson: '张三'
+                        supportPerson: '张三',
+                        dataSource: '隐患治理'
                     },
                     {
                         id: 4,
@@ -356,11 +366,12 @@
                         basis: '根据消防检查意见，油罐区消防设施需要升级改造',
                         effect: '新增泡沫灭火系统，完善消防监控，提高消防能力',
                         planDate: '2026-08-31',
-                        planCost: 120,
+                        planCost: 1200000,
                         responsibleUnit: '安健环管理部',
                         responsiblePerson: '赵六',
                         supportUnit: '生产部',
-                        supportPerson: '王五'
+                        supportPerson: '王五',
+                        dataSource: '人工录入'
                     }
                 ]);
 
@@ -486,6 +497,17 @@
                     ElMessage.info('导出功能开发中...');
                 };
 
+                // 获取数据来源标签类型
+                const getDataSourceType = (dataSource) => {
+                    const typeMap = {
+                        '人工录入': '',
+                        '隐患治理': 'warning',
+                        '安全培训': 'success',
+                        '应急演练': 'danger'
+                    };
+                    return typeMap[dataSource] || '';
+                };
+
                 return {
                     loading,
                     selectedRows,
@@ -498,6 +520,7 @@
                     pagedData,
                     toggleExpand,
                     formatAmount,
+                    getDataSourceType,
                     handleSearch,
                     handleReset,
                     handleSelectionChange,

@@ -158,7 +158,7 @@
                                 <span>{{ row.cycle }}年</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="budget" label="投入预算（万元）" min-width="180" align="right">
+                        <el-table-column prop="budget" label="投入预算（元）" min-width="180" align="right">
                             <template #default="{ row }">
                                 <a href="javascript:void(0)" @click="handleView(row)"
                                     style="color: #409EFF; text-decoration: underline; cursor: pointer;"
@@ -215,28 +215,28 @@
                     {
                         id: 1,
                         cycle: '2026',
-                        budget: 1550.000000,
+                        budget: 15500000.00,
                         updater: '张三',
                         updateTime: '2026-01-05 14:30:00'
                     },
                     {
                         id: 2,
                         cycle: '2025',
-                        budget: 1480.000000,
+                        budget: 14800000.00,
                         updater: '李四',
                         updateTime: '2025-01-10 09:15:00'
                     },
                     {
                         id: 3,
                         cycle: '2024',
-                        budget: 1320.000000,
+                        budget: 13200000.00,
                         updater: '王五',
                         updateTime: '2024-01-08 16:45:00'
                     },
                     {
                         id: 4,
                         cycle: '2023',
-                        budget: 1200.000000,
+                        budget: 12000000.00,
                         updater: '赵六',
                         updateTime: '2023-01-12 11:20:00'
                     }
@@ -257,12 +257,12 @@
                     return filteredData.value.slice(start, start + pageSize.value);
                 });
 
-                // 格式化金额（千分号，6位小数）
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '-';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 

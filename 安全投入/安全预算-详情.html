@@ -160,6 +160,113 @@
             height: auto !important;
         }
 
+        /* 两措属性标签 */
+        .measure-tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .measure-an {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .measure-fan {
+            background-color: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .measure-other {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+
+        /* 表格操作栏 */
+        .table-toolbar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        /* 嵌套表格样式 */
+        .nested-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+        }
+
+        .nested-table th,
+        .nested-table td {
+            border: 1px solid #ebeef5;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .nested-table th {
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #606266;
+            font-size: 13px;
+        }
+
+        .nested-table td {
+            color: #303133;
+            font-size: 13px;
+        }
+
+        /* 展开行样式 */
+        .expand-row {
+            cursor: pointer;
+        }
+
+        .expand-row:hover {
+            background-color: #f5f7fa;
+        }
+
+        .expand-icon {
+            color: #409EFF;
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .child-row {
+            background-color: #fafafa;
+        }
+
+        .child-table-wrapper {
+            padding: 12px 12px 12px 40px;
+            background-color: #fafafa;
+        }
+
+        /* 弹窗表单两列布局 */
+        .dialog-form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 0;
+        }
+
+        .dialog-form-row .el-form-item {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dialog-form-row .el-form-item.full-width {
+            flex: 0 0 100%;
+        }
+
+        /* 弹窗内容滚动区域 */
+        .dialog-scroll-content {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
         /* 响应式 */
         @media (max-width: 1200px) {
             .form-item {
@@ -209,11 +316,11 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="预算总金额（万元）" prop="totalBudget" required>
+                                <el-form-item label="预算总金额（元）" prop="totalBudget" required>
                                     <el-input v-model="formData.totalBudgetDisplay" placeholder="请输入金额"
                                         :disabled="isView" @input="handleBudgetInput" @blur="formatBudget">
                                         <template #suffix>
-                                            <span style="color: #909399;">万元</span>
+                                            <span style="color: #909399;">元</span>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -233,35 +340,139 @@
                     <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.detail }"></i>
                 </div>
                 <div class="module-content" :class="{ collapsed: !modules.detail }">
-                    <table class="budget-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 60px;">序号</th>
-                                <th>投入类别名称</th>
-                                <th style="width: 180px;" class="number-cell">计划投入费用（万元）</th>
-                                <th style="width: 200px;" class="number-cell">投入预算（万元）</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item, index) in budgetDetails" :key="item.id">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ item.categoryName }}</td>
-                                <td class="number-cell">{{ formatAmount(item.planCost) }}</td>
-                                <td class="number-cell">
-                                    <el-input v-model="item.budgetDisplay" placeholder="请输入预算" :disabled="isView"
-                                        @input="handleItemInput(index)" @blur="formatItemBudget(index)" size="small" />
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2" style="text-align: right; font-weight: 600;">合计</td>
-                                <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}</td>
-                                <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalDetailBudget) }}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <!-- 编辑模式下的表格 -->
+                    <template v-if="!isView">
+                        <div class="table-toolbar">
+                            <el-button type="primary" @click="openAddPlanDialog">
+                                <i class="fas fa-plus"></i> 新增计划
+                            </el-button>
+                        </div>
+                        <table class="budget-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">序号</th>
+                                    <th>项目名称</th>
+                                    <th>投入类别名称</th>
+                                    <th style="width: 100px;">两措类型</th>
+                                    <th style="width: 160px;" class="number-cell">计划投入费用（元）</th>
+                                    <th style="width: 180px;" class="number-cell">投入预算（元）</th>
+                                    <th style="width: 80px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in budgetDetails" :key="item.id">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>{{ item.projectName }}</td>
+                                    <td>{{ item.categoryName }}</td>
+                                    <td>
+                                        <span v-if="item.measureType"
+                                            :class="['measure-tag', getMeasureClass(item.measureType)]">
+                                            {{ item.measureType }}
+                                        </span>
+                                        <span v-else>-</span>
+                                    </td>
+                                    <td class="number-cell">{{ formatAmount(item.planCost) }}</td>
+                                    <td class="number-cell">
+                                        <el-input v-model="item.budgetDisplay" placeholder="请输入预算"
+                                            @input="handleItemInput(index)" @blur="formatItemBudget(index)"
+                                            size="small" />
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <el-button size="small" link @click="deleteItem(index)">
+                                            <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                        </el-button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" style="text-align: right; font-weight: 600;">合计</td>
+                                    <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}
+                                    </td>
+                                    <td class="number-cell" style="font-weight: 600;">{{
+                                        formatAmount(totalDetailBudget) }}
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </template>
+
+                    <!-- 查看模式下的嵌套表格 -->
+                    <template v-else>
+                        <table class="budget-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 90px;">序号</th>
+                                    <th>投入类别名称</th>
+                                    <th style="width: 180px;" class="number-cell">计划投入费用（元）</th>
+                                    <th style="width: 180px;" class="number-cell">投入预算（元）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template v-for="(category, cIndex) in groupedBudgetData" :key="category.id">
+                                    <tr class="expand-row" @click="toggleExpand(category.id)">
+                                        <td>
+                                            {{ cIndex + 1 }}
+                                            <i class="fas fa-chevron-right expand-icon"
+                                                :class="{ expanded: expandedRows.includes(category.id) }"
+                                                style="margin-left: 8px;"></i>
+                                        </td>
+                                        <td>{{ category.categoryName }}</td>
+                                        <td class="number-cell">{{ formatAmount(category.totalPlanCost) }}</td>
+                                        <td class="number-cell">{{ formatAmount(category.totalBudget) }}</td>
+                                    </tr>
+                                    <tr v-if="expandedRows.includes(category.id)">
+                                        <td colspan="4" style="padding: 0;">
+                                            <div class="child-table-wrapper">
+                                                <table class="nested-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 50px;">序号</th>
+                                                            <th>项目名称</th>
+                                                            <th>投入类别名称</th>
+                                                            <th style="width: 100px;">两措类型</th>
+                                                            <th style="width: 140px;" class="number-cell">计划投入费用（元）
+                                                            </th>
+                                                            <th style="width: 140px;" class="number-cell">投入预算（元）</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="(item, iIndex) in category.children" :key="item.id">
+                                                            <td>{{ iIndex + 1 }}</td>
+                                                            <td>{{ item.projectName }}</td>
+                                                            <td>{{ item.categoryName }}</td>
+                                                            <td>
+                                                                <span v-if="item.measureType"
+                                                                    :class="['measure-tag', getMeasureClass(item.measureType)]">
+                                                                    {{ item.measureType }}
+                                                                </span>
+                                                                <span v-else>-</span>
+                                                            </td>
+                                                            <td class="number-cell">{{ formatAmount(item.planCost) }}
+                                                            </td>
+                                                            <td class="number-cell">{{ formatAmount(item.budget) }}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" style="text-align: right; font-weight: 600;">合计</td>
+                                    <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}
+                                    </td>
+                                    <td class="number-cell" style="font-weight: 600;">{{
+                                        formatAmount(totalDetailBudget) }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </template>
                 </div>
             </div>
         </div>
@@ -276,6 +487,73 @@
                 <i class="fas fa-edit"></i> 编辑
             </el-button>
         </div>
+
+        <!-- 新增计划弹窗 -->
+        <el-dialog v-model="addPlanDialogVisible" title="新增计划" width="750px" :close-on-click-modal="false">
+            <div class="dialog-scroll-content">
+                <el-form :model="planFormData" :rules="planFormRules" ref="planFormRef" label-width="120px"
+                    label-position="left">
+                    <div class="dialog-form-row">
+                        <el-form-item label="项目编号" prop="projectCode" required>
+                            <el-input v-model="planFormData.projectCode" placeholder="请输入项目编号" />
+                        </el-form-item>
+                        <el-form-item label="两措属性" prop="measureType" required>
+                            <el-select v-model="planFormData.measureType" placeholder="请选择两措属性" style="width: 100%;">
+                                <el-option label="安措" value="安措"></el-option>
+                                <el-option label="反措" value="反措"></el-option>
+                                <el-option label="其他" value="其他"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </div>
+                    <div class="dialog-form-row">
+                        <el-form-item label="所属类别" prop="categoryName" required>
+                            <el-select v-model="planFormData.categoryName" placeholder="请选择所属类别" style="width: 100%;">
+                                <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
+                                    :value="cat"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="项目名称" prop="projectName" required>
+                            <el-input v-model="planFormData.projectName" placeholder="请输入项目名称" />
+                        </el-form-item>
+                    </div>
+                    <el-form-item label="项目内容" prop="projectContent" required>
+                        <el-input v-model="planFormData.projectContent" type="textarea" :rows="3" placeholder="请输入项目内容"
+                            maxlength="200" show-word-limit />
+                    </el-form-item>
+                    <div class="dialog-form-row">
+                        <el-form-item label="计划完成时间" prop="planFinishDate" required>
+                            <el-date-picker v-model="planFormData.planFinishDate" type="date" placeholder="请选择日期"
+                                value-format="YYYY-MM-DD" style="width: 100%;" />
+                        </el-form-item>
+                        <el-form-item label="计划投入费用" prop="planCost" required>
+                            <el-input v-model="planFormData.planCost" placeholder="请输入计划投入费用">
+                                <template #suffix><span style="color: #909399;">元</span></template>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="dialog-form-row">
+                        <el-form-item label="责任单位" prop="responsibleUnit" required>
+                            <el-select v-model="planFormData.responsibleUnit" placeholder="请选择责任单位"
+                                style="width: 100%;">
+                                <el-option v-for="unit in unitOptions" :key="unit" :label="unit"
+                                    :value="unit"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="责任人" prop="responsiblePerson" required>
+                            <el-input v-model="planFormData.responsiblePerson" placeholder="请输入责任人" />
+                        </el-form-item>
+                    </div>
+                    <el-form-item label="备注" prop="remark" required>
+                        <el-input v-model="planFormData.remark" type="textarea" :rows="3" placeholder="请输入备注"
+                            maxlength="200" show-word-limit />
+                    </el-form-item>
+                </el-form>
+            </div>
+            <template #footer>
+                <el-button @click="addPlanDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="savePlan">保存</el-button>
+            </template>
+        </el-dialog>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -287,6 +565,7 @@
         createApp({
             setup() {
                 const formRef = ref(null);
+                const planFormRef = ref(null);
 
                 // 页面模式
                 const mode = ref('add');
@@ -298,6 +577,9 @@
                     detail: true
                 });
 
+                // 展开行状态
+                const expandedRows = ref([]);
+
                 // 表单数据
                 const formData = ref({
                     code: '',
@@ -308,16 +590,149 @@
 
                 // 详细预算数据
                 const budgetDetails = ref([
-                    { id: 1, categoryName: '安全标志及标识', planCost: 50, budget: 60, budgetDisplay: '60.000000' },
-                    { id: 2, categoryName: '安全防护设备', planCost: 120, budget: 150, budgetDisplay: '150.000000' },
-                    { id: 3, categoryName: '安全培训', planCost: 80, budget: 100, budgetDisplay: '100.000000' },
-                    { id: 4, categoryName: '应急救援', planCost: 150, budget: 180, budgetDisplay: '180.000000' },
-                    { id: 5, categoryName: '安全检查与隐患整改', planCost: 200, budget: 250, budgetDisplay: '250.000000' },
-                    { id: 6, categoryName: '消防设施维护', planCost: 100, budget: 120, budgetDisplay: '120.000000' },
-                    { id: 7, categoryName: '职业健康', planCost: 80, budget: 100, budgetDisplay: '100.000000' },
-                    { id: 8, categoryName: '安全科技研发', planCost: 200, budget: 250, budgetDisplay: '250.000000' },
-                    { id: 9, categoryName: '其他安全投入', planCost: 50, budget: 80, budgetDisplay: '80.000000' }
+                    { id: 1, projectName: '安全标志购置', categoryName: '安全标志及标识', measureType: '安措', planCost: 500000, budget: 600000, budgetDisplay: '600,000.00' },
+                    { id: 2, projectName: '防护设备采购', categoryName: '安全防护设备', measureType: '安措', planCost: 1200000, budget: 1500000, budgetDisplay: '1,500,000.00' },
+                    { id: 3, projectName: '安全技能培训', categoryName: '安全培训', measureType: '安措', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
+                    { id: 4, projectName: '应急装备配置', categoryName: '应急救援', measureType: '反措', planCost: 1500000, budget: 1800000, budgetDisplay: '1,800,000.00' },
+                    { id: 5, projectName: '隐患排查整改', categoryName: '安全检查与隐患整改', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
+                    { id: 6, projectName: '消防设施维保', categoryName: '消防设施维护', measureType: '反措', planCost: 1000000, budget: 1200000, budgetDisplay: '1,200,000.00' },
+                    { id: 7, projectName: '职业健康体检', categoryName: '职业健康', measureType: '其他', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
+                    { id: 8, projectName: '安全监控系统', categoryName: '安全科技研发', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
+                    { id: 9, projectName: '其他安全支出', categoryName: '其他安全投入', measureType: '其他', planCost: 500000, budget: 800000, budgetDisplay: '800,000.00' }
                 ]);
+
+                // 分组后的预算数据（查看模式使用）
+                const groupedBudgetData = computed(() => {
+                    const groups = {};
+                    budgetDetails.value.forEach(item => {
+                        if (!groups[item.categoryName]) {
+                            groups[item.categoryName] = {
+                                id: 'cat-' + item.categoryName,
+                                categoryName: item.categoryName,
+                                totalPlanCost: 0,
+                                totalBudget: 0,
+                                children: []
+                            };
+                        }
+                        groups[item.categoryName].totalPlanCost += item.planCost || 0;
+                        groups[item.categoryName].totalBudget += item.budget || 0;
+                        groups[item.categoryName].children.push(item);
+                    });
+                    return Object.values(groups);
+                });
+
+                // 切换展开状态
+                const toggleExpand = (id) => {
+                    const index = expandedRows.value.indexOf(id);
+                    if (index > -1) {
+                        expandedRows.value.splice(index, 1);
+                    } else {
+                        expandedRows.value.push(id);
+                    }
+                };
+
+                // 类别选项
+                const categoryOptions = ref([
+                    '安全标志及标识',
+                    '安全防护设备',
+                    '安全培训',
+                    '应急救援',
+                    '安全检查与隐患整改',
+                    '消防设施维护',
+                    '职业健康',
+                    '安全科技研发',
+                    '其他安全投入'
+                ]);
+
+                // 责任单位选项
+                const unitOptions = ref([
+                    '安全生产部',
+                    '设备管理部',
+                    '人力资源部',
+                    '综合管理部',
+                    '生产运营部'
+                ]);
+
+                // 新增计划弹窗
+                const addPlanDialogVisible = ref(false);
+                const planFormData = ref({
+                    projectCode: '',
+                    measureType: '',
+                    categoryName: '',
+                    projectName: '',
+                    projectContent: '',
+                    planFinishDate: '',
+                    planCost: '',
+                    responsibleUnit: '',
+                    responsiblePerson: '',
+                    remark: ''
+                });
+
+                const planFormRules = ref({
+                    projectCode: [{ required: true, message: '请输入项目编号', trigger: 'blur' }],
+                    measureType: [{ required: true, message: '请选择两措属性', trigger: 'change' }],
+                    categoryName: [{ required: true, message: '请选择所属类别', trigger: 'change' }],
+                    projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+                    projectContent: [{ required: true, message: '请输入项目内容', trigger: 'blur' }],
+                    planFinishDate: [{ required: true, message: '请选择计划完成时间', trigger: 'change' }],
+                    planCost: [{ required: true, message: '请输入计划投入费用', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请选择责任单位', trigger: 'change' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
+                    remark: [{ required: true, message: '请输入备注', trigger: 'blur' }]
+                });
+
+                // 打开新增计划弹窗
+                const openAddPlanDialog = () => {
+                    // 生成默认项目编号
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const seq = String(budgetDetails.value.length + 1).padStart(4, '0');
+
+                    planFormData.value = {
+                        projectCode: `AQTRJH-${dateStr}-${seq}`,
+                        measureType: '',
+                        categoryName: '',
+                        projectName: '',
+                        projectContent: '',
+                        planFinishDate: '',
+                        planCost: '',
+                        responsibleUnit: '',
+                        responsiblePerson: '',
+                        remark: ''
+                    };
+                    addPlanDialogVisible.value = true;
+                };
+
+                // 保存新增计划
+                const savePlan = () => {
+                    planFormRef.value?.validate((valid) => {
+                        if (valid) {
+                            const newId = Date.now();
+                            const planCostValue = parseFloat(planFormData.value.planCost.replace(/,/g, '')) || 0;
+                            budgetDetails.value.push({
+                                id: newId,
+                                projectName: planFormData.value.projectName,
+                                categoryName: planFormData.value.categoryName,
+                                measureType: planFormData.value.measureType,
+                                planCost: planCostValue,
+                                budget: 0,
+                                budgetDisplay: '0.00'
+                            });
+                            addPlanDialogVisible.value = false;
+                            ElMessage.success('计划添加成功');
+                        } else {
+                            ElMessage.warning('请填写完整信息');
+                        }
+                    });
+                };
+
+                // 删除项
+                const deleteItem = (index) => {
+                    budgetDetails.value.splice(index, 1);
+                    ElMessage.success('删除成功');
+                };
 
                 // 计算总计划费用
                 const totalPlanCost = computed(() => {
@@ -339,8 +754,8 @@
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 
@@ -374,6 +789,16 @@
                     budgetDetails.value[index].budgetDisplay = formatAmount(value);
                 };
 
+                // 获取两措属性样式类
+                const getMeasureClass = (type) => {
+                    const map = {
+                        '安措': 'measure-an',
+                        '反措': 'measure-fan',
+                        '其他': 'measure-other'
+                    };
+                    return map[type] || '';
+                };
+
                 // 生成编号
                 const generateCode = () => {
                     const year = formData.value.budgetYear || new Date().getFullYear().toString();
@@ -400,8 +825,8 @@
                         '1': {
                             code: 'AQYS-2026-001',
                             budgetYear: '2026',
-                            totalBudget: 1500,
-                            totalBudgetDisplay: '1,500.000000'
+                            totalBudget: 15000000,
+                            totalBudgetDisplay: '15,000,000.00'
                         }
                     };
 
@@ -443,20 +868,33 @@
 
                 return {
                     formRef,
+                    planFormRef,
                     mode,
                     isView,
                     modules,
                     formData,
                     formRules,
                     budgetDetails,
+                    groupedBudgetData,
+                    expandedRows,
                     totalPlanCost,
                     totalDetailBudget,
+                    categoryOptions,
+                    unitOptions,
+                    addPlanDialogVisible,
+                    planFormData,
+                    planFormRules,
                     formatAmount,
                     handleBudgetInput,
                     formatBudget,
                     handleItemInput,
                     formatItemBudget,
+                    getMeasureClass,
                     toggleModule,
+                    toggleExpand,
+                    openAddPlanDialog,
+                    savePlan,
+                    deleteItem,
                     handleSave,
                     switchToEdit,
                     goBack

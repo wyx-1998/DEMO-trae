@@ -406,12 +406,12 @@
                 </div>
             </div>
 
-            <!-- 单位配置模块 -->
+            <!-- 适用企业模块 -->
             <div class="form-module">
                 <div class="module-header" @click="toggleModule('units')">
                     <div class="module-title">
                         <i class="fas fa-building"></i>
-                        单位配置
+                        适用企业
                     </div>
                     <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.units }"></i>
                 </div>
@@ -429,9 +429,10 @@
                     </div>
                     <el-table :data="formData.organizations" border stripe @selection-change="handleOrgSelectionChange">
                         <el-table-column type="selection" width="55" v-if="!isView"></el-table-column>
-                        <el-table-column prop="shortName" label="组织简称" width="150"></el-table-column>
-                        <el-table-column prop="fullName" label="组织名称" min-width="250"></el-table-column>
-                        <el-table-column prop="category" label="组织类别" width="120"></el-table-column>
+                        <el-table-column prop="shortName" label="企业简称" width="150"></el-table-column>
+                        <el-table-column prop="fullName" label="企业名称" min-width="200"></el-table-column>
+                        <el-table-column prop="category" label="企业类型" width="120"></el-table-column>
+                        <el-table-column prop="industryType" label="行业类型" width="120"></el-table-column>
                         <el-table-column label="操作" width="80" align="center" v-if="!isView">
                             <template #default="{ $index }">
                                 <el-button type="danger" size="small" @click="removeOrg($index)" link>
@@ -455,18 +456,19 @@
             </el-button>
         </div>
 
-        <!-- 选择组织弹窗 -->
-        <el-dialog v-model="orgDialogVisible" title="选择组织" width="700px">
-            <el-input v-model="orgSearchText" placeholder="搜索组织名称" clearable style="margin-bottom: 16px;">
+        <!-- 选择企业弹窗 -->
+        <el-dialog v-model="orgDialogVisible" title="选择企业" width="800px">
+            <el-input v-model="orgSearchText" placeholder="搜索企业名称" clearable style="margin-bottom: 16px;">
                 <template #prefix>
                     <i class="fas fa-search"></i>
                 </template>
             </el-input>
             <el-table :data="filteredOrgList" border stripe height="400" @selection-change="handleTempOrgSelection">
                 <el-table-column type="selection" width="55" />
-                <el-table-column prop="shortName" label="组织简称" width="150" />
-                <el-table-column prop="fullName" label="组织名称" min-width="250" />
-                <el-table-column prop="category" label="组织类别" width="120" />
+                <el-table-column prop="shortName" label="企业简称" width="150" />
+                <el-table-column prop="fullName" label="企业名称" min-width="200" />
+                <el-table-column prop="category" label="企业类型" width="120" />
+                <el-table-column prop="industryType" label="行业类型" width="120" />
             </el-table>
             <template #footer>
                 <el-button @click="orgDialogVisible = false">取消</el-button>
@@ -820,8 +822,8 @@
                         { lowerLimit: 5000, upperLimit: 10000, ratio: 0.5 }
                     ],
                     organizations: [
-                        { shortName: '集团总部', fullName: '国投集团总部', category: '集团' },
-                        { shortName: '电力分公司', fullName: '国投电力有限责任公司', category: '子公司' }
+                        { shortName: '集团总部', fullName: '国投集团总部', category: '集团', industryType: '综合' },
+                        { shortName: '电力分公司', fullName: '国投电力有限责任公司', category: '子公司', industryType: '电力' }
                     ]
                 });
 
@@ -842,13 +844,13 @@
 
                 // 模拟组织列表
                 const orgList = ref([
-                    { shortName: '集团总部', fullName: '国投集团总部', category: '集团' },
-                    { shortName: '电力分公司', fullName: '国投电力有限责任公司', category: '子公司' },
-                    { shortName: '煤炭分公司', fullName: '国投煤炭有限责任公司', category: '子公司' },
-                    { shortName: '交通分公司', fullName: '国投交通有限责任公司', category: '子公司' },
-                    { shortName: '智能科技', fullName: '国投智能科技有限责任公司', category: '子公司' },
-                    { shortName: '新能源', fullName: '国投新能源投资有限公司', category: '子公司' },
-                    { shortName: '生物科技', fullName: '国投生物科技投资有限公司', category: '子公司' }
+                    { shortName: '集团总部', fullName: '国投集团总部', category: '集团', industryType: '综合' },
+                    { shortName: '电力分公司', fullName: '国投电力有限责任公司', category: '子公司', industryType: '电力' },
+                    { shortName: '煤炭分公司', fullName: '国投煤炭有限责任公司', category: '子公司', industryType: '煤炭' },
+                    { shortName: '交通分公司', fullName: '国投交通有限责任公司', category: '子公司', industryType: '交通' },
+                    { shortName: '智能科技', fullName: '国投智能科技有限责任公司', category: '子公司', industryType: '科技' },
+                    { shortName: '新能源', fullName: '国投新能源投资有限公司', category: '子公司', industryType: '新能源' },
+                    { shortName: '生物科技', fullName: '国投生物科技投资有限公司', category: '子公司', industryType: '生物科技' }
                 ]);
 
                 // 过滤后的组织列表
@@ -898,7 +900,7 @@
                                 { lowerLimit: 10000000000, upperLimit: null, ratio: 0.2 }
                             ],
                             organizations: [
-                                { shortName: '电力生产公司', fullName: '国投电力生产有限责任公司', category: '子公司' }
+                                { shortName: '电力生产公司', fullName: '国投电力生产有限责任公司', category: '子公司', industryType: '电力' }
                             ]
                         },
                         '2': {
@@ -916,7 +918,7 @@
                                 { lowerLimit: 200000000000, upperLimit: null, ratio: 0.2 }
                             ],
                             organizations: [
-                                { shortName: '电力供应公司', fullName: '国投电力供应有限责任公司', category: '子公司' }
+                                { shortName: '电力供应公司', fullName: '国投电力供应有限责任公司', category: '子公司', industryType: '电力' }
                             ]
                         }
                     };

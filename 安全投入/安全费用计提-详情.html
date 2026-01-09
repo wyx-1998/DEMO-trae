@@ -149,6 +149,13 @@
             background-color: #fafafa !important;
         }
 
+        /* 计提金额输入框样式 */
+        .accrual-amount-input .el-input__inner {
+            text-align: right;
+            color: #409EFF;
+            font-weight: normal;
+        }
+
         /* 响应式 */
         @media (max-width: 1200px) {
             .form-item {
@@ -265,7 +272,7 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="本周期应提取金额（万元）" required>
+                                <el-form-item label="本周期应提取金额（元）" required>
                                     <el-input :model-value="formatAmount(calculatedAmount)" disabled>
                                         <template #suffix>
                                             <el-button link type="primary" @click="showCalculationDialog"
@@ -279,20 +286,21 @@
                         </div>
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="本周期计划投入预算（万元）" required>
+                                <el-form-item label="本周期计划投入预算（元）" required>
                                     <el-input :model-value="formatAmount(formData.planBudget)" disabled />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="上一周期结余金额（万元）" prop="carryOver" required>
+                                <el-form-item label="上一周期结余金额（元）" prop="carryOver" required>
                                     <el-input v-model="formData.carryOverDisplay" placeholder="请输入金额" :disabled="isView"
                                         @input="handleCarryOverInput" @blur="formatCarryOver" />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="本周期计提金额（万元）" required>
+                                <el-form-item label="本周期计提金额（元）" required>
                                     <el-input v-model="formData.totalAccrualDisplay" placeholder="请输入金额"
-                                        :disabled="isView" @input="handleTotalAccrualInput" @blur="formatTotalAccrual" />
+                                        :disabled="isView" @input="handleTotalAccrualInput"
+                                        @blur="formatTotalAccrual" />
                                     <div class="formula-hint">= 本周期应提取金额 + 上一周期结余金额</div>
                                 </el-form-item>
                             </div>
@@ -322,16 +330,27 @@
                                 <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{ row.name }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="planCost" label="本周期计划投入费用（万元）" width="200" align="right">
+                        <el-table-column prop="planCost" label="本周期计划投入预算（元）" width="200" align="right">
                             <template #default="{ row }">
-                                <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{ formatAmount(row.planCost) }}</span>
+                                <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{
+                                    formatAmount(row.planCost) }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="accrualAmount" label="本周期计提金额（万元）" width="200">
+                        <el-table-column label="本周期计提金额（元）" width="200" align="right">
                             <template #default="{ row }">
-                                <el-input v-if="!isView && !row.isSummary" v-model="row.accrualAmountDisplay" placeholder="请输入"
-                                    @input="handleCategoryInput(row)" @blur="formatCategoryAmount(row)" />
-                                <span v-else :style="{ fontWeight: row.isSummary ? '600' : 'normal', color: row.isSummary ? '#409EFF' : '' }">{{ formatAmount(row.accrualAmount) }}</span>
+                                <!-- 编辑模式下显示输入框 -->
+                                <template v-if="!isView && !row.isSummary">
+                                    <el-input v-model="row.accrualAmountDisplay"
+                                        class="accrual-amount-input" placeholder="请输入" @input="handleCategoryInput(row)"
+                                        @blur="formatCategoryAmount(row)" @focus="handleCategoryFocus(row)" />
+                                </template>
+                                <!-- 查看模式或合计行显示只读文本 -->
+                                <template v-else>
+                                    <span :style="{ 
+                                        fontWeight: row.isSummary ? '600' : 'normal', 
+                                        color: '#409EFF'
+                                    }">{{ formatAmount(row.accrualAmount) }}</span>
+                                </template>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -353,7 +372,8 @@
         <!-- 计算规则弹窗 -->
         <el-dialog v-model="calculationDialogVisible" title="计提金额计算规则" width="700px">
             <div style="margin-bottom: 16px;">
-                <div style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
+                <div
+                    style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
                     <div style="font-weight: 600; color: #303133; margin-bottom: 8px;">
                         <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 6px;"></i>
                         计算规则说明
@@ -374,9 +394,10 @@
                             <el-tag type="success">{{ row.ratio }}</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column label="本次计提金额（万元）" width="160" align="right">
+                    <el-table-column label="本次计提金额（元）" width="160" align="right">
                         <template #default="{ row }">
-                            <span :style="{ color: row.amount > 0 ? '#67C23A' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
+                            <span
+                                :style="{ color: row.amount > 0 ? '#67C23A' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
                                 {{ formatAmount(row.amount) }}
                             </span>
                         </template>
@@ -385,12 +406,14 @@
                 <div style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 14px; color: #606266;">提取依据值：</span>
-                        <span style="font-size: 16px; font-weight: 600; color: #303133;">{{ formatAmount(formData.basisValue) }} 万元</span>
+                        <span style="font-size: 16px; font-weight: 600; color: #303133;">{{
+                            formatAmount(formData.basisValue) }} 元</span>
                     </div>
                     <el-divider style="margin: 12px 0;"></el-divider>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 14px; color: #606266;">本周期应提取金额：</span>
-                        <span style="font-size: 18px; font-weight: 700; color: #409EFF;">{{ formatAmount(calculatedAmount) }} 万元</span>
+                        <span style="font-size: 18px; font-weight: 700; color: #409EFF;">{{
+                            formatAmount(calculatedAmount) }} 元</span>
                     </div>
                 </div>
             </div>
@@ -433,14 +456,14 @@
                     ruleType: 'excess',
                     cycleType: 'yearly',
                     cycle: new Date().getFullYear().toString(),
-                    basisName: '上一年度营业收入（万元）',
-                    basisValue: 150000,
-                    basisValueDisplay: '150,000',
-                    carryOver: 50000,
-                    carryOverDisplay: '50,000',
+                    basisName: '上一年度营业收入（元）',
+                    basisValue: 1500000000,
+                    basisValueDisplay: '1,500,000,000.00',
+                    carryOver: 500000000,
+                    carryOverDisplay: '500,000,000.00',
                     totalAccrual: 0,
                     totalAccrualDisplay: '',
-                    planBudget: 145000,
+                    planBudget: 14500000000,
                     categories: []
                 });
 
@@ -454,18 +477,17 @@
                     { lowerLimit: 1000000, upperLimit: null, ratio: 0.002 }     // 100亿以上: 0.2%
                 ];
 
-                // 投入类别列表
                 const defaultCategories = [
-                    { code: 'TRLB-0001', name: '（一）完善、改造和维护安全防护设备、设施支出', sortOrder: 1, planCost: 200, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0002', name: '（二）配备、维护、保养应急救援器材、设备设施支出', sortOrder: 2, planCost: 180, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0003', name: '（三）开展重大危险源检测、评估、监控支出', sortOrder: 3, planCost: 150, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0004', name: '（四）安全生产检查、评估评价、咨询和标准化建设支出', sortOrder: 4, planCost: 120, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0005', name: '（五）安全生产宣传、教育、培训支出', sortOrder: 5, planCost: 100, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0006', name: '（六）配备和更新现场作业人员安全防护用品支出', sortOrder: 6, planCost: 80, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0007', name: '（七）安全生产适用的新技术、新设备的推广应用支出', sortOrder: 7, planCost: 150, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0008', name: '（八）安全设施及特种设备检测检验支出', sortOrder: 8, planCost: 100, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0009', name: '（九）安全生产责任保险支出', sortOrder: 9, planCost: 50, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0010', name: '（十）与安全生产直接相关的其他支出', sortOrder: 10, planCost: 70, accrualAmount: 0, accrualAmountDisplay: '' }
+                    { code: 'TRLB-0001', name: '（一）完善、改造和维护安全防护设备、设施支出', sortOrder: 1, planCost: 2000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0002', name: '（二）配备、维护、保养应急救援器材、设备设施支出', sortOrder: 2, planCost: 1800000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0003', name: '（三）开展重大危险源检测、评估、监控支出', sortOrder: 3, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0004', name: '（四）安全生产检查、评估评价、咨询和标准化建设支出', sortOrder: 4, planCost: 1200000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0005', name: '（五）安全生产宣传、教育、培训支出', sortOrder: 5, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0006', name: '（六）配备和更新现场作业人员安全防护用品支出', sortOrder: 6, planCost: 800000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0007', name: '（七）安全生产适用的新技术、新设备的推广应用支出', sortOrder: 7, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0008', name: '（八）安全设施及特种设备检测检验支出', sortOrder: 8, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0009', name: '（九）安全生产责任保险支出', sortOrder: 9, planCost: 500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0010', name: '（十）与安全生产直接相关的其他支出', sortOrder: 10, planCost: 700000, accrualAmount: 0, accrualAmountDisplay: '' }
                 ];
 
                 // 表单验证规则
@@ -539,16 +561,16 @@
                         const upperLimit = rule.upperLimit || Infinity;
                         const rangeSize = upperLimit - rule.lowerLimit;
                         const applicableAmount = Math.min(remaining, rangeSize);
-                        
+
                         let amount = 0;
                         if (basisValue > rule.lowerLimit && remaining > 0) {
                             amount = applicableAmount * rule.ratio;
                             remaining -= applicableAmount;
                         }
 
-                        const rangeText = rule.upperLimit 
-                            ? `${formatAmount(rule.lowerLimit)} - ${formatAmount(rule.upperLimit)} 万元`
-                            : `${formatAmount(rule.lowerLimit)} 万元以上`;
+                        const rangeText = rule.upperLimit
+                            ? `${formatAmount(rule.lowerLimit)} - ${formatAmount(rule.upperLimit)} 元`
+                            : `${formatAmount(rule.lowerLimit)} 元以上`;
 
                         results.push({
                             range: rangeText,
@@ -560,17 +582,15 @@
                     return results;
                 });
 
-                // 格式化金额（千分号，不显示末尾的0）
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined || value === '') return '-';
                     const num = parseFloat(value);
                     if (isNaN(num)) return '-';
-                    // 使用千分号格式化，但不显示末尾的0
-                    const formatted = new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 6
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(num);
-                    return formatted;
                 };
 
                 // 解析金额字符串
@@ -615,6 +635,11 @@
                     formData.value.totalAccrualDisplay = formatAmount(value);
                 };
 
+                // 处理类别金额获得焦点
+                const handleCategoryFocus = (row) => {
+                    // 获得焦点时，不需要特殊处理，保持当前值
+                };
+
                 // 处理类别金额输入
                 const handleCategoryInput = (row) => {
                     row.accrualAmountDisplay = row.accrualAmountDisplay.replace(/[^\d.]/g, '');
@@ -624,7 +649,8 @@
                 const formatCategoryAmount = (row) => {
                     const value = parseAmount(row.accrualAmountDisplay);
                     row.accrualAmount = value;
-                    row.accrualAmountDisplay = formatAmount(value);
+                    // 在编辑模式下，显示为纯数字的2位小数格式
+                    row.accrualAmountDisplay = value.toFixed(2);
                 };
 
                 // 提取周期变化
@@ -676,19 +702,22 @@
                             ruleType: 'excess',
                             cycleType: 'yearly',
                             cycle: '2026',
-                            basisName: '上一年度营业收入（万元）',
-                            basisValue: 150000,
-                            basisValueDisplay: '150,000',
-                            carryOver: 50000,
-                            carryOverDisplay: '50,000',
+                            basisName: '上一年度营业收入（元）',
+                            basisValue: 1500000000,
+                            basisValueDisplay: '1,500,000,000.00',
+                            carryOver: 500000000,
+                            carryOverDisplay: '500,000,000.00',
                             totalAccrual: 0,
                             totalAccrualDisplay: '',
-                            planBudget: 145000,
-                            categories: defaultCategories.map(cat => ({
-                                ...cat,
-                                accrualAmount: cat.planCost * 1.1,
-                                accrualAmountDisplay: formatAmount(cat.planCost * 1.1)
-                            }))
+                            planBudget: 14500000000,
+                            categories: defaultCategories.map(cat => {
+                                const amount = Math.round(cat.planCost * 1.1 * 100) / 100;
+                                return {
+                                    ...cat,
+                                    accrualAmount: amount,
+                                    accrualAmountDisplay: formatAmount(amount)
+                                };
+                            })
                         }
                     };
 
@@ -700,6 +729,14 @@
                             formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
                         } else {
                             formData.value.totalAccrualDisplay = formatAmount(formData.value.totalAccrual);
+                        }
+                        // 在非查看模式下，确保类别显示值格式化为2位小数
+                        if (mode.value !== 'view') {
+                            formData.value.categories.forEach(cat => {
+                                if (cat.accrualAmount) {
+                                    cat.accrualAmountDisplay = cat.accrualAmount.toFixed(2);
+                                }
+                            });
                         }
                     } else {
                         generateCode();
@@ -770,6 +807,7 @@
                     formatCarryOver,
                     handleTotalAccrualInput,
                     formatTotalAccrual,
+                    handleCategoryFocus,
                     handleCategoryInput,
                     formatCategoryAmount,
                     handleCycleChange,

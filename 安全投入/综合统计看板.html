@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全投入 - 综合统计看板</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 核心指标卡片区 */
+        .stats-cards-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stats-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 150px;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stats-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .stats-card-title {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+        }
+
+        .stats-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .stats-card-icon.blue {
+            background: linear-gradient(135deg, #409EFF 0%, #36D1DC 100%);
+        }
+
+        .stats-card-icon.green {
+            background: linear-gradient(135deg, #67C23A 0%, #20c997 100%);
+        }
+
+        .stats-card-icon.orange {
+            background: linear-gradient(135deg, #E6A23C 0%, #F7BA2A 100%);
+        }
+
+        .stats-card-icon.purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+        }
+
+        .stats-card-content {
+            flex: 1;
+        }
+
+        .stats-card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .stats-card-subtitle {
+            font-size: 12px;
+            color: #606266;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stats-card-progress {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-card-progress-label {
+            font-size: 12px;
+            color: #606266;
+            white-space: nowrap;
+            min-width: 42px;
+        }
+
+        .stats-card-progress-bar {
+            flex: 1;
+        }
+
+        .stats-card-compare {
+            display: flex;
+            gap: 12px;
+            padding-top: 12px;
+            margin-top: auto;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .compare-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .compare-item.up {
+            color: #F56C6C;
+        }
+
+        .compare-item.down {
+            color: #67C23A;
+        }
+
+        /* 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card.half-width {
+            grid-column: span 1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title i {
+            color: #409EFF;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* 对比分析布局 */
+        .compare-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .compare-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .compare-column-title {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            text-align: center;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1400px) {
+            .stats-cards-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards-section {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .compare-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <el-form-item label="统计周期" style="margin-bottom: 0;">
+                    <el-date-picker v-model="queryYear" type="year" placeholder="选择年份" value-format="YYYY"
+                        style="width: 120px;" size="small" />
+                </el-form-item>
+                <el-form-item label="数据范围" style="margin-bottom: 0;">
+                    <el-select v-model="dataScope" placeholder="请选择" style="width: 120px;" size="small" @change="handleDataScopeChange">
+                        <el-option label="本组织" value="org"></el-option>
+                        <el-option label="承包商" value="contractor"></el-option>
+                        <el-option label="对比分析" value="compare"></el-option>
+                    </el-select>
+                </el-form-item>
+                <!-- 本组织：显示部门树 -->
+                <el-form-item label="组织范围" style="margin-bottom: 0;" v-if="dataScope === 'org'">
+                    <el-tree-select v-model="selectedOrg" :data="orgTreeData" multiple check-strictly
+                        placeholder="请选择组织" style="width: 200px;" size="small" />
+                </el-form-item>
+                <!-- 承包商：显示承包商列表 -->
+                <el-form-item label="组织范围" style="margin-bottom: 0;" v-if="dataScope === 'contractor'">
+                    <el-select v-model="selectedContractor" placeholder="请选择承包商" 
+                        style="width: 200px;" size="small">
+                        <el-option v-for="item in contractorList" :key="item.value" 
+                            :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-button size="small" @click="handleRefresh">
+                    <i class="fas fa-sync"></i> 刷新
+                </el-button>
+            </div>
+
+            <!-- 单列布局 (本组织/承包商) -->
+            <template v-if="dataScope !== 'compare'">
+                <!-- 核心指标卡片区 -->
+                <div class="stats-cards-section">
+                    <!-- 年度计划投入总额 -->
+                    <div class="stats-card" @click="handleCardClick('plan')">
+                        <div class="stats-card-header">
+                            <div class="stats-card-title">年度计划投入总额（元）</div>
+                            <div class="stats-card-icon purple">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                        </div>
+                        <div class="stats-card-content">
+                            <div class="stats-card-value">{{ formatMoney(currentData.planTotal) }}</div>
+                            <div class="stats-card-subtitle">
+                                安措：{{ formatMoney(currentData.anCuo) }} | 反措：{{ formatMoney(currentData.fanCuo) }} | 其他：{{
+                                    formatMoney(currentData.other) }}
+                            </div>
+                        </div>
+                        <div class="stats-card-compare">
+                            <div class="compare-item" :class="currentData.planYoy >= 0 ? 'up' : 'down'">
+                                <span>同比</span>
+                                <i :class="currentData.planYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.planYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="currentData.planMom >= 0 ? 'up' : 'down'">
+                                <span>环比</span>
+                                <i :class="currentData.planMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.planMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 年度投入预算总额 -->
+                    <div class="stats-card" @click="handleCardClick('budget')">
+                        <div class="stats-card-header">
+                            <div class="stats-card-title">年度投入预算总额（元）</div>
+                            <div class="stats-card-icon green">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                        <div class="stats-card-content">
+                            <div class="stats-card-value">{{ formatMoney(currentData.budgetTotal) }}</div>
+                        </div>
+                        <div class="stats-card-compare">
+                            <div class="compare-item" :class="currentData.budgetYoy >= 0 ? 'up' : 'down'">
+                                <span>同比</span>
+                                <i :class="currentData.budgetYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.budgetYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="currentData.budgetMom >= 0 ? 'up' : 'down'">
+                                <span>环比</span>
+                                <i :class="currentData.budgetMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.budgetMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 年度计提总额 -->
+                    <div class="stats-card" @click="handleCardClick('accrual')">
+                        <div class="stats-card-header">
+                            <div class="stats-card-title">年度计提总额（元）</div>
+                            <div class="stats-card-icon blue">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                        </div>
+                        <div class="stats-card-content">
+                            <div class="stats-card-value">{{ formatMoney(currentData.accrualTotal) }}</div>
+                        </div>
+                        <div class="stats-card-compare">
+                            <div class="compare-item" :class="currentData.accrualYoy >= 0 ? 'up' : 'down'">
+                                <span>同比</span>
+                                <i :class="currentData.accrualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.accrualYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="currentData.accrualMom >= 0 ? 'up' : 'down'">
+                                <span>环比</span>
+                                <i :class="currentData.accrualMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.accrualMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 年度实际投入总额 -->
+                    <div class="stats-card" @click="handleCardClick('actual')">
+                        <div class="stats-card-header">
+                            <div class="stats-card-title">年度实际投入总额（元）</div>
+                            <div class="stats-card-icon orange">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                        </div>
+                        <div class="stats-card-content">
+                            <div class="stats-card-value">{{ formatMoney(currentData.actualTotal) }}</div>
+                            <div class="stats-card-progress">
+                                <span class="stats-card-progress-label">完成率</span>
+                                <div class="stats-card-progress-bar">
+                                    <el-progress :percentage="parseFloat(currentData.completionRate)" :color="getProgressColor(parseFloat(currentData.completionRate))"></el-progress>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-card-compare">
+                            <div class="compare-item" :class="currentData.actualYoy >= 0 ? 'up' : 'down'">
+                                <span>同比</span>
+                                <i :class="currentData.actualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.actualYoy) }}%</span>
+                            </div>
+                            <div class="compare-item" :class="currentData.actualMom >= 0 ? 'up' : 'down'">
+                                <span>环比</span>
+                                <i :class="currentData.actualMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span>{{ Math.abs(currentData.actualMom) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 对比分析布局 -->
+            <template v-else>
+                <div class="compare-container">
+                    <!-- 本组织列 -->
+                    <div class="compare-column">
+                        <div class="compare-column-title">
+                            <i class="fas fa-building"></i> 本组织数据
+                        </div>
+                        <div class="stats-cards-section" style="grid-template-columns: repeat(2, 1fr);">
+                            <!-- 本组织的4个卡片 -->
+                            <div class="stats-card" @click="handleCardClick('plan')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度计划投入总额（元）</div>
+                                    <div class="stats-card-icon purple">
+                                        <i class="fas fa-clipboard-list"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(orgData.planTotal) }}</div>
+                                    <div class="stats-card-subtitle">
+                                        安措：{{ formatMoney(orgData.anCuo) }} | 反措：{{ formatMoney(orgData.fanCuo) }}
+                                    </div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="orgData.planYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="orgData.planYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(orgData.planYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('budget')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度投入预算总额（元）</div>
+                                    <div class="stats-card-icon green">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(orgData.budgetTotal) }}</div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="orgData.budgetYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="orgData.budgetYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(orgData.budgetYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('accrual')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度计提总额（元）</div>
+                                    <div class="stats-card-icon blue">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(orgData.accrualTotal) }}</div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="orgData.accrualYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="orgData.accrualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(orgData.accrualYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('actual')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度实际投入总额（元）</div>
+                                    <div class="stats-card-icon orange">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(orgData.actualTotal) }}</div>
+                                    <div class="stats-card-progress">
+                                        <span class="stats-card-progress-label">完成率</span>
+                                        <div class="stats-card-progress-bar">
+                                            <el-progress :percentage="parseFloat(orgData.completionRate)" :color="getProgressColor(parseFloat(orgData.completionRate))"></el-progress>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="orgData.actualYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="orgData.actualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(orgData.actualYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 承包商列 -->
+                    <div class="compare-column">
+                        <div class="compare-column-title">
+                            <i class="fas fa-users"></i> 承包商数据
+                        </div>
+                        <div class="stats-cards-section" style="grid-template-columns: repeat(2, 1fr);">
+                            <!-- 承包商的4个卡片 -->
+                            <div class="stats-card" @click="handleCardClick('plan')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度计划投入总额（元）</div>
+                                    <div class="stats-card-icon purple">
+                                        <i class="fas fa-clipboard-list"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(contractorData.planTotal) }}</div>
+                                    <div class="stats-card-subtitle">
+                                        安措：{{ formatMoney(contractorData.anCuo) }} | 反措：{{ formatMoney(contractorData.fanCuo) }}
+                                    </div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="contractorData.planYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="contractorData.planYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(contractorData.planYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('budget')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度投入预算总额（元）</div>
+                                    <div class="stats-card-icon green">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(contractorData.budgetTotal) }}</div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="contractorData.budgetYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="contractorData.budgetYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(contractorData.budgetYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('accrual')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度计提总额（元）</div>
+                                    <div class="stats-card-icon blue">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(contractorData.accrualTotal) }}</div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="contractorData.accrualYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="contractorData.accrualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(contractorData.accrualYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-card" @click="handleCardClick('actual')">
+                                <div class="stats-card-header">
+                                    <div class="stats-card-title">年度实际投入总额（元）</div>
+                                    <div class="stats-card-icon orange">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                </div>
+                                <div class="stats-card-content">
+                                    <div class="stats-card-value">{{ formatMoney(contractorData.actualTotal) }}</div>
+                                    <div class="stats-card-progress">
+                                        <span class="stats-card-progress-label">完成率</span>
+                                        <div class="stats-card-progress-bar">
+                                            <el-progress :percentage="parseFloat(contractorData.completionRate)" :color="getProgressColor(parseFloat(contractorData.completionRate))"></el-progress>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stats-card-compare">
+                                    <div class="compare-item" :class="contractorData.actualYoy >= 0 ? 'up' : 'down'">
+                                        <span>同比</span>
+                                        <i :class="contractorData.actualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                        <span>{{ Math.abs(contractorData.actualYoy) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 单列布局的图表 -->
+            <template v-if="dataScope !== 'compare'">
+                <!-- 图表区域 - 第一行 -->
+                <div class="charts-section">
+                    <!-- 月度投入趋势图 -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-line"></i>
+                            <span>月度投入趋势图</span>
+                        </div>
+                        <div class="chart-container" ref="trendChartRef"></div>
+                    </div>
+
+                    <!-- 投入类别分布图 -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>投入类别分布图</span>
+                        </div>
+                        <div class="chart-container" ref="categoryChartRef"></div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 - 第二行 -->
+                <div class="charts-section">
+                    <!-- 计划执行情况 -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>计划执行情况</span>
+                        </div>
+                        <div class="chart-container" ref="planChartRef"></div>
+                    </div>
+
+                    <!-- 关键指标预警 -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>关键指标预警</span>
+                        </div>
+                        <div style="padding-top: 20px;">
+                            <el-table :data="warningData" style="width: 100%" size="small" max-height="280">
+                                <el-table-column prop="type" label="预警类型" width="140">
+                                    <template #default="{ row }">
+                                        <el-tag :type="row.level === 'danger' ? 'danger' : row.level === 'warning' ? 'warning' : 'info'" size="small">
+                                            {{ row.type }}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="org" label="涉及部门" width="120"></el-table-column>
+                                <el-table-column prop="situation" label="具体情况" show-overflow-tooltip></el-table-column>
+                            </el-table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 对比分析布局的图表 -->
+            <template v-else>
+                <div class="compare-container">
+                    <!-- 本组织图表列 -->
+                    <div class="compare-column">
+                        <!-- 月度投入趋势图 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-line"></i>
+                                <span>月度投入趋势图</span>
+                            </div>
+                            <div class="chart-container" ref="orgTrendChartRef"></div>
+                        </div>
+
+                        <!-- 投入类别分布图 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>投入类别分布图</span>
+                            </div>
+                            <div class="chart-container" ref="orgCategoryChartRef"></div>
+                        </div>
+
+                        <!-- 计划执行情况 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>计划执行情况</span>
+                            </div>
+                            <div class="chart-container" ref="orgPlanChartRef"></div>
+                        </div>
+                    </div>
+
+                    <!-- 承包商图表列 -->
+                    <div class="compare-column">
+                        <!-- 月度投入趋势图 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-line"></i>
+                                <span>月度投入趋势图</span>
+                            </div>
+                            <div class="chart-container" ref="contractorTrendChartRef"></div>
+                        </div>
+
+                        <!-- 投入类别分布图 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>投入类别分布图</span>
+                            </div>
+                            <div class="chart-container" ref="contractorCategoryChartRef"></div>
+                        </div>
+
+                        <!-- 计划执行情况 -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>计划执行情况</span>
+                            </div>
+                            <div class="chart-container" ref="contractorPlanChartRef"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const queryYear = ref(new Date().getFullYear().toString());
+                const selectedOrg = ref([]);
+                const selectedContractor = ref('all'); // 默认选择全部
+                const dataScope = ref('org'); // 默认显示本组织
+
+                const orgTreeData = ref([
+                    {
+                        value: '1',
+                        label: '国投电力公司',
+                        children: [
+                            { value: '1-1', label: '安全生产部' },
+                            { value: '1-2', label: '生产技术部' },
+                            { value: '1-3', label: '财务部' },
+                            { value: '1-4', label: '人力资源部' },
+                            { value: '1-5', label: '综合管理部' }
+                        ]
+                    }
+                ]);
+
+                const contractorList = ref([
+                    { value: 'all', label: '全部' },
+                    { value: 'c1', label: '中国建筑集团' },
+                    { value: 'c2', label: '中国中铁集团' },
+                    { value: 'c3', label: '中国电建集团' },
+                    { value: 'c4', label: '中国能建集团' },
+                    { value: 'c5', label: '华润建设有限公司' },
+                    { value: 'c6', label: '中交建设集团' },
+                    { value: 'c7', label: '中冶集团' },
+                    { value: 'c8', label: '中国水利水电集团' }
+                ]);
+
+                // 本组织数据
+                const orgData = reactive({
+                    planTotal: 15800000,
+                    anCuo: 8500000,
+                    fanCuo: 5200000,
+                    other: 2100000,
+                    planYoy: 12.5,
+                    planMom: 3.2,
+                    budgetTotal: 15000000,
+                    budgetYoy: 8.3,
+                    budgetMom: -2.1,
+                    accrualTotal: 14200000,
+                    accrualYoy: 10.2,
+                    accrualMom: 4.5,
+                    actualTotal: 12855000,
+                    actualYoy: 15.6,
+                    actualMom: 5.8,
+                    completionRate: ((12855000 / 14200000) * 100).toFixed(2)
+                });
+
+                // 承包商数据
+                const contractorData = reactive({
+                    planTotal: 3200000,
+                    anCuo: 1800000,
+                    fanCuo: 1100000,
+                    other: 300000,
+                    planYoy: 8.2,
+                    planMom: 2.5,
+                    budgetTotal: 3000000,
+                    budgetYoy: 6.5,
+                    budgetMom: -1.8,
+                    accrualTotal: 2800000,
+                    accrualYoy: 7.8,
+                    accrualMom: 3.2,
+                    actualTotal: 2450000,
+                    actualYoy: 12.3,
+                    actualMom: 4.2,
+                    completionRate: ((2450000 / 2800000) * 100).toFixed(2)
+                });
+
+                // 当前显示的数据（根据dataScope计算）
+                const currentData = computed(() => {
+                    return dataScope.value === 'contractor' ? contractorData : orgData;
+                });
+
+                const warningData = ref([
+                    {
+                        type: '投入进度滞后预警',
+                        level: 'danger',
+                        org: '生产技术部',
+                        situation: '截至当前，实际投入进度为68%，低于时间进度75%'
+                    },
+                    {
+                        type: '预算超支预警',
+                        level: 'warning',
+                        org: '安全生产部',
+                        situation: '劳动防护用品类别实际支出已达预算的102%'
+                    },
+                    {
+                        type: '类别投入不均衡预警',
+                        level: 'info',
+                        org: '全公司',
+                        situation: '应急救援器材投入仅占总投入的8%，低于建议比例12%'
+                    }
+                ]);
+
+                const trendChartRef = ref(null);
+                const categoryChartRef = ref(null);
+                const planChartRef = ref(null);
+                const orgTrendChartRef = ref(null);
+                const orgCategoryChartRef = ref(null);
+                const orgPlanChartRef = ref(null);
+                const contractorTrendChartRef = ref(null);
+                const contractorCategoryChartRef = ref(null);
+                const contractorPlanChartRef = ref(null);
+
+                const formatMoney = (value) => {
+                    if (value >= 100000000) {
+                        return (value / 100000000).toFixed(2) + '亿';
+                    } else if (value >= 10000) {
+                        return (value / 10000).toFixed(2) + '万';
+                    }
+                    return value.toFixed(2);
+                };
+
+                const getProgressColor = (percentage) => {
+                    if (percentage >= 90) return '#67C23A';
+                    if (percentage >= 70) return '#E6A23C';
+                    return '#F56C6C';
+                };
+
+                const initTrendChart = (chartRef, dataMultiplier = 1) => {
+                    if (!chartRef) return;
+                    const chart = echarts.init(chartRef);
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'cross' }
+                        },
+                        legend: {
+                            data: ['计划投入', '投入预算', '计提金额', '实际投入']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '金额(万元)'
+                        },
+                        series: [
+                            {
+                                name: '计划投入',
+                                type: 'line',
+                                data: [130, 135, 140, 132, 138, 142, 135, 140, 145, 138, 142, 148].map(v => (v * dataMultiplier).toFixed(1)),
+                                smooth: true,
+                                itemStyle: { color: '#8B5CF6' },
+                                lineStyle: { color: '#8B5CF6' }
+                            },
+                            {
+                                name: '投入预算',
+                                type: 'line',
+                                data: [125, 130, 135, 128, 133, 138, 130, 135, 140, 133, 138, 143].map(v => (v * dataMultiplier).toFixed(1)),
+                                smooth: true,
+                                itemStyle: { color: '#67C23A' },
+                                lineStyle: { color: '#67C23A' }
+                            },
+                            {
+                                name: '计提金额',
+                                type: 'bar',
+                                data: [118, 122, 128, 120, 126, 132, 125, 130, 135, 128, 132, 138].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#409EFF' }
+                            },
+                            {
+                                name: '实际投入',
+                                type: 'bar',
+                                data: [105, 115, 120, 110, 118, 125, 115, 122, 128, 120, 125, 132].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#E6A23C' }
+                            }
+                        ]
+                    };
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                };
+
+                const initCategoryChart = (chartRef, dataMultiplier = 1) => {
+                    if (!chartRef) return;
+                    const chart = echarts.init(chartRef);
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b}: {c}万元 ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            right: 10,
+                            top: 'center'
+                        },
+                        series: [
+                            {
+                                name: '投入金额',
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                avoidLabelOverlap: false,
+                                itemStyle: {
+                                    borderRadius: 10,
+                                    borderColor: '#fff',
+                                    borderWidth: 2
+                                },
+                                label: {
+                                    show: true,
+                                    formatter: '{b}\n{c}万元\n({d}%)',
+                                    fontSize: 11
+                                },
+                                labelLine: {
+                                    show: true,
+                                    length: 15,
+                                    length2: 10
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: 14,
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                                data: [
+                                    { value: (320 * dataMultiplier).toFixed(1), name: '安全防护设施' },
+                                    { value: (280 * dataMultiplier).toFixed(1), name: '安全培训教育' },
+                                    { value: (250 * dataMultiplier).toFixed(1), name: '劳动防护用品' },
+                                    { value: (200 * dataMultiplier).toFixed(1), name: '安全检测检验' },
+                                    { value: (150 * dataMultiplier).toFixed(1), name: '应急救援器材' },
+                                    { value: (85.5 * dataMultiplier).toFixed(1), name: '其他安全投入' }
+                                ]
+                            }
+                        ]
+                    };
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                };
+
+                const initPlanChart = (chartRef, dataMultiplier = 1) => {
+                    if (!chartRef) return;
+                    const chart = echarts.init(chartRef);
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' }
+                        },
+                        legend: {
+                            data: ['计划金额', '预算金额', '计提金额', '实际投入']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: ['安措计划', '反措计划', '其他计划']
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: '金额(万元)'
+                        },
+                        series: [
+                            {
+                                name: '计划金额',
+                                type: 'bar',
+                                data: [850, 520, 210].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#8B5CF6' }
+                            },
+                            {
+                                name: '预算金额',
+                                type: 'bar',
+                                data: [800, 500, 200].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#67C23A' }
+                            },
+                            {
+                                name: '计提金额',
+                                type: 'bar',
+                                data: [760, 480, 180].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#409EFF' }
+                            },
+                            {
+                                name: '实际投入',
+                                type: 'bar',
+                                data: [720, 425, 140.5].map(v => (v * dataMultiplier).toFixed(1)),
+                                itemStyle: { color: '#E6A23C' }
+                            }
+                        ]
+                    };
+                    chart.setOption(option);
+                    window.addEventListener('resize', () => chart.resize());
+                };
+
+                const handleRefresh = () => {
+                    ElMessage.success('刷新成功');
+                };
+
+                const handleCardClick = (type) => {
+                    ElMessage.info(`点击了${type}卡片，可跳转到详情页面`);
+                };
+
+                const handleDataScopeChange = () => {
+                    // 切换数据范围时清空选择
+                    if (dataScope.value === 'org') {
+                        selectedContractor.value = 'all';
+                    } else if (dataScope.value === 'contractor') {
+                        selectedOrg.value = [];
+                        selectedContractor.value = 'all'; // 切换到承包商时默认选择全部
+                    } else {
+                        selectedOrg.value = [];
+                        selectedContractor.value = 'all';
+                    }
+                    
+                    nextTick(() => {
+                        if (dataScope.value === 'compare') {
+                            // 对比模式：初始化本组织和承包商的图表
+                            initTrendChart(orgTrendChartRef.value, 1); // 本组织数据倍数为1
+                            initCategoryChart(orgCategoryChartRef.value, 1);
+                            initPlanChart(orgPlanChartRef.value, 1);
+                            
+                            initTrendChart(contractorTrendChartRef.value, 0.2); // 承包商数据约为本组织的20%
+                            initCategoryChart(contractorCategoryChartRef.value, 0.2);
+                            initPlanChart(contractorPlanChartRef.value, 0.2);
+                        } else {
+                            // 单列模式
+                            const multiplier = dataScope.value === 'contractor' ? 0.2 : 1;
+                            initTrendChart(trendChartRef.value, multiplier);
+                            initCategoryChart(categoryChartRef.value, multiplier);
+                            initPlanChart(planChartRef.value, multiplier);
+                        }
+                    });
+                    
+                    const scopeText = {
+                        'org': '本组织',
+                        'contractor': '承包商',
+                        'compare': '对比分析'
+                    };
+                    ElMessage.success(`已切换到${scopeText[dataScope.value]}数据`);
+                };
+
+                onMounted(() => {
+                    nextTick(() => {
+                        // 初始默认显示本组织数据
+                        initTrendChart(trendChartRef.value, 1);
+                        initCategoryChart(categoryChartRef.value, 1);
+                        initPlanChart(planChartRef.value, 1);
+                    });
+                });
+
+                return {
+                    queryYear,
+                    selectedOrg,
+                    selectedContractor,
+                    dataScope,
+                    orgTreeData,
+                    contractorList,
+                    orgData,
+                    contractorData,
+                    currentData,
+                    warningData,
+                    trendChartRef,
+                    categoryChartRef,
+                    planChartRef,
+                    orgTrendChartRef,
+                    orgCategoryChartRef,
+                    orgPlanChartRef,
+                    contractorTrendChartRef,
+                    contractorCategoryChartRef,
+                    contractorPlanChartRef,
+                    formatMoney,
+                    getProgressColor,
+                    handleRefresh,
+                    handleCardClick,
+                    handleDataScopeChange
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

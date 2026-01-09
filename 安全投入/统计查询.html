@@ -323,7 +323,7 @@
                         <!-- 计划投入费用 -->
                         <div class="stat-card blue">
                             <div class="stat-card-header">
-                                <div class="stat-card-title">计划投入费用（万元）</div>
+                                <div class="stat-card-title">计划投入费用（元）</div>
                                 <i class="fas fa-clipboard-list stat-card-icon"></i>
                             </div>
                             <div class="stat-card-value">{{ formatNumber(statsData.planTotal) }}</div>
@@ -346,7 +346,7 @@
                         <!-- 投入预算 -->
                         <div class="stat-card green">
                             <div class="stat-card-header">
-                                <div class="stat-card-title">投入预算（万元）</div>
+                                <div class="stat-card-title">投入预算（元）</div>
                                 <i class="fas fa-wallet stat-card-icon"></i>
                             </div>
                             <div class="stat-card-value">{{ formatNumber(statsData.budget) }}</div>
@@ -369,7 +369,7 @@
                         <!-- 实际投入费用 -->
                         <div class="stat-card orange">
                             <div class="stat-card-header">
-                                <div class="stat-card-title">实际投入费用（万元）</div>
+                                <div class="stat-card-title">实际投入费用（元）</div>
                                 <i class="fas fa-coins stat-card-icon"></i>
                             </div>
                             <div class="stat-card-value">{{ formatNumber(statsData.actual) }}</div>
@@ -436,23 +436,23 @@
                                         row.categoryName }}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="yearPlan" label="年度计划投入费用（万元）" min-width="160" align="right">
+                            <el-table-column prop="yearPlan" label="年度计划投入费用（元）" min-width="160" align="right">
                                 <template #default="{ row }">
                                     {{ formatNumber(row.yearPlan) }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="yearBudget" label="年度投入预算（万元）" min-width="140" align="right">
+                            <el-table-column prop="yearBudget" label="年度投入预算（元）" min-width="140" align="right">
                                 <template #default="{ row }">
                                     {{ formatNumber(row.yearBudget) }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="yearActual" label="年度实际投入费用（万元）" min-width="160" align="right">
+                            <el-table-column prop="yearActual" label="年度实际投入费用（元）" min-width="160" align="right">
                                 <template #default="{ row }">
                                     {{ formatNumber(row.yearActual) }}
                                 </template>
                             </el-table-column>
                             <el-table-column v-for="month in 12" :key="month" :prop="'month' + month"
-                                :label="month + '月（万元）'" min-width="100" align="right">
+                                :label="month + '月（元）'" min-width="100" align="right">
                                 <template #default="{ row }">
                                     {{ formatNumber(row['month' + month]) }}
                                 </template>
@@ -519,15 +519,14 @@
                     label: 'label'
                 };
 
-                // 统计数据
                 const statsData = reactive({
-                    planTotal: 1580.00,
+                    planTotal: 15800000,
                     planYoy: 12.5,
                     planMom: 3.2,
-                    budget: 1500.00,
+                    budget: 15000000,
                     budgetYoy: 8.3,
                     budgetMom: -2.1,
-                    actual: 1285.50,
+                    actual: 12855000,
                     actualYoy: 15.6,
                     actualMom: 5.8,
                     investmentRate: 85.70,
@@ -540,62 +539,62 @@
                     {
                         index: 1,
                         categoryName: '安全防护设施',
-                        yearPlan: 380.00,
-                        yearBudget: 350.00,
-                        yearActual: 320.00,
-                        month1: 25.00, month2: 28.00, month3: 30.00, month4: 26.00,
-                        month5: 27.00, month6: 28.00, month7: 25.00, month8: 26.00,
-                        month9: 27.00, month10: 26.00, month11: 25.00, month12: 27.00
+                        yearPlan: 3800000,
+                        yearBudget: 3500000,
+                        yearActual: 3200000,
+                        month1: 250000, month2: 280000, month3: 300000, month4: 260000,
+                        month5: 270000, month6: 280000, month7: 250000, month8: 260000,
+                        month9: 270000, month10: 260000, month11: 250000, month12: 270000
                     },
                     {
                         index: 2,
                         categoryName: '安全培训教育',
-                        yearPlan: 320.00,
-                        yearBudget: 300.00,
-                        yearActual: 280.00,
-                        month1: 20.00, month2: 22.00, month3: 25.00, month4: 24.00,
-                        month5: 23.00, month6: 25.00, month7: 22.00, month8: 24.00,
-                        month9: 25.00, month10: 23.00, month11: 24.00, month12: 23.00
+                        yearPlan: 3200000,
+                        yearBudget: 3000000,
+                        yearActual: 2800000,
+                        month1: 200000, month2: 220000, month3: 250000, month4: 240000,
+                        month5: 230000, month6: 250000, month7: 220000, month8: 240000,
+                        month9: 250000, month10: 230000, month11: 240000, month12: 230000
                     },
                     {
                         index: 3,
                         categoryName: '劳动防护用品',
-                        yearPlan: 280.00,
-                        yearBudget: 260.00,
-                        yearActual: 250.00,
-                        month1: 18.00, month2: 20.00, month3: 22.00, month4: 21.00,
-                        month5: 20.00, month6: 22.00, month7: 20.00, month8: 21.00,
-                        month9: 22.00, month10: 21.00, month11: 22.00, month12: 21.00
+                        yearPlan: 2800000,
+                        yearBudget: 2600000,
+                        yearActual: 2500000,
+                        month1: 180000, month2: 200000, month3: 220000, month4: 210000,
+                        month5: 200000, month6: 220000, month7: 200000, month8: 210000,
+                        month9: 220000, month10: 210000, month11: 220000, month12: 210000
                     },
                     {
                         index: 4,
                         categoryName: '安全检测检验',
-                        yearPlan: 250.00,
-                        yearBudget: 240.00,
-                        yearActual: 200.00,
-                        month1: 15.00, month2: 16.00, month3: 18.00, month4: 17.00,
-                        month5: 16.00, month6: 18.00, month7: 16.00, month8: 17.00,
-                        month9: 17.00, month10: 16.00, month11: 17.00, month12: 17.00
+                        yearPlan: 2500000,
+                        yearBudget: 2400000,
+                        yearActual: 2000000,
+                        month1: 150000, month2: 160000, month3: 180000, month4: 170000,
+                        month5: 160000, month6: 180000, month7: 160000, month8: 170000,
+                        month9: 170000, month10: 160000, month11: 170000, month12: 170000
                     },
                     {
                         index: 5,
                         categoryName: '应急救援器材',
-                        yearPlan: 200.00,
-                        yearBudget: 200.00,
-                        yearActual: 150.00,
-                        month1: 12.00, month2: 12.00, month3: 13.00, month4: 12.00,
-                        month5: 13.00, month6: 12.00, month7: 12.00, month8: 13.00,
-                        month9: 12.00, month10: 13.00, month11: 13.00, month12: 13.00
+                        yearPlan: 2000000,
+                        yearBudget: 2000000,
+                        yearActual: 1500000,
+                        month1: 120000, month2: 120000, month3: 130000, month4: 120000,
+                        month5: 130000, month6: 120000, month7: 120000, month8: 130000,
+                        month9: 120000, month10: 130000, month11: 130000, month12: 130000
                     },
                     {
                         index: 6,
                         categoryName: '其他安全投入',
-                        yearPlan: 150.00,
-                        yearBudget: 150.00,
-                        yearActual: 85.50,
-                        month1: 6.00, month2: 7.00, month3: 7.50, month4: 7.00,
-                        month5: 7.00, month6: 7.50, month7: 7.00, month8: 7.00,
-                        month9: 7.50, month10: 7.00, month11: 7.00, month12: 8.00
+                        yearPlan: 1500000,
+                        yearBudget: 1500000,
+                        yearActual: 855000,
+                        month1: 60000, month2: 70000, month3: 75000, month4: 70000,
+                        month5: 70000, month6: 75000, month7: 70000, month8: 70000,
+                        month9: 75000, month10: 70000, month11: 70000, month12: 80000
                     }
                 ]);
 

@@ -188,8 +188,14 @@
                                 </el-tag>
                             </template>
                         </el-table-column>
+                        <el-table-column prop="planCompleteDate" label="计划完成时间" min-width="120"></el-table-column>
                         <el-table-column prop="actualCompleteDate" label="实际完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="actualCost" label="实际投入费用（万元）" min-width="160" align="right">
+                        <el-table-column prop="planCost" label="计划投入费用（元）" min-width="160" align="right">
+                            <template #default="{ row }">
+                                {{ formatAmount(row.planCost) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="actualCost" label="实际投入费用（元）" min-width="160" align="right">
                             <template #default="{ row }">
                                 {{ formatAmount(row.actualCost) }}
                             </template>
@@ -249,8 +255,10 @@
                         projectName: '现场消防设备维护保养',
                         category: '消防设施维护及检测',
                         measureType: '安措',
+                        planCompleteDate: '2026-01-03',
                         actualCompleteDate: '2026-01-05',
-                        actualCost: 8.5,
+                        planCost: 80000,
+                        actualCost: 85000,
                         responsibleUnit: '设备部',
                         responsiblePerson: '张三'
                     },
@@ -260,8 +268,10 @@
                         projectName: '主变压器绝缘隐患整治',
                         category: '设备重大缺陷和隐患治理',
                         measureType: '反措',
+                        planCompleteDate: '2026-01-08',
                         actualCompleteDate: '2026-01-10',
-                        actualCost: 85,
+                        planCost: 800000,
+                        actualCost: 850000,
                         responsibleUnit: '安健环管理部',
                         responsiblePerson: '李四'
                     },
@@ -271,8 +281,10 @@
                         projectName: '安全生产责任保险',
                         category: '与安全生产直接相关的其他支出',
                         measureType: '其他',
+                        planCompleteDate: '2026-01-15',
                         actualCompleteDate: '2026-01-15',
-                        actualCost: 30,
+                        planCost: 300000,
+                        actualCost: 300000,
                         responsibleUnit: '安健环管理部',
                         responsiblePerson: '王五'
                     },
@@ -282,8 +294,10 @@
                         projectName: '员工个人防护装备采购',
                         category: '安全防护设备',
                         measureType: '安措',
+                        planCompleteDate: '2026-01-18',
                         actualCompleteDate: '2026-01-20',
-                        actualCost: 12.8,
+                        planCost: 120000,
+                        actualCost: 128000,
                         responsibleUnit: '安健环管理部',
                         responsiblePerson: '赵六'
                     }
@@ -313,12 +327,12 @@
                     return filteredData.value.slice(start, start + pageSize.value);
                 });
 
-                // 格式化金额
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '-';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 

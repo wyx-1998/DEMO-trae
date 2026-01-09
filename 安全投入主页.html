@@ -379,10 +379,16 @@
 
                     <!-- 顶部主导航 -->
                     <nav class="top-nav">
-                        <div class="nav-item active">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-coins"></i>
-                                <span>安全投入</span>
+                        <div class="nav-item" :class="{ active: currentModule === 'internal' }">
+                            <a href="#" class="nav-link" @click.prevent="switchModule('internal')">
+                                <i class="fas fa-building"></i>
+                                <span>安全投入（内部企业）</span>
+                            </a>
+                        </div>
+                        <div class="nav-item" :class="{ active: currentModule === 'related' }">
+                            <a href="#" class="nav-link" @click.prevent="switchModule('related')">
+                                <i class="fas fa-handshake"></i>
+                                <span>安全投入（相关方）</span>
                             </a>
                         </div>
                     </nav>
@@ -422,65 +428,87 @@
                         @select="handleMenuSelect" background-color="#ffffff" text-color="#666666"
                         active-text-color="#1890ff">
 
-                        <!-- 安全投入模块菜单 -->
-                        <el-sub-menu index="safety-expense-standard-lib">
-                            <template #title>
-                                <i class="fas fa-database"></i>
-                                <span>安全费用标准库</span>
-                            </template>
-                            <el-menu-item index="accrual-standard">
-                                <i class="fas fa-calculator"></i>
-                                <template #title>计提标准库</template>
+                        <!-- 内部企业菜单 -->
+                        <template v-if="currentModule === 'internal'">
+                            <el-sub-menu index="safety-expense-standard-lib">
+                                <template #title>
+                                    <i class="fas fa-database"></i>
+                                    <span>安全费用标准库</span>
+                                </template>
+                                <el-menu-item index="accrual-standard">
+                                    <i class="fas fa-calculator"></i>
+                                    <template #title>计提标准库</template>
+                                </el-menu-item>
+                                <el-menu-item index="investment-category">
+                                    <i class="fas fa-tags"></i>
+                                    <template #title>投入类别库</template>
+                                </el-menu-item>
+                            </el-sub-menu>
+                            <el-menu-item index="safety-investment-dashboard">
+                                <i class="fas fa-chart-bar"></i>
+                                <template #title>数据看板</template>
                             </el-menu-item>
-                            <el-menu-item index="investment-category">
-                                <i class="fas fa-tags"></i>
-                                <template #title>投入类别库</template>
-                            </el-menu-item>
-                        </el-sub-menu>
-                        <el-menu-item index="safety-investment-dashboard">
-                            <i class="fas fa-chart-bar"></i>
-                            <template #title>数据看板</template>
-                        </el-menu-item>
-                        <el-sub-menu index="investment-plan-management">
-                            <template #title>
-                                <i class="fas fa-tasks"></i>
-                                <span>投入计划管理</span>
-                            </template>
-                            <el-menu-item index="safety-measures-plan">
-                                <i class="fas fa-shield-alt"></i>
-                                <template #title>安措计划</template>
-                            </el-menu-item>
-                            <el-menu-item index="counter-measures-plan">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <template #title>反措计划</template>
-                            </el-menu-item>
+                            <el-sub-menu index="investment-plan-management">
+                                <template #title>
+                                    <i class="fas fa-tasks"></i>
+                                    <span>安全投入计划（电力行业）</span>
+                                </template>
+                                <el-menu-item index="safety-measures-plan">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <template #title>安措计划</template>
+                                </el-menu-item>
+                                <el-menu-item index="counter-measures-plan">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <template #title>反措计划</template>
+                                </el-menu-item>
+                                <el-menu-item index="other-plan">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    <template #title>其他计划</template>
+                                </el-menu-item>
+                            </el-sub-menu>
                             <el-menu-item index="other-plan">
-                                <i class="fas fa-ellipsis-h"></i>
-                                <template #title>其他计划</template>
+                                <i class="fas fa-industry"></i>
+                                <template #title>安全投入计划（其他行业）</template>
                             </el-menu-item>
-                        </el-sub-menu>
-                        <el-sub-menu index="budget-and-investment">
-                            <template #title>
-                                <i class="fas fa-coins"></i>
-                                <span>预算和投入</span>
-                            </template>
-                            <el-menu-item index="safety-budget-management">
-                                <i class="fas fa-building"></i>
-                                <template #title>安全预算</template>
+                            <el-sub-menu index="budget-and-investment">
+                                <template #title>
+                                    <i class="fas fa-coins"></i>
+                                    <span>预算和使用</span>
+                                </template>
+                                <el-menu-item index="safety-budget-management">
+                                    <i class="fas fa-wallet"></i>
+                                    <template #title>安全预算</template>
+                                </el-menu-item>
+                                <el-menu-item index="expense-management">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    <template #title>费用使用记录</template>
+                                </el-menu-item>
+                            </el-sub-menu>
+                            <el-menu-item index="safety-expense-accrual">
+                                <i class="fas fa-receipt"></i>
+                                <template #title>安全费用计提</template>
                             </el-menu-item>
-                            <el-menu-item index="expense-management">
+                            <el-menu-item index="safety-investment-analysis">
+                                <i class="fas fa-chart-pie"></i>
+                                <template #title>统计分析</template>
+                            </el-menu-item>
+                        </template>
+
+                        <!-- 相关方菜单 -->
+                        <template v-else-if="currentModule === 'related'">
+                            <el-menu-item index="related-investment-plan">
+                                <i class="fas fa-tasks"></i>
+                                <template #title>安全投入计划</template>
+                            </el-menu-item>
+                            <el-menu-item index="related-expense-accrual">
+                                <i class="fas fa-receipt"></i>
+                                <template #title>安全费用计提</template>
+                            </el-menu-item>
+                            <el-menu-item index="related-expense-records">
                                 <i class="fas fa-file-invoice-dollar"></i>
-                                <template #title>安全投入</template>
+                                <template #title>费用使用记录</template>
                             </el-menu-item>
-                        </el-sub-menu>
-                        <el-menu-item index="safety-expense-accrual">
-                            <i class="fas fa-receipt"></i>
-                            <template #title>安全费用计提管理</template>
-                        </el-menu-item>
-                        <el-menu-item index="safety-investment-analysis">
-                            <i class="fas fa-chart-pie"></i>
-                            <template #title>统计分析</template>
-                        </el-menu-item>
+                        </template>
 
                     </el-menu>
                 </aside>
@@ -638,6 +666,56 @@
                             </iframe>
                         </div>
 
+                        <!-- ========== 相关方模块页面 ========== -->
+                        
+                        <!-- 相关方-安全投入计划列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-investment-plan'">
+                            <iframe src="./安全投入/其他计划.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 相关方-安全投入计划详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-investment-plan-detail'">
+                            <iframe src="./安全投入/其他计划-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 相关方-安全费用计提列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-accrual'">
+                            <iframe src="./安全投入/安全费用计提.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 相关方-安全费用计提详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-accrual-detail'">
+                            <iframe src="./安全投入/安全费用计提-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 相关方-费用使用记录列表页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-records'">
+                            <iframe src="./安全投入/安全投入.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
+                        <!-- 相关方-费用使用记录详情页面 -->
+                        <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-records-detail'">
+                            <iframe src="./安全投入/安全投入-详情.html"
+                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                @load="handleIframeLoad">
+                            </iframe>
+                        </div>
+
                         <!-- 其他页面的默认内容 -->
                         <div class="content-wrapper" v-else>
                             <div class="page-header">
@@ -673,6 +751,7 @@
             setup() {
                 // 响应式数据
                 const isCollapsed = ref(false);
+                const currentModule = ref('internal'); // 默认选中内部企业模块
                 const activeMenu = ref('safety-investment-dashboard'); // 默认选中数据看板
                 const currentPageTitle = ref('数据看板');
                 const currentPageIcon = ref('fas fa-chart-bar');
@@ -681,6 +760,7 @@
 
                 // 菜单配置
                 const menuConfig = {
+                    // 内部企业菜单
                     'accrual-standard': { title: '计提标准库', icon: 'fas fa-calculator' },
                     'accrual-standard-detail': { title: '计提标准库详情', icon: 'fas fa-info-circle' },
                     'investment-category': { title: '投入类别库', icon: 'fas fa-tags' },
@@ -691,18 +771,45 @@
                     'counter-measures-plan-detail': { title: '反措计划详情', icon: 'fas fa-info-circle' },
                     'other-plan': { title: '其他计划', icon: 'fas fa-ellipsis-h' },
                     'other-plan-detail': { title: '其他计划详情', icon: 'fas fa-info-circle' },
-                    'safety-budget-management': { title: '安全预算', icon: 'fas fa-building' },
+                    'safety-budget-management': { title: '安全预算', icon: 'fas fa-wallet' },
                     'safety-budget-detail': { title: '安全预算详情', icon: 'fas fa-info-circle' },
-                    'expense-management': { title: '安全投入', icon: 'fas fa-file-invoice-dollar' },
-                    'expense-management-detail': { title: '安全投入详情', icon: 'fas fa-info-circle' },
-                    'safety-expense-accrual': { title: '安全费用计提管理', icon: 'fas fa-receipt' },
+                    'expense-management': { title: '费用使用记录', icon: 'fas fa-file-invoice-dollar' },
+                    'expense-management-detail': { title: '费用使用记录详情', icon: 'fas fa-info-circle' },
+                    'safety-expense-accrual': { title: '安全费用计提', icon: 'fas fa-receipt' },
                     'safety-expense-accrual-detail': { title: '安全费用计提详情', icon: 'fas fa-info-circle' },
-                    'safety-investment-analysis': { title: '统计分析', icon: 'fas fa-chart-pie' }
+                    'safety-investment-analysis': { title: '统计分析', icon: 'fas fa-chart-pie' },
+                    // 相关方菜单
+                    'related-investment-plan': { title: '安全投入计划', icon: 'fas fa-tasks' },
+                    'related-investment-plan-detail': { title: '安全投入计划详情', icon: 'fas fa-info-circle' },
+                    'related-expense-accrual': { title: '安全费用计提', icon: 'fas fa-receipt' },
+                    'related-expense-accrual-detail': { title: '安全费用计提详情', icon: 'fas fa-info-circle' },
+                    'related-expense-records': { title: '费用使用记录', icon: 'fas fa-file-invoice-dollar' },
+                    'related-expense-records-detail': { title: '费用使用记录详情', icon: 'fas fa-info-circle' }
                 };
 
                 // 方法
                 const toggleSidebar = () => {
                     isCollapsed.value = !isCollapsed.value;
+                };
+
+                // 切换模块
+                const switchModule = (module) => {
+                    currentModule.value = module;
+                    
+                    // 切换模块时重置页面状态
+                    navigationHistory.value = [];
+                    showBackButton.value = false;
+                    
+                    // 根据模块设置默认页面
+                    if (module === 'internal') {
+                        activeMenu.value = 'safety-investment-dashboard';
+                        currentPageTitle.value = '数据看板';
+                        currentPageIcon.value = 'fas fa-chart-bar';
+                    } else if (module === 'related') {
+                        activeMenu.value = 'related-investment-plan';
+                        currentPageTitle.value = '安全投入计划';
+                        currentPageIcon.value = 'fas fa-tasks';
+                    }
                 };
 
                 const handleMenuSelect = (index) => {
@@ -785,22 +892,34 @@
                             });
                         }
 
+                        // 相关方模块的页面映射
+                        let targetPage = page;
+                        if (currentModule.value === 'related') {
+                            // 根据当前所在的相关方列表页面，映射到对应的详情页面
+                            const relatedPageMapping = {
+                                'other-plan-detail': 'related-investment-plan-detail',
+                                'safety-expense-accrual-detail': 'related-expense-accrual-detail',
+                                'expense-management-detail': 'related-expense-records-detail'
+                            };
+                            targetPage = relatedPageMapping[page] || page;
+                        }
+
                         // 切换到指定页面
-                        activeMenu.value = page;
+                        activeMenu.value = targetPage;
 
                         // 使用传递的标题和图标，或者从菜单配置中获取
                         if (title) {
                             currentPageTitle.value = title;
-                        } else if (menuConfig[page]) {
-                            currentPageTitle.value = menuConfig[page].title;
+                        } else if (menuConfig[targetPage]) {
+                            currentPageTitle.value = menuConfig[targetPage].title;
                         } else {
                             currentPageTitle.value = '未知页面';
                         }
 
                         if (icon) {
                             currentPageIcon.value = icon;
-                        } else if (menuConfig[page]) {
-                            currentPageIcon.value = menuConfig[page].icon;
+                        } else if (menuConfig[targetPage]) {
+                            currentPageIcon.value = menuConfig[targetPage].icon;
                         } else {
                             currentPageIcon.value = 'el-icon-document';
                         }
@@ -810,10 +929,10 @@
 
                         // 如果有数据传递，存储到sessionStorage
                         if (data) {
-                            sessionStorage.setItem(`${page}_data`, JSON.stringify(data));
+                            sessionStorage.setItem(`${targetPage}_data`, JSON.stringify(data));
                         }
                         if (mode) {
-                            sessionStorage.setItem(`${page}_mode`, mode);
+                            sessionStorage.setItem(`${targetPage}_mode`, mode);
                         }
                     }
                 };
@@ -830,6 +949,7 @@
 
                 return {
                     isCollapsed,
+                    currentModule,
                     activeMenu,
                     currentPageTitle,
                     currentPageIcon,
@@ -837,6 +957,7 @@
                     navigationHistory,
                     menuConfig,
                     toggleSidebar,
+                    switchModule,
                     handleMenuSelect,
                     goBack,
                     handleUserCommand,

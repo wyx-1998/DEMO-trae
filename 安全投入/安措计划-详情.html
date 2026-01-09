@@ -180,7 +180,7 @@
                         <div class="form-row">
                             <div class="form-item">
                                 <el-form-item label="项目编号" prop="projectCode">
-                                    <el-input v-model="formData.projectCode" placeholder="自动生成" disabled />
+                                    <el-input v-model="formData.projectCode" placeholder="请输入项目编号" :disabled="isView" />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
@@ -221,7 +221,7 @@
                                     <el-input v-model="formData.planCostDisplay" placeholder="请输入金额" :disabled="isView"
                                         @input="handleCostInput" @blur="formatCost">
                                         <template #suffix>
-                                            <span style="color: #909399;">万元</span>
+                                            <span style="color: #909399;">元</span>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -315,12 +315,12 @@
                     responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }]
                 });
 
-                // 格式化金额
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 
@@ -375,8 +375,8 @@
                             projectName: '厂区安全警示标志更新',
                             projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
                             planDate: '2026-03-31',
-                            planCost: 5,
-                            planCostDisplay: '5.000000',
+                            planCost: 50000,
+                            planCostDisplay: '50,000.00',
                             responsibleUnit: '设备部',
                             responsiblePerson: '张三',
                             remark: ''
@@ -387,8 +387,8 @@
                             projectName: '员工个人防护装备采购',
                             projectContent: '采购安全帽、防护眼镜、防护手套等个人防护装备，确保一线员工安全',
                             planDate: '2026-02-28',
-                            planCost: 12,
-                            planCostDisplay: '12.000000',
+                            planCost: 120000,
+                            planCostDisplay: '120,000.00',
                             responsibleUnit: '安健环管理部',
                             responsiblePerson: '李四',
                             remark: '紧急采购项目'

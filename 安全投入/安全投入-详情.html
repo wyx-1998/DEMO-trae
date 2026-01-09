@@ -176,6 +176,15 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
+                                <el-form-item label="数据来源" prop="dataSource" required>
+                                    <el-radio-group v-model="formData.dataSource" :disabled="isView"
+                                        @change="handleDataSourceChange">
+                                        <el-radio label="计划内">计划内</el-radio>
+                                        <el-radio label="计划外">计划外</el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
                                 <el-form-item label="是否两措" prop="measureType" required>
                                     <el-select v-model="formData.measureType" placeholder="请选择" :disabled="isView"
                                         style="width: 100%;" @change="handleMeasureTypeChange">
@@ -185,54 +194,66 @@
                                     </el-select>
                                 </el-form-item>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-item">
                                 <el-form-item label="项目名称" prop="projectName" required>
-                                    <el-select v-model="formData.projectName" placeholder="请选择项目" :disabled="isView"
-                                        style="width: 100%;" @change="handleProjectChange" filterable>
+                                    <!-- 计划内：下拉选择 -->
+                                    <el-select v-if="formData.dataSource === '计划内'" v-model="formData.projectName"
+                                        placeholder="请选择项目" :disabled="isView" style="width: 100%;"
+                                        @change="handleProjectChange" filterable>
                                         <el-option v-for="item in projectOptions" :key="item.id" :label="item.name"
                                             :value="item.name"></el-option>
                                     </el-select>
+                                    <!-- 计划外：文本输入 -->
+                                    <el-input v-else v-model="formData.projectName" placeholder="请输入项目名称"
+                                        :disabled="isView" />
                                 </el-form-item>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-item full-width">
+                            <div class="form-item">
                                 <el-form-item label="所属类别" prop="category" required>
-                                    <el-input v-model="formData.category" disabled />
-                                </el-form-item>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-item full-width">
-                                <el-form-item label="项目内容" prop="projectContent" required>
-                                    <el-input v-model="formData.projectContent" type="textarea" :rows="3" disabled />
-                                </el-form-item>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-item">
-                                <el-form-item label="计划完成时间" prop="planDate" required>
-                                    <el-input v-model="formData.planDate" disabled />
-                                </el-form-item>
-                            </div>
-                            <div class="form-item">
-                                <el-form-item label="计划投入费用（万元）" prop="planCost" required>
-                                    <el-input v-model="formData.planCostDisplay" disabled />
+                                    <el-input v-model="formData.category"
+                                        :disabled="isView || formData.dataSource === '计划内'" />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
                                 <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
-                                    <el-input v-model="formData.responsibleUnit" disabled />
+                                    <el-input v-model="formData.responsibleUnit"
+                                        :disabled="isView || formData.dataSource === '计划内'" />
                                 </el-form-item>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-item">
                                 <el-form-item label="责任人" prop="responsiblePerson" required>
-                                    <el-input v-model="formData.responsiblePerson" disabled />
+                                    <el-input v-model="formData.responsiblePerson"
+                                        :disabled="isView || formData.dataSource === '计划内'" />
                                 </el-form-item>
                             </div>
                         </div>
+                        <!-- 计划内才显示的字段 -->
+                        <template v-if="formData.dataSource === '计划内'">
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="项目内容" prop="projectContent" required>
+                                        <el-input v-model="formData.projectContent" type="textarea" :rows="3"
+                                            disabled />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item">
+                                    <el-form-item label="计划完成时间" prop="planDate" required>
+                                        <el-input v-model="formData.planDate" disabled />
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="计划投入费用（元）" prop="planCost" required>
+                                        <el-input v-model="formData.planCostDisplay" disabled />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                        </template>
                     </el-form>
                 </div>
             </div>
@@ -257,13 +278,21 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="实际投入费用（万元）" prop="actualCost" required>
+                                <el-form-item label="实际投入费用（元）" prop="actualCost" required>
                                     <el-input v-model="formData.actualCostDisplay" placeholder="请输入金额"
                                         :disabled="isView" @input="handleCostInput" @blur="formatCost">
                                         <template #suffix>
-                                            <span style="color: #909399;">万元</span>
+                                            <span style="color: #909399;">元</span>
                                         </template>
                                     </el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item full-width">
+                                <el-form-item label="实际项目内容" prop="actualProjectContent" required>
+                                    <el-input v-model="formData.actualProjectContent" type="textarea" :rows="3"
+                                        placeholder="请输入实际项目内容" :disabled="isView" :maxlength="200" show-word-limit />
                                 </el-form-item>
                             </div>
                         </div>
@@ -337,7 +366,7 @@
                             category: '消防设施维护及检测',
                             content: '检查现场消防设备并进行维修保养，确保消防设备正常',
                             planDate: '2026-01-05',
-                            planCost: 8,
+                            planCost: 80000,
                             responsibleUnit: '设备部',
                             responsiblePerson: '张三'
                         },
@@ -347,7 +376,7 @@
                             category: '安全防护设备',
                             content: '采购安全帽、防护眼镜、防护手套等个人防护装备',
                             planDate: '2026-02-28',
-                            planCost: 12,
+                            planCost: 120000,
                             responsibleUnit: '安健环管理部',
                             responsiblePerson: '李四'
                         }
@@ -359,7 +388,7 @@
                             category: '设备重大缺陷和隐患治理',
                             content: '更换绝缘材料，消除设备隐患，确保设备安全稳定运行',
                             planDate: '2026-06-30',
-                            planCost: 80,
+                            planCost: 800000,
                             responsibleUnit: '安健环管理部',
                             responsiblePerson: '张三'
                         },
@@ -369,7 +398,7 @@
                             category: '防汛抗旱工程',
                             content: '扩大排水管道，增设排水泵站，提高防汛能力',
                             planDate: '2026-05-31',
-                            planCost: 150,
+                            planCost: 1500000,
                             responsibleUnit: '设备部',
                             responsiblePerson: '王五'
                         }
@@ -381,7 +410,7 @@
                             category: '与安全生产直接相关的其他支出',
                             content: '购买企业安全生产责任保险，保障员工和企业安全',
                             planDate: '2026-01-31',
-                            planCost: 30,
+                            planCost: 300000,
                             responsibleUnit: '安健环管理部',
                             responsiblePerson: '张三'
                         }
@@ -395,36 +424,43 @@
                 // 表单数据
                 const formData = ref({
                     code: '',
+                    dataSource: '计划内',
                     measureType: '安措',
                     projectName: '现场消防设备维护保养',
                     category: '消防设施维护及检测',
                     projectContent: '检查现场消防设备并进行维修保养，确保消防设备正常',
                     planDate: '2026-01-05',
-                    planCost: 8,
-                    planCostDisplay: '8.000000',
+                    planCost: 80000,
+                    planCostDisplay: '80,000.00',
                     responsibleUnit: '设备部',
                     responsiblePerson: '张三',
                     actualDate: new Date().toISOString().slice(0, 10),
                     actualCost: 0,
                     actualCostDisplay: '',
+                    actualProjectContent: '',
                     remark: '',
                     attachments: []
                 });
 
                 // 表单验证规则
                 const formRules = ref({
+                    dataSource: [{ required: true, message: '请选择数据来源', trigger: 'change' }],
                     measureType: [{ required: true, message: '请选择是否两措', trigger: 'change' }],
-                    projectName: [{ required: true, message: '请选择项目名称', trigger: 'change' }],
+                    projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+                    category: [{ required: true, message: '请输入所属类别', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请输入责任单位', trigger: 'blur' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
                     actualDate: [{ required: true, message: '请选择实际投入时间', trigger: 'change' }],
-                    actualCost: [{ required: true, message: '请输入实际投入费用', trigger: 'blur' }]
+                    actualCost: [{ required: true, message: '请输入实际投入费用', trigger: 'blur' }],
+                    actualProjectContent: [{ required: true, message: '请输入实际项目内容', trigger: 'blur' }]
                 });
 
-                // 格式化金额
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 
@@ -446,8 +482,9 @@
                     formData.value.actualCostDisplay = formatAmount(value);
                 };
 
-                // 处理两措类型变化
-                const handleMeasureTypeChange = () => {
+                // 处理数据来源变化
+                const handleDataSourceChange = () => {
+                    // 切换数据来源时重置相关字段
                     formData.value.projectName = '';
                     formData.value.category = '';
                     formData.value.projectContent = '';
@@ -456,6 +493,20 @@
                     formData.value.planCostDisplay = '';
                     formData.value.responsibleUnit = '';
                     formData.value.responsiblePerson = '';
+                };
+
+                // 处理两措类型变化
+                const handleMeasureTypeChange = () => {
+                    if (formData.value.dataSource === '计划内') {
+                        formData.value.projectName = '';
+                        formData.value.category = '';
+                        formData.value.projectContent = '';
+                        formData.value.planDate = '';
+                        formData.value.planCost = 0;
+                        formData.value.planCostDisplay = '';
+                        formData.value.responsibleUnit = '';
+                        formData.value.responsiblePerson = '';
+                    }
                 };
 
                 // 处理项目选择变化
@@ -501,6 +552,7 @@
                     const presetData = {
                         '1': {
                             code: 'AQTR-20260105-001',
+                            dataSource: '计划内',
                             measureType: '安措',
                             projectName: '现场消防设备维护保养',
                             category: '消防设施维护及检测',
@@ -511,8 +563,9 @@
                             responsibleUnit: '设备部',
                             responsiblePerson: '张三',
                             actualDate: '2026-01-05',
-                            actualCost: 8.5,
-                            actualCostDisplay: '8.500000',
+                            actualCost: 85000,
+                            actualCostDisplay: '85,000.00',
+                            actualProjectContent: '对厂区所有消防设备进行了全面检查和维护，更换了部分老旧设备零部件，确保消防设备处于良好状态',
                             remark: '维护工作完成顺利',
                             attachments: []
                         }
@@ -565,6 +618,7 @@
                     projectOptions,
                     formatAmount,
                     handleCostInput,
+                    handleDataSourceChange,
                     formatCost,
                     handleMeasureTypeChange,
                     handleProjectChange,

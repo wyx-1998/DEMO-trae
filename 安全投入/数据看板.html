@@ -261,7 +261,7 @@
                     <!-- 计划投入费用 -->
                     <div class="stat-card blue">
                         <div class="stat-card-header">
-                            <div class="stat-card-title">计划投入费用（万元）</div>
+                            <div class="stat-card-title">计划投入费用（元）</div>
                             <i class="fas fa-clipboard-list stat-card-icon"></i>
                         </div>
                         <div class="stat-card-value">{{ formatNumber(statsData.planTotal) }}</div>
@@ -296,7 +296,7 @@
                     <!-- 投入预算 -->
                     <div class="stat-card green">
                         <div class="stat-card-header">
-                            <div class="stat-card-title">投入预算（万元）</div>
+                            <div class="stat-card-title">投入预算（元）</div>
                             <i class="fas fa-wallet stat-card-icon"></i>
                         </div>
                         <div class="stat-card-value">{{ formatNumber(statsData.budget) }}</div>
@@ -317,7 +317,7 @@
                     <!-- 实际投入费用 -->
                     <div class="stat-card orange">
                         <div class="stat-card-header">
-                            <div class="stat-card-title">实际投入费用（万元）</div>
+                            <div class="stat-card-title">实际投入费用（元）</div>
                             <i class="fas fa-coins stat-card-icon"></i>
                         </div>
                         <div class="stat-card-value">{{ formatNumber(statsData.actual) }}</div>
@@ -391,18 +391,17 @@
             setup() {
                 const selectedYear = ref(new Date().getFullYear().toString());
 
-                // 统计数据
                 const statsData = reactive({
-                    planTotal: 1580.00,
-                    planSafety: 850.00,
-                    planCounter: 480.00,
-                    planOther: 250.00,
+                    planTotal: 15800000,
+                    planSafety: 8500000,
+                    planCounter: 4800000,
+                    planOther: 2500000,
                     planYoy: 12.5,
                     planMom: 3.2,
-                    budget: 1500.00,
+                    budget: 15000000,
                     budgetYoy: 8.3,
                     budgetMom: -2.1,
-                    actual: 1285.50,
+                    actual: 12855000,
                     actualYoy: 15.6,
                     actualMom: 5.8,
                     investmentRate: 85.70,
@@ -410,22 +409,20 @@
                     rateMom: 8.1
                 });
 
-                // 饼图数据
                 const pieData = ref([
-                    { value: 320, name: '安全防护设施' },
-                    { value: 280, name: '安全培训教育' },
-                    { value: 250, name: '劳动防护用品' },
-                    { value: 200, name: '安全检测检验' },
-                    { value: 150, name: '应急救援器材' },
-                    { value: 85.5, name: '其他安全投入' }
+                    { value: 3200000, name: '安全防护设施' },
+                    { value: 2800000, name: '安全培训教育' },
+                    { value: 2500000, name: '劳动防护用品' },
+                    { value: 2000000, name: '安全检测检验' },
+                    { value: 1500000, name: '应急救援器材' },
+                    { value: 855000, name: '其他安全投入' }
                 ]);
 
-                // 趋势数据
                 const trendData = reactive({
                     months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                    plan: [120, 125, 130, 128, 135, 140, 138, 142, 145, 148, 150, 155],
-                    budget: [115, 118, 122, 125, 128, 130, 132, 135, 138, 140, 142, 145],
-                    actual: [98, 105, 110, 108, 115, 120, 118, 125, 130, 135, 138, 142]
+                    plan: [1200000, 1250000, 1300000, 1280000, 1350000, 1400000, 1380000, 1420000, 1450000, 1480000, 1500000, 1550000],
+                    budget: [1150000, 1180000, 1220000, 1250000, 1280000, 1300000, 1320000, 1350000, 1380000, 1400000, 1420000, 1450000],
+                    actual: [980000, 1050000, 1100000, 1080000, 1150000, 1200000, 1180000, 1250000, 1300000, 1350000, 1380000, 1420000]
                 });
 
                 let pieChart = null;
@@ -447,7 +444,7 @@
                     const option = {
                         tooltip: {
                             trigger: 'item',
-                            formatter: '{a} <br/>{b}: {c}万元 ({d}%)'
+                            formatter: '{a} <br/>{b}: {c}元 ({d}%)'
                         },
                         legend: {
                             orient: 'vertical',
@@ -475,7 +472,7 @@
                                 label: {
                                     show: true,
                                     position: 'outside',
-                                    formatter: '{b}\n{c}万元',
+                                    formatter: '{b}\n{c}元',
                                     fontSize: 11,
                                     color: '#666'
                                 },
@@ -513,7 +510,7 @@
                             formatter: function (params) {
                                 let result = params[0].axisValue + '<br/>';
                                 params.forEach(item => {
-                                    result += `${item.marker} ${item.seriesName}: ${item.value}万元<br/>`;
+                                    result += `${item.marker} ${item.seriesName}: ${item.value}元<br/>`;
                                 });
                                 return result;
                             }
@@ -544,7 +541,7 @@
                         },
                         yAxis: {
                             type: 'value',
-                            name: '单位：万元',
+                            name: '单位：元',
                             nameTextStyle: {
                                 color: '#999',
                                 fontSize: 12

@@ -172,7 +172,7 @@
                         <div class="form-row">
                             <div class="form-item">
                                 <el-form-item label="项目编号" prop="projectCode">
-                                    <el-input v-model="formData.projectCode" placeholder="自动生成" disabled />
+                                    <el-input v-model="formData.projectCode" placeholder="请输入项目编号" :disabled="isView" />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
@@ -221,7 +221,7 @@
                                     <el-input v-model="formData.planCostDisplay" placeholder="请输入金额" :disabled="isView"
                                         @input="handleCostInput" @blur="formatCost">
                                         <template #suffix>
-                                            <span style="color: #909399;">万元</span>
+                                            <span style="color: #909399;">元</span>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -336,12 +336,12 @@
                     responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }]
                 });
 
-                // 格式化金额
+                // 格式化金额（千分号，2位小数）
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 6,
-                        maximumFractionDigits: 6
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     }).format(value);
                 };
 
@@ -397,8 +397,8 @@
                             basis: '根据年度设备检测报告，主变压器绝缘老化严重，存在安全隐患',
                             effect: '更换绝缘材料，消除设备隐患，确保设备安全稳定运行',
                             planDate: '2026-06-30',
-                            planCost: 80,
-                            planCostDisplay: '80.000000',
+                            planCost: 800000,
+                            planCostDisplay: '800,000.00',
                             responsibleUnit: '安健环管理部',
                             responsiblePerson: '张三',
                             supportUnit: '生产部',
@@ -412,8 +412,8 @@
                             basis: '近年暴雨频发，现有排水系统能力不足，多次发生内涝',
                             effect: '扩大排水管道，增设排水泵站，提高防汛能力',
                             planDate: '2026-05-31',
-                            planCost: 150,
-                            planCostDisplay: '150.000000',
+                            planCost: 1500000,
+                            planCostDisplay: '1,500,000.00',
                             responsibleUnit: '设备部',
                             responsiblePerson: '王五',
                             supportUnit: '运维部',
