@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投入计划管理 - 其他计划</title>
+    <title>安全投入计划（相关方）</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -30,7 +30,88 @@
             padding: 24px;
             overflow-y: auto;
             display: flex;
+            gap: 16px;
+        }
+
+        /* 左侧项目树 */
+        .tree-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tree-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-header i {
+            color: #409EFF;
+        }
+
+        .tree-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            background: #f5f7fa;
+        }
+
+        .tree-node.active {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .tree-node-root {
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-root i {
+            color: #E6A23C;
+            font-size: 14px;
+        }
+
+        .tree-children {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+
+        .tree-node-child {
+            font-size: 14px;
+            color: #606266;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-child i {
+            color: #67C23A;
+            font-size: 12px;
         }
 
         .content-card {
@@ -128,12 +209,47 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        .project-tag {
+            background: #e1f3d8;
+            color: #67C23A;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
     </style>
 </head>
 
 <body>
     <div id="app" class="app-container">
         <div class="main-content">
+            <!-- 左侧项目树 -->
+            <div class="tree-panel">
+                <div class="tree-header">
+                    <i class="fas fa-sitemap"></i>
+                    相关方项目
+                </div>
+                <div class="tree-content">
+                    <div v-for="contractor in contractors" :key="contractor.id">
+                        <div class="tree-node tree-node-root"
+                            :class="{ active: selectedContractor === contractor.id && !selectedProject }"
+                            @click="selectContractor(contractor.id)">
+                            <i class="fas fa-building"></i>
+                            {{ contractor.name }}
+                        </div>
+                        <div class="tree-children">
+                            <div v-for="project in contractor.projects" :key="project.id"
+                                class="tree-node tree-node-child" :class="{ active: selectedProject === project.id }"
+                                @click="selectProject(contractor.id, project.id)">
+                                <i class="fas fa-folder"></i>
+                                {{ project.name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧内容区 -->
             <div class="content-card">
                 <!-- 功能按钮区 -->
                 <div class="function-bar">
@@ -160,13 +276,27 @@
                             <div class="search-fields">
                                 <!-- 第一行：3个字段 -->
                                 <div class="search-fields-row">
-                                    <el-form-item label="投入类别">
-                                        <el-select v-model="searchForm.category" placeholder="请选择类别" clearable
-                                            style="width: 220px;">
-                                            <el-option label="与安全生产直接相关的其他支出" value="与安全生产直接相关的其他支出"></el-option>
-                                            <el-option label="安全科技研发" value="安全科技研发"></el-option>
-                                            <el-option label="安全信息化建设" value="安全信息化建设"></el-option>
-                                            <el-option label="安全文化建设" value="安全文化建设"></el-option>
+                                    <el-form-item label="支出范围">
+                                        <el-select v-model="searchForm.category" placeholder="请选择支出范围" clearable
+                                            style="width: 300px;">
+                                            <el-option label="(一)安全防护设备、设施支出" value="(一)安全防护设备、设施支出"></el-option>
+                                            <el-option label="(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出"
+                                                value="(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出"></el-option>
+                                            <el-option
+                                                label="(三)开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出"
+                                                value="(三)开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出"></el-option>
+                                            <el-option label="(四)安全生产检查、评估评价、咨询和标准化建设支出"
+                                                value="(四)安全生产检查、评估评价、咨询和标准化建设支出"></el-option>
+                                            <el-option label="(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出"
+                                                value="(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出"></el-option>
+                                            <el-option label="(六)配备和更新现场作业人员安全防护用品支出"
+                                                value="(六)配备和更新现场作业人员安全防护用品支出"></el-option>
+                                            <el-option label="(七)安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出"
+                                                value="(七)安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出"></el-option>
+                                            <el-option label="(八)安全设施及特种设备检测检验、检定校准支出"
+                                                value="(八)安全设施及特种设备检测检验、检定校准支出"></el-option>
+                                            <el-option label="(九)安全生产责任保险支出" value="(九)安全生产责任保险支出"></el-option>
+                                            <el-option label="(十)与安全生产直接相关的其他支出" value="(十)与安全生产直接相关的其他支出"></el-option>
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="项目名称">
@@ -176,10 +306,9 @@
                                     <el-form-item label="责任单位">
                                         <el-select v-model="searchForm.responsibleUnit" placeholder="请选择责任单位" clearable
                                             style="width: 160px;">
-                                            <el-option label="设备部" value="设备部"></el-option>
-                                            <el-option label="安健环管理部" value="安健环管理部"></el-option>
-                                            <el-option label="生产部" value="生产部"></el-option>
-                                            <el-option label="运维部" value="运维部"></el-option>
+                                            <el-option label="施工一队" value="施工一队"></el-option>
+                                            <el-option label="施工二队" value="施工二队"></el-option>
+                                            <el-option label="安全监督组" value="安全监督组"></el-option>
                                         </el-select>
                                     </el-form-item>
                                 </div>
@@ -218,7 +347,7 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="category" label="投入类别" min-width="180"></el-table-column>
+                        <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
                         <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
                         <el-table-column prop="projectName" label="项目名称" min-width="180">
                             <template #default="{ row }">
@@ -235,27 +364,29 @@
                             </template>
                         </el-table-column>
                         <el-table-column prop="planDate" label="计划完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="planCost" label="计划投入费用（元）" min-width="150" align="right">
+                        <el-table-column prop="planCost" label="计划金额(元)" min-width="150" align="right">
                             <template #default="{ row }">
                                 {{ formatAmount(row.planCost) }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
-                        <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
-                        <el-table-column prop="dataSource" label="数据来源" width="120">
+                        <!-- 新增：关联相关方项目 -->
+                        <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160">
                             <template #default="{ row }">
-                                <el-tag :type="getDataSourceType(row.dataSource)" size="small">
-                                    {{ row.dataSource || '人工录入' }}
-                                </el-tag>
+                                <span class="project-tag">{{ row.relatedProject }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" width="120" fixed="right" align="center">
+                        <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
+                        <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                        <el-table-column label="操作" width="160" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
                                     <i class="fas fa-eye" style="color: #67C23A;"></i>
                                 </el-button>
                                 <el-button size="small" @click="handleEdit(row)" link>
                                     <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                </el-button>
+                                <el-button size="small" @click="handleChange(row)" link>
+                                    <i class="fas fa-exchange-alt" style="color: #E6A23C;"></i>
                                 </el-button>
                                 <el-button size="small" @click="handleDelete(row)" link>
                                     <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
@@ -289,6 +420,23 @@
                 const pageSize = ref(20);
                 const isExpanded = ref(false);
 
+                // 选中的相关方和项目
+                const selectedContractor = ref('c1');
+                const selectedProject = ref(null);
+
+                // 相关方和项目树数据
+                const contractors = ref([
+                    {
+                        id: 'c1',
+                        name: '中电建设承包商',
+                        projects: [
+                            { id: 'p1', name: '变电站改造项目' },
+                            { id: 'p2', name: '输电线路检修项目' },
+                            { id: 'p3', name: '配电网升级项目' }
+                        ]
+                    }
+                ]);
+
                 const searchForm = ref({
                     category: '',
                     projectName: '',
@@ -302,61 +450,105 @@
                     isExpanded.value = !isExpanded.value;
                 };
 
+                // 选择相关方
+                const selectContractor = (contractorId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = null;
+                    currentPage.value = 1;
+                };
+
+                // 选择项目
+                const selectProject = (contractorId, projectId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = projectId;
+                    currentPage.value = 1;
+                };
+
                 // 模拟表格数据
                 const tableData = ref([
                     {
                         id: 1,
-                        category: '与安全生产直接相关的其他支出',
-                        projectCode: 'AQTRJH-20260101-0003',
-                        projectName: '安全生产责任保险',
-                        projectContent: '购买企业安全生产责任保险，保障员工和企业安全',
-                        planDate: '2026-01-31',
-                        planCost: 300000,
-                        responsibleUnit: '安健环管理部',
-                        responsiblePerson: '张三',
-                        dataSource: '人工录入'
+                        category: '(一)安全防护设备、设施支出',
+                        projectCode: 'XGFAQJH-20260101-0001',
+                        projectName: '施工现场安全标识设置',
+                        projectContent: '在施工现场设置安全警示标识、安全通道指引等',
+                        planDate: '2026-03-31',
+                        planCost: 30000,
+                        relatedProject: '变电站改造项目',
+                        relatedProjectId: 'p1',
+                        contractorId: 'c1',
+                        responsibleUnit: '施工一队',
+                        responsiblePerson: '王建国'
                     },
                     {
                         id: 2,
-                        category: '安全科技研发',
-                        projectCode: 'AQTRJH-20260101-0004',
-                        projectName: '智能安全监控系统研发',
-                        projectContent: '研发基于AI的安全监控预警系统，实现隐患自动识别',
-                        planDate: '2026-12-31',
-                        planCost: 500000,
-                        responsibleUnit: '设备部',
-                        responsiblePerson: '李四',
-                        dataSource: '人工录入'
+                        category: '(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                        projectCode: 'XGFAQJH-20260101-0002',
+                        projectName: '施工人员防护装备配置',
+                        projectContent: '为施工人员配置安全帽、反光背心、安全带等防护装备',
+                        planDate: '2026-02-28',
+                        planCost: 85000,
+                        relatedProject: '变电站改造项目',
+                        relatedProjectId: 'p1',
+                        contractorId: 'c1',
+                        responsibleUnit: '安全监督组',
+                        responsiblePerson: '李明'
                     },
                     {
                         id: 3,
-                        category: '安全信息化建设',
-                        projectCode: 'AQTRJH-20260101-0005',
-                        projectName: '安全管理信息平台升级',
-                        projectContent: '升级安全管理信息平台，增加移动端功能和数据分析模块',
-                        planDate: '2026-09-30',
-                        planCost: 280000,
-                        responsibleUnit: '设备部',
-                        responsiblePerson: '王五',
-                        dataSource: '人工录入'
+                        category: '(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
+                        projectCode: 'XGFAQJH-20260101-0003',
+                        projectName: '高压作业安全培训',
+                        projectContent: '对高压作业人员进行专项安全培训，包括操作规程、应急处置等',
+                        planDate: '2026-04-30',
+                        planCost: 45000,
+                        relatedProject: '输电线路检修项目',
+                        relatedProjectId: 'p2',
+                        contractorId: 'c1',
+                        responsibleUnit: '施工二队',
+                        responsiblePerson: '张伟'
                     },
                     {
                         id: 4,
-                        category: '安全文化建设',
-                        projectCode: 'AQTRJH-20260101-0006',
-                        projectName: '安全文化宣传活动',
-                        projectContent: '开展安全生产月活动，制作安全宣传资料，组织安全知识竞赛',
-                        planDate: '2026-06-30',
-                        planCost: 100000,
-                        responsibleUnit: '安健环管理部',
-                        responsiblePerson: '赵六',
-                        dataSource: '人工录入'
+                        category: '(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                        projectCode: 'XGFAQJH-20260101-0004',
+                        projectName: '现场急救设备配置',
+                        projectContent: '配置急救箱、担架、AED除颤仪等急救设备',
+                        planDate: '2026-03-15',
+                        planCost: 60000,
+                        relatedProject: '电缆敷设工程',
+                        relatedProjectId: 'p4',
+                        contractorId: 'c2',
+                        responsibleUnit: '施工一队',
+                        responsiblePerson: '刘强'
+                    },
+                    {
+                        id: 5,
+                        category: '(四)安全生产检查、评估评价、咨询和标准化建设支出',
+                        projectCode: 'XGFAQJH-20260101-0005',
+                        projectName: '施工现场隐患排查',
+                        projectContent: '定期对施工现场进行安全隐患排查，建立整改台账',
+                        planDate: '2026-12-31',
+                        planCost: 25000,
+                        relatedProject: '设备安装项目',
+                        relatedProjectId: 'p5',
+                        contractorId: 'c2',
+                        responsibleUnit: '安全监督组',
+                        responsiblePerson: '赵刚'
                     }
                 ]);
 
                 // 过滤后的数据
                 const filteredData = computed(() => {
                     let data = tableData.value;
+
+                    // 根据选中的相关方和项目筛选
+                    if (selectedContractor.value) {
+                        data = data.filter(item => item.contractorId === selectedContractor.value);
+                    }
+                    if (selectedProject.value) {
+                        data = data.filter(item => item.relatedProjectId === selectedProject.value);
+                    }
 
                     if (searchForm.value.category) {
                         data = data.filter(item => item.category === searchForm.value.category);
@@ -388,8 +580,8 @@
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '-';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
                     }).format(value);
                 };
 
@@ -422,7 +614,7 @@
 
                 // 新建
                 const handleAdd = () => {
-                    window.location.href = '其他计划-详情.html?mode=add';
+                    window.location.href = '安全投入计划(相关方)-详情.html?mode=add';
                 };
 
                 // 批量删除
@@ -458,12 +650,17 @@
 
                 // 查看
                 const handleView = (row) => {
-                    window.location.href = `其他计划-详情.html?mode=view&id=${row.id}`;
+                    window.location.href = `安全投入计划(相关方)-详情.html?mode=view&id=${row.id}`;
                 };
 
                 // 编辑
                 const handleEdit = (row) => {
-                    window.location.href = `其他计划-详情.html?mode=edit&id=${row.id}`;
+                    window.location.href = `安全投入计划(相关方)-详情.html?mode=edit&id=${row.id}`;
+                };
+
+                // 变更
+                const handleChange = (row) => {
+                    window.location.href = `安全投入计划(相关方)-详情.html?mode=change&id=${row.id}`;
                 };
 
                 // 导入
@@ -476,30 +673,23 @@
                     ElMessage.info('导出功能开发中...');
                 };
 
-                // 获取数据来源标签类型
-                const getDataSourceType = (dataSource) => {
-                    const typeMap = {
-                        '人工录入': '',
-                        '隐患治理': 'warning',
-                        '安全培训': 'success',
-                        '应急演练': 'danger'
-                    };
-                    return typeMap[dataSource] || '';
-                };
-
                 return {
                     loading,
                     selectedRows,
                     currentPage,
                     pageSize,
                     isExpanded,
+                    selectedContractor,
+                    selectedProject,
+                    contractors,
                     searchForm,
                     tableData,
                     filteredData,
                     pagedData,
                     toggleExpand,
+                    selectContractor,
+                    selectProject,
                     formatAmount,
-                    getDataSourceType,
                     handleSearch,
                     handleReset,
                     handleSelectionChange,
@@ -508,6 +698,7 @@
                     handleDelete,
                     handleView,
                     handleEdit,
+                    handleChange,
                     handleImport,
                     handleExport
                 };

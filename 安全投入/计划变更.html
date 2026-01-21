@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计划变更</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        /* 功能按钮区 */
+        .function-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-fields .el-form-item {
+            margin-bottom: 0;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-pending {
+            background: #FDF6EC;
+            color: #E6A23C;
+        }
+
+        .status-approving {
+            background: #ECF5FF;
+            color: #409EFF;
+        }
+
+        .status-completed {
+            background: #F0F9EB;
+            color: #67C23A;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="form-container">
+            <div class="module-content">
+                <!-- 功能按钮区 -->
+                <div class="function-bar">
+                    <div class="function-left">
+                        <el-button type="primary" @click="handleAdd">
+                            <i class="fas fa-plus"></i> 新建
+                        </el-button>
+                        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">
+                            <i class="fas fa-trash-alt"></i> 批量删除
+                        </el-button>
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-area">
+                    <el-form :model="searchForm" :inline="true">
+                        <div class="search-row">
+                            <div class="search-fields">
+                                <el-form-item label="变更计划年份">
+                                    <el-select v-model="searchForm.year" placeholder="请选择" clearable
+                                        style="width: 120px;">
+                                        <el-option label="2026" value="2026"></el-option>
+                                        <el-option label="2025" value="2025"></el-option>
+                                        <el-option label="2024" value="2024"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="变更状态">
+                                    <el-select v-model="searchForm.status" placeholder="请选择" clearable
+                                        style="width: 120px;">
+                                        <el-option label="待提交" value="待提交"></el-option>
+                                        <el-option label="审批中" value="审批中"></el-option>
+                                        <el-option label="已完成" value="已完成"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="变更人">
+                                    <el-input v-model="searchForm.changer" placeholder="请输入" clearable
+                                        style="width: 120px;" />
+                                </el-form-item>
+                            </div>
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="handleSearch">
+                                    <i class="fas fa-search"></i> 查询
+                                </el-button>
+                                <el-button @click="handleReset">
+                                    <i class="fas fa-redo"></i> 重置
+                                </el-button>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="table-area">
+                    <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
+                        @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
+                        <el-table-column prop="year" label="变更计划年份" min-width="120" align="center"></el-table-column>
+                        <el-table-column prop="status" label="变更状态" min-width="100" align="center">
+                            <template #default="{ row }">
+                                <span class="status-tag" :class="getStatusClass(row.status)">
+                                    {{ row.status }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="changer" label="变更人" min-width="100"></el-table-column>
+                        <el-table-column prop="changeTime" label="变更时间" min-width="160"></el-table-column>
+                        <el-table-column label="操作" width="150" fixed="right" align="center">
+                            <template #default="{ row }">
+                                <div style="display: flex; justify-content: center; gap: 4px;">
+                                    <el-button size="small" @click="handleView(row)" link>
+                                        <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                    </el-button>
+                                    <el-button size="small" @click="handleEdit(row)" link v-if="row.status === '待提交'">
+                                        <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                    </el-button>
+                                    <el-button size="small" @click="handleDelete(row)" link v-if="row.status === '待提交'">
+                                        <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                    </el-button>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <!-- 分页 -->
+                    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                        <el-pagination background size="small" v-model:current-page="currentPage"
+                            v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
+                            layout="total, ->, sizes, prev, pager, next, jumper" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const selectedRows = ref([]);
+                const currentPage = ref(1);
+                const pageSize = ref(20);
+
+                const searchForm = ref({
+                    year: '',
+                    status: '',
+                    changer: ''
+                });
+
+                // 模拟变更记录数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        code: 'JHBG-20260114-0001',
+                        year: '2026',
+                        status: '待提交',
+                        changer: '张三',
+                        changeTime: '2026-01-14 10:30:00'
+                    },
+                    {
+                        id: 2,
+                        code: 'JHBG-20260110-0002',
+                        year: '2026',
+                        status: '审批中',
+                        changer: '李四',
+                        changeTime: '2026-01-10 14:20:00'
+                    },
+                    {
+                        id: 3,
+                        code: 'JHBG-20251220-0001',
+                        year: '2025',
+                        status: '已完成',
+                        changer: '王五',
+                        changeTime: '2025-12-20 09:15:00'
+                    },
+                    {
+                        id: 4,
+                        code: 'JHBG-20251115-0002',
+                        year: '2025',
+                        status: '已完成',
+                        changer: '张三',
+                        changeTime: '2025-11-15 16:45:00'
+                    }
+                ]);
+
+                // 过滤后的数据
+                const filteredData = computed(() => {
+                    let data = tableData.value;
+
+                    if (searchForm.value.year) {
+                        data = data.filter(item => item.year === searchForm.value.year);
+                    }
+                    if (searchForm.value.status) {
+                        data = data.filter(item => item.status === searchForm.value.status);
+                    }
+                    if (searchForm.value.changer) {
+                        data = data.filter(item => item.changer.includes(searchForm.value.changer));
+                    }
+
+                    return data;
+                });
+
+                // 分页数据
+                const pagedData = computed(() => {
+                    const start = (currentPage.value - 1) * pageSize.value;
+                    return filteredData.value.slice(start, start + pageSize.value);
+                });
+
+                // 状态样式
+                const getStatusClass = (status) => {
+                    const map = {
+                        '待提交': 'status-pending',
+                        '审批中': 'status-approving',
+                        '已完成': 'status-completed'
+                    };
+                    return map[status] || '';
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    return `JHBG-${dateStr}-${randomNum}`;
+                };
+
+                // 搜索
+                const handleSearch = () => {
+                    loading.value = true;
+                    currentPage.value = 1;
+                    setTimeout(() => {
+                        loading.value = false;
+                        ElMessage.success('查询完成');
+                    }, 300);
+                };
+
+                // 重置
+                const handleReset = () => {
+                    searchForm.value = {
+                        year: '',
+                        status: '',
+                        changer: ''
+                    };
+                    currentPage.value = 1;
+                };
+
+                // 选择变化
+                const handleSelectionChange = (selection) => {
+                    selectedRows.value = selection;
+                };
+
+                // 新建
+                const handleAdd = () => {
+                    window.location.href = '计划变更-编辑.html?mode=add';
+                };
+
+                // 批量删除
+                const handleBatchDelete = () => {
+                    const pendingRows = selectedRows.value.filter(row => row.status === '待提交');
+                    if (pendingRows.length === 0) {
+                        ElMessage.warning('只能删除待提交状态的记录');
+                        return;
+                    }
+
+                    ElMessageBox.confirm(
+                        `确定要删除选中的 ${pendingRows.length} 条记录吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        pendingRows.forEach(row => {
+                            const index = tableData.value.findIndex(item => item.id === row.id);
+                            if (index > -1) tableData.value.splice(index, 1);
+                        });
+                        selectedRows.value = [];
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                // 查看
+                const handleView = (row) => {
+                    window.location.href = `计划变更-编辑.html?id=${row.id}&mode=view`;
+                };
+
+                // 编辑
+                const handleEdit = (row) => {
+                    window.location.href = `计划变更-编辑.html?id=${row.id}&mode=edit`;
+                };
+
+                // 删除
+                const handleDelete = (row) => {
+                    ElMessageBox.confirm(
+                        `确定要删除此变更记录吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        const index = tableData.value.findIndex(item => item.id === row.id);
+                        if (index > -1) tableData.value.splice(index, 1);
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                return {
+                    loading,
+                    selectedRows,
+                    currentPage,
+                    pageSize,
+                    searchForm,
+                    tableData,
+                    filteredData,
+                    pagedData,
+                    getStatusClass,
+                    handleSearch,
+                    handleReset,
+                    handleSelectionChange,
+                    handleAdd,
+                    handleBatchDelete,
+                    handleView,
+                    handleEdit,
+                    handleDelete
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

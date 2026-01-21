@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全预算管理 - 安全投入详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        /* 三列布局 */
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+        }
+
+        .form-item.full-width {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 表单标签右对齐，最多6字换行 */
+        .el-form-item__label {
+            text-align: right !important;
+            justify-content: flex-end !important;
+            display: inline-block !important;
+            max-width: 170px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-item {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="form-container">
+            <!-- 基础数据模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基础数据
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.basic }">
+                    <el-form :model="formData" :rules="formRules" ref="formRef" label-width="170px"
+                        label-position="left">
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="编号" prop="code">
+                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="项目名称" prop="projectName" required>
+                                    <el-select v-model="formData.projectName" placeholder="请选择项目"
+                                        :disabled="pageType==='project' || pageType==='record' && isView"
+                                        style="width: 100%;" @change="handleProjectChange" filterable>
+                                        <el-option v-for="item in projectOptions" :key="item.id" :label="item.name"
+                                            :value="item.name"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="支出范围" prop="category" required>
+                                    <el-input v-model="formData.category" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                                    <el-input v-model="formData.responsibleUnit" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="责任人" prop="responsiblePerson" required>
+                                    <el-input v-model="formData.responsiblePerson" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item full-width">
+                                <el-form-item label="项目内容" prop="projectContent" required>
+                                    <el-input v-model="formData.projectContent" type="textarea" :rows="3" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="计划完成时间" prop="planDate" required>
+                                    <el-input v-model="formData.planDate" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="计划金额(万元)" prop="planCost" required>
+                                    <el-input v-model="formData.planCostDisplay" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+            </div>
+
+            <!-- 实际投入模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('actual')">
+                    <div class="module-title">
+                        <i class="fas fa-coins"></i>
+                        实际投入
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.actual }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.actual }">
+
+                    <!-- 场景1：Project View Mode (List of Records) -->
+                    <template v-if="pageType === 'project'">
+                        <el-table :data="projectUsageRecords" style="width: 100%" stripe border>
+                            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                            <el-table-column prop="actualDate" label="实际投入时间" min-width="120"></el-table-column>
+                            <el-table-column prop="actualCost" label="实际金额(万元)" min-width="140" align="right">
+                                <template #default="{ row }">
+                                    {{ formatAmount(row.actualCost) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="actualProjectContent" label="实际项目内容" min-width="200"
+                                show-overflow-tooltip></el-table-column>
+                            <el-table-column label="附件" min-width="100">
+                                <template #default="{ row }">
+                                    <el-button v-if="row.attachments && row.attachments.length > 0" size="small" link
+                                        type="primary">
+                                        查看({{ row.attachments.length }})
+                                    </el-button>
+                                    <span v-else>-</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="remark" label="备注" min-width="150"
+                                show-overflow-tooltip></el-table-column>
+                        </el-table>
+                    </template>
+
+                    <!-- 场景2：Record View/Edit Mode (Single Record Form) -->
+                    <template v-else>
+                        <el-form :model="formData" :rules="formRules" ref="actualFormRef" label-width="170px"
+                            label-position="left">
+                            <div class="form-row">
+                                <div class="form-item">
+                                    <el-form-item label="实际投入时间" prop="actualDate" required>
+                                        <el-date-picker v-model="formData.actualDate" type="date" placeholder="请选择日期"
+                                            value-format="YYYY-MM-DD" style="width: 100%;" :disabled="isView" />
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="实际金额(万元)" prop="actualCost" required>
+                                        <el-input v-model="formData.actualCostDisplay" placeholder="请输入金额"
+                                            :disabled="isView" @input="handleCostInput" @blur="formatCost">
+                                            <template #suffix>
+                                                <span style="color: #909399;">元</span>
+                                            </template>
+                                        </el-input>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="实际项目内容" prop="actualProjectContent" required>
+                                        <el-input v-model="formData.actualProjectContent" type="textarea" :rows="3"
+                                            placeholder="请输入实际项目内容" :disabled="isView" :maxlength="200"
+                                            show-word-limit />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="备注" prop="remark">
+                                        <el-input v-model="formData.remark" type="textarea" :rows="3"
+                                            placeholder="请输入备注" :disabled="isView" :maxlength="500" show-word-limit />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="附件" prop="attachments">
+                                        <el-upload action="#" :auto-upload="false" :file-list="formData.attachments"
+                                            :disabled="isView" multiple>
+                                            <el-button type="primary" :disabled="isView">
+                                                <i class="fas fa-upload"></i> 上传附件
+                                            </el-button>
+                                            <template #tip>
+                                                <div class="el-upload__tip">支持上传多个文件</div>
+                                            </template>
+                                        </el-upload>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                        </el-form>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">返回</el-button> <!-- Cancel/Back is always safe -->
+
+            <!-- Record Mode Actions -->
+            <template v-if="pageType === 'record'">
+                <el-button type="primary" @click="handleSave" v-if="!isView">
+                    <i class="fas fa-save"></i> 保存
+                </el-button>
+                <el-button type="primary" @click="switchToEdit" v-if="isView">
+                    <i class="fas fa-edit"></i> 编辑
+                </el-button>
+            </template>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const formRef = ref(null);
+                const actualFormRef = ref(null);
+
+                // 页面状态
+                const mode = ref('add'); // view, edit, add
+                const pageType = ref('record'); // record (single usage record), project (list of usage records)
+                const isView = computed(() => mode.value === 'view');
+
+                // 模块折叠状态
+                const modules = ref({
+                    basic: true,
+                    actual: true
+                });
+
+                // 项目选项
+                const projectOptions = ref([
+                    {
+                        id: 1,
+                        name: '现场消防设备维护保养',
+                        category: '消防设施维护及检测',
+                        content: '检查现场消防设备并进行维修保养，确保消防设备正常',
+                        planDate: '2026-01-05',
+                        planCost: 80000,
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 2,
+                        name: '员工个人防护装备采购',
+                        category: '安全防护设备',
+                        content: '采购安全帽、防护眼镜、防护手套等个人防护装备',
+                        planDate: '2026-02-28',
+                        planCost: 120000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '李四'
+                    },
+                    {
+                        id: 3,
+                        name: '主变压器绝缘隐患整治',
+                        category: '设备重大缺陷和隐患治理',
+                        content: '更换绝缘材料，消除设备隐患，确保设备安全稳定运行',
+                        planDate: '2026-06-30',
+                        planCost: 800000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '张三'
+                    }
+                ]);
+
+                // 表单数据
+                const formData = ref({
+                    code: '',
+                    projectName: '',
+                    category: '',
+                    projectContent: '',
+                    planDate: '',
+                    planCost: 0,
+                    planCostDisplay: '',
+                    responsibleUnit: '',
+                    responsiblePerson: '',
+                    actualDate: new Date().toISOString().slice(0, 10),
+                    actualCost: 0,
+                    actualCostDisplay: '',
+                    actualProjectContent: '',
+                    remark: '',
+                    attachments: []
+                });
+
+                // 项目关联的使用记录列表 (Project Mode)
+                const projectUsageRecords = ref([]);
+
+                // 表单验证规则
+                const formRules = ref({
+                    projectName: [{ required: true, message: '请选择项目', trigger: 'change' }],
+                    category: [{ required: true, message: '请输入支出范围', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请输入责任单位', trigger: 'blur' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
+                    actualDate: [{ required: true, message: '请选择实际投入时间', trigger: 'change' }],
+                    actualCost: [{ required: true, message: '请输入实际金额', trigger: 'blur' }],
+                    actualProjectContent: [{ required: true, message: '请输入实际项目内容', trigger: 'blur' }]
+                });
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(value);
+                };
+
+                const parseAmount = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(str.replace(/,/g, '')) || 0;
+                };
+
+                const handleCostInput = (value) => {
+                    formData.value.actualCostDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                const formatCost = () => {
+                    const value = parseAmount(formData.value.actualCostDisplay);
+                    formData.value.actualCost = value;
+                    formData.value.actualCostDisplay = formatAmount(value);
+                };
+
+                const handleProjectChange = (projectName) => {
+                    const selected = projectOptions.value.find(p => p.name === projectName);
+                    if (selected) {
+                        formData.value.category = selected.category;
+                        formData.value.projectContent = selected.content;
+                        formData.value.planDate = selected.planDate;
+                        formData.value.planCost = selected.planCost;
+                        formData.value.planCostDisplay = formatAmount(selected.planCost);
+                        formData.value.responsibleUnit = selected.responsibleUnit;
+                        formData.value.responsiblePerson = selected.responsiblePerson;
+                    }
+                };
+
+                const generateCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+                    formData.value.code = `AQTR-${dateStr}-${randomNum}`;
+                };
+
+                const loadData = (id, type) => {
+                    if (type === 'project') {
+                        // 加载项目基础信息
+                        // 这里的 ID 是项目ID
+                        const project = projectOptions.value.find(p => p.id == id);
+                        if (project) {
+                            formData.value.code = '-'; // 项目视图下编号不重要或显示项目编号
+                            formData.value.projectName = project.name;
+                            handleProjectChange(project.name);
+                        }
+
+                        // 加载项目关联的列表数据 (模拟)
+                        if (id == 1) {
+                            projectUsageRecords.value = [
+                                {
+                                    actualDate: '2026-01-05',
+                                    actualCost: 5000,
+                                    actualProjectContent: '1月份消防设备巡检，更换灭火器3个',
+                                    remark: '无',
+                                    attachments: []
+                                },
+                                {
+                                    actualDate: '2026-02-05',
+                                    actualCost: 10000,
+                                    actualProjectContent: '2月份消防设备维修，更换消防栓阀门',
+                                    remark: '无',
+                                    attachments: [{ name: '维修单.pdf' }]
+                                }
+                            ];
+                        } else {
+                            projectUsageRecords.value = [];
+                        }
+
+                    } else {
+                        // 加载单条记录信息 (type === 'record')
+                        // 这里的 ID 是记录ID
+                        const recordData = {
+                            '101': {
+                                code: 'AQTR-20260105-001',
+                                projectName: '现场消防设备维护保养',
+                                actualDate: '2026-01-05',
+                                actualCost: 5000,
+                                actualCostDisplay: '5,000.00',
+                                actualProjectContent: '1月份消防设备巡检',
+                                remark: '',
+                                attachments: []
+                            }
+                        };
+                        const data = recordData[id];
+                        if (data) {
+                            formData.value = { ...formData.value, ...data };
+                            handleProjectChange(data.projectName); // 级联填充基础信息
+                        }
+                    }
+                };
+
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'add';
+                    pageType.value = urlParams.get('type') || 'record'; // 默认为记录模式
+                    const id = urlParams.get('id');
+
+                    if (pageType.value === 'project' && id) {
+                        loadData(id, 'project');
+                    } else if (pageType.value === 'record' && id) {
+                        loadData(id, 'record');
+                    } else if (mode.value === 'add') {
+                        generateCode();
+                    }
+                });
+
+                const toggleModule = (name) => {
+                    modules.value[name] = !modules.value[name];
+                };
+
+                const handleSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            if (actualFormRef.value) {
+                                actualFormRef.value.validate(actualValid => {
+                                    if (actualValid) {
+                                        ElMessage.success('保存成功');
+                                        setTimeout(() => goBack(), 1000);
+                                    } else {
+                                        ElMessage.warning('请填写实际投入信息的必填项');
+                                    }
+                                })
+                            } else {
+                                // 如果没有actualFormRef（理论上record模式下一定有），直接保存
+                                ElMessage.success('保存成功');
+                                setTimeout(() => goBack(), 1000);
+                            }
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                const switchToEdit = () => {
+                    mode.value = 'edit';
+                };
+
+                const goBack = () => {
+                    window.location.href = '安全费用使用.html';
+                };
+
+                return {
+                    formRef, actualFormRef,
+                    mode, pageType, isView, modules, formData, formRules, projectOptions,
+                    projectUsageRecords,
+                    formatAmount, handleCostInput, formatCost, handleProjectChange,
+                    toggleModule, handleSave, switchToEdit, goBack
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

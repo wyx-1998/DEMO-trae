@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全预算管理 - 安全投入</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 左侧面板 */
+        .left-panel {
+            width: 280px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .year-card {
+            padding: 20px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .year-card:hover {
+            background-color: #f5f7fa;
+        }
+
+        .year-card.active {
+            background-color: #ecf5ff;
+            border-right: 3px solid #409EFF;
+        }
+
+        .year-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .year-card-title i {
+            margin-right: 8px;
+            color: #409EFF;
+        }
+
+        .year-card-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #909399;
+        }
+
+        .stat-value {
+            color: #303133;
+            font-family: Monaco, 'Courier New', Courier, monospace;
+            font-weight: 500;
+        }
+
+        /* 右侧面板 */
+        .right-panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .function-bar {
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-area {
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-fields .el-form-item {
+            margin-bottom: 0;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .table-area {
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .pagination-bar {
+            padding-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .content-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 提醒设置样式 */
+        .reminder-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+
+        .reminder-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .reminder-card-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #303133;
+        }
+
+        .reminder-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .reminder-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reminder-label {
+            width: 70px;
+            color: #606266;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 左侧年度卡片 -->
+        <div class="left-panel">
+            <div v-for="year in yearCards" :key="year.year" class="year-card"
+                :class="{ active: selectedYear === year.year }" @click="selectYear(year.year)">
+                <div class="year-card-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ year.year }}年度
+                </div>
+                <div class="year-card-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">可使用金额（万元）</span>
+                        <span class="stat-value">{{ formatAmount(year.availableAmount) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">实际提取总额（万元）</span>
+                        <span class="stat-value">{{ formatAmount(year.extractedAmount) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">已使用金额（万元）</span>
+                        <span class="stat-value">{{ formatAmount(year.usedAmount) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧详情内容 -->
+        <div class="right-panel">
+            <div class="panel-content">
+                <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+                    <!-- Tab 1: 计划使用情况 -->
+                    <el-tab-pane label="计划使用情况" name="planUsage">
+                        <!-- 功能按钮区 -->
+                        <div class="function-bar">
+                            <div class="function-left">
+                                <el-button type="primary" @click="handleAdd">
+                                    <i class="fas fa-plus"></i> 新建
+                                </el-button>
+                                <el-button @click="handleExport">
+                                    <i class="fas fa-file-export"></i> 导出
+                                </el-button>
+                                <el-button @click="openReminderDialog">
+                                    <i class="fas fa-bell"></i> 提醒设置
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <!-- 搜索区域 -->
+                        <div class="search-area">
+                            <el-form :model="planSearchForm" :inline="true">
+                                <div class="search-row">
+                                    <div class="search-fields">
+                                        <el-form-item label="项目名称">
+                                            <el-input v-model="planSearchForm.projectName" placeholder="请输入" clearable
+                                                style="width: 180px;" />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="search-buttons">
+                                        <el-button type="primary" @click="handlePlanSearch">
+                                            <i class="fas fa-search"></i> 查询
+                                        </el-button>
+                                        <el-button @click="handlePlanReset">
+                                            <i class="fas fa-redo"></i> 重置
+                                        </el-button>
+                                    </div>
+                                </div>
+                            </el-form>
+                        </div>
+
+                        <!-- 表格区域 -->
+                        <div class="table-area">
+                            <el-table :data="planPagedData" style="width: 100%" stripe border v-loading="loading">
+                                <el-table-column type="index" label="序号" width="60" fixed="left"
+                                    align="center"></el-table-column>
+                                <el-table-column prop="projectName" label="项目名称" min-width="180" fixed="left">
+                                    <template #default="{ row }">
+                                        <a href="javascript:void(0)" @click="handleViewProject(row)"
+                                            style="color: #409EFF; text-decoration: underline; cursor: pointer;">
+                                            {{ row.projectName }}
+                                        </a>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="category" label="支出范围" min-width="180"></el-table-column>
+                                <el-table-column prop="planCost" label="计划金额(万元)" min-width="140" align="right">
+                                    <template #default="{ row }">
+                                        {{ formatAmount(row.planCost) }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="actualCost" label="实际使用总额(万元)" min-width="140" align="right">
+                                    <template #default="{ row }">
+                                        {{ formatAmount(row.actualCost) }}
+                                    </template>
+                                </el-table-column>
+                                <!-- 1-12月实际支出 -->
+                                <el-table-column v-for="m in 12" :key="m" :label="m + '月'" min-width="100"
+                                    align="right">
+                                    <template #default="{ row }">
+                                        {{ row.monthlyUsage && row.monthlyUsage[m] ? formatAmount(row.monthlyUsage[m]) :
+                                        '' }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                            </el-table>
+
+                            <!-- 分页 -->
+                            <div class="pagination-bar">
+                                <el-pagination background size="small" v-model:current-page="planCurrentPage"
+                                    v-model:page-size="planPageSize" :page-sizes="[10, 20, 50, 100]"
+                                    :total="planFilteredData.length"
+                                    layout="total, ->, sizes, prev, pager, next, jumper" />
+                            </div>
+                        </div>
+                    </el-tab-pane>
+
+                    <!-- Tab 2: 使用详细记录 -->
+                    <el-tab-pane label="使用详细记录" name="usageDetail">
+                        <!-- 功能按钮区 -->
+                        <div class="function-bar">
+                            <div class="function-left">
+                                <el-button type="primary" @click="handleAddUsage">
+                                    <i class="fas fa-plus"></i> 新建
+                                </el-button>
+                                <el-button type="danger" @click="handleBatchDelete"
+                                    :disabled="selectedRows.length === 0">
+                                    <i class="fas fa-trash-alt"></i> 批量删除
+                                </el-button>
+                                <el-button @click="handleExport">
+                                    <i class="fas fa-file-export"></i> 导出
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <!-- 搜索区域 -->
+                        <div class="search-area">
+                            <el-form :model="usageSearchForm" :inline="true">
+                                <div class="search-row">
+                                    <div class="search-fields">
+                                        <el-form-item label="项目名称">
+                                            <el-input v-model="usageSearchForm.projectName" placeholder="请输入" clearable
+                                                style="width: 160px;" />
+                                        </el-form-item>
+                                        <el-form-item label="实际使用内容">
+                                            <el-input v-model="usageSearchForm.content" placeholder="请输入" clearable
+                                                style="width: 160px;" />
+                                        </el-form-item>
+                                        <el-form-item label="实际使用时间">
+                                            <el-date-picker v-model="usageSearchForm.dateRange" type="daterange"
+                                                range-separator="至" start-placeholder="开始" end-placeholder="结束"
+                                                value-format="YYYY-MM-DD" style="width: 240px;" />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="search-buttons">
+                                        <el-button type="primary" @click="handleUsageSearch">
+                                            <i class="fas fa-search"></i> 查询
+                                        </el-button>
+                                        <el-button @click="handleUsageReset">
+                                            <i class="fas fa-redo"></i> 重置
+                                        </el-button>
+                                    </div>
+                                </div>
+                            </el-form>
+                        </div>
+
+                        <!-- 表格区域 -->
+                        <div class="table-area">
+                            <el-table :data="usagePagedData" style="width: 100%" stripe border v-loading="loading"
+                                @selection-change="handleSelectionChange">
+                                <el-table-column type="selection" width="55"></el-table-column>
+                                <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
+                                <el-table-column prop="projectName" label="项目名称" min-width="180">
+                                    <template #default="{ row }">
+                                        <a href="javascript:void(0)" @click="handleViewUsage(row)"
+                                            style="color: #409EFF; text-decoration: underline; cursor: pointer;">
+                                            {{ row.projectName }}
+                                        </a>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="content" label="实际使用内容" min-width="200"
+                                    show-overflow-tooltip></el-table-column>
+                                <el-table-column prop="category" label="支出范围" min-width="180"></el-table-column>
+                                <el-table-column prop="actualDate" label="实际使用时间" min-width="120"></el-table-column>
+                                <el-table-column prop="actualCost" label="实际使用金额(万元)" min-width="140" align="right">
+                                    <template #default="{ row }">
+                                        {{ formatAmount(row.actualCost) }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="responsibleUnit" label="责任部门" min-width="120"></el-table-column>
+                                <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                                <el-table-column label="操作" width="120" fixed="right" align="center">
+                                    <template #default="{ row }">
+                                        <el-button size="small" @click="handleViewUsage(row)" link>
+                                            <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                        </el-button>
+                                        <el-button size="small" @click="handleEditUsage(row)" link>
+                                            <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                        </el-button>
+                                        <el-button size="small" @click="handleDeleteUsage(row)" link>
+                                            <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+                            <!-- 分页 -->
+                            <div class="pagination-bar">
+                                <el-pagination background size="small" v-model:current-page="usageCurrentPage"
+                                    v-model:page-size="usagePageSize" :page-sizes="[10, 20, 50, 100]"
+                                    :total="usageFilteredData.length"
+                                    layout="total, ->, sizes, prev, pager, next, jumper" />
+                            </div>
+                        </div>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
+        </div>
+
+        <!-- 提醒设置弹窗 -->
+        <el-dialog v-model="reminderDialogVisible" title="提醒设置" width="700px" :close-on-click-modal="false">
+            <div class="reminder-card" v-for="(item, index) in reminderSettings" :key="index">
+                <div class="reminder-card-header">
+                    <span class="reminder-card-title">{{ item.name }}</span>
+                    <el-switch v-model="item.enabled" />
+                </div>
+                <div class="reminder-card-body" v-if="item.enabled">
+                    <!-- 提而不用规则 -->
+                    <template v-if="item.name === '提醒提而不用'">
+                        <div class="reminder-row">
+                            <span class="reminder-label">提醒规则</span>
+                            <span style="color: #606266;">计划完成日期前</span>
+                            <el-input-number v-model="item.daysBefore" :min="1" :max="365" size="small"
+                                style="width: 80px; margin: 0 8px;" controls-position="right" />
+                            <span style="color: #606266;">天</span>
+                        </div>
+                        <div class="reminder-row" style="align-items: flex-start;">
+                            <span class="reminder-label" style="margin-top: 6px;">提醒人员</span>
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                <el-checkbox-group v-model="item.personnelConfig">
+                                    <el-checkbox label="responsible">责任人</el-checkbox>
+                                    <el-checkbox label="ehs">安健环部门负责人</el-checkbox>
+                                    <el-checkbox label="others">其他人员</el-checkbox>
+                                </el-checkbox-group>
+                                <el-select v-if="item.personnelConfig.includes('others')" v-model="item.otherPersons"
+                                    multiple placeholder="请选择其他人员" style="width: 100%;">
+                                    <el-option v-for="person in personList" :key="person.id" :label="person.name"
+                                        :value="person.id" />
+                                </el-select>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- 其他规则 (如使用率不足) -->
+                    <template v-else>
+                        <div class="reminder-row">
+                            <span class="reminder-label">提醒频率</span>
+                            <el-radio-group v-model="item.frequencyType">
+                                <el-radio label="yearly">年度</el-radio>
+                                <el-radio label="monthly">月度</el-radio>
+                            </el-radio-group>
+                            <template v-if="item.frequencyType === 'yearly'">
+                                <span>每年</span>
+                                <el-date-picker v-model="item.yearlyDate" type="date" placeholder="选择日期" format="MM月DD日"
+                                    value-format="MM-DD" style="width: 140px; margin: 0 8px;" />
+                            </template>
+                            <template v-if="item.frequencyType === 'monthly'">
+                                <span>每月</span>
+                                <el-input-number v-model="item.day" :min="1" :max="31" size="small"
+                                    style="width: 80px; margin: 0 8px;" controls-position="right" />
+                                <span>日</span>
+                                <el-tooltip v-if="item.day === 31" content="当前选择为每月31日提醒，当遇到月度没有31日时，默认将在该月度最后一天发送提醒"
+                                    placement="top">
+                                    <span
+                                        style="color: #E6A23C; margin-left: 8px; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center;">
+                                        <svg viewBox="0 0 1024 1024" width="16" height="16" fill="currentColor">
+                                            <path
+                                                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm-32 232c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v272c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V296zm32 440a48.01 48.01 0 0 1 0-96 48.01 48.01 0 0 1 0 96z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </el-tooltip>
+                            </template>
+                        </div>
+                        <div class="reminder-row">
+                            <span class="reminder-label">提醒人员</span>
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                <el-checkbox-group v-model="item.personnelConfig">
+                                    <el-checkbox label="responsible">责任人</el-checkbox>
+                                    <el-checkbox label="ehs">安健环部门负责人</el-checkbox>
+                                    <el-checkbox label="others">其他人员</el-checkbox>
+                                </el-checkbox-group>
+                                <el-select v-if="item.personnelConfig && item.personnelConfig.includes('others')"
+                                    v-model="item.otherPersons" multiple placeholder="请选择其他人员" style="width: 100%;">
+                                    <el-option v-for="person in personList" :key="person.id" :label="person.name"
+                                        :value="person.id" />
+                                </el-select>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="reminder-row">
+                        <span class="reminder-label">通知方式</span>
+                        <el-checkbox-group v-model="item.notifyMethods">
+                            <el-checkbox label="system">系统通知</el-checkbox>
+                            <el-checkbox label="email">邮件</el-checkbox>
+                            <el-checkbox label="sms">短信</el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="reminderDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveReminder">保存</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const activeTab = ref('planUsage');
+                const selectedYear = ref(2026);
+                const selectedRows = ref([]);
+
+                // 年度卡片数据
+                const yearCards = ref([
+                    { year: 2026, availableAmount: 3800000, extractedAmount: 5000000, usedAmount: 1200000 },
+                    { year: 2025, availableAmount: 500000, extractedAmount: 4800000, usedAmount: 4300000 },
+                    { year: 2024, availableAmount: 0, extractedAmount: 4500000, usedAmount: 4500000 }
+                ]);
+
+                // 选择年度
+                const selectYear = (year) => {
+                    selectedYear.value = year;
+                    ElMessage.success(`已切换至 ${year} 年度`);
+                    // 重新加载数据
+                    handlePlanSearch();
+                    handleUsageSearch();
+                };
+
+                // Tab 1 数据相关
+                const planCurrentPage = ref(1);
+                const planPageSize = ref(20);
+                const planSearchForm = ref({ projectName: '' });
+                const planData = ref([
+                    {
+                        id: 1,
+                        projectName: '现场消防设备维护保养',
+                        category: '消防设施维护及检测',
+                        planCost: 80000,
+                        actualCost: 15000,
+                        monthlyUsage: { 1: 5000, 2: 10000 },
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 2,
+                        projectName: '员工个人防护装备采购',
+                        category: '安全防护设备',
+                        planCost: 120000,
+                        actualCost: 128000,
+                        monthlyUsage: { 1: 128000 },
+                        responsiblePerson: '李四'
+                    }
+                ]);
+
+                // Tab 2 数据相关
+                const usageCurrentPage = ref(1);
+                const usagePageSize = ref(20);
+                const usageSearchForm = ref({ projectName: '', content: '', dateRange: null });
+                const usageData = ref([
+                    {
+                        id: 101,
+                        code: 'AQTR-20260105-001',
+                        projectName: '现场消防设备维护保养',
+                        content: '1月份消防设备巡检',
+                        category: '消防设施维护及检测',
+                        actualDate: '2026-01-05',
+                        actualCost: 5000,
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 102,
+                        code: 'AQTR-20260205-001',
+                        projectName: '现场消防设备维护保养',
+                        content: '2月份消防设备维修',
+                        category: '消防设施维护及检测',
+                        actualDate: '2026-02-05',
+                        actualCost: 10000,
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 201,
+                        code: 'AQTR-20260120-004',
+                        projectName: '员工个人防护装备采购',
+                        content: '采购第一批防护用品',
+                        category: '安全防护设备',
+                        actualDate: '2026-01-20',
+                        actualCost: 128000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '李四'
+                    }
+                ]);
+
+                // 提醒设置
+                const reminderDialogVisible = ref(false);
+                const reminderSettings = ref([
+                    {
+                        name: '提醒提而不用',
+                        enabled: true,
+                        daysBefore: 7,
+                        personnelConfig: ['responsible'], // 默认勾选责任人
+                        otherPersons: [], // 其他人员选中列表
+                        notifyMethods: ['system']
+                    },
+                    {
+                        name: '提醒使用率不足',
+                        enabled: true, // 默认开启以直接查看效果
+                        frequencyType: 'monthly',
+                        yearlyDate: '12-01',
+                        day: 31,
+                        personnelConfig: ['responsible', 'ehs'],
+                        otherPersons: [],
+                        notifyMethods: ['system']
+                    }
+                ]);
+                const personList = ref([
+                    { id: 1, name: '张三' }, { id: 2, name: '李四' }, { id: 3, name: '王五' }
+                ]);
+
+                // 格式化金额（万元，显示6位小数，去掉末尾无效零，千分号分隔）
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    // 先转换为6位小数
+                    const num = parseFloat(value);
+                    const fixed = num.toFixed(6);
+                    // 去掉末尾无效的0
+                    const trimmed = fixed.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+                    // 分离整数和小数部分
+                    const parts = trimmed.split('.');
+                    // 整数部分添加千分号
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    return parts.join('.');
+                };
+
+                // 计算属性: Tab 1 过滤
+                const planFilteredData = computed(() => {
+                    let data = planData.value;
+                    if (planSearchForm.value.projectName) {
+                        data = data.filter(item => item.projectName.includes(planSearchForm.value.projectName));
+                    }
+                    return data;
+                });
+                const planPagedData = computed(() => {
+                    const start = (planCurrentPage.value - 1) * planPageSize.value;
+                    return planFilteredData.value.slice(start, start + planPageSize.value);
+                });
+
+                // 计算属性: Tab 2 过滤
+                const usageFilteredData = computed(() => {
+                    let data = usageData.value;
+                    if (usageSearchForm.value.projectName) {
+                        data = data.filter(item => item.projectName.includes(usageSearchForm.value.projectName));
+                    }
+                    if (usageSearchForm.value.content) {
+                        data = data.filter(item => item.content.includes(usageSearchForm.value.content));
+                    }
+                    if (usageSearchForm.value.dateRange && usageSearchForm.value.dateRange.length === 2) {
+                        data = data.filter(item => item.actualDate >= usageSearchForm.value.dateRange[0] && item.actualDate <= usageSearchForm.value.dateRange[1]);
+                    }
+                    return data;
+                });
+                const usagePagedData = computed(() => {
+                    const start = (usageCurrentPage.value - 1) * usagePageSize.value;
+                    return usageFilteredData.value.slice(start, start + usagePageSize.value);
+                });
+
+                // 操作方法
+                const handleTabClick = (tab) => {
+                    // 可以在切换tab时做一些处理
+                };
+
+                const handlePlanSearch = () => {
+                    loading.value = true;
+                    planCurrentPage.value = 1;
+                    setTimeout(() => loading.value = false, 300);
+                };
+                const handlePlanReset = () => { planSearchForm.value = { projectName: '' }; planCurrentPage.value = 1; };
+
+                const handleUsageSearch = () => {
+                    loading.value = true;
+                    usageCurrentPage.value = 1;
+                    setTimeout(() => loading.value = false, 300);
+                };
+                const handleUsageReset = () => {
+                    usageSearchForm.value = { projectName: '', content: '', dateRange: null };
+                    usageCurrentPage.value = 1;
+                };
+
+                const handleAdd = () => { window.location.href = '安全费用使用-详情.html?mode=add'; };
+                const handleAddUsage = () => { window.location.href = '安全费用使用-详情.html?mode=add&type=record'; };
+
+                // 重点：区分查看项目（Project View）和查看记录（Record View）
+                // 需求：查看详情页基于现在的详情页，将实际投入的内容变更为列表的形式展示 (即 Project View)
+                const handleViewProject = (row) => {
+                    window.location.href = `安全费用使用-详情.html?mode=view&type=project&id=${row.id}`;
+                };
+
+                const handleViewUsage = (row) => {
+                    window.location.href = `安全费用使用-详情.html?mode=view&type=record&id=${row.id}`;
+                };
+
+                const handleEditUsage = (row) => {
+                    window.location.href = `安全费用使用-详情.html?mode=edit&type=record&id=${row.id}`;
+                };
+
+                const handleDeleteUsage = (row) => {
+                    ElMessageBox.confirm('确定要删除该条记录吗？', '提示', { type: 'warning' })
+                        .then(() => ElMessage.success('删除成功'));
+                };
+
+                const handleBatchDelete = () => {
+                    ElMessageBox.confirm('确定要删除选中记录吗？', '提示', { type: 'warning' })
+                        .then(() => ElMessage.success('删除成功'));
+                };
+
+                const handleSelectionChange = (val) => { selectedRows.value = val; };
+                const handleExport = () => ElMessage.info('导出功能开发中...');
+
+                const openReminderDialog = () => reminderDialogVisible.value = true;
+                const saveReminder = () => { reminderDialogVisible.value = false; ElMessage.success('保存成功'); };
+
+                return {
+                    loading, activeTab, selectedYear, yearCards, selectYear,
+                    planCurrentPage, planPageSize, planSearchForm, planPagedData, planFilteredData,
+                    usageCurrentPage, usagePageSize, usageSearchForm, usagePagedData, usageFilteredData,
+                    selectedRows, formatAmount,
+                    handlePlanSearch, handlePlanReset, handleUsageSearch, handleUsageReset, handleTabClick,
+                    handleAdd, handleAddUsage, handleExport,
+                    handleViewProject, handleViewUsage, handleEditUsage, handleDeleteUsage, handleBatchDelete, handleSelectionChange,
+                    reminderDialogVisible, reminderSettings, personList, openReminderDialog, saveReminder
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

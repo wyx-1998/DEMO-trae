@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投入计划管理 - 安措计划详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        /* 三列布局 */
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+        }
+
+        .form-item.full-width {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 表单标签右对齐，最多6字换行 */
+        .el-form-item__label {
+            text-align: right !important;
+            justify-content: flex-end !important;
+            display: inline-block !important;
+            max-width: 140px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-item {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex: 1;
+                width: 100%;
+            }
+        }
+
+        /* Tab样式 */
+        .view-tabs {
+            margin-bottom: 20px;
+        }
+
+        /* 历史记录表格 */
+        .history-container {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .history-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-title i {
+            color: #409EFF;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 查看模式下显示Tab（非预审来源） -->
+        <el-tabs v-if="isView && showTabs" v-model="activeTab" class="detail-tabs" style="margin-bottom: 16px;">
+            <el-tab-pane label="当前计划" name="current"></el-tab-pane>
+            <el-tab-pane label="历史记录" name="history"></el-tab-pane>
+        </el-tabs>
+
+        <!-- 当前计划内容 -->
+        <div v-show="activeTab === 'current' || !isView">
+            <div class="form-container">
+                <!-- 基本信息模块 -->
+                <div class="form-module">
+                    <div class="module-header" @click="toggleModule('basic')">
+                        <div class="module-title">
+                            <i class="fas fa-info-circle"></i>
+                            基本信息
+                        </div>
+                        <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                    </div>
+                    <div class="module-content" :class="{ collapsed: !modules.basic }">
+                        <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
+                            label-position="left">
+                            <div class="form-row">
+                                <div class="form-item">
+                                    <el-form-item label="项目编号" prop="projectCode">
+                                        <el-input v-model="formData.projectCode" placeholder="请输入项目编号"
+                                            :disabled="isView" />
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="支出范围类别" prop="category" required>
+                                        <el-select v-model="formData.category" placeholder="请选择支出范围类别"
+                                            :disabled="isView" style="width: 100%;">
+                                            <el-option label="(一)安全防护设备、设施支出" value="(一)安全防护设备、设施支出"></el-option>
+                                            <el-option label="(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出"
+                                                value="(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出"></el-option>
+                                            <el-option
+                                                label="(三)开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出"
+                                                value="(三)开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出"></el-option>
+                                            <el-option label="(四)安全生产检查、评估评价、咨询和标准化建设支出"
+                                                value="(四)安全生产检查、评估评价、咨询和标准化建设支出"></el-option>
+                                            <el-option label="(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出"
+                                                value="(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出"></el-option>
+                                            <el-option label="(六)配备和更新现场作业人员安全防护用品支出"
+                                                value="(六)配备和更新现场作业人员安全防护用品支出"></el-option>
+                                            <el-option label="(七)安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出"
+                                                value="(七)安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出"></el-option>
+                                            <el-option label="(八)安全设施及特种设备检测检验、检定校准支出"
+                                                value="(八)安全设施及特种设备检测检验、检定校准支出"></el-option>
+                                            <el-option label="(九)安全生产责任保险支出" value="(九)安全生产责任保险支出"></el-option>
+                                            <el-option label="(十)与安全生产直接相关的其他支出" value="(十)与安全生产直接相关的其他支出"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="项目名称" prop="projectName" required>
+                                        <el-input v-model="formData.projectName" placeholder="请输入项目名称"
+                                            :disabled="isView" />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="项目内容" prop="projectContent" required>
+                                        <el-input v-model="formData.projectContent" type="textarea" :rows="4"
+                                            placeholder="请输入项目内容" :disabled="isView" :maxlength="200" show-word-limit />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item">
+                                    <el-form-item label="计划完成时间" prop="planDate" required>
+                                        <el-date-picker v-model="formData.planDate" type="date" placeholder="请选择日期"
+                                            value-format="YYYY-MM-DD" style="width: 100%;" :disabled="isView" />
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="计划金额" prop="planCost" required>
+                                        <el-input v-model="formData.planCostDisplay" placeholder="请输入金额"
+                                            :disabled="isView" @input="handleCostInput" @blur="formatCost">
+                                            <template #suffix>
+                                                <span style="color: #909399;">元</span>
+                                            </template>
+                                        </el-input>
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                                        <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位"
+                                            :disabled="isView" style="width: 100%;">
+                                            <el-option label="设备部" value="设备部"></el-option>
+                                            <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                            <el-option label="生产部" value="生产部"></el-option>
+                                            <el-option label="运维部" value="运维部"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item">
+                                    <el-form-item label="责任人" prop="responsiblePerson" required>
+                                        <el-input v-model="formData.responsiblePerson" placeholder="请输入责任人"
+                                            :disabled="isView" />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-item full-width">
+                                    <el-form-item label="备注" prop="remark">
+                                        <el-input v-model="formData.remark" type="textarea" :rows="3"
+                                            placeholder="请输入备注" :disabled="isView" :maxlength="200" show-word-limit />
+                                    </el-form-item>
+                                </div>
+                            </div>
+                        </el-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录Tab内容 -->
+        <div class="history-container" v-show="activeTab === 'history' && isView">
+            <div class="history-title">
+                <i class="fas fa-history"></i>
+                历史版本记录
+            </div>
+            <el-table :data="historyData" border stripe>
+                <el-table-column prop="version" label="版本号" width="100" align="center"></el-table-column>
+                <el-table-column prop="changeTime" label="变更时间" width="180"></el-table-column>
+                <el-table-column prop="changeUser" label="变更人" width="120"></el-table-column>
+                <el-table-column prop="changeReason" label="变更说明" min-width="200"></el-table-column>
+                <el-table-column label="操作" width="100" align="center">
+                    <template #default="{ row }">
+                        <el-button size="small" type="primary" link @click="viewHistoryVersion(row)">
+                            <i class="fas fa-eye"></i> 查看
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+
+        <!-- 历史版本详情弹窗 -->
+        <el-dialog v-model="historyDialogVisible" title="历史版本详情" width="800px">
+            <el-descriptions :column="2" border>
+                <el-descriptions-item label="版本号">{{ historyDetail.version }}</el-descriptions-item>
+                <el-descriptions-item label="变更时间">{{ historyDetail.changeTime }}</el-descriptions-item>
+                <el-descriptions-item label="项目编号">{{ historyDetail.projectCode }}</el-descriptions-item>
+                <el-descriptions-item label="支出范围类别">{{ historyDetail.category }}</el-descriptions-item>
+                <el-descriptions-item label="项目名称" :span="2">{{ historyDetail.projectName }}</el-descriptions-item>
+                <el-descriptions-item label="项目内容" :span="2">{{ historyDetail.projectContent }}</el-descriptions-item>
+                <el-descriptions-item label="计划完成时间">{{ historyDetail.planDate }}</el-descriptions-item>
+                <el-descriptions-item label="计划金额">{{ historyDetail.planCostDisplay }} 元</el-descriptions-item>
+                <el-descriptions-item label="责任单位">{{ historyDetail.responsibleUnit }}</el-descriptions-item>
+                <el-descriptions-item label="责任人">{{ historyDetail.responsiblePerson }}</el-descriptions-item>
+            </el-descriptions>
+            <template #footer>
+                <el-button @click="historyDialogVisible = false">关闭</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" @click="handleSave" v-if="!isView">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="primary" @click="switchToEdit" v-if="isView">
+                <i class="fas fa-edit"></i> 编辑
+            </el-button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const formRef = ref(null);
+
+                // 页面模式
+                const mode = ref('add');
+                const source = ref('');
+                const isView = computed(() => mode.value === 'view');
+                const isChange = computed(() => mode.value === 'change');
+                const showTabs = computed(() => source.value !== 'preview');
+
+                // Tab状态
+                const activeTab = ref('current');
+
+                // 模块折叠状态
+                const modules = ref({
+                    basic: true
+                });
+
+                // 表单数据
+                const formData = ref({
+                    projectCode: '',
+                    category: '(一)安全防护设备、设施支出',
+                    projectName: '',
+                    projectContent: '',
+                    planDate: '',
+                    planCost: 0,
+                    planCostDisplay: '',
+                    responsibleUnit: '设备部',
+                    responsiblePerson: '张三',
+                    remark: ''
+                });
+
+                // 历史记录数据
+                const historyData = ref([
+                    {
+                        version: 'V3',
+                        changeTime: '2026-01-10 14:30:00',
+                        changeUser: '李四',
+                        changeReason: '调整计划金额',
+                        projectCode: 'AQTRJH-20260101-0001',
+                        category: '安全标志',
+                        projectName: '厂区安全警示标志更新',
+                        projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
+                        planDate: '2026-03-31',
+                        planCost: 45000,
+                        planCostDisplay: '45,000.00',
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        version: 'V2',
+                        changeTime: '2026-01-05 10:20:00',
+                        changeUser: '张三',
+                        changeReason: '更新责任人信息',
+                        projectCode: 'AQTRJH-20260101-0001',
+                        category: '安全标志',
+                        projectName: '厂区安全警示标志更新',
+                        projectContent: '对厂区内老旧安全警示标志进行更新',
+                        planDate: '2026-03-15',
+                        planCost: 40000,
+                        planCostDisplay: '40,000.00',
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '王五'
+                    },
+                    {
+                        version: 'V1',
+                        changeTime: '2026-01-01 09:00:00',
+                        changeUser: '张三',
+                        changeReason: '初始创建',
+                        projectCode: 'AQTRJH-20260101-0001',
+                        category: '安全标志',
+                        projectName: '厂区安全警示标志更新',
+                        projectContent: '对厂区内安全警示标志进行更新',
+                        planDate: '2026-03-01',
+                        planCost: 30000,
+                        planCostDisplay: '30,000.00',
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    }
+                ]);
+
+                // 历史版本详情
+                const historyDialogVisible = ref(false);
+                const historyDetail = ref({});
+
+                // 表单验证规则
+                const formRules = ref({
+                    category: [{ required: true, message: '请选择支出范围类别', trigger: 'change' }],
+                    projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+                    projectContent: [{ required: true, message: '请输入项目内容', trigger: 'blur' }],
+                    planDate: [{ required: true, message: '请选择计划完成时间', trigger: 'change' }],
+                    planCost: [{ required: true, message: '请输入计划金额', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请选择责任单位', trigger: 'change' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }]
+                });
+
+                // 格式化金额（千分号，2位小数）
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(value);
+                };
+
+                // 解析金额字符串
+                const parseAmount = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(str.replace(/,/g, '')) || 0;
+                };
+
+                // 处理金额输入
+                const handleCostInput = (value) => {
+                    formData.value.planCostDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化金额显示
+                const formatCost = () => {
+                    const value = parseAmount(formData.value.planCostDisplay);
+                    formData.value.planCost = value;
+                    formData.value.planCostDisplay = formatAmount(value);
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    formData.value.projectCode = `AQTRJH-${dateStr}-${randomNum}`;
+                };
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'add';
+                    const id = urlParams.get('id');
+                    source.value = urlParams.get('source') || '';
+
+                    if (id && (mode.value === 'view' || mode.value === 'edit' || mode.value === 'change')) {
+                        loadData(id);
+                    } else {
+                        generateCode();
+                    }
+                });
+
+                // 加载数据
+                const loadData = (id) => {
+                    // 模拟数据
+                    const presetData = {
+                        '1': {
+                            projectCode: 'AQTRJH-20260101-0001',
+                            category: '安全标志',
+                            projectName: '厂区安全警示标志更新',
+                            projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
+                            planDate: '2026-03-31',
+                            planCost: 50000,
+                            planCostDisplay: '50,000.00',
+                            responsibleUnit: '设备部',
+                            responsiblePerson: '张三',
+                            remark: ''
+                        },
+                        '2': {
+                            projectCode: 'AQTRJH-20260101-0002',
+                            category: '安全防护设备',
+                            projectName: '员工个人防护装备采购',
+                            projectContent: '采购安全帽、防护眼镜、防护手套等个人防护装备，确保一线员工安全',
+                            planDate: '2026-02-28',
+                            planCost: 120000,
+                            planCostDisplay: '120,000.00',
+                            responsibleUnit: '安健环管理部',
+                            responsiblePerson: '李四',
+                            remark: '紧急采购项目'
+                        }
+                    };
+
+                    if (presetData[id]) {
+                        formData.value = { ...presetData[id] };
+                    } else {
+                        generateCode();
+                    }
+                };
+
+                // 查看历史版本
+                const viewHistoryVersion = (row) => {
+                    historyDetail.value = { ...row };
+                    historyDialogVisible.value = true;
+                };
+
+                // 切换模块
+                const toggleModule = (name) => {
+                    modules.value[name] = !modules.value[name];
+                };
+
+                // 保存
+                const handleSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            if (isChange.value) {
+                                // 变更模式：保存前先记录历史
+                                ElMessage.success('变更保存成功，已生成历史记录');
+                            } else {
+                                ElMessage.success('保存成功');
+                            }
+                            setTimeout(() => {
+                                goBack();
+                            }, 1000);
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                // 切换到编辑模式
+                const switchToEdit = () => {
+                    mode.value = 'edit';
+                };
+
+                // 返回列表
+                const goBack = () => {
+                    window.history.back();
+                };
+
+                return {
+                    formRef,
+                    mode,
+                    isView,
+                    isChange,
+                    showTabs,
+                    activeTab,
+                    modules,
+                    formData,
+                    formRules,
+                    historyData,
+                    historyDialogVisible,
+                    historyDetail,
+                    toggleModule,
+                    handleCostInput,
+                    formatCost,
+                    handleSave,
+                    switchToEdit,
+                    viewHistoryVersion,
+                    goBack
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

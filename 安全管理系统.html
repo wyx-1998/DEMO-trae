@@ -1166,125 +1166,103 @@
 
                         <!-- 安全预算详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-budget-detail'">
-                            <iframe src="./安全投入/安全预算-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
+                            <iframe src="./安全投入/安全预算-详情.html" <!-- 安措计划列表页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan'">
+                                    <iframe src="./安全投入/安措计划.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 安措计划详情页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan-detail'">
+                                    <iframe src="./安全投入/安措计划-详情.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 反措计划列表页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan'">
+                                    <iframe src="./安全投入/反措计划.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 反措计划详情页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan-detail'">
+                                    <iframe src="./安全投入/反措计划-详情.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 其他计划列表页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'other-plan'">
+                                    <iframe src="./安全投入/其他计划.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 其他计划详情页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'other-plan-detail'">
+                                    <iframe src="./安全投入/其他计划-详情.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 安全费用计提列表页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual'">
+                                    <iframe src="./安全投入/安全费用计提.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 安全费用计提详情页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual-detail'">
+                                    <iframe src="./安全投入/安全费用计提-详情.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 数据看板页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-dashboard'">
+                                    <iframe src="./安全投入/数据看板.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+                                <!-- 统计分析页面 -->
+                                <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-analysis'">
+                                    <iframe src="./安全投入/统计查询.html"
+                                        style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                                        @load="handleIframeLoad">
+                                    </iframe>
+                                </div>
+
+
+
+                                <!-- 其他页面的默认内容 -->
+                                <div class="content-wrapper" v-else>
+                                    <div class="page-header">
+                                        <i :class="getMenuIcon(activeMenu)"></i>
+                                        <h2 class="page-title">{{ getMenuTitle(activeMenu) }}</h2>
+                                    </div>
+                                    <div class="page-content">
+                                        <el-empty description="功能开发中...">
+                                            <el-button type="primary" @click="showMessage">
+                                                <i class="fas fa-tools"></i> 敬请期待
+                                            </el-button>
+                                        </el-empty>
+                                    </div>
+                                </div>
                         </div>
-
-                        <!-- 安全投入列表页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'expense-management'">
-                            <iframe src="./安全投入/安全投入.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安全投入详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'expense-management-detail'">
-                            <iframe src="./安全投入/安全投入-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安措计划列表页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan'">
-                            <iframe src="./安全投入/安措计划.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安措计划详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan-detail'">
-                            <iframe src="./安全投入/安措计划-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 反措计划列表页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan'">
-                            <iframe src="./安全投入/反措计划.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 反措计划详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'counter-measures-plan-detail'">
-                            <iframe src="./安全投入/反措计划-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 其他计划列表页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'other-plan'">
-                            <iframe src="./安全投入/其他计划.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 其他计划详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'other-plan-detail'">
-                            <iframe src="./安全投入/其他计划-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安全费用计提列表页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual'">
-                            <iframe src="./安全投入/安全费用计提.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安全费用计提详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual-detail'">
-                            <iframe src="./安全投入/安全费用计提-详情.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 数据看板页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-dashboard'">
-                            <iframe src="./安全投入/数据看板.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 统计分析页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-analysis'">
-                            <iframe src="./安全投入/统计查询.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-
-
-                        <!-- 其他页面的默认内容 -->
-                        <div class="content-wrapper" v-else>
-                            <div class="page-header">
-                                <i :class="getMenuIcon(activeMenu)"></i>
-                                <h2 class="page-title">{{ getMenuTitle(activeMenu) }}</h2>
-                            </div>
-                            <div class="page-content">
-                                <el-empty description="功能开发中...">
-                                    <el-button type="primary" @click="showMessage">
-                                        <i class="fas fa-tools"></i> 敬请期待
-                                    </el-button>
-                                </el-empty>
-                            </div>
-                        </div>
-                    </div>
                 </main>
             </div>
         </div>

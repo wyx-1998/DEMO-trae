@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>费用使用记录（相关方）</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            gap: 16px;
+        }
+
+        /* 左侧项目树 */
+        .tree-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tree-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-header i {
+            color: #409EFF;
+        }
+
+        .tree-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            background: #f5f7fa;
+        }
+
+        .tree-node.active {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .tree-node-root {
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-root i {
+            color: #E6A23C;
+            font-size: 14px;
+        }
+
+        .tree-children {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+
+        .tree-node-child {
+            font-size: 14px;
+            color: #606266;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-child i {
+            color: #67C23A;
+            font-size: 12px;
+        }
+
+        .content-card {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .function-bar {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-area {
+            padding: 20px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-fields .el-form-item {
+            margin-bottom: 0;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .table-area {
+            flex: 1;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        .pagination-bar {
+            padding: 16px 24px;
+            background: #f8f9fa;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <!-- 左侧项目树 -->
+            <div class="tree-panel">
+                <div class="tree-header">
+                    <i class="fas fa-sitemap"></i>
+                    <span>相关方项目</span>
+                </div>
+                <div class="tree-content">
+                    <div v-for="contractor in contractors" :key="contractor.id">
+                        <div class="tree-node"
+                            :class="{ active: selectedContractor === contractor.id && !selectedProject }"
+                            @click="selectContractor(contractor.id)">
+                            <div class="tree-node-root">
+                                <i class="fas fa-building"></i>
+                                <span>{{ contractor.name }}</span>
+                            </div>
+                        </div>
+                        <div class="tree-children">
+                            <div v-for="project in contractor.projects" :key="project.id" class="tree-node"
+                                :class="{ active: selectedProject === project.id }" @click="selectProject(project.id)">
+                                <div class="tree-node-child">
+                                    <i class="fas fa-folder"></i>
+                                    <span>{{ project.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <!-- 功能按钮区 -->
+                <div class="function-bar">
+                    <div class="function-left">
+                        <el-button type="primary" @click="handleAdd">
+                            <i class="fas fa-plus"></i> 新建
+                        </el-button>
+                        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">
+                            <i class="fas fa-trash-alt"></i> 批量删除
+                        </el-button>
+                        <el-button @click="handleExport">
+                            <i class="fas fa-file-export"></i> 导出
+                        </el-button>
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-area">
+                    <el-form :model="searchForm" :inline="true">
+                        <div class="search-row">
+                            <div class="search-fields">
+                                <el-form-item label="项目名称">
+                                    <el-input v-model="searchForm.projectName" placeholder="请输入项目名称" clearable
+                                        style="width: 180px;" />
+                                </el-form-item>
+                                <el-form-item label="实际完成时间">
+                                    <el-date-picker v-model="searchForm.completeDate" type="daterange"
+                                        range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                                        value-format="YYYY-MM-DD" style="width: 260px;" />
+                                </el-form-item>
+                            </div>
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="handleSearch">
+                                    <i class="fas fa-search"></i> 查询
+                                </el-button>
+                                <el-button @click="handleReset">
+                                    <i class="fas fa-redo"></i> 重置
+                                </el-button>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="table-area">
+                    <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
+                        @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
+                        <el-table-column prop="projectName" label="项目名称" min-width="180">
+                            <template #default="{ row }">
+                                <a href="javascript:void(0)" @click="handleView(row)"
+                                    style="color: #409EFF; text-decoration: underline; cursor: pointer;">{{
+                                    row.projectName }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
+                        <el-table-column prop="planCompleteDate" label="计划完成时间" min-width="120"></el-table-column>
+                        <el-table-column prop="actualCompleteDate" label="实际完成时间" min-width="120"></el-table-column>
+                        <el-table-column prop="planCost" label="计划金额(元)" min-width="160" align="right">
+                            <template #default="{ row }">
+                                {{ formatAmount(row.planCost) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="actualCost" label="实际金额(元)" min-width="160" align="right">
+                            <template #default="{ row }">
+                                {{ formatAmount(row.actualCost) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="附件" width="100" align="center">
+                            <template #default="{ row }">
+                                <el-button v-if="row.attachments && row.attachments.length > 0" size="small" link
+                                    type="primary" @click="handleViewAttachment(row)">
+                                    <i class="fas fa-paperclip"></i>
+                                    <span style="margin-left: 2px;">({{ row.attachments.length }})</span>
+                                </el-button>
+                                <span v-else style="color: #909399;">-</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160"></el-table-column>
+                        <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
+                        <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                        <el-table-column label="操作" width="120" fixed="right" align="center">
+                            <template #default="{ row }">
+                                <el-button size="small" @click="handleView(row)" link>
+                                    <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                </el-button>
+                                <el-button size="small" @click="handleEdit(row)" link>
+                                    <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                </el-button>
+                                <el-button size="small" @click="handleDelete(row)" link>
+                                    <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination-bar">
+                    <el-pagination background size="small" v-model:current-page="currentPage"
+                        v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
+                        layout="total, ->, sizes, prev, pager, next, jumper" />
+                </div>
+            </div>
+        </div>
+
+        <!-- 附件列表弹窗 -->
+        <el-dialog v-model="attachmentDialogVisible" title="附件列表" width="500px">
+            <template #default>
+                <el-table :data="currentAttachments" style="width: 100%" border stripe>
+                    <el-table-column prop="name" label="文件名称" min-width="200"></el-table-column>
+                    <el-table-column label="操作" width="160" align="center">
+                        <template #default="{ row }">
+                            <el-button link type="primary" size="small" @click="viewAttachmentContent(row)">
+                                <i class="fas fa-eye"></i> 查看
+                            </el-button>
+                            <el-button link type="primary" size="small" @click="downloadAttachment(row)">
+                                <i class="fas fa-download"></i> 下载
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </template>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="attachmentDialogVisible = false">关闭</el-button>
+                </div>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const selectedRows = ref([]);
+                const currentPage = ref(1);
+                const pageSize = ref(20);
+                const attachmentDialogVisible = ref(false);
+                const currentAttachments = ref([]);
+
+                // 选中的相关方和项目
+                const selectedContractor = ref('c1');
+                const selectedProject = ref(null);
+
+                // 相关方和项目树数据
+                const contractors = ref([
+                    {
+                        id: 'c1',
+                        name: '中电建设承包商',
+                        projects: [
+                            { id: 'p1', name: '变电站改造项目' },
+                            { id: 'p2', name: '输电线路检修项目' },
+                            { id: 'p3', name: '配电网升级项目' }
+                        ]
+                    }
+                ]);
+
+                const searchForm = ref({
+                    projectName: '',
+                    completeDate: null
+                });
+
+                // 选择相关方
+                const selectContractor = (contractorId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = null;
+                    currentPage.value = 1;
+                };
+
+                // 选择项目
+                const selectProject = (projectId) => {
+                    selectedProject.value = projectId;
+                    currentPage.value = 1;
+                };
+
+                // 模拟表格数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        code: 'XGFTR-20260105-001',
+                        projectName: '现场消防设备维护保养',
+                        category: '消防设施维护及检测',
+                        measureType: '安措',
+                        planCompleteDate: '2026-01-03',
+                        actualCompleteDate: '2026-01-05',
+                        planCost: 80000,
+                        actualCost: 85000,
+                        relatedProject: '变电站改造项目',
+                        attachments: [
+                            { name: '维护记录.pdf', url: '#' },
+                            { name: '验收单.jpg', url: '#' }
+                        ],
+                        responsibleUnit: '施工一队',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 2,
+                        code: 'XGFTR-20260110-002',
+                        projectName: '变压器绝缘隐患整治',
+                        category: '设备重大缺陷和隐患治理',
+                        measureType: '反措',
+                        planCompleteDate: '2026-01-08',
+                        actualCompleteDate: '2026-01-10',
+                        planCost: 200000,
+                        actualCost: 215000,
+                        relatedProject: '变电站改造项目',
+                        attachments: [
+                            { name: '隐患整改报告.pdf', url: '#' }
+                        ],
+                        responsibleUnit: '施工二队',
+                        responsiblePerson: '李四'
+                    },
+                    {
+                        id: 3,
+                        code: 'XGFTR-20260115-003',
+                        projectName: '施工人员安全培训',
+                        category: '安全培训',
+                        measureType: '其他',
+                        planCompleteDate: '2026-01-15',
+                        actualCompleteDate: '2026-01-15',
+                        planCost: 30000,
+                        actualCost: 30000,
+                        relatedProject: '输电线路检修项目',
+                        attachments: [],
+                        responsibleUnit: '安全监督组',
+                        responsiblePerson: '王五'
+                    }
+                ]);
+
+                // 过滤后的数据
+                const filteredData = computed(() => {
+                    let data = tableData.value;
+
+                    if (searchForm.value.projectName) {
+                        data = data.filter(item => item.projectName.includes(searchForm.value.projectName));
+                    }
+                    if (searchForm.value.measureType) {
+                        data = data.filter(item => item.measureType === searchForm.value.measureType);
+                    }
+                    if (searchForm.value.completeDate && searchForm.value.completeDate.length === 2) {
+                        const [start, end] = searchForm.value.completeDate;
+                        data = data.filter(item => item.actualCompleteDate >= start && item.actualCompleteDate <= end);
+                    }
+
+                    return data;
+                });
+
+                // 分页数据
+                const pagedData = computed(() => {
+                    const start = (currentPage.value - 1) * pageSize.value;
+                    return filteredData.value.slice(start, start + pageSize.value);
+                });
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(value);
+                };
+
+                // 搜索
+                const handleSearch = () => {
+                    loading.value = true;
+                    currentPage.value = 1;
+                    setTimeout(() => {
+                        loading.value = false;
+                        ElMessage.success('查询完成');
+                    }, 300);
+                };
+
+                // 重置
+                const handleReset = () => {
+                    searchForm.value = {
+                        projectName: '',
+                        completeDate: null
+                    };
+                    currentPage.value = 1;
+                };
+
+                // 选择变化
+                const handleSelectionChange = (selection) => {
+                    selectedRows.value = selection;
+                };
+
+                // 新建
+                const handleAdd = () => {
+                    window.location.href = '安全投入(相关方)-详情.html?mode=add';
+                };
+
+                // 批量删除
+                const handleBatchDelete = () => {
+                    ElMessageBox.confirm(
+                        `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        ElMessage.success('删除成功');
+                        selectedRows.value = [];
+                    }).catch(() => { });
+                };
+
+                // 删除单条
+                const handleDelete = (row) => {
+                    ElMessageBox.confirm(
+                        `确定要删除项目"${row.projectName}"的投入记录吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                // 查看
+                const handleView = (row) => {
+                    window.location.href = `安全投入(相关方)-详情.html?mode=view&id=${row.id}`;
+                };
+
+                // 编辑
+                const handleEdit = (row) => {
+                    window.location.href = `安全投入(相关方)-详情.html?mode=edit&id=${row.id}`;
+                };
+
+                // 导出
+                const handleExport = () => {
+                    ElMessage.info('导出功能开发中...');
+                };
+
+                // 查看附件列表
+                const handleViewAttachment = (row) => {
+                    currentAttachments.value = row.attachments || [];
+                    attachmentDialogVisible.value = true;
+                };
+
+                // 查看附件内容
+                const viewAttachmentContent = (file) => {
+                    ElMessage.success(`预览附件：${file.name}`);
+                };
+
+                // 下载附件
+                const downloadAttachment = (file) => {
+                    ElMessage.success(`开始下载：${file.name}`);
+                };
+
+                return {
+                    loading,
+                    selectedRows,
+                    currentPage,
+                    pageSize,
+                    searchForm,
+                    filteredData,
+                    pagedData,
+                    contractors,
+                    selectedContractor,
+                    selectedProject,
+                    selectContractor,
+                    selectProject,
+                    formatAmount,
+                    handleSearch,
+                    handleReset,
+                    handleSelectionChange,
+                    handleAdd,
+                    handleBatchDelete,
+                    handleDelete,
+                    handleView,
+                    handleEdit,
+                    handleExport,
+                    handleViewAttachment,
+                    viewAttachmentContent,
+                    downloadAttachment,
+                    attachmentDialogVisible,
+                    currentAttachments
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

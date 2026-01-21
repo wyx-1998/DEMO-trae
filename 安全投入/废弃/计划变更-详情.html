@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计划变更详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        /* 比较容器 */
+        .compare-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .compare-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-header.before {
+            background: linear-gradient(135deg, #fafafa, #f0f0f0);
+        }
+
+        .panel-header.after {
+            background: linear-gradient(135deg, #ecf5ff, #e6f0fa);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .panel-header.before .panel-title {
+            color: #909399;
+        }
+
+        .panel-header.after .panel-title {
+            color: #409EFF;
+        }
+
+        .panel-content {
+            padding: 16px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        /* 差异样式 */
+        .el-table .row-added {
+            background-color: #f0f9eb !important;
+        }
+
+        .el-table .row-deleted {
+            background-color: #fef0f0 !important;
+        }
+
+        /* 确保所有单元格背景色一致 */
+        .el-table .row-deleted td.el-table__cell,
+        .el-table .row-deleted .cell {
+            background-color: #fef0f0 !important;
+            color: #606266 !important;
+            /* 恢复正常字体颜色 */
+            text-decoration: none !important;
+            /* 去除删除线 */
+        }
+
+        .el-table .row-modified {
+            background-color: #fdf6ec !important;
+        }
+
+        .cell-modified {
+            color: #e6a23c !important;
+            font-weight: bold;
+        }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-dot.added {
+            background-color: #67C23A;
+        }
+
+        .legend-dot.deleted {
+            background-color: #F56C6C;
+        }
+
+        .legend-dot.modified {
+            background-color: #E6A23C;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-cell {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 图例 -->
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-dot added"></span>
+                <span>新增项目</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot deleted"></span>
+                <span>删除项目</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot modified"></span>
+                <span>修改内容</span>
+            </div>
+        </div>
+
+        <!-- 对比容器 -->
+        <div class="compare-container">
+            <!-- 变更前 -->
+            <div class="compare-panel">
+                <div class="panel-header before">
+                    <i class="fas fa-history"></i>
+                    <span class="panel-title">变更前</span>
+                </div>
+                <div class="panel-content">
+                    <el-table :data="beforeData" style="width: 100%" stripe border size="small"
+                        :row-class-name="getBeforeRowClass">
+                        <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
+                        <el-table-column prop="projectCode" label="项目编号" min-width="130"></el-table-column>
+                        <el-table-column prop="projectName" label="项目名称" min-width="140">
+                            <template #default="{ row }">
+                                <el-tooltip :content="row.projectName" placement="top">
+                                    <div class="content-cell">
+                                        <a href="javascript:void(0)" @click="handleViewProject(row)"
+                                            style="color: #409EFF; text-decoration: underline; cursor: pointer;">
+                                            {{ row.projectName }}
+                                        </a>
+                                    </div>
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="shortCategory" label="使用类别简称" min-width="120"></el-table-column>
+                        <el-table-column prop="planCost" label="计划金额(万元)" min-width="110" align="right"
+                            :class-name="row => isFieldModified(row, 'planCost') ? 'cell-modified' : ''">
+                            <template #default="{ row }">
+                                {{ formatAmount(row.planCost) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planDate" label="计划完成时间" min-width="100"></el-table-column>
+                        <el-table-column prop="responsibleUnit" label="责任单位" min-width="100"></el-table-column>
+                        <el-table-column prop="responsiblePerson" label="责任人" min-width="80"></el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 变更后 -->
+            <div class="compare-panel">
+                <div class="panel-header after">
+                    <i class="fas fa-edit"></i>
+                    <span class="panel-title">变更后</span>
+                </div>
+                <div class="panel-content">
+                    <el-table :data="afterData" style="width: 100%" stripe border size="small"
+                        :row-class-name="getAfterRowClass">
+                        <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
+                        <el-table-column prop="projectCode" label="项目编号" min-width="130"></el-table-column>
+                        <el-table-column prop="projectName" label="项目名称" min-width="140">
+                            <template #default="{ row }">
+                                <el-tooltip :content="row.projectName" placement="top">
+                                    <div class="content-cell"
+                                        :class="{ 'cell-modified': isFieldModified(row, 'projectName') }">
+                                        <a href="javascript:void(0)" @click="handleViewProject(row)"
+                                            style="color: #409EFF; text-decoration: underline; cursor: pointer;">
+                                            {{ row.projectName }}
+                                        </a>
+                                    </div>
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="shortCategory" label="使用类别简称" min-width="120">
+                            <template #default="{ row }">
+                                <span :class="{ 'cell-modified': isFieldModified(row, 'shortCategory') }">
+                                    {{ row.shortCategory }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planCost" label="计划金额(万元)" min-width="110" align="right">
+                            <template #default="{ row }">
+                                <span :class="{ 'cell-modified': isFieldModified(row, 'planCost') }">
+                                    {{ formatAmount(row.planCost) }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planDate" label="计划完成时间" min-width="100">
+                            <template #default="{ row }">
+                                <span :class="{ 'cell-modified': isFieldModified(row, 'planDate') }">
+                                    {{ row.planDate }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="responsibleUnit" label="责任单位" min-width="100"></el-table-column>
+                        <el-table-column prop="responsiblePerson" label="责任人" min-width="80">
+                            <template #default="{ row }">
+                                <span :class="{ 'cell-modified': isFieldModified(row, 'responsiblePerson') }">
+                                    {{ row.responsiblePerson }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目详情弹窗 -->
+        <el-dialog v-model="projectDialogVisible" title="项目详情" width="800px" append-to-body>
+            <el-descriptions :column="2" border>
+                <el-descriptions-item label="项目编号">{{ currentProject.projectCode }}</el-descriptions-item>
+                <el-descriptions-item label="使用类别简称">{{ currentProject.shortCategory }}</el-descriptions-item>
+                <el-descriptions-item label="项目名称" :span="2">{{ currentProject.projectName }}</el-descriptions-item>
+                <el-descriptions-item label="计划金额">{{ formatAmount(currentProject.planCost) }} 元</el-descriptions-item>
+                <el-descriptions-item label="计划完成时间">{{ currentProject.planDate }}</el-descriptions-item>
+                <el-descriptions-item label="责任单位">{{ currentProject.responsibleUnit }}</el-descriptions-item>
+                <el-descriptions-item label="责任人">{{ currentProject.responsiblePerson }}</el-descriptions-item>
+            </el-descriptions>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="projectDialogVisible = false">关闭</el-button>
+                </span>
+            </template>
+        </el-dialog>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">返回</el-button>
+            <el-button type="primary" @click="handleSave" v-if="mode === 'edit'">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="success" @click="handleSubmit" v-if="mode === 'edit'">
+                <i class="fas fa-paper-plane"></i> 提交审批
+            </el-button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const mode = ref('view');
+                const projectDialogVisible = ref(false);
+                const currentProject = ref({});
+
+                // 查看项目详情
+                const handleViewProject = (row) => {
+                    currentProject.value = { ...row };
+                    projectDialogVisible.value = true;
+                };
+
+                // 变更前数据
+                const beforeData = ref([
+                    { id: 1, projectCode: 'AQTRJH-20260101-0001', shortCategory: '安全防护', projectName: '厂区安全警示标志更新', planCost: 50000, planDate: '2026-03-31', responsiblePerson: '张三', responsibleUnit: '设备部', status: 'unchanged' },
+                    { id: 2, projectCode: 'AQTRJH-20260101-0002', shortCategory: '应急救援', projectName: '员工个人防护装备采购', planCost: 120000, planDate: '2026-02-28', responsiblePerson: '李四', responsibleUnit: '安健环管理部', status: 'modified' },
+                    { id: 3, projectCode: 'AQTRJH-20260101-0003', shortCategory: '安全培训', projectName: '年度安全培训计划', planCost: 80000, planDate: '2026-06-30', responsiblePerson: '王五', responsibleUnit: '安健环管理部', status: 'unchanged' },
+                    { id: 4, projectCode: 'AQTRJH-20260101-0004', shortCategory: '应急救援', projectName: '应急救援器材配置', planCost: 150000, planDate: '2026-04-30', responsiblePerson: '赵六', responsibleUnit: '运维部', status: 'deleted' },
+                    { id: 5, projectCode: 'AQTRJH-20260101-0005', shortCategory: '安全检查', projectName: '隐患排查治理专项', planCost: 200000, planDate: '2026-12-31', responsiblePerson: '张三', responsibleUnit: '安健环管理部', status: 'unchanged' }
+                ]);
+
+                // 变更后数据
+                const afterData = ref([
+                    { id: 1, projectCode: 'AQTRJH-20260101-0001', shortCategory: '安全防护', projectName: '厂区安全警示标志更新', planCost: 50000, planDate: '2026-03-31', responsiblePerson: '张三', responsibleUnit: '设备部', status: 'unchanged' },
+                    { id: 2, projectCode: 'AQTRJH-20260101-0002', shortCategory: '应急救援', projectName: '员工个人防护装备采购', planCost: 180000, planDate: '2026-03-31', responsiblePerson: '李四', responsibleUnit: '安健环管理部', status: 'modified', modifiedFields: ['planCost', 'planDate'] },
+                    { id: 3, projectCode: 'AQTRJH-20260101-0003', shortCategory: '安全培训', projectName: '年度安全培训计划', planCost: 80000, planDate: '2026-06-30', responsiblePerson: '王五', responsibleUnit: '安健环管理部', status: 'unchanged' },
+                    { id: 5, projectCode: 'AQTRJH-20260101-0005', shortCategory: '安全检查', projectName: '隐患排查治理专项', planCost: 200000, planDate: '2026-12-31', responsiblePerson: '张三', responsibleUnit: '安健环管理部', status: 'unchanged' },
+                    { id: 6, projectCode: 'AQTRJH-20260114-0006', shortCategory: '安全设施', projectName: '消防设施年度检测', planCost: 95000, planDate: '2026-08-31', responsiblePerson: '王五', responsibleUnit: '设备部', status: 'added' }
+                ]);
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(value);
+                };
+
+                // 变更前行样式
+                const getBeforeRowClass = ({ row }) => {
+                    if (row.status === 'deleted') return 'row-deleted';
+                    if (row.status === 'modified') return 'row-modified';
+                    return '';
+                };
+
+                // 变更后行样式
+                const getAfterRowClass = ({ row }) => {
+                    if (row.status === 'added') return 'row-added';
+                    if (row.status === 'modified') return 'row-modified';
+                    return '';
+                };
+
+                // 判断字段是否被修改
+                const isFieldModified = (row, field) => {
+                    return row.modifiedFields && row.modifiedFields.includes(field);
+                };
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'view';
+                });
+
+                // 返回
+                const goBack = () => {
+                    window.location.href = '计划变更.html';
+                };
+
+                // 保存
+                const handleSave = () => {
+                    ElMessage.success('保存成功');
+                };
+
+                // 提交审批
+                const handleSubmit = () => {
+                    ElMessageBox.confirm(
+                        '确定要提交此变更申请吗？',
+                        '确认提交',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'info' }
+                    ).then(() => {
+                        ElMessage.success('提交成功，等待审批');
+                        setTimeout(() => {
+                            window.location.href = '计划变更.html';
+                        }, 1000);
+                    }).catch(() => { });
+                };
+
+                return {
+                    mode,
+                    beforeData,
+                    afterData,
+                    formatAmount,
+                    getBeforeRowClass,
+                    getAfterRowClass,
+                    isFieldModified,
+                    goBack,
+                    handleSave,
+                    handleSubmit,
+                    projectDialogVisible,
+                    currentProject,
+                    handleViewProject
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

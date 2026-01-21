@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投入计划管理 - 安措计划详情</title>
+    <title>投入计划管理 - 其他计划详情</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -151,14 +151,6 @@
                 width: 100%;
             }
         }
-
-        /* 字数统计 */
-        .char-counter {
-            font-size: 12px;
-            color: #909399;
-            text-align: right;
-            margin-top: 4px;
-        }
     </style>
 </head>
 
@@ -187,11 +179,10 @@
                                 <el-form-item label="所属类别" prop="category" required>
                                     <el-select v-model="formData.category" placeholder="请选择类别" :disabled="isView"
                                         style="width: 100%;">
-                                        <el-option label="安全标志" value="安全标志"></el-option>
-                                        <el-option label="安全防护设备" value="安全防护设备"></el-option>
-                                        <el-option label="安全培训" value="安全培训"></el-option>
-                                        <el-option label="应急救援" value="应急救援"></el-option>
-                                        <el-option label="安全检查" value="安全检查"></el-option>
+                                        <el-option label="与安全生产直接相关的其他支出" value="与安全生产直接相关的其他支出"></el-option>
+                                        <el-option label="安全科技研发" value="安全科技研发"></el-option>
+                                        <el-option label="安全信息化建设" value="安全信息化建设"></el-option>
+                                        <el-option label="安全文化建设" value="安全文化建设"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </div>
@@ -227,7 +218,7 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="责任单位" prop="responsibleUnit" required>
+                                <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
                                     <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位"
                                         :disabled="isView" style="width: 100%;">
                                         <el-option label="设备部" value="设备部"></el-option>
@@ -293,7 +284,7 @@
                 // 表单数据
                 const formData = ref({
                     projectCode: '',
-                    category: '安全标志',
+                    category: '与安全生产直接相关的其他支出',
                     projectName: '',
                     projectContent: '',
                     planDate: '',
@@ -370,28 +361,28 @@
                     // 模拟数据
                     const presetData = {
                         '1': {
-                            projectCode: 'AQTRJH-20260101-0001',
-                            category: '安全标志',
-                            projectName: '厂区安全警示标志更新',
-                            projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
-                            planDate: '2026-03-31',
-                            planCost: 50000,
-                            planCostDisplay: '50,000.00',
-                            responsibleUnit: '设备部',
+                            projectCode: 'AQTRJH-20260101-0003',
+                            category: '与安全生产直接相关的其他支出',
+                            projectName: '安全生产责任保险',
+                            projectContent: '购买企业安全生产责任保险，保障员工和企业安全',
+                            planDate: '2026-01-31',
+                            planCost: 300000,
+                            planCostDisplay: '300,000.00',
+                            responsibleUnit: '安健环管理部',
                             responsiblePerson: '张三',
                             remark: ''
                         },
                         '2': {
-                            projectCode: 'AQTRJH-20260101-0002',
-                            category: '安全防护设备',
-                            projectName: '员工个人防护装备采购',
-                            projectContent: '采购安全帽、防护眼镜、防护手套等个人防护装备，确保一线员工安全',
-                            planDate: '2026-02-28',
-                            planCost: 120000,
-                            planCostDisplay: '120,000.00',
-                            responsibleUnit: '安健环管理部',
+                            projectCode: 'AQTRJH-20260101-0004',
+                            category: '安全科技研发',
+                            projectName: '智能安全监控系统研发',
+                            projectContent: '研发基于AI的安全监控预警系统，实现隐患自动识别',
+                            planDate: '2026-12-31',
+                            planCost: 500000,
+                            planCostDisplay: '500,000.00',
+                            responsibleUnit: '设备部',
                             responsiblePerson: '李四',
-                            remark: '紧急采购项目'
+                            remark: '重点科研项目'
                         }
                     };
 
@@ -428,7 +419,7 @@
 
                 // 返回列表
                 const goBack = () => {
-                    window.location.href = '安措计划.html';
+                    window.location.href = '其他计划.html';
                 };
 
                 return {

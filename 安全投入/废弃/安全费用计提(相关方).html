@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全费用计提管理</title>
+    <title>安全费用计提（相关方）</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -29,16 +29,99 @@
             flex: 1;
             padding: 24px;
             overflow-y: auto;
+            display: flex;
+            gap: 16px;
+        }
+
+        /* 左侧项目树 */
+        .tree-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tree-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-header i {
+            color: #409EFF;
+        }
+
+        .tree-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            background: #f5f7fa;
+        }
+
+        .tree-node.active {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .tree-node-root {
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-root i {
+            color: #E6A23C;
+            font-size: 14px;
+        }
+
+        .tree-children {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+
+        .tree-node-child {
+            font-size: 14px;
+            color: #606266;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-child i {
+            color: #67C23A;
+            font-size: 12px;
         }
 
         .content-card {
+            flex: 1;
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
         .function-bar {
@@ -109,8 +192,36 @@
 <body>
     <div id="app" class="app-container">
         <div class="main-content">
-            <div class="content-card">
+            <!-- 左侧项目树 -->
+            <div class="tree-panel">
+                <div class="tree-header">
+                    <i class="fas fa-sitemap"></i>
+                    <span>相关方项目</span>
+                </div>
+                <div class="tree-content">
+                    <div v-for="contractor in contractors" :key="contractor.id">
+                        <div class="tree-node"
+                            :class="{ active: selectedContractor === contractor.id && !selectedProject }"
+                            @click="selectContractor(contractor.id)">
+                            <div class="tree-node-root">
+                                <i class="fas fa-building"></i>
+                                <span>{{ contractor.name }}</span>
+                            </div>
+                        </div>
+                        <div class="tree-children">
+                            <div v-for="project in contractor.projects" :key="project.id" class="tree-node"
+                                :class="{ active: selectedProject === project.id }" @click="selectProject(project.id)">
+                                <div class="tree-node-child">
+                                    <i class="fas fa-folder"></i>
+                                    <span>{{ project.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="content-card">
                 <!-- 功能按钮区 -->
                 <div class="function-bar">
                     <div class="function-left">
@@ -153,6 +264,7 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160"></el-table-column>
                         <el-table-column prop="cycle" label="提取周期" min-width="120">
                             <template #default="{ row }">
                                 <span>{{ row.cycle }}年</span>
@@ -206,39 +318,65 @@
                 const currentPage = ref(1);
                 const pageSize = ref(20);
 
+                // 选中的相关方和项目
+                const selectedContractor = ref('c1');
+                const selectedProject = ref(null);
+
+                // 相关方和项目树数据
+                const contractors = ref([
+                    {
+                        id: 'c1',
+                        name: '中电建设承包商',
+                        projects: [
+                            { id: 'p1', name: '变电站改造项目' },
+                            { id: 'p2', name: '输电线路检修项目' },
+                            { id: 'p3', name: '配电网升级项目' }
+                        ]
+                    }
+                ]);
+
                 const searchForm = ref({
                     year: ''
                 });
+
+                // 选择相关方
+                const selectContractor = (contractorId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = null;
+                    currentPage.value = 1;
+                };
+
+                // 选择项目
+                const selectProject = (projectId) => {
+                    selectedProject.value = projectId;
+                    currentPage.value = 1;
+                };
 
                 // 模拟表格数据
                 const tableData = ref([
                     {
                         id: 1,
+                        relatedProject: '变电站改造项目',
                         cycle: '2026',
-                        budget: 15500000.00,
+                        budget: 1550000.00,
                         updater: '张三',
                         updateTime: '2026-01-05 14:30:00'
                     },
                     {
                         id: 2,
+                        relatedProject: '变电站改造项目',
                         cycle: '2025',
-                        budget: 14800000.00,
+                        budget: 1480000.00,
                         updater: '李四',
                         updateTime: '2025-01-10 09:15:00'
                     },
                     {
                         id: 3,
-                        cycle: '2024',
-                        budget: 13200000.00,
+                        relatedProject: '输电线路检修项目',
+                        cycle: '2026',
+                        budget: 1320000.00,
                         updater: '王五',
                         updateTime: '2024-01-08 16:45:00'
-                    },
-                    {
-                        id: 4,
-                        cycle: '2023',
-                        budget: 12000000.00,
-                        updater: '赵六',
-                        updateTime: '2023-01-12 11:20:00'
                     }
                 ]);
 
@@ -289,7 +427,7 @@
 
                 // 新建
                 const handleAdd = () => {
-                    window.location.href = '安全费用计提-详情.html?mode=add';
+                    window.location.href = '安全费用计提(相关方)-详情.html?mode=add';
                 };
 
                 // 批量删除
@@ -315,12 +453,12 @@
 
                 // 查看
                 const handleView = (row) => {
-                    window.location.href = `安全费用计提-详情.html?mode=view&id=${row.id}`;
+                    window.location.href = `安全费用计提(相关方)-详情.html?mode=view&id=${row.id}`;
                 };
 
                 // 编辑
                 const handleEdit = (row) => {
-                    window.location.href = `安全费用计提-详情.html?mode=edit&id=${row.id}`;
+                    window.location.href = `安全费用计提(相关方)-详情.html?mode=edit&id=${row.id}`;
                 };
 
                 // 删除单条
@@ -345,6 +483,11 @@
                     tableData,
                     filteredData,
                     pagedData,
+                    contractors,
+                    selectedContractor,
+                    selectedProject,
+                    selectContractor,
+                    selectProject,
                     formatAmount,
                     handleSearch,
                     handleReset,

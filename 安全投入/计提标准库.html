@@ -197,7 +197,7 @@
       <!-- 左侧行业树 -->
       <div class="tree-panel">
         <div class="tree-search">
-          <el-input v-model="treeFilterText" placeholder="搜索行业分类" clearable size="default">
+          <el-input v-model="treeFilterText" placeholder="搜索企业分类" clearable size="default">
             <template #prefix>
               <i class="fas fa-search"></i>
             </template>
@@ -251,7 +251,7 @@
             @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column prop="code" label="编码" min-width="140" fixed="left"></el-table-column>
-            <el-table-column prop="industryType" label="所属行业类型" min-width="180"></el-table-column>
+            <el-table-column prop="industryType" label="所属企业分类" min-width="180"></el-table-column>
             <el-table-column prop="extractType" label="提取类型" min-width="180">
               <template #default="{ row }">
                 <a href="javascript:void(0)" @click="handleView(row)"
@@ -310,7 +310,7 @@
         // 行业树数据
         const industryTree = ref([
           {
-            label: '安全投入企业分类',
+            label: '安全生产费用企业分类',
             value: '',
             icon: 'fas fa-building',
             children: [
@@ -345,7 +345,7 @@
             industryValue: 'power',
             extractType: '电力生产企业',
             cycleType: '年度分摊提取',
-            basisName: '上一年度营业收入（元）',
+            basisName: '上一年度营业收入(元)',
             ruleType: '超额累退'
           },
           {
@@ -355,7 +355,7 @@
             industryValue: 'power',
             extractType: '电力供应企业',
             cycleType: '年度分摊提取',
-            basisName: '上一年度营业收入（元）',
+            basisName: '上一年度营业收入(元)',
             ruleType: '超额累退'
           },
           {

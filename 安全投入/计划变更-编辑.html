@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计划变更-编辑</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px 20px 80px 20px;
+            /* 增加底部padding防止按钮遮挡 */
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 40px);
+        }
+
+        .header-section {
+            padding: 24px 24px 0;
+            margin-bottom: 24px;
+        }
+
+        .module-content {
+            padding: 0 24px 24px;
+            flex: 1;
+        }
+
+        /* 功能按钮区 */
+        .function-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-fields .el-form-item {
+            margin-bottom: 0;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .content-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .year-select-card {
+            background: #ecf5ff;
+            border: 1px solid #d9ecff;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="form-container">
+            <!-- 头部：选择年份 -->
+            <div class="header-section" style="padding: 24px 24px 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="color: #F56C6C;">*</span>
+                    <span style="font-size: 14px; color: #606266; font-weight: bold;">计划年份</span>
+                    <el-select v-model="selectedYear" placeholder="请选择" style="width: 240px;" @change="handleYearChange"
+                        :disabled="isViewMode">
+                        <el-option label="2026" value="2026"></el-option>
+                        <el-option label="2025" value="2025"></el-option>
+                    </el-select>
+                </div>
+            </div>
+
+            <div class="module-content" v-if="selectedYear">
+                <!-- 功能按钮区 -->
+                <div class="function-bar">
+                    <div class="function-left">
+                        <el-button type="primary" @click="handleAdd" v-if="!isViewMode">
+                            <i class="fas fa-plus"></i> 新增项目
+                        </el-button>
+                        <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0"
+                            v-if="!isViewMode">
+                            <i class="fas fa-trash-alt"></i> 批量删除
+                        </el-button>
+                        <!-- 移除导入按钮 -->
+                    </div>
+                    <div class="function-right">
+                        <!-- 移除原来的取消和保存按钮 -->
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-area">
+                    <el-form :model="searchForm" :inline="true">
+                        <div class="search-row">
+                            <div class="search-fields">
+                                <el-form-item label="支出范围">
+                                    <el-select v-model="searchForm.category" placeholder="请选择" clearable
+                                        style="width: 300px;">
+                                        <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
+                                            :value="cat"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="项目名称">
+                                    <el-input v-model="searchForm.projectName" placeholder="请输入" clearable
+                                        style="width: 160px;" />
+                                </el-form-item>
+                                <el-form-item label="责任单位（部门）">
+                                    <el-select v-model="searchForm.responsibleUnit" placeholder="请选择" clearable
+                                        style="width: 140px;">
+                                        <el-option label="设备部" value="设备部"></el-option>
+                                        <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                        <el-option label="生产部" value="生产部"></el-option>
+                                        <el-option label="运维部" value="运维部"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="handleSearch">
+                                    <i class="fas fa-search"></i> 查询
+                                </el-button>
+                                <el-button @click="handleReset">
+                                    <i class="fas fa-redo"></i> 重置
+                                </el-button>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="table-area">
+                    <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
+                        @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55"></el-table-column>
+                        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                        <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
+                        <el-table-column prop="projectName" label="项目名称" min-width="180"></el-table-column>
+                        <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
+                        <el-table-column prop="projectContent" label="项目内容" min-width="200">
+                            <template #default="{ row }">
+                                <el-tooltip :content="row.projectContent" placement="top" :show-after="300">
+                                    <div class="content-cell">{{ row.projectContent }}</div>
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planCost" label="计划金额(万元)" min-width="170" align="right">
+                            <template #default="{ row }">
+                                <el-input-number v-model="row.planCost" :precision="2" :step="1000" size="small"
+                                    style="width: 100%" :controls="false" :disabled="isViewMode"></el-input-number>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planDate" label="计划完成时间" min-width="150" align="center">
+                            <template #default="{ row }">
+                                <el-date-picker v-model="row.planDate" type="date" value-format="YYYY-MM-DD"
+                                    size="small" style="width: 100%" :clearable="false" :disabled="isViewMode" />
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
+                        <el-table-column prop="responsiblePerson" label="责任人" min-width="120"></el-table-column>
+                        <el-table-column label="操作" width="160" fixed="right" align="center">
+                            <template #default="{ row }">
+                                <div style="display: flex; justify-content: center; gap: 4px;">
+                                    <el-button size="small" @click="handleEdit(row)" link v-if="!isViewMode">
+                                        <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                    </el-button>
+                                    <el-button size="small" @click="handleDelete(row)" link v-if="!isViewMode">
+                                        <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                    </el-button>
+                                    <span v-if="isViewMode" style="color: #909399;">-</span>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <!-- 分页 -->
+                    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                        <el-pagination background size="small" v-model:current-page="currentPage"
+                            v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
+                            layout="total, ->, sizes, prev, pager, next, jumper" />
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="module-content"
+                style="display: flex; align-items: center; justify-content: center; color: #909399;">
+                请先选择需要变更的年份计划
+            </div>
+
+            <!-- 变更说明模块 -->
+            <div class="module-content" style="margin-top: 24px; border-top: 1px solid #ebeef5; padding-top: 24px;">
+                <h3
+                    style="margin-bottom: 24px; font-size: 16px; font-weight: 600; color: #303133; border-left: 4px solid #409EFF; padding-left: 12px;">
+                    变更说明</h3>
+                <el-form :model="changeForm" :rules="changeFormRules" ref="changeFormRef" label-width="100px">
+                    <el-form-item label="变更原因" prop="reason">
+                        <el-input v-model="changeForm.reason" type="textarea" :rows="4" placeholder="请输入变更原因（必填）"
+                            maxlength="500" show-word-limit :disabled="isViewMode" />
+                    </el-form-item>
+                    <el-form-item label="附件" prop="attachment">
+                        <div v-if="isViewMode && fileList.length === 0" style="color: #909399; font-size: 14px;">无附件
+                        </div>
+                        <el-upload v-else action="#" :auto-upload="false" :on-change="handleFileChange"
+                            :on-remove="handleFileRemove" :file-list="fileList" multiple :disabled="isViewMode">
+                            <el-button type="primary" plain v-if="!isViewMode">
+                                <i class="fas fa-cloud-upload-alt"></i> 点击上传附件
+                            </el-button>
+                            <template #tip v-if="!isViewMode">
+                                <div class="el-upload__tip">只能上传jpg/png/pdf文件，且不超过10MB</div>
+                            </template>
+                        </el-upload>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+
+        <!-- 底部按钮条 -->
+        <div class="form-actions"
+            style="position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 24px; background: #fff; border-top: 1px solid #ebeef5; display: flex; justify-content: flex-end; gap: 12px; z-index: 1000; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
+            <el-button @click="goBack">
+                <i class="fas fa-times"></i> {{ isViewMode ? '关闭' : '取消' }}
+            </el-button>
+            <el-button type="success" @click="handleSave" v-if="!isViewMode">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="primary" @click="handleSubmit" v-if="!isViewMode">
+                <i class="fas fa-paper-plane"></i> 提交审批
+            </el-button>
+        </div>
+
+        <!-- 编辑/新建弹窗 -->
+        <el-dialog :title="dialogTitle" v-model="dialogVisible" width="800px" append-to-body>
+            <el-form :model="currentProject" label-width="120px">
+                <el-form-item label="项目名称">
+                    <el-input v-model="currentProject.projectName" />
+                </el-form-item>
+                <el-form-item label="支出范围">
+                    <el-select v-model="currentProject.category" style="width: 100%;">
+                        <el-option v-for="cat in categoryOptions" :key="cat" :label="cat" :value="cat"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="项目内容">
+                    <el-input type="textarea" v-model="currentProject.projectContent" />
+                </el-form-item>
+                <el-form-item label="计划投入费用">
+                    <el-input-number v-model="currentProject.planCost" :precision="2" :step="1000"
+                        style="width: 100%;" />
+                </el-form-item>
+                <el-form-item label="投入预算">
+                    <el-input-number v-model="currentProject.budgetCost" :precision="2" :step="1000"
+                        style="width: 100%;" />
+                </el-form-item>
+                <el-form-item label="计划完成时间">
+                    <el-date-picker v-model="currentProject.planDate" type="date" value-format="YYYY-MM-DD"
+                        style="width: 100%;" />
+                </el-form-item>
+                <el-form-item label="责任人">
+                    <el-input v-model="currentProject.responsiblePerson" />
+                </el-form-item>
+                <el-form-item label="责任单位">
+                    <el-select v-model="currentProject.responsibleUnit" style="width: 100%;">
+                        <el-option label="设备部" value="设备部"></el-option>
+                        <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                        <el-option label="生产部" value="生产部"></el-option>
+                        <el-option label="运维部" value="运维部"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="submitProject">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const selectedYear = ref('');
+                const selectedRows = ref([]);
+                const currentPage = ref(1);
+                const pageSize = ref(20);
+
+                const dialogVisible = ref(false);
+                const dialogTitle = ref('新建项目');
+                const currentProject = ref({});
+
+                // 视图模式
+                const isViewMode = ref(false);
+
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const mode = urlParams.get('mode');
+                    if (mode === 'view') {
+                        isViewMode.value = true;
+                        selectedYear.value = '2026';
+                        loading.value = true;
+                        // 模拟加载数据
+                        setTimeout(() => {
+                            tableData.value = allData['2026'] ? JSON.parse(JSON.stringify(allData['2026'])) : [];
+                            changeForm.value.reason = '因生产计划调整，需增加设备维护频次。'; // 模拟已填数据
+                            fileList.value = [{ name: '变更依据文件.pdf', url: '#' }]; // 模拟已传附件
+                            loading.value = false;
+                        }, 500);
+                    }
+                });
+
+                // 变更说明表单
+                const changeFormRef = ref(null);
+                const changeForm = ref({
+                    reason: '',
+                    attachment: null
+                });
+                const changeFormRules = {
+                    reason: [
+                        { required: true, message: '请输入变更原因', trigger: 'blur' }
+                    ]
+                };
+                const fileList = ref([]);
+
+                const searchForm = ref({
+                    category: '',
+                    projectName: '',
+                    responsibleUnit: ''
+                });
+
+                const categoryOptions = [
+                    '1.完善、改造和维护安全防护设施设备支出',
+                    '2.配备、维护、保养应急救援器材、设备支出和应急演练支出',
+                    '3.开展重大危险源和事故隐患评估、监控和整改支出',
+                    '4.安全生产检查、评价（不包括新建、改建、扩建项目安全评价）、咨询、标准化建设支出',
+                    '5.配备和更新现场作业人员安全防护用品支出',
+                    '6.安全生产宣传、教育、培训支出',
+                    '7.安全生产适用的新技术、新标准、新工艺、新装备的推广应用支出',
+                    '8.安全设施及特种设备检测检验支出',
+                    '9.其他与安全生产直接相关的支出',
+                    '10.一、二、三类企业提取标准'
+                ];
+
+                // 模拟数据 - 对应正式计划中的数据
+                const allData = {
+                    '2026': [
+                        { id: 1, projectCode: 'AQTRJH-20260101-0001', projectName: '厂区安全警示标志更新', category: '1.完善、改造和维护安全防护设施设备支出', projectContent: '更新厂区内所有老化、模糊的安全警示标志，增加夜光显示功能。', planCost: 50000, budgetCost: 55000, planDate: '2026-03-31', responsiblePerson: '张三', responsibleUnit: '设备部' },
+                        { id: 2, projectCode: 'AQTRJH-20260101-0002', projectName: '员工个人防护装备采购', category: '5.配备和更新现场作业人员安全防护用品支出', projectContent: '采购安全帽、防护鞋、防尘口罩等个人防护用品。', planCost: 120000, budgetCost: 120000, planDate: '2026-02-28', responsiblePerson: '李四', responsibleUnit: '安健环管理部' },
+                        { id: 3, projectCode: 'AQTRJH-20260101-0003', projectName: '年度安全培训计划', category: '6.安全生产宣传、教育、培训支出', projectContent: '组织全员安全生产法律法规、操作规程培训。', planCost: 80000, budgetCost: 85000, planDate: '2026-06-30', responsiblePerson: '王五', responsibleUnit: '安健环管理部' },
+                        { id: 4, projectCode: 'AQTRJH-20260101-0004', projectName: '应急救援器材配置', category: '2.配备、维护、保养应急救援器材、设备支出和应急演练支出', projectContent: '补充空气呼吸器、担架等应急救援器材。', planCost: 150000, budgetCost: 160000, planDate: '2026-04-30', responsiblePerson: '赵六', responsibleUnit: '运维部' },
+                        { id: 5, projectCode: 'AQTRJH-20260101-0005', projectName: '隐患排查治理专项', category: '3.开展重大危险源和事故隐患评估、监控和整改支出', projectContent: '聘请第三方机构进行全面隐患排查。', planCost: 200000, budgetCost: 200000, planDate: '2026-12-31', responsiblePerson: '张三', responsibleUnit: '安健环管理部' },
+                        { id: 6, projectCode: 'AQTRJH-20260101-0006', projectName: '消防设施年度检测', category: '8.安全设施及特种设备检测检验支出', projectContent: '对全厂消防设施进行年度功能检测。', planCost: 95000, budgetCost: 100000, planDate: '2026-08-31', responsiblePerson: '王五', responsibleUnit: '设备部' }
+                    ],
+                    '2025': []
+                };
+
+                const tableData = ref([]);
+
+                // 监听年份变化
+                const handleYearChange = (val) => {
+                    loading.value = true;
+                    // 模拟加载
+                    setTimeout(() => {
+                        tableData.value = allData[val] ? JSON.parse(JSON.stringify(allData[val])) : [];
+                        loading.value = false;
+                        ElMessage.success(`已加载 ${val} 年度计划数据`);
+                    }, 500);
+                };
+
+                // 过滤后的数据
+                const filteredData = computed(() => {
+                    let data = tableData.value;
+                    if (searchForm.value.category) {
+                        data = data.filter(item => item.category === searchForm.value.category);
+                    }
+                    if (searchForm.value.projectName) {
+                        data = data.filter(item => item.projectName.includes(searchForm.value.projectName));
+                    }
+                    if (searchForm.value.responsibleUnit) {
+                        data = data.filter(item => item.responsibleUnit === searchForm.value.responsibleUnit);
+                    }
+                    return data;
+                });
+
+                // 分页数据
+                const pagedData = computed(() => {
+                    const start = (currentPage.value - 1) * pageSize.value;
+                    return filteredData.value.slice(start, start + pageSize.value);
+                });
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(value);
+                };
+
+                // 搜索/重置
+                const handleSearch = () => { currentPage.value = 1; };
+                const handleReset = () => {
+                    searchForm.value = { category: '', projectName: '', responsibleUnit: '' };
+                    currentPage.value = 1;
+                };
+
+                const handleSelectionChange = (val) => { selectedRows.value = val; };
+
+                // 增删改
+                const handleAdd = () => {
+                    dialogTitle.value = '新增项目';
+                    currentProject.value = {
+                        projectCode: 'NEW-' + new Date().getTime(), // 临时编号
+                        planCost: 0,
+                        budgetCost: 0
+                    };
+                    dialogVisible.value = true;
+                };
+
+                const handleEdit = (row) => {
+                    dialogTitle.value = '编辑项目';
+                    currentProject.value = { ...row };
+                    dialogVisible.value = true;
+                };
+
+                const submitProject = () => {
+                    // 简单模拟保存
+                    if (currentProject.value.id) {
+                        const index = tableData.value.findIndex(item => item.id === currentProject.value.id);
+                        if (index > -1) tableData.value[index] = { ...currentProject.value };
+                    } else {
+                        currentProject.value.id = new Date().getTime();
+                        tableData.value.unshift({ ...currentProject.value });
+                    }
+                    dialogVisible.value = false;
+                    ElMessage.success('操作成功');
+                };
+
+                const handleDelete = (row) => {
+                    ElMessageBox.confirm('确定要删除该项目吗？', '提示', { type: 'warning' }).then(() => {
+                        const index = tableData.value.findIndex(item => item.id === row.id);
+                        if (index > -1) tableData.value.splice(index, 1);
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                const handleBatchDelete = () => {
+                    ElMessageBox.confirm(`确定要删除选中的 ${selectedRows.value.length} 个项目吗？`, '提示', { type: 'warning' }).then(() => {
+                        selectedRows.value.forEach(row => {
+                            const index = tableData.value.findIndex(item => item.id === row.id);
+                            if (index > -1) tableData.value.splice(index, 1);
+                        });
+                        selectedRows.value = [];
+                        ElMessage.success('批量删除成功');
+                    }).catch(() => { });
+                };
+
+                const handleImport = () => { ElMessage.info('导入功能待开发'); };
+                const goBack = () => { window.location.href = '计划变更.html'; };
+
+                // 保存
+                const handleSave = () => {
+                    ElMessage.success('保存成功');
+                };
+
+                // 提交审批
+                const handleSubmit = () => {
+                    // 校验变更原因
+                    changeFormRef.value.validate((valid) => {
+                        if (valid) {
+                            ElMessageBox.confirm('确定要提交此变更申请审批吗？', '确认提交', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'success' }).then(() => {
+                                ElMessage.success('提交成功');
+                                setTimeout(() => {
+                                    window.location.href = '计划变更.html';
+                                }, 1000);
+                            }).catch(() => { });
+                        } else {
+                            ElMessage.warning('请填写变更原因');
+                            return false;
+                        }
+                    });
+                };
+
+                // 文件处理
+                const handleFileChange = (file, list) => {
+                    fileList.value = list;
+                };
+                const handleFileRemove = (file, list) => {
+                    fileList.value = list;
+                };
+
+                return {
+                    loading, selectedYear, selectedRows, currentPage, pageSize,
+                    searchForm, categoryOptions,
+                    pagedData, filteredData,
+                    dialogVisible, dialogTitle, currentProject,
+                    handleYearChange, handleSearch, handleReset, handleSelectionChange,
+                    formatAmount, handleAdd, handleEdit, handleDelete, handleBatchDelete,
+                    handleImport, goBack, handleSave, handleSubmit, submitProject,
+                    // 变更说明相关
+                    changeForm, changeFormRules, changeFormRef, fileList, handleFileChange, handleFileRemove,
+                    isViewMode
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -185,9 +185,35 @@
         /* 表格操作栏 */
         .table-toolbar {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 16px;
             gap: 12px;
+        }
+
+        /* 合计信息显示 */
+        .total-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .total-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .total-info-label {
+            color: #606266;
+        }
+
+        .total-info-value {
+            font-weight: 700;
+            color: #303133;
+            font-size: 15px;
         }
 
         /* 嵌套表格样式 */
@@ -346,6 +372,17 @@
                             <el-button type="primary" @click="openAddPlanDialog">
                                 <i class="fas fa-plus"></i> 新增计划
                             </el-button>
+                            <div class="total-info">
+                                <div class="total-info-item">
+                                    <span class="total-info-label">计划投入费用总额（元）：</span>
+                                    <span class="total-info-value">{{ formatAmount(totalPlanCost) }}</span>
+                                </div>
+                                <span style="color: #dcdfe6;">|</span>
+                                <div class="total-info-item">
+                                    <span class="total-info-label">投入预算总额（元）：</span>
+                                    <span class="total-info-value">{{ formatAmount(totalDetailBudget) }}</span>
+                                </div>
+                            </div>
                         </div>
                         <table class="budget-table">
                             <thead>
@@ -384,22 +421,25 @@
                                     </td>
                                 </tr>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="4" style="text-align: right; font-weight: 600;">合计</td>
-                                    <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}
-                                    </td>
-                                    <td class="number-cell" style="font-weight: 600;">{{
-                                        formatAmount(totalDetailBudget) }}
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
                         </table>
                     </template>
 
                     <!-- 查看模式下的嵌套表格 -->
                     <template v-else>
+                        <div class="table-toolbar">
+                            <div></div>
+                            <div class="total-info">
+                                <div class="total-info-item">
+                                    <span class="total-info-label">计划投入费用总额（元）：</span>
+                                    <span class="total-info-value">{{ formatAmount(totalPlanCost) }}</span>
+                                </div>
+                                <span style="color: #dcdfe6;">|</span>
+                                <div class="total-info-item">
+                                    <span class="total-info-label">投入预算总额（元）：</span>
+                                    <span class="total-info-value">{{ formatAmount(totalDetailBudget) }}</span>
+                                </div>
+                            </div>
+                        </div>
                         <table class="budget-table">
                             <thead>
                                 <tr>
@@ -461,16 +501,6 @@
                                     </tr>
                                 </template>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2" style="text-align: right; font-weight: 600;">合计</td>
-                                    <td class="number-cell" style="font-weight: 600;">{{ formatAmount(totalPlanCost) }}
-                                    </td>
-                                    <td class="number-cell" style="font-weight: 600;">{{
-                                        formatAmount(totalDetailBudget) }}
-                                    </td>
-                                </tr>
-                            </tfoot>
                         </table>
                     </template>
                 </div>
@@ -588,17 +618,18 @@
                     totalBudgetDisplay: ''
                 });
 
-                // 详细预算数据
+                // 详细预算数据（使用电力生产与供应企业一级投入类别，按排序号排序）
                 const budgetDetails = ref([
-                    { id: 1, projectName: '安全标志购置', categoryName: '安全标志及标识', measureType: '安措', planCost: 500000, budget: 600000, budgetDisplay: '600,000.00' },
-                    { id: 2, projectName: '防护设备采购', categoryName: '安全防护设备', measureType: '安措', planCost: 1200000, budget: 1500000, budgetDisplay: '1,500,000.00' },
-                    { id: 3, projectName: '安全技能培训', categoryName: '安全培训', measureType: '安措', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
-                    { id: 4, projectName: '应急装备配置', categoryName: '应急救援', measureType: '反措', planCost: 1500000, budget: 1800000, budgetDisplay: '1,800,000.00' },
-                    { id: 5, projectName: '隐患排查整改', categoryName: '安全检查与隐患整改', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
-                    { id: 6, projectName: '消防设施维保', categoryName: '消防设施维护', measureType: '反措', planCost: 1000000, budget: 1200000, budgetDisplay: '1,200,000.00' },
-                    { id: 7, projectName: '职业健康体检', categoryName: '职业健康', measureType: '其他', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
-                    { id: 8, projectName: '安全监控系统', categoryName: '安全科技研发', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
-                    { id: 9, projectName: '其他安全支出', categoryName: '其他安全投入', measureType: '其他', planCost: 500000, budget: 800000, budgetDisplay: '800,000.00' }
+                    { id: 1, projectName: '安全标志购置', categoryName: '（一）安全防护设备、设施支出', measureType: '安措', planCost: 500000, budget: 600000, budgetDisplay: '600,000.00' },
+                    { id: 2, projectName: '防护设备采购', categoryName: '（一）安全防护设备、设施支出', measureType: '安措', planCost: 1200000, budget: 1500000, budgetDisplay: '1,500,000.00' },
+                    { id: 3, projectName: '应急装备配置', categoryName: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出', measureType: '反措', planCost: 1500000, budget: 1800000, budgetDisplay: '1,800,000.00' },
+                    { id: 4, projectName: '隐患排查整改', categoryName: '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
+                    { id: 5, projectName: '安全检查评价', categoryName: '（四）安全生产检查、评估评价、咨询和标准化建设支出', measureType: '反措', planCost: 1000000, budget: 1200000, budgetDisplay: '1,200,000.00' },
+                    { id: 6, projectName: '安全技能培训', categoryName: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出', measureType: '安措', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
+                    { id: 7, projectName: '劳动防护用品', categoryName: '（六）配备和更新现场作业人员安全防护用品支出', measureType: '其他', planCost: 800000, budget: 1000000, budgetDisplay: '1,000,000.00' },
+                    { id: 8, projectName: '安全新技术应用', categoryName: '（七）安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出', measureType: '安措', planCost: 2000000, budget: 2500000, budgetDisplay: '2,500,000.00' },
+                    { id: 9, projectName: '安全生产责任保险', categoryName: '（九）安全生产责任保险支出', measureType: '其他', planCost: 500000, budget: 800000, budgetDisplay: '800,000.00' },
+                    { id: 10, projectName: '其他安全生产支出', categoryName: '（十）与安全生产直接相关的其他支出', measureType: '其他', planCost: 300000, budget: 400000, budgetDisplay: '400,000.00' }
                 ]);
 
                 // 分组后的预算数据（查看模式使用）
@@ -631,17 +662,18 @@
                     }
                 };
 
-                // 类别选项
+                // 类别选项（电力生产与供应企业一级投入类别）
                 const categoryOptions = ref([
-                    '安全标志及标识',
-                    '安全防护设备',
-                    '安全培训',
-                    '应急救援',
-                    '安全检查与隐患整改',
-                    '消防设施维护',
-                    '职业健康',
-                    '安全科技研发',
-                    '其他安全投入'
+                    '（一）安全防护设备、设施支出',
+                    '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                    '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出',
+                    '（四）安全生产检查、评估评价、咨询和标准化建设支出',
+                    '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
+                    '（六）配备和更新现场作业人员安全防护用品支出',
+                    '（七）安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出',
+                    '（八）安全设施及特种设备检测检验、检定校准支出',
+                    '（九）安全生产责任保险支出',
+                    '（十）与安全生产直接相关的其他支出'
                 ]);
 
                 // 责任单位选项

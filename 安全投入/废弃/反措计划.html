@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全预算管理 - 安全投入</title>
+    <title>投入计划管理 - 反措计划</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -71,12 +71,18 @@
 
         .search-fields {
             display: flex;
+            flex-direction: column;
             gap: 16px;
-            flex-wrap: wrap;
             flex: 1;
         }
 
-        .search-fields .el-form-item {
+        .search-fields-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-fields-row .el-form-item {
             margin-bottom: 0;
         }
 
@@ -86,6 +92,20 @@
             align-items: center;
             flex-shrink: 0;
             margin-left: 16px;
+            padding-top: 2px;
+        }
+
+        .expand-btn {
+            color: #409EFF;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .expand-btn:hover {
+            color: #66b1ff;
         }
 
         .table-area {
@@ -124,6 +144,9 @@
                         <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">
                             <i class="fas fa-trash-alt"></i> 批量删除
                         </el-button>
+                        <el-button @click="handleImport">
+                            <i class="fas fa-file-import"></i> 导入
+                        </el-button>
                         <el-button @click="handleExport">
                             <i class="fas fa-file-export"></i> 导出
                         </el-button>
@@ -135,24 +158,45 @@
                     <el-form :model="searchForm" :inline="true">
                         <div class="search-row">
                             <div class="search-fields">
-                                <el-form-item label="项目名称">
-                                    <el-input v-model="searchForm.projectName" placeholder="请输入项目名称" clearable
-                                        style="width: 180px;" />
-                                </el-form-item>
-                                <el-form-item label="是否两措">
-                                    <el-select v-model="searchForm.measureType" placeholder="请选择" clearable
-                                        style="width: 120px;">
-                                        <el-option label="安措" value="安措"></el-option>
-                                        <el-option label="反措" value="反措"></el-option>
-                                        <el-option label="其他" value="其他"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="实际完成时间">
-                                    <el-date-picker v-model="searchForm.completeDate" type="daterange"
-                                        range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
-                                        value-format="YYYY-MM-DD" style="width: 260px;" />
-                                </el-form-item>
+                                <!-- 第一行：3个字段 -->
+                                <div class="search-fields-row">
+                                    <el-form-item label="投入类别">
+                                        <el-select v-model="searchForm.category" placeholder="请选择类别" clearable
+                                            style="width: 200px;">
+                                            <el-option label="设备重大缺陷和隐患治理项目" value="设备重大缺陷和隐患治理项目"></el-option>
+                                            <el-option label="防汛抗旱工程" value="防汛抗旱工程"></el-option>
+                                            <el-option label="电网安全技术措施" value="电网安全技术措施"></el-option>
+                                            <el-option label="防火防爆措施" value="防火防爆措施"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="项目名称">
+                                        <el-input v-model="searchForm.projectName" placeholder="请输入项目名称" clearable
+                                            style="width: 180px;" />
+                                    </el-form-item>
+                                    <el-form-item label="责任单位">
+                                        <el-select v-model="searchForm.responsibleUnit" placeholder="请选择责任单位" clearable
+                                            style="width: 160px;">
+                                            <el-option label="设备部" value="设备部"></el-option>
+                                            <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                            <el-option label="生产部" value="生产部"></el-option>
+                                            <el-option label="运维部" value="运维部"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                                <!-- 第二行：展开后显示的字段 -->
+                                <div class="search-fields-row" v-show="isExpanded">
+                                    <el-form-item label="责任人">
+                                        <el-input v-model="searchForm.responsiblePerson" placeholder="请输入责任人" clearable
+                                            style="width: 120px;" />
+                                    </el-form-item>
+                                    <el-form-item label="计划完成时间">
+                                        <el-date-picker v-model="searchForm.planDate" type="daterange"
+                                            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                                            value-format="YYYY-MM-DD" style="width: 260px;" />
+                                    </el-form-item>
+                                </div>
                             </div>
+                            <!-- 按钮区域固定在右侧 -->
                             <div class="search-buttons">
                                 <el-button type="primary" @click="handleSearch">
                                     <i class="fas fa-search"></i> 查询
@@ -160,6 +204,10 @@
                                 <el-button @click="handleReset">
                                     <i class="fas fa-redo"></i> 重置
                                 </el-button>
+                                <span class="expand-btn" @click="toggleExpand">
+                                    {{ isExpanded ? '收起' : '展开' }}
+                                    <i :class="isExpanded ? 'fas fa-angle-up' : 'fas fa-angle-down'"></i>
+                                </span>
                             </div>
                         </div>
                     </el-form>
@@ -170,7 +218,7 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
+                        <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
                         <el-table-column prop="projectName" label="项目名称" min-width="180">
                             <template #default="{ row }">
                                 <a href="javascript:void(0)" @click="handleView(row)"
@@ -178,30 +226,38 @@
                                     row.projectName }}</a>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="category" label="所属类别" min-width="140"></el-table-column>
-                        <el-table-column prop="measureType" label="是否两措" min-width="100">
+                        <el-table-column prop="category" label="投入类别" min-width="180"></el-table-column>
+                        <el-table-column prop="basis" label="提出的依据和理由" min-width="180">
                             <template #default="{ row }">
-                                <el-tag
-                                    :type="row.measureType === '安措' ? 'success' : row.measureType === '反措' ? 'warning' : 'info'"
-                                    size="small">
-                                    {{ row.measureType }}
-                                </el-tag>
+                                <el-tooltip :content="row.basis" placement="top" :show-after="300">
+                                    <div class="content-cell">{{ row.basis }}</div>
+                                </el-tooltip>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="planCompleteDate" label="计划完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="actualCompleteDate" label="实际完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="planCost" label="计划投入费用（元）" min-width="160" align="right">
+                        <el-table-column prop="effect" label="措施内容或预期效果" min-width="180">
+                            <template #default="{ row }">
+                                <el-tooltip :content="row.effect" placement="top" :show-after="300">
+                                    <div class="content-cell">{{ row.effect }}</div>
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="planDate" label="计划完成时间" min-width="120"></el-table-column>
+                        <el-table-column prop="planCost" label="计划投入费用（元）" min-width="150" align="right">
                             <template #default="{ row }">
                                 {{ formatAmount(row.planCost) }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="actualCost" label="实际投入费用（元）" min-width="160" align="right">
-                            <template #default="{ row }">
-                                {{ formatAmount(row.actualCost) }}
-                            </template>
-                        </el-table-column>
                         <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
                         <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                        <el-table-column prop="supportUnit" label="协办单位（部门）" min-width="140"></el-table-column>
+                        <el-table-column prop="supportPerson" label="协办人" min-width="100"></el-table-column>
+                        <el-table-column prop="dataSource" label="数据来源" width="120">
+                            <template #default="{ row }">
+                                <el-tag :type="getDataSourceType(row.dataSource)" size="small">
+                                    {{ row.dataSource || '人工录入' }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" width="120" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
@@ -240,66 +296,82 @@
                 const selectedRows = ref([]);
                 const currentPage = ref(1);
                 const pageSize = ref(20);
+                const isExpanded = ref(false);
 
                 const searchForm = ref({
+                    category: '',
                     projectName: '',
-                    measureType: '',
-                    completeDate: null
+                    responsibleUnit: '',
+                    responsiblePerson: '',
+                    planDate: null
                 });
+
+                // 切换展开/收起
+                const toggleExpand = () => {
+                    isExpanded.value = !isExpanded.value;
+                };
 
                 // 模拟表格数据
                 const tableData = ref([
                     {
                         id: 1,
-                        code: 'AQTR-20260105-001',
-                        projectName: '现场消防设备维护保养',
-                        category: '消防设施维护及检测',
-                        measureType: '安措',
-                        planCompleteDate: '2026-01-03',
-                        actualCompleteDate: '2026-01-05',
-                        planCost: 80000,
-                        actualCost: 85000,
-                        responsibleUnit: '设备部',
-                        responsiblePerson: '张三'
+                        category: '设备重大缺陷和隐患治理项目',
+                        projectCode: 'AQTRJH-20260101-0002',
+                        projectName: '主变压器绝缘隐患整治',
+                        basis: '根据年度设备检测报告，主变压器绝缘老化严重，存在安全隐患',
+                        effect: '更换绝缘材料，消除设备隐患，确保设备安全稳定运行',
+                        planDate: '2026-06-30',
+                        planCost: 800000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '张三',
+                        supportUnit: '生产部',
+                        supportPerson: '李四',
+                        dataSource: '隐患治理'
                     },
                     {
                         id: 2,
-                        code: 'AQTR-20260110-002',
-                        projectName: '主变压器绝缘隐患整治',
-                        category: '设备重大缺陷和隐患治理',
-                        measureType: '反措',
-                        planCompleteDate: '2026-01-08',
-                        actualCompleteDate: '2026-01-10',
-                        planCost: 800000,
-                        actualCost: 850000,
-                        responsibleUnit: '安健环管理部',
-                        responsiblePerson: '李四'
+                        category: '防汛抗旱工程',
+                        projectCode: 'AQTRJH-20260101-0003',
+                        projectName: '厂区排水系统改造',
+                        basis: '近年暴雨频发，现有排水系统能力不足，多次发生内涝',
+                        effect: '扩大排水管道，增设排水泵站，提高防汛能力',
+                        planDate: '2026-05-31',
+                        planCost: 1500000,
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '王五',
+                        supportUnit: '运维部',
+                        supportPerson: '赵六',
+                        dataSource: '人工录入'
                     },
                     {
                         id: 3,
-                        code: 'AQTR-20260115-003',
-                        projectName: '安全生产责任保险',
-                        category: '与安全生产直接相关的其他支出',
-                        measureType: '其他',
-                        planCompleteDate: '2026-01-15',
-                        actualCompleteDate: '2026-01-15',
-                        planCost: 300000,
-                        actualCost: 300000,
-                        responsibleUnit: '安健环管理部',
-                        responsiblePerson: '王五'
+                        category: '电网安全技术措施',
+                        projectCode: 'AQTRJH-20260101-0004',
+                        projectName: '继电保护系统升级',
+                        basis: '现有继电保护设备运行年限超过15年，技术落后',
+                        effect: '采用新型数字化保护装置，提高电网保护可靠性',
+                        planDate: '2026-09-30',
+                        planCost: 2000000,
+                        responsibleUnit: '运维部',
+                        responsiblePerson: '李四',
+                        supportUnit: '设备部',
+                        supportPerson: '张三',
+                        dataSource: '隐患治理'
                     },
                     {
                         id: 4,
-                        code: 'AQTR-20260120-004',
-                        projectName: '员工个人防护装备采购',
-                        category: '安全防护设备',
-                        measureType: '安措',
-                        planCompleteDate: '2026-01-18',
-                        actualCompleteDate: '2026-01-20',
-                        planCost: 120000,
-                        actualCost: 128000,
+                        category: '防火防爆措施',
+                        projectCode: 'AQTRJH-20260101-0005',
+                        projectName: '油罐区消防系统升级',
+                        basis: '根据消防检查意见，油罐区消防设施需要升级改造',
+                        effect: '新增泡沫灭火系统，完善消防监控，提高消防能力',
+                        planDate: '2026-08-31',
+                        planCost: 1200000,
                         responsibleUnit: '安健环管理部',
-                        responsiblePerson: '赵六'
+                        responsiblePerson: '赵六',
+                        supportUnit: '生产部',
+                        supportPerson: '王五',
+                        dataSource: '人工录入'
                     }
                 ]);
 
@@ -307,15 +379,21 @@
                 const filteredData = computed(() => {
                     let data = tableData.value;
 
+                    if (searchForm.value.category) {
+                        data = data.filter(item => item.category === searchForm.value.category);
+                    }
                     if (searchForm.value.projectName) {
                         data = data.filter(item => item.projectName.includes(searchForm.value.projectName));
                     }
-                    if (searchForm.value.measureType) {
-                        data = data.filter(item => item.measureType === searchForm.value.measureType);
+                    if (searchForm.value.responsibleUnit) {
+                        data = data.filter(item => item.responsibleUnit === searchForm.value.responsibleUnit);
                     }
-                    if (searchForm.value.completeDate && searchForm.value.completeDate.length === 2) {
-                        const [start, end] = searchForm.value.completeDate;
-                        data = data.filter(item => item.actualCompleteDate >= start && item.actualCompleteDate <= end);
+                    if (searchForm.value.responsiblePerson) {
+                        data = data.filter(item => item.responsiblePerson.includes(searchForm.value.responsiblePerson));
+                    }
+                    if (searchForm.value.planDate && searchForm.value.planDate.length === 2) {
+                        const [start, end] = searchForm.value.planDate;
+                        data = data.filter(item => item.planDate >= start && item.planDate <= end);
                     }
 
                     return data;
@@ -327,7 +405,7 @@
                     return filteredData.value.slice(start, start + pageSize.value);
                 });
 
-                // 格式化金额（千分号，2位小数）
+                // 格式化金额
                 const formatAmount = (value) => {
                     if (value === null || value === undefined) return '-';
                     return new Intl.NumberFormat('zh-CN', {
@@ -349,9 +427,11 @@
                 // 重置
                 const handleReset = () => {
                     searchForm.value = {
+                        category: '',
                         projectName: '',
-                        measureType: '',
-                        completeDate: null
+                        responsibleUnit: '',
+                        responsiblePerson: '',
+                        planDate: null
                     };
                     currentPage.value = 1;
                 };
@@ -363,7 +443,7 @@
 
                 // 新建
                 const handleAdd = () => {
-                    window.location.href = '安全投入-详情.html?mode=add';
+                    window.location.href = '反措计划-详情.html?mode=add';
                 };
 
                 // 批量删除
@@ -371,7 +451,11 @@
                     ElMessageBox.confirm(
                         `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
                         '确认删除',
-                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
                     ).then(() => {
                         ElMessage.success('删除成功');
                         selectedRows.value = [];
@@ -381,9 +465,13 @@
                 // 删除单条
                 const handleDelete = (row) => {
                     ElMessageBox.confirm(
-                        `确定要删除项目"${row.projectName}"的投入记录吗？`,
+                        `确定要删除项目"${row.projectName}"吗？`,
                         '确认删除',
-                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
                     ).then(() => {
                         ElMessage.success('删除成功');
                     }).catch(() => { });
@@ -391,12 +479,17 @@
 
                 // 查看
                 const handleView = (row) => {
-                    window.location.href = `安全投入-详情.html?mode=view&id=${row.id}`;
+                    window.location.href = `反措计划-详情.html?mode=view&id=${row.id}`;
                 };
 
                 // 编辑
                 const handleEdit = (row) => {
-                    window.location.href = `安全投入-详情.html?mode=edit&id=${row.id}`;
+                    window.location.href = `反措计划-详情.html?mode=edit&id=${row.id}`;
+                };
+
+                // 导入
+                const handleImport = () => {
+                    ElMessage.info('导入功能开发中...');
                 };
 
                 // 导出
@@ -404,15 +497,30 @@
                     ElMessage.info('导出功能开发中...');
                 };
 
+                // 获取数据来源标签类型
+                const getDataSourceType = (dataSource) => {
+                    const typeMap = {
+                        '人工录入': '',
+                        '隐患治理': 'warning',
+                        '安全培训': 'success',
+                        '应急演练': 'danger'
+                    };
+                    return typeMap[dataSource] || '';
+                };
+
                 return {
                     loading,
                     selectedRows,
                     currentPage,
                     pageSize,
+                    isExpanded,
                     searchForm,
+                    tableData,
                     filteredData,
                     pagedData,
+                    toggleExpand,
                     formatAmount,
+                    getDataSourceType,
                     handleSearch,
                     handleReset,
                     handleSelectionChange,
@@ -421,6 +529,7 @@
                     handleDelete,
                     handleView,
                     handleEdit,
+                    handleImport,
                     handleExport
                 };
             }

@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全费用计提管理 - 详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 左侧年度卡片区域 */
+        .left-panel {
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 0;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .year-card {
+            padding: 20px;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: #fff;
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+
+        .year-card:hover {
+            background-color: #f5f7fa;
+        }
+
+        .year-card.active {
+            background-color: #ecf5ff;
+            border-right: 3px solid #409EFF;
+        }
+
+        .year-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .year-card-title i {
+            color: #409EFF;
+            margin-right: 0;
+        }
+
+        .year-card-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #909399;
+        }
+
+        .stat-value {
+            color: #303133;
+            font-family: Monaco, 'Courier New', Courier, monospace;
+        }
+
+        .stat-value.highlight {
+            color: #409EFF;
+            font-weight: 600;
+        }
+
+        .stat-value.success {
+            color: #67C23A;
+            font-weight: 600;
+        }
+
+        .stat-value.warning {
+            color: #E6A23C;
+            font-weight: 600;
+        }
+
+        /* 右侧详情区域 */
+        .right-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: calc(100vh - 40px);
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 20px 24px;
+            padding-bottom: 100px;
+            overflow-y: auto;
+        }
+
+        .form-module {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-module:last-child {
+            margin-bottom: 0;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        /* 三列布局 */
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+        }
+
+        .form-item.full-width {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 300px;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 计算公式高亮 */
+        .formula-hint {
+            font-size: 12px;
+            color: #67C23A;
+            margin-top: 4px;
+        }
+
+        /* 表单标签右对齐，最多6字换行 */
+        .el-form-item__label {
+            text-align: right !important;
+            justify-content: flex-end !important;
+            display: inline-block !important;
+            max-width: 200px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+        }
+
+        /* 合计信息显示 */
+        .total-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .total-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .total-info-label {
+            color: #606266;
+        }
+
+        .total-info-value {
+            font-weight: 700;
+            color: #303133;
+            font-size: 15px;
+        }
+
+        /* 表格操作栏 */
+        .table-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        /* 计提金额输入框样式 */
+        .accrual-amount-input .el-input__inner {
+            text-align: right;
+            color: #409EFF;
+            font-weight: normal;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-item {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex: 1;
+                width: 100%;
+            }
+        }
+
+        /* 禁用输入框样式优化：无边框、无底色、显示文本 */
+        .el-input.is-disabled .el-input__wrapper {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .el-input.is-disabled .el-input__inner {
+            color: #606266 !important;
+            -webkit-text-fill-color: #606266 !important;
+            cursor: text !important;
+            font-weight: 500;
+            /* 加粗一点以像文本 */
+            text-align: left;
+            /* 默认左对齐，金额类输入框可能会被行内样式覆盖为右对齐 */
+        }
+
+        /* 针对下拉框禁用的样式 */
+        .el-select.is-disabled .el-input__wrapper {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .el-select.is-disabled .el-input__inner {
+            color: #606266 !important;
+            -webkit-text-fill-color: #606266 !important;
+            cursor: text !important;
+            font-weight: 500;
+        }
+
+        .el-select.is-disabled .el-input__suffix {
+            display: none !important;
+            /* 隐藏下拉箭头 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 左侧年度卡片 -->
+        <div class="left-panel">
+            <div v-for="year in yearCards" :key="year.year" class="year-card"
+                :class="{ active: selectedYear === year.year }" @click="selectYear(year.year)">
+                <div class="year-card-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ year.year }}年度
+                </div>
+                <div class="year-card-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">应提取金额(万元)</span>
+                        <span class="stat-value">{{ formatAmount(year.extractAmount) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">上年结余金额(万元)</span>
+                        <span class="stat-value">{{ formatAmount(year.carryOverAmount) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">可使用金额(万元)</span>
+                        <span class="stat-value">{{ formatAmount(year.usableAmount) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">实际提取金额(万元)</span>
+                        <span class="stat-value">{{ formatAmount(year.actualExtractAmount) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧详情内容 -->
+        <div class="right-panel">
+            <div class="panel-content">
+                <!-- 功能按钮区 -->
+
+
+
+
+                <!-- 当前提取内容 -->
+                <!-- 当前提取内容 -->
+                <div>
+                    <!-- 基础数据模块 -->
+                    <div class="form-module">
+                        <div class="module-header" @click="toggleModule('basic')">
+                            <div class="module-title">
+                                <i class="fas fa-info-circle"></i>
+                                基础数据
+                            </div>
+                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                        </div>
+                        <div class="module-content" :class="{ collapsed: !modules.basic }">
+                            <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
+                                label-position="left">
+                                <div class="form-row">
+
+                                    <div class="form-item">
+                                        <el-form-item label="组织名称" prop="orgName" required>
+                                            <el-input v-model="formData.orgName" placeholder="组织名称" disabled />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item label="所属企业分类" prop="industryType" required>
+                                            <el-input v-model="formData.industryType" placeholder="行业类型" disabled />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item label="提取类型" prop="extractType" required>
+                                            <el-input v-model="formData.extractType" placeholder="提取类型" disabled />
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+
+                                    <div class="form-item">
+                                        <el-form-item label="提取规则类型" prop="ruleType" required>
+                                            <el-select v-model="formData.ruleType" placeholder="请选择" disabled
+                                                style="width: 100%;">
+                                                <el-option label="超额累退" value="excess"></el-option>
+                                                <el-option label="比例提取" value="proportion"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item label="提取周期类型" prop="cycleType" required>
+                                            <el-select v-model="formData.cycleType" placeholder="请选择" disabled
+                                                style="width: 100%;">
+                                                <el-option label="年度分摊提取" value="yearly"></el-option>
+                                                <el-option label="月度实时提取" value="monthly"></el-option>
+                                                <el-option label="项目进度提取" value="project"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </el-form>
+                        </div>
+                    </div>
+
+                    <!-- 提取数据模块 -->
+                    <div class="form-module">
+                        <div class="module-header" @click="toggleModule('extract')">
+                            <div class="module-title">
+                                <i class="fas fa-calculator"></i>
+                                提取数据
+                            </div>
+                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.extract }"></i>
+                        </div>
+                        <div class="module-content" :class="{ collapsed: !modules.extract }">
+                            <el-form :model="formData" label-width="200px" label-position="left">
+                                <div class="form-row">
+                                    <div class="form-item">
+                                        <el-form-item :label="formData.basisName" prop="basisValue" required>
+                                            <el-input v-model="formData.basisValueDisplay" placeholder="请输入金额"
+                                                @input="handleBasisValueInput" @blur="formatBasisValue" />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item :label="selectedYear + '年应提取金额(万元)'" required>
+                                            <el-input :model-value="formatAmount(calculatedAmount)" disabled>
+                                                <template #suffix>
+                                                    <el-button link type="primary" @click="showCalculationDialog"
+                                                        style="padding: 0; margin-right: 8px;">
+                                                        <i class="fas fa-calculator" style="font-size: 16px;"></i>
+                                                    </el-button>
+                                                </template>
+                                            </el-input>
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item :label="(selectedYear - 1) + '年结余金额(万元)'" prop="carryOver"
+                                            required>
+                                            <el-input v-model="formData.carryOverDisplay" placeholder="请输入金额"
+                                                @input="handleCarryOverInput" @blur="formatCarryOver" />
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-item">
+                                        <el-form-item required>
+                                            <template #label>
+                                                <span>{{ selectedYear }}年可使用金额(万元)</span>
+                                                <el-tooltip placement="top" effect="light">
+                                                    <template #content>
+                                                        {{ selectedYear }}年可使用金额 = {{ selectedYear }}年应提取金额 + {{
+                                                        selectedYear - 1 }}年结余金额
+                                                    </template>
+                                                    <i class="fas fa-question-circle"
+                                                        style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
+                                                </el-tooltip>
+                                            </template>
+                                            <el-input :model-value="formatAmount(calculatedAmount + formData.carryOver)"
+                                                disabled />
+                                        </el-form-item>
+                                    </div>
+                                    <div class="form-item">
+                                        <el-form-item required>
+                                            <template #label>
+                                                <span>{{ selectedYear }}年补提金额(万元)</span>
+                                                <el-tooltip placement="top" effect="light">
+                                                    <template #content>
+                                                        企业安全生产费用出现赤字（即当年计提企业安全生产费用加上年初结余小于年度实际支出）的，应当于年末补提企业安全生产费用。如果补提金额数字为0，则代表当前未发生补提。
+                                                    </template>
+                                                    <i class="fas fa-question-circle"
+                                                        style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
+                                                </el-tooltip>
+                                            </template>
+                                            <el-input :model-value="formatAmount(formData.supplementaryAmount || 0)"
+                                                disabled>
+                                                <template #suffix>
+                                                    <el-button link type="primary" @click="openSupplementaryDialog"
+                                                        style="font-weight: bold; height: auto; padding: 0 10px;">
+                                                        补提费用
+                                                    </el-button>
+                                                </template>
+                                            </el-input>
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </el-form>
+                        </div>
+                    </div>
+
+
+
+                    <!-- 月度提取数据模块 -->
+                    <div class="form-module">
+                        <div class="module-header" @click="toggleModule('monthly')">
+                            <div class="module-title">
+                                <i class="fas fa-calendar-check"></i>
+                                月度提取数据
+                            </div>
+                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.monthly }"></i>
+                        </div>
+                        <div class="module-content" :class="{ collapsed: !modules.monthly }">
+                            <el-table :data="monthlyAccrualData" border stripe>
+                                <el-table-column prop="month" label="月份" width="100" align="center">
+                                    <template #default="{ row }">
+                                        {{ row.month }}月
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="应提取金额(万元)" min-width="180">
+                                    <template #default="{ row }">
+                                        <span>{{ formatAmount(row.amount) }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="实际提取金额(万元)" min-width="180">
+                                    <template #default="{ row }">
+                                        <el-input v-model="row.actualAmountDisplay" placeholder="请输入金额"
+                                            @input="handleMonthlyActualInput(row)"
+                                            @blur="formatMonthlyActualAmount(row)" style="text-align: right;" />
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <div style="margin-top: 16px; text-align: right; font-size: 14px; color: #606266;">
+                                <span>月度应提取合计：</span>
+                                <span style="font-weight: 700; color: #409EFF; font-size: 16px;">{{
+                                    formatAmount(monthlyTotal) }} 万元</span>
+                                <span style="margin-left: 24px;">月度实际提取合计：</span>
+                                <span style="font-weight: 700; color: #67C23A; font-size: 16px;">{{
+                                    formatAmount(monthlyActualTotal) }} 万元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <el-dialog v-model="calculationDialogVisible" title="提取金额计算规则" width="700px">
+                    <div style="margin-bottom: 16px;">
+                        <div
+                            style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
+                            <div style="font-weight: 600; color: #303133; margin-bottom: 8px;">
+                                <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 6px;"></i>
+                                计算规则说明
+                            </div>
+                            <div style="color: #606266; font-size: 14px; line-height: 1.6;">
+                                采用<strong style="color: #E6A23C;">超额累退</strong>方式计算，根据提取依据值分段按不同比例提取安全费用
+                            </div>
+                        </div>
+                        <el-table :data="calculationRulesDisplay" border stripe>
+                            <el-table-column label="序号" width="60" align="center" type="index"></el-table-column>
+                            <el-table-column label="提取依据值范围" min-width="200">
+                                <template #default="{ row }">
+                                    <span>{{ row.range }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="提取比例" width="120" align="center">
+                                <template #default="{ row }">
+                                    <el-tag type="primary">{{ row.ratio }}</el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="本次提取金额(万元)" width="160" align="right">
+                                <template #default="{ row }">
+                                    <span
+                                        :style="{ color: row.amount > 0 ? '#409EFF' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
+                                        {{ formatAmount(row.amount) }}
+                                    </span>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <div style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 14px; color: #606266;">提取依据值：</span>
+                                <span style="font-size: 16px; font-weight: 600; color: #303133;">{{
+                                    formatAmount(formData.basisValue) }} 万元</span>
+                            </div>
+                            <el-divider style="margin: 12px 0;"></el-divider>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 14px; color: #606266;">{{ selectedYear }}年应提取金额：</span>
+                                <span style="font-size: 18px; font-weight: 700; color: #409EFF;">{{
+                                    formatAmount(calculatedAmount) }} 万元</span>
+                            </div>
+                        </div>
+                    </div>
+                    <template #footer>
+                        <el-button type="primary" @click="calculationDialogVisible = false">确定</el-button>
+                    </template>
+                </el-dialog>
+
+                <!-- 补提费用弹窗 -->
+                <el-dialog v-model="supplementaryDialogVisible" :title="selectedYear + '年补提费用'" width="500px"
+                    :close-on-click-modal="false">
+                    <el-form label-width="160px" label-position="left">
+                        <el-form-item :label="selectedYear + '年补提金额(万元)'" required>
+                            <el-input v-model="supplementaryForm.amountDisplay" placeholder="请输入补提金额"
+                                @input="handleSupplementaryAmountInput" @blur="formatSupplementaryAmount" />
+                        </el-form-item>
+                        <el-form-item label="补提原因" required>
+                            <el-input v-model="supplementaryForm.reason" type="textarea" :rows="3"
+                                placeholder="请输入补提原因" />
+                        </el-form-item>
+                    </el-form>
+                    <template #footer>
+                        <el-button @click="supplementaryDialogVisible = false">取消</el-button>
+                        <el-button type="primary" @click="confirmSupplementary">确定</el-button>
+                    </template>
+                </el-dialog>
+            </div>
+
+            <!-- 补提记录内容 -->
+            <div v-show="isView && activeTab === 'history'" style="padding: 24px;">
+                <div style="margin-bottom: 16px; font-size: 14px; color: #606266;">
+                    共 <span style="color: #409EFF; font-weight: 600;">{{ supplementaryRecords.length }}</span> 条补提记录
+                </div>
+                <el-table :data="supplementaryRecords" border stripe empty-text="暂无补提记录">
+                    <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                    <el-table-column prop="date" label="补提日期" width="120"></el-table-column>
+                    <el-table-column prop="amount" label="补提金额(万元)" width="160" align="right">
+                        <template #default="{ row }">
+                            <span style="color: #E6A23C; font-weight: 600;">{{ formatAmount(row.amount) }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="operator" label="操作人" width="100"></el-table-column>
+                    <el-table-column prop="remark" label="备注" min-width="200"></el-table-column>
+                    <el-table-column label="操作" width="80" align="center">
+                        <template #default="{ row }">
+                            <el-button size="small" @click="viewSupplementaryDetail(row)" link>
+                                <i class="fas fa-eye" style="color: #67C23A;"></i>
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button type="primary" @click="handleSave">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const formRef = ref(null);
+
+                // 页面模式 - 始终为编辑模式
+                const mode = ref('edit');
+                const isView = computed(() => false);
+
+                // 选中的年度
+                const selectedYear = ref(2026);
+
+                // 模块折叠状态
+                const modules = ref({
+                    basic: true,
+                    extract: true,
+                    plan: true,
+                    monthly: true
+                });
+
+                // 弹窗控制
+                const calculationDialogVisible = ref(false);
+
+                // Tab控制
+                const activeTab = ref('current');
+
+                // 年度卡片数据
+                const yearCards = ref([
+                    {
+                        year: 2026,
+                        extractAmount: 15000000,
+                        carryOverAmount: 50000,
+                        usableAmount: 15050000,
+                        actualExtractAmount: 0
+                    },
+                    {
+                        year: 2025,
+                        extractAmount: 14200000,
+                        carryOverAmount: 80000,
+                        usableAmount: 14280000,
+                        actualExtractAmount: 13800000
+                    },
+                    {
+                        year: 2024,
+                        extractAmount: 13500000,
+                        carryOverAmount: 120000,
+                        usableAmount: 13620000,
+                        actualExtractAmount: 13200000
+                    }
+                ]);
+
+                // 补提费用弹窗控制
+                const supplementaryDialogVisible = ref(false);
+                const supplementaryForm = ref({
+                    amount: 0,
+                    amountDisplay: '',
+                    reason: ''
+                });
+
+                // 补提记录数据
+                const supplementaryRecords = ref([
+                    {
+                        id: 1,
+                        date: '2026-03-15',
+                        amount: 500000,
+                        operator: '张三',
+                        remark: '一季度补提费用'
+                    },
+                    {
+                        id: 2,
+                        date: '2026-06-20',
+                        amount: 300000,
+                        operator: '李四',
+                        remark: '二季度补提费用'
+                    }
+                ]);
+
+                // 月度提取数据
+                const monthlyAccrualData = ref([
+                    { month: 1, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 2, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 3, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 4, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 5, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 6, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 7, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 8, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 9, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 10, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 11, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' },
+                    { month: 12, amount: 1250000, amountDisplay: '125.000000', actualAmount: 0, actualAmountDisplay: '' }
+                ]);
+
+                // 月度应提取合计
+                const monthlyTotal = computed(() => {
+                    return monthlyAccrualData.value.reduce((sum, item) => sum + (item.amount || 0), 0);
+                });
+
+                // 月度实际提取合计
+                const monthlyActualTotal = computed(() => {
+                    return monthlyAccrualData.value.reduce((sum, item) => sum + (item.actualAmount || 0), 0);
+                });
+
+                // 表单数据
+                const formData = ref({
+                    code: '',
+                    orgName: 'xx电力',
+                    industryType: '电力生产与供应企业',
+                    extractType: '电力生产企业',
+                    ruleType: 'excess',
+                    cycleType: 'yearly',
+                    cycle: new Date().getFullYear().toString(),
+                    basisName: '上一年度营业收入(万元)',
+                    basisValue: 1500000000,
+                    basisValueDisplay: '150,000.000000',
+                    carryOver: 50000,
+                    carryOverDisplay: '5.000000',
+                    totalAccrual: 0,
+                    totalAccrualDisplay: '',
+                    planBudget: 14500000,
+                    supplementaryAmount: 0,
+                    categories: []
+                });
+
+                // 超额累退规则（电力生产企业，单位：元）
+                const excessRules = [
+                    { lowerLimit: 0, upperLimit: 10000000, ratio: 0.03 },
+                    { lowerLimit: 10000000, upperLimit: 100000000, ratio: 0.015 },
+                    { lowerLimit: 100000000, upperLimit: 1000000000, ratio: 0.01 },
+                    { lowerLimit: 1000000000, upperLimit: 5000000000, ratio: 0.008 },
+                    { lowerLimit: 5000000000, upperLimit: 10000000000, ratio: 0.006 },
+                    { lowerLimit: 10000000000, upperLimit: null, ratio: 0.002 }
+                ];
+
+                const defaultCategories = [
+                    { code: 'TRLB-0001', name: '（一）安全防护设备、设施支出', sortOrder: 1, planCost: 2000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0002', name: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出', sortOrder: 2, planCost: 1800000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0003', name: '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出', sortOrder: 3, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0004', name: '（四）安全生产检查、评估评价、咨询和标准化建设支出', sortOrder: 4, planCost: 1200000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0005', name: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出', sortOrder: 5, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0006', name: '（六）配备和更新现场作业人员安全防护用品支出', sortOrder: 6, planCost: 800000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0007', name: '（七）安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出', sortOrder: 7, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0008', name: '（八）安全设施及特种设备检测检验、检定校准支出', sortOrder: 8, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0009', name: '（九）安全生产责任保险支出', sortOrder: 9, planCost: 500000, accrualAmount: 0, accrualAmountDisplay: '' },
+                    { code: 'TRLB-0010', name: '（十）与安全生产直接相关的其他支出', sortOrder: 10, planCost: 700000, accrualAmount: 0, accrualAmountDisplay: '' }
+                ];
+
+                // 表单验证规则
+                const formRules = ref({
+                    cycle: [{ required: true, message: '请选择提取周期', trigger: 'change' }]
+                });
+
+                // 选择年度
+                const selectYear = (year) => {
+                    selectedYear.value = year;
+                    const yearData = yearCards.value.find(y => y.year === year);
+                    if (yearData) {
+                        formData.value.cycle = year.toString();
+                        formData.value.carryOver = yearData.carryOverAmount;
+                        formData.value.carryOverDisplay = formatAmount(yearData.carryOverAmount);
+                    }
+                    generateCode();
+                };
+
+                // 计算应提取金额（超额累退）
+                const calculatedAmount = computed(() => {
+                    const basisValue = formData.value.basisValue || 0;
+                    let total = 0;
+                    let remaining = basisValue;
+
+                    for (const rule of excessRules) {
+                        if (remaining <= 0) break;
+
+                        const upperLimit = rule.upperLimit || Infinity;
+                        const rangeSize = upperLimit - rule.lowerLimit;
+                        const applicableAmount = Math.min(remaining, rangeSize);
+
+                        if (basisValue > rule.lowerLimit) {
+                            total += applicableAmount * rule.ratio;
+                            remaining -= applicableAmount;
+                        }
+                    }
+
+                    return Math.round(total * 1000000) / 1000000;
+                });
+
+                // 计算本周期计提金额（自动计算值）
+                const totalAccrualCalculated = computed(() => {
+                    return calculatedAmount.value + (formData.value.carryOver || 0);
+                });
+
+                // 计算计划投入合计
+                const totalPlanCost = computed(() => {
+                    return formData.value.categories.reduce((sum, item) => sum + (item.planCost || 0), 0);
+                });
+
+                // 计算类别计提金额合计
+                const totalCategoryAccrual = computed(() => {
+                    return formData.value.categories.reduce((sum, item) => sum + (item.accrualAmount || 0), 0);
+                });
+
+                // 类别数据（不含合计行）
+                const categoriesData = computed(() => {
+                    return formData.value.categories;
+                });
+
+                // 计算规则显示数据
+                const calculationRulesDisplay = computed(() => {
+                    const basisValue = formData.value.basisValue || 0;
+                    const results = [];
+                    let remaining = basisValue;
+
+                    for (const rule of excessRules) {
+                        const upperLimit = rule.upperLimit || Infinity;
+                        const rangeSize = upperLimit - rule.lowerLimit;
+                        const applicableAmount = Math.min(remaining, rangeSize);
+
+                        let amount = 0;
+                        if (basisValue > rule.lowerLimit && remaining > 0) {
+                            amount = applicableAmount * rule.ratio;
+                            remaining -= applicableAmount;
+                        }
+
+                        const rangeText = rule.upperLimit
+                            ? `${formatAmount(rule.lowerLimit)} - ${formatAmount(rule.upperLimit)} 万元`
+                            : `${formatAmount(rule.lowerLimit)} 万元以上`;
+
+                        results.push({
+                            range: rangeText,
+                            ratio: (rule.ratio * 100).toFixed(2) + '%',
+                            amount: amount
+                        });
+                    }
+
+                    return results;
+                });
+
+                // 格式化金额（千分号，2位小数）
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined || value === '') return '-';
+                    const num = parseFloat(value);
+                    if (isNaN(num)) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(num / 10000); // 转换为万元
+                };
+
+                // 解析金额字符串
+                const parseAmount = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(str.replace(/,/g, '')) || 0;
+                };
+
+                // 处理提取依据值输入
+                const handleBasisValueInput = (value) => {
+                    formData.value.basisValueDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化提取依据值
+                const formatBasisValue = () => {
+                    const value = parseAmount(formData.value.basisValueDisplay);
+                    formData.value.basisValue = value * 10000;
+                    formData.value.basisValueDisplay = formatAmount(formData.value.basisValue);
+                };
+
+                // 处理结余金额输入
+                const handleCarryOverInput = (value) => {
+                    formData.value.carryOverDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化结余金额
+                const formatCarryOver = () => {
+                    const value = parseAmount(formData.value.carryOverDisplay);
+                    formData.value.carryOver = value * 10000;
+                    formData.value.carryOverDisplay = formatAmount(formData.value.carryOver);
+                };
+
+                // 处理计提金额输入
+                const handleTotalAccrualInput = (value) => {
+                    formData.value.totalAccrualDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化计提金额
+                const formatTotalAccrual = () => {
+                    const value = parseAmount(formData.value.totalAccrualDisplay);
+                    formData.value.totalAccrual = value * 10000;
+                    formData.value.totalAccrualDisplay = formatAmount(formData.value.totalAccrual);
+                };
+
+                // 处理类别金额获得焦点
+                const handleCategoryFocus = (row) => {
+                    // 获得焦点时，不需要特殊处理，保持当前值
+                };
+
+                // 处理类别金额输入
+                const handleCategoryInput = (row) => {
+                    row.accrualAmountDisplay = row.accrualAmountDisplay.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化类别金额
+                const formatCategoryAmount = (row) => {
+                    const value = parseAmount(row.accrualAmountDisplay);
+                    row.accrualAmount = value * 10000;
+                    row.accrualAmountDisplay = value.toFixed(6);
+                };
+
+                // 处理月度金额输入
+                const handleMonthlyInput = (row) => {
+                    row.amountDisplay = row.amountDisplay.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化月度金额
+                const formatMonthlyAmount = (row) => {
+                    const value = parseAmount(row.amountDisplay);
+                    row.amount = value * 10000;
+                    row.amountDisplay = formatAmount(row.amount);
+                };
+
+                // 处理月度实际金额输入
+                const handleMonthlyActualInput = (row) => {
+                    row.actualAmountDisplay = row.actualAmountDisplay.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化月度实际金额
+                const formatMonthlyActualAmount = (row) => {
+                    const value = parseAmount(row.actualAmountDisplay);
+                    row.actualAmount = value * 10000;
+                    row.actualAmountDisplay = formatAmount(row.actualAmount);
+                    // 更新年度卡片的实际提取金额
+                    updateYearCardActualAmount();
+                };
+
+                // 更新年度卡片实际提取金额
+                const updateYearCardActualAmount = () => {
+                    const yearCard = yearCards.value.find(y => y.year === selectedYear.value);
+                    if (yearCard) {
+                        yearCard.actualExtractAmount = monthlyActualTotal.value;
+                    }
+                };
+
+                // 打开补提费用弹窗
+                const openSupplementaryDialog = () => {
+                    supplementaryForm.value = {
+                        amount: 0,
+                        amountDisplay: '',
+                        reason: ''
+                    };
+                    supplementaryDialogVisible.value = true;
+                };
+
+                // 确认补提费用
+                const confirmSupplementary = () => {
+                    if (!supplementaryForm.value.amount || supplementaryForm.value.amount <= 0) {
+                        ElMessage.warning('请输入有效的补提金额');
+                        return;
+                    }
+                    if (!supplementaryForm.value.reason) {
+                        ElMessage.warning('请输入补提原因');
+                        return;
+                    }
+                    formData.value.supplementaryAmount = supplementaryForm.value.amount;
+                    // 添加到补提记录
+                    supplementaryRecords.value.unshift({
+                        id: Date.now(),
+                        date: new Date().toISOString().slice(0, 10),
+                        amount: supplementaryForm.value.amount,
+                        operator: '当前用户',
+                        remark: supplementaryForm.value.reason
+                    });
+                    supplementaryDialogVisible.value = false;
+                    ElMessage.success('补提费用已添加');
+                };
+
+                // 处理补提金额输入
+                const handleSupplementaryAmountInput = (value) => {
+                    supplementaryForm.value.amountDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化补提金额
+                const formatSupplementaryAmount = () => {
+                    const value = parseAmount(supplementaryForm.value.amountDisplay);
+                    supplementaryForm.value.amount = value * 10000;
+                    supplementaryForm.value.amountDisplay = formatAmount(supplementaryForm.value.amount);
+                };
+
+                // 提取周期变化
+                const handleCycleChange = () => {
+                    generateCode();
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const year = formData.value.cycle || new Date().getFullYear().toString();
+                    formData.value.code = `AQTRJH-${year}-001`;
+                };
+
+                // 监听计算值变化，自动更新显示
+                watch(totalAccrualCalculated, (newVal) => {
+                    if (!formData.value.totalAccrualDisplay || formData.value.totalAccrualDisplay === '') {
+                        formData.value.totalAccrual = newVal;
+                        formData.value.totalAccrualDisplay = formatAmount(newVal);
+                    }
+                });
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'add';
+                    const id = urlParams.get('id');
+                    const tab = urlParams.get('tab');
+
+                    if (tab === 'history' && mode.value === 'view') {
+                        activeTab.value = 'history';
+                    }
+
+                    formData.value.categories = JSON.parse(JSON.stringify(defaultCategories));
+
+                    if (id && (mode.value === 'view' || mode.value === 'edit')) {
+                        loadData(id);
+                    } else {
+                        generateCode();
+                        formData.value.totalAccrual = totalAccrualCalculated.value;
+                        formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
+                    }
+                });
+
+                // 加载数据
+                const loadData = (id) => {
+                    const presetData = {
+                        '1': {
+                            code: 'AQTRJH-2026-001',
+                            orgName: 'xx电力',
+                            industryType: '电力生产与供应企业',
+                            extractType: '电力生产企业',
+                            ruleType: 'excess',
+                            cycleType: 'yearly',
+                            cycle: '2026',
+                            basisName: '上一年度营业收入(万元)',
+                            basisValue: 1500000000,
+                            basisValueDisplay: '150,000.000000',
+                            carryOver: 50000,
+                            carryOverDisplay: '5.000000',
+                            totalAccrual: 0,
+                            totalAccrualDisplay: '',
+                            planBudget: 14500000,
+                            categories: defaultCategories.map(cat => {
+                                const amount = Math.round(cat.planCost * 1.1 * 100) / 100;
+                                return {
+                                    ...cat,
+                                    accrualAmount: amount,
+                                    accrualAmountDisplay: formatAmount(amount)
+                                };
+                            })
+                        }
+                    };
+
+                    if (presetData[id]) {
+                        formData.value = { ...presetData[id] };
+                        if (!formData.value.totalAccrual) {
+                            formData.value.totalAccrual = totalAccrualCalculated.value;
+                            formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
+                        } else {
+                            formData.value.totalAccrualDisplay = formatAmount(formData.value.totalAccrual);
+                        }
+                        if (mode.value !== 'view') {
+                            formData.value.categories.forEach(cat => {
+                                if (cat.accrualAmount) {
+                                    cat.accrualAmountDisplay = formatAmount(cat.accrualAmount);
+                                }
+                            });
+                        }
+                    } else {
+                        generateCode();
+                    }
+                };
+
+                // 切换模块
+                const toggleModule = (name) => {
+                    modules.value[name] = !modules.value[name];
+                };
+
+                // 显示计算规则弹窗
+                const showCalculationDialog = () => {
+                    calculationDialogVisible.value = true;
+                };
+
+                // 保存
+                const handleSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            ElMessage.success('保存成功');
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                // 切换到编辑模式
+                const switchToEdit = () => {
+                    mode.value = 'edit';
+                };
+
+                // 返回列表
+                const goBack = () => {
+                    window.location.href = '计划提取.html';
+                };
+
+                // 查看补提详情
+                const viewSupplementaryDetail = (row) => {
+                    window.location.href = `安全费用计提-补提.html?mode=view&id=${row.id}`;
+                };
+
+                return {
+                    formRef,
+                    mode,
+                    isView,
+                    selectedYear,
+                    yearCards,
+                    modules,
+                    activeTab,
+                    supplementaryRecords,
+                    supplementaryDialogVisible,
+                    supplementaryForm,
+                    monthlyAccrualData,
+                    monthlyTotal,
+                    monthlyActualTotal,
+                    formData,
+                    formRules,
+                    calculatedAmount,
+                    totalAccrualCalculated,
+                    totalPlanCost,
+                    totalCategoryAccrual,
+                    categoriesData,
+                    calculationDialogVisible,
+                    calculationRulesDisplay,
+                    selectYear,
+                    toggleModule,
+                    formatAmount,
+                    handleBasisValueInput,
+                    formatBasisValue,
+                    handleCarryOverInput,
+                    formatCarryOver,
+                    handleTotalAccrualInput,
+                    formatTotalAccrual,
+                    handleCategoryFocus,
+                    handleCategoryInput,
+                    formatCategoryAmount,
+                    handleMonthlyInput,
+                    formatMonthlyAmount,
+                    handleMonthlyActualInput,
+                    formatMonthlyActualAmount,
+                    handleCycleChange,
+                    showCalculationDialog,
+                    openSupplementaryDialog,
+                    confirmSupplementary,
+                    handleSupplementaryAmountInput,
+                    formatSupplementaryAmount,
+                    handleSave,
+                    switchToEdit,
+                    goBack,
+                    viewSupplementaryDetail
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全费用计提管理 - 详情</title>
+    <title>安全费用计提（相关方） - 详情</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -83,7 +83,6 @@
             display: none;
         }
 
-        /* 三列布局 */
         .form-row {
             display: flex;
             gap: 24px;
@@ -105,7 +104,6 @@
             width: 100%;
         }
 
-        /* 底部按钮条 */
         .form-actions {
             position: fixed;
             bottom: 0;
@@ -121,14 +119,12 @@
             box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* 计算公式高亮 */
         .formula-hint {
             font-size: 12px;
             color: #67C23A;
             margin-top: 4px;
         }
 
-        /* 表单标签右对齐，最多6字换行 */
         .el-form-item__label {
             text-align: right !important;
             justify-content: flex-end !important;
@@ -140,23 +136,69 @@
             height: auto !important;
         }
 
-        /* 总计行样式 */
-        .summary-row {
-            background-color: #fafafa !important;
+        .total-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #606266;
         }
 
-        .summary-row td {
-            background-color: #fafafa !important;
+        .total-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        /* 计提金额输入框样式 */
+        .total-info-label {
+            color: #606266;
+        }
+
+        .total-info-value {
+            font-weight: 700;
+            color: #303133;
+            font-size: 15px;
+        }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
         .accrual-amount-input .el-input__inner {
             text-align: right;
             color: #409EFF;
             font-weight: normal;
         }
 
-        /* 响应式 */
+        .project-select-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-select-input .el-select {
+            flex: 1;
+        }
+
+        .project-select-btn {
+            flex-shrink: 0;
+        }
+
+        .project-dialog-search {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .project-dialog-search .el-input {
+            width: 200px;
+        }
+
         @media (max-width: 1200px) {
             .form-item {
                 flex: 0 0 calc(50% - 12px);
@@ -190,17 +232,27 @@
                     <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
                 </div>
                 <div class="module-content" :class="{ collapsed: !modules.basic }">
-                    <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
+                    <el-form :model="formData" :rules="formRules" ref="formRef" label-width="160px"
                         label-position="left">
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="编号" prop="code" required>
-                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
+                                <el-form-item label="关联相关方项目" prop="relatedProject" required>
+                                    <div class="project-select-input">
+                                        <el-select v-model="formData.relatedProject" placeholder="请选择项目"
+                                            :disabled="isView" style="flex: 1;" filterable>
+                                            <el-option v-for="project in allProjects" :key="project.id"
+                                                :label="project.name" :value="project.id"></el-option>
+                                        </el-select>
+                                        <el-button class="project-select-btn" :disabled="isView"
+                                            @click="openProjectDialog">
+                                            <i class="fas fa-search"></i>
+                                        </el-button>
+                                    </div>
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="组织名称" prop="orgName" required>
-                                    <el-input v-model="formData.orgName" placeholder="组织名称" disabled />
+                                <el-form-item label="编号" prop="code" required>
+                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
@@ -239,8 +291,7 @@
                             <div class="form-item">
                                 <el-form-item label="提取周期" prop="cycle" required>
                                     <el-date-picker v-model="formData.cycle" type="year" placeholder="请选择年份"
-                                        value-format="YYYY" style="width: 100%;" :disabled="isView"
-                                        @change="handleCycleChange" />
+                                        value-format="YYYY" style="width: 100%;" :disabled="isView" />
                                 </el-form-item>
                             </div>
                         </div>
@@ -297,7 +348,17 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="本周期计提金额（元）" required>
+                                <el-form-item required>
+                                    <template #label>
+                                        <span>本周期计提金额（元）</span>
+                                        <el-tooltip placement="top" effect="light">
+                                            <template #content>
+                                                本周期计提金额=本周期应提取金额+上一周期结余金额
+                                            </template>
+                                            <i class="fas fa-question-circle"
+                                                style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
+                                        </el-tooltip>
+                                    </template>
                                     <el-input v-model="formData.totalAccrualDisplay" placeholder="请输入金额"
                                         :disabled="isView" @input="handleTotalAccrualInput"
                                         @blur="formatTotalAccrual" />
@@ -319,54 +380,42 @@
                     <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.plan }"></i>
                 </div>
                 <div class="module-content" :class="{ collapsed: !modules.plan }">
-                    <el-table :data="categoriesWithTotal" border stripe :row-class-name="tableRowClassName">
-                        <el-table-column type="index" label="序号" width="60" align="center">
-                            <template #default="{ row }">
-                                {{ row.isSummary ? '' : row.index }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="name" label="投入类别名称" min-width="350">
-                            <template #default="{ row }">
-                                <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{ row.name }}</span>
-                            </template>
-                        </el-table-column>
+                    <div class="table-toolbar">
+                        <div class="total-info">
+                            <div class="total-info-item">
+                                <span class="total-info-label">计划投入预算总额（元）：</span>
+                                <span class="total-info-value">{{ formatAmount(totalPlanCost) }}</span>
+                            </div>
+                            <span style="color: #dcdfe6;">|</span>
+                            <div class="total-info-item">
+                                <span class="total-info-label">计提金额总额（元）：</span>
+                                <span class="total-info-value">{{ formatAmount(totalCategoryAccrual) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <el-table :data="categoriesData" border stripe>
+                        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                        <el-table-column prop="name" label="投入类别名称" min-width="350"></el-table-column>
                         <el-table-column prop="planCost" label="本周期计划投入预算（元）" width="200" align="right">
                             <template #default="{ row }">
-                                <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{
-                                    formatAmount(row.planCost) }}</span>
+                                {{ formatAmount(row.planCost) }}
                             </template>
                         </el-table-column>
                         <el-table-column label="本周期计提金额（元）" width="200" align="right">
                             <template #default="{ row }">
-                                <!-- 编辑模式下显示输入框 -->
-                                <template v-if="!isView && !row.isSummary">
-                                    <el-input v-model="row.accrualAmountDisplay"
-                                        class="accrual-amount-input" placeholder="请输入" @input="handleCategoryInput(row)"
-                                        @blur="formatCategoryAmount(row)" @focus="handleCategoryFocus(row)" />
+                                <template v-if="!isView">
+                                    <el-input v-model="row.accrualAmountDisplay" class="accrual-amount-input"
+                                        placeholder="请输入" @input="handleCategoryInput(row)"
+                                        @blur="formatCategoryAmount(row)" />
                                 </template>
-                                <!-- 查看模式或合计行显示只读文本 -->
                                 <template v-else>
-                                    <span :style="{ 
-                                        fontWeight: row.isSummary ? '600' : 'normal', 
-                                        color: '#409EFF'
-                                    }">{{ formatAmount(row.accrualAmount) }}</span>
+                                    <span style="color: #409EFF;">{{ formatAmount(row.accrualAmount) }}</span>
                                 </template>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
             </div>
-        </div>
-
-        <!-- 底部按钮 -->
-        <div class="form-actions">
-            <el-button @click="goBack">取消</el-button>
-            <el-button type="primary" @click="handleSave" v-if="!isView">
-                <i class="fas fa-save"></i> 保存
-            </el-button>
-            <el-button type="primary" @click="switchToEdit" v-if="isView">
-                <i class="fas fa-edit"></i> 编辑
-            </el-button>
         </div>
 
         <!-- 计算规则弹窗 -->
@@ -391,13 +440,13 @@
                     </el-table-column>
                     <el-table-column label="提取比例" width="120" align="center">
                         <template #default="{ row }">
-                            <el-tag type="success">{{ row.ratio }}</el-tag>
+                            <el-tag type="primary">{{ row.ratio }}</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column label="本次计提金额（元）" width="160" align="right">
                         <template #default="{ row }">
                             <span
-                                :style="{ color: row.amount > 0 ? '#67C23A' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
+                                :style="{ color: row.amount > 0 ? '#409EFF' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
                                 {{ formatAmount(row.amount) }}
                             </span>
                         </template>
@@ -421,6 +470,46 @@
                 <el-button type="primary" @click="calculationDialogVisible = false">确定</el-button>
             </template>
         </el-dialog>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" @click="handleSave" v-if="!isView">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="primary" @click="switchToEdit" v-if="isView">
+                <i class="fas fa-edit"></i> 编辑
+            </el-button>
+        </div>
+
+        <!-- 项目选择弹窗 -->
+        <el-dialog v-model="projectDialogVisible" title="选择相关方项目" width="600px" :close-on-click-modal="false">
+            <div class="project-dialog-search">
+                <el-input v-model="projectSearch.name" placeholder="请输入项目名称" clearable>
+                    <template #prefix>
+                        <i class="fas fa-file-alt"></i>
+                    </template>
+                </el-input>
+                <el-button type="primary" @click="searchProjects">
+                    <i class="fas fa-search"></i> 搜索
+                </el-button>
+                <el-button @click="resetProjectSearch">
+                    <i class="fas fa-redo"></i> 重置
+                </el-button>
+            </div>
+            <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row
+                @current-change="handleProjectSelect" :current-row-key="selectedProjectInDialog">
+                <el-table-column type="index" label="序号" width="60"></el-table-column>
+                <el-table-column prop="code" label="项目编号" min-width="180"></el-table-column>
+                <el-table-column prop="name" label="项目名称" min-width="200"></el-table-column>
+            </el-table>
+            <template #footer>
+                <el-button @click="projectDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmProjectSelect" :disabled="!selectedProjectInDialog">
+                    确定
+                </el-button>
+            </template>
+        </el-dialog>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -432,336 +521,183 @@
         createApp({
             setup() {
                 const formRef = ref(null);
-
-                // 页面模式
                 const mode = ref('add');
                 const isView = computed(() => mode.value === 'view');
 
-                // 模块折叠状态
                 const modules = ref({
                     basic: true,
                     extract: true,
                     plan: true
                 });
 
-                // 弹窗控制
-                const calculationDialogVisible = ref(false);
+                // 项目选择弹窗
+                const projectDialogVisible = ref(false);
+                const projectSearch = ref({ name: '' });
+                const selectedProjectInDialog = ref(null);
 
-                // 表单数据
-                const formData = ref({
-                    code: '',
-                    orgName: 'xx电力',
-                    industryType: '电力生产与供应企业',
-                    extractType: '电力生产企业',
-                    ruleType: 'excess',
-                    cycleType: 'yearly',
-                    cycle: new Date().getFullYear().toString(),
-                    basisName: '上一年度营业收入（元）',
-                    basisValue: 1500000000,
-                    basisValueDisplay: '1,500,000,000.00',
-                    carryOver: 500000000,
-                    carryOverDisplay: '500,000,000.00',
-                    totalAccrual: 0,
-                    totalAccrualDisplay: '',
-                    planBudget: 14500000000,
-                    categories: []
-                });
+                const allProjects = ref([
+                    { id: 'p1', code: 'XGF-PRJ-001', name: '变电站改造项目' },
+                    { id: 'p2', code: 'XGF-PRJ-002', name: '输电线路检修项目' },
+                    { id: 'p3', code: 'XGF-PRJ-003', name: '配电网升级项目' }
+                ]);
 
-                // 超额累退规则（电力生产企业，基于万元）
-                const excessRules = [
-                    { lowerLimit: 0, upperLimit: 1000, ratio: 0.03 },           // 0-1000万: 3%
-                    { lowerLimit: 1000, upperLimit: 10000, ratio: 0.015 },      // 1000万-1亿: 1.5%
-                    { lowerLimit: 10000, upperLimit: 100000, ratio: 0.01 },     // 1亿-10亿: 1%
-                    { lowerLimit: 100000, upperLimit: 500000, ratio: 0.008 },   // 10亿-50亿: 0.8%
-                    { lowerLimit: 500000, upperLimit: 1000000, ratio: 0.006 },  // 50亿-100亿: 0.6%
-                    { lowerLimit: 1000000, upperLimit: null, ratio: 0.002 }     // 100亿以上: 0.2%
-                ];
-
-                const defaultCategories = [
-                    { code: 'TRLB-0001', name: '（一）完善、改造和维护安全防护设备、设施支出', sortOrder: 1, planCost: 2000000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0002', name: '（二）配备、维护、保养应急救援器材、设备设施支出', sortOrder: 2, planCost: 1800000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0003', name: '（三）开展重大危险源检测、评估、监控支出', sortOrder: 3, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0004', name: '（四）安全生产检查、评估评价、咨询和标准化建设支出', sortOrder: 4, planCost: 1200000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0005', name: '（五）安全生产宣传、教育、培训支出', sortOrder: 5, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0006', name: '（六）配备和更新现场作业人员安全防护用品支出', sortOrder: 6, planCost: 800000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0007', name: '（七）安全生产适用的新技术、新设备的推广应用支出', sortOrder: 7, planCost: 1500000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0008', name: '（八）安全设施及特种设备检测检验支出', sortOrder: 8, planCost: 1000000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0009', name: '（九）安全生产责任保险支出', sortOrder: 9, planCost: 500000, accrualAmount: 0, accrualAmountDisplay: '' },
-                    { code: 'TRLB-0010', name: '（十）与安全生产直接相关的其他支出', sortOrder: 10, planCost: 700000, accrualAmount: 0, accrualAmountDisplay: '' }
-                ];
-
-                // 表单验证规则
-                const formRules = ref({
-                    cycle: [{ required: true, message: '请选择提取周期', trigger: 'change' }]
-                });
-
-                // 计算应提取金额（超额累退）
-                const calculatedAmount = computed(() => {
-                    const basisValue = formData.value.basisValue || 0;
-                    let total = 0;
-                    let remaining = basisValue;
-
-                    for (const rule of excessRules) {
-                        if (remaining <= 0) break;
-
-                        const upperLimit = rule.upperLimit || Infinity;
-                        const rangeSize = upperLimit - rule.lowerLimit;
-                        const applicableAmount = Math.min(remaining, rangeSize);
-
-                        if (basisValue > rule.lowerLimit) {
-                            total += applicableAmount * rule.ratio;
-                            remaining -= applicableAmount;
-                        }
+                const filteredProjects = computed(() => {
+                    let data = allProjects.value;
+                    if (projectSearch.value.name) {
+                        data = data.filter(p => p.name.includes(projectSearch.value.name));
                     }
-
-                    return Math.round(total * 1000000) / 1000000;
-                });
-
-                // 计算本周期计提金额（自动计算值）
-                const totalAccrualCalculated = computed(() => {
-                    return calculatedAmount.value + (formData.value.carryOver || 0);
-                });
-
-                // 计算计划投入合计
-                const totalPlanCost = computed(() => {
-                    return formData.value.categories.reduce((sum, item) => sum + (item.planCost || 0), 0);
-                });
-
-                // 计算类别计提金额合计
-                const totalCategoryAccrual = computed(() => {
-                    return formData.value.categories.reduce((sum, item) => sum + (item.accrualAmount || 0), 0);
-                });
-
-                // 带合计行的类别数据
-                const categoriesWithTotal = computed(() => {
-                    const data = formData.value.categories.map((cat, index) => ({
-                        ...cat,
-                        index: index + 1
-                    }));
-                    // 添加合计行
-                    const summary = {
-                        isSummary: true,
-                        index: '',
-                        name: '合计',
-                        planCost: totalPlanCost.value,
-                        accrualAmount: totalCategoryAccrual.value,
-                        accrualAmountDisplay: ''
-                    };
-                    data.push(summary);
                     return data;
                 });
 
-                // 计算规则显示数据
-                const calculationRulesDisplay = computed(() => {
-                    const basisValue = formData.value.basisValue || 0;
-                    const results = [];
-                    let remaining = basisValue;
-
-                    for (const rule of excessRules) {
-                        const upperLimit = rule.upperLimit || Infinity;
-                        const rangeSize = upperLimit - rule.lowerLimit;
-                        const applicableAmount = Math.min(remaining, rangeSize);
-
-                        let amount = 0;
-                        if (basisValue > rule.lowerLimit && remaining > 0) {
-                            amount = applicableAmount * rule.ratio;
-                            remaining -= applicableAmount;
-                        }
-
-                        const rangeText = rule.upperLimit
-                            ? `${formatAmount(rule.lowerLimit)} - ${formatAmount(rule.upperLimit)} 元`
-                            : `${formatAmount(rule.lowerLimit)} 元以上`;
-
-                        results.push({
-                            range: rangeText,
-                            ratio: (rule.ratio * 100).toFixed(2) + '%',
-                            amount: amount
-                        });
-                    }
-
-                    return results;
+                const formData = ref({
+                    relatedProject: '',
+                    code: '',
+                    industryType: '电力生产与供应企业',
+                    extractType: '营业收入',
+                    ruleType: 'excess',
+                    cycleType: 'yearly',
+                    cycle: '2026',
+                    basisName: '营业收入',
+                    basisValue: 500000000,
+                    basisValueDisplay: '500,000,000.00',
+                    planBudget: 15500000,
+                    carryOver: 50000,
+                    carryOverDisplay: '50,000.00',
+                    totalAccrual: 0,
+                    totalAccrualDisplay: ''
                 });
 
-                // 格式化金额（千分号，2位小数）
+                const formRules = ref({
+                    relatedProject: [{ required: true, message: '请选择关联相关方项目', trigger: 'change' }],
+                    cycle: [{ required: true, message: '请选择提取周期', trigger: 'change' }]
+                });
+
+                // 详细计划数据
+                const categoriesData = ref([
+                    { id: 1, name: '（一）安全防护设备、设施支出', planCost: 2100000, accrualAmount: 2100000, accrualAmountDisplay: '2,100,000.00' },
+                    { id: 2, name: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出', planCost: 1800000, accrualAmount: 1800000, accrualAmountDisplay: '1,800,000.00' },
+                    { id: 3, name: '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出', planCost: 2500000, accrualAmount: 2500000, accrualAmountDisplay: '2,500,000.00' },
+                    { id: 4, name: '（四）安全生产检查、评估评价、咨询和标准化建设支出', planCost: 1200000, accrualAmount: 1200000, accrualAmountDisplay: '1,200,000.00' },
+                    { id: 5, name: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出', planCost: 1000000, accrualAmount: 1000000, accrualAmountDisplay: '1,000,000.00' }
+                ]);
+
+                const calculatedAmount = computed(() => {
+                    return formData.value.basisValue * 0.01;
+                });
+
+                const totalPlanCost = computed(() => {
+                    return categoriesData.value.reduce((sum, item) => sum + item.planCost, 0);
+                });
+
+                const totalCategoryAccrual = computed(() => {
+                    return categoriesData.value.reduce((sum, item) => sum + (item.accrualAmount || 0), 0);
+                });
+
                 const formatAmount = (value) => {
-                    if (value === null || value === undefined || value === '') return '-';
-                    const num = parseFloat(value);
-                    if (isNaN(num)) return '-';
+                    if (value === null || value === undefined) return '';
                     return new Intl.NumberFormat('zh-CN', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
-                    }).format(num);
+                    }).format(value);
                 };
 
-                // 解析金额字符串
                 const parseAmount = (str) => {
                     if (!str) return 0;
                     return parseFloat(str.replace(/,/g, '')) || 0;
                 };
 
-                // 处理提取依据值输入
                 const handleBasisValueInput = (value) => {
                     formData.value.basisValueDisplay = value.replace(/[^\d.]/g, '');
                 };
 
-                // 格式化提取依据值
                 const formatBasisValue = () => {
                     const value = parseAmount(formData.value.basisValueDisplay);
                     formData.value.basisValue = value;
                     formData.value.basisValueDisplay = formatAmount(value);
                 };
 
-                // 处理结余金额输入
                 const handleCarryOverInput = (value) => {
                     formData.value.carryOverDisplay = value.replace(/[^\d.]/g, '');
                 };
 
-                // 格式化结余金额
                 const formatCarryOver = () => {
                     const value = parseAmount(formData.value.carryOverDisplay);
                     formData.value.carryOver = value;
                     formData.value.carryOverDisplay = formatAmount(value);
                 };
 
-                // 处理计提金额输入
                 const handleTotalAccrualInput = (value) => {
                     formData.value.totalAccrualDisplay = value.replace(/[^\d.]/g, '');
                 };
 
-                // 格式化计提金额
                 const formatTotalAccrual = () => {
                     const value = parseAmount(formData.value.totalAccrualDisplay);
                     formData.value.totalAccrual = value;
                     formData.value.totalAccrualDisplay = formatAmount(value);
                 };
 
-                // 处理类别金额获得焦点
-                const handleCategoryFocus = (row) => {
-                    // 获得焦点时，不需要特殊处理，保持当前值
-                };
-
-                // 处理类别金额输入
                 const handleCategoryInput = (row) => {
                     row.accrualAmountDisplay = row.accrualAmountDisplay.replace(/[^\d.]/g, '');
                 };
 
-                // 格式化类别金额
                 const formatCategoryAmount = (row) => {
                     const value = parseAmount(row.accrualAmountDisplay);
                     row.accrualAmount = value;
-                    // 在编辑模式下，显示为纯数字的2位小数格式
-                    row.accrualAmountDisplay = value.toFixed(2);
+                    row.accrualAmountDisplay = formatAmount(value);
                 };
 
-                // 提取周期变化
-                const handleCycleChange = () => {
-                    generateCode();
-                };
-
-                // 生成编号
                 const generateCode = () => {
-                    const year = formData.value.cycle || new Date().getFullYear().toString();
-                    formData.value.code = `AQTRJH-${year}-001`;
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    formData.value.code = `XGFJT-${dateStr}-${randomNum}`;
                 };
 
-                // 监听计算值变化，自动更新显示
-                watch(totalAccrualCalculated, (newVal) => {
-                    if (!formData.value.totalAccrualDisplay || formData.value.totalAccrualDisplay === '') {
-                        formData.value.totalAccrual = newVal;
-                        formData.value.totalAccrualDisplay = formatAmount(newVal);
-                    }
-                });
+                const openProjectDialog = () => {
+                    projectDialogVisible.value = true;
+                    selectedProjectInDialog.value = formData.value.relatedProject;
+                };
 
-                // 初始化
+                const searchProjects = () => { };
+
+                const resetProjectSearch = () => {
+                    projectSearch.value = { name: '' };
+                };
+
+                const handleProjectSelect = (row) => {
+                    if (row) {
+                        selectedProjectInDialog.value = row.id;
+                    }
+                };
+
+                const confirmProjectSelect = () => {
+                    formData.value.relatedProject = selectedProjectInDialog.value;
+                    projectDialogVisible.value = false;
+                };
+
                 onMounted(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     mode.value = urlParams.get('mode') || 'add';
                     const id = urlParams.get('id');
 
-                    // 初始化类别列表
-                    formData.value.categories = JSON.parse(JSON.stringify(defaultCategories));
-
                     if (id && (mode.value === 'view' || mode.value === 'edit')) {
                         loadData(id);
                     } else {
                         generateCode();
-                        // 初始化计提金额
-                        formData.value.totalAccrual = totalAccrualCalculated.value;
-                        formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
                     }
                 });
 
-                // 加载数据
                 const loadData = (id) => {
-                    const presetData = {
-                        '1': {
-                            code: 'AQTRJH-2026-001',
-                            orgName: 'xx电力',
-                            industryType: '电力生产与供应企业',
-                            extractType: '电力生产企业',
-                            ruleType: 'excess',
-                            cycleType: 'yearly',
-                            cycle: '2026',
-                            basisName: '上一年度营业收入（元）',
-                            basisValue: 1500000000,
-                            basisValueDisplay: '1,500,000,000.00',
-                            carryOver: 500000000,
-                            carryOverDisplay: '500,000,000.00',
-                            totalAccrual: 0,
-                            totalAccrualDisplay: '',
-                            planBudget: 14500000000,
-                            categories: defaultCategories.map(cat => {
-                                const amount = Math.round(cat.planCost * 1.1 * 100) / 100;
-                                return {
-                                    ...cat,
-                                    accrualAmount: amount,
-                                    accrualAmountDisplay: formatAmount(amount)
-                                };
-                            })
-                        }
-                    };
-
-                    if (presetData[id]) {
-                        formData.value = { ...presetData[id] };
-                        // 初始化计提金额
-                        if (!formData.value.totalAccrual) {
-                            formData.value.totalAccrual = totalAccrualCalculated.value;
-                            formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
-                        } else {
-                            formData.value.totalAccrualDisplay = formatAmount(formData.value.totalAccrual);
-                        }
-                        // 在非查看模式下，确保类别显示值格式化为2位小数
-                        if (mode.value !== 'view') {
-                            formData.value.categories.forEach(cat => {
-                                if (cat.accrualAmount) {
-                                    cat.accrualAmountDisplay = cat.accrualAmount.toFixed(2);
-                                }
-                            });
-                        }
-                    } else {
-                        generateCode();
-                    }
+                    formData.value.relatedProject = 'p1';
+                    formData.value.code = `XGFJT-20260105-0001`;
                 };
 
-                // 切换模块
                 const toggleModule = (name) => {
                     modules.value[name] = !modules.value[name];
                 };
 
-                // 表格行样式
-                const tableRowClassName = ({ row }) => {
-                    if (row.isSummary) {
-                        return 'summary-row';
-                    }
-                    return '';
-                };
-
-                // 显示计算规则弹窗
-                const showCalculationDialog = () => {
-                    calculationDialogVisible.value = true;
-                };
-
-                // 保存
                 const handleSave = () => {
                     formRef.value?.validate((valid) => {
                         if (valid) {
@@ -775,15 +711,35 @@
                     });
                 };
 
-                // 切换到编辑模式
                 const switchToEdit = () => {
                     mode.value = 'edit';
                 };
 
-                // 返回列表
                 const goBack = () => {
-                    window.location.href = '安全费用计提.html';
+                    window.location.href = '安全费用计提(相关方).html';
                 };
+
+                // 计算规则弹窗
+                const calculationDialogVisible = ref(false);
+                const calculationRulesDisplay = ref([
+                    { range: '0 - 1000万', ratio: '4.0%', amount: 400000 },
+                    { range: '1000万 - 1亿', ratio: '2.0%', amount: 1800000 },
+                    { range: '1亿 - 10亿', ratio: '0.5%', amount: 2000000 },
+                    { range: '10亿 - 50亿', ratio: '0.2%', amount: 800000 }
+                ]);
+
+                const showCalculationDialog = () => {
+                    calculationDialogVisible.value = true;
+                };
+
+                // 监听本周期应提取金额和上一周期结余金额的变化，自动更新本周期计提金额
+                watch([calculatedAmount, () => formData.value.carryOver], ([newCalculated, newCarryOver]) => {
+                    if (newCalculated !== undefined && newCarryOver !== undefined && !isView.value) {
+                        const total = newCalculated + newCarryOver;
+                        formData.value.totalAccrual = total;
+                        formData.value.totalAccrualDisplay = formatAmount(total);
+                    }
+                }, { immediate: true });
 
                 return {
                     formRef,
@@ -792,14 +748,18 @@
                     modules,
                     formData,
                     formRules,
+                    allProjects,
+                    filteredProjects,
+                    projectDialogVisible,
+                    projectSearch,
+                    selectedProjectInDialog,
+                    categoriesData,
                     calculatedAmount,
-                    totalAccrualCalculated,
                     totalPlanCost,
                     totalCategoryAccrual,
-                    categoriesWithTotal,
                     calculationDialogVisible,
                     calculationRulesDisplay,
-                    toggleModule,
+                    showCalculationDialog,
                     formatAmount,
                     handleBasisValueInput,
                     formatBasisValue,
@@ -807,12 +767,14 @@
                     formatCarryOver,
                     handleTotalAccrualInput,
                     formatTotalAccrual,
-                    handleCategoryFocus,
                     handleCategoryInput,
                     formatCategoryAmount,
-                    handleCycleChange,
-                    tableRowClassName,
-                    showCalculationDialog,
+                    toggleModule,
+                    openProjectDialog,
+                    searchProjects,
+                    resetProjectSearch,
+                    handleProjectSelect,
+                    confirmProjectSelect,
                     handleSave,
                     switchToEdit,
                     goBack

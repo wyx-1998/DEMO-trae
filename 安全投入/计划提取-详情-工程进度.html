@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全费用计提管理 - 工程进度提取</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+            cursor: pointer;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-toggle {
+            color: #909399;
+            transition: transform 0.3s ease;
+        }
+
+        .module-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        .module-content.collapsed {
+            display: none;
+        }
+
+        /* 三列布局 */
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-item {
+            flex: 0 0 calc(33.333% - 16px);
+            min-width: 0;
+        }
+
+        .form-item.full-width {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 计算公式高亮 */
+        .formula-hint {
+            font-size: 12px;
+            color: #67C23A;
+            margin-top: 4px;
+        }
+
+        /* 表单标签右对齐 */
+        .el-form-item__label {
+            text-align: right !important;
+            justify-content: flex-end !important;
+            display: inline-block !important;
+            max-width: 200px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+        }
+
+        /* 合计信息显示 */
+        .total-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .total-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .total-info-label {
+            color: #606266;
+        }
+
+        .total-info-value {
+            font-weight: 700;
+            color: #303133;
+            font-size: 15px;
+        }
+
+        /* 表格操作栏 */
+        .table-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        /* 计提金额输入框样式 */
+        .accrual-amount-input .el-input__inner {
+            text-align: right;
+            color: #409EFF;
+            font-weight: normal;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-item {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-item {
+                flex: 1;
+                width: 100%;
+            }
+        }
+
+        /* 禁用输入框样式优化：无边框、无底色、显示文本 */
+        .el-input.is-disabled .el-input__wrapper {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .el-input.is-disabled .el-input__inner {
+            color: #606266 !important;
+            -webkit-text-fill-color: #606266 !important;
+            cursor: text !important;
+            font-weight: 500;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="form-container">
+            <!-- 基础数据模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('basic')">
+                    <div class="module-title">
+                        <i class="fas fa-info-circle"></i>
+                        基础数据
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.basic }">
+                    <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
+                        label-position="left">
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="组织名称" prop="orgName" required>
+                                    <el-input v-model="formData.orgName" placeholder="组织名称" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="所属企业类型" prop="industryType" required>
+                                    <el-input v-model="formData.industryType" placeholder="企业类型" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="提取类型" prop="extractType" required>
+                                    <el-input v-model="formData.extractType" placeholder="提取类型" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="提取规则" prop="ruleType" required>
+                                    <el-input model-value="比例提取" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="提取周期类型" prop="cycleType" required>
+                                    <el-input model-value="工程进度提取" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+            </div>
+
+            <!-- 提取数据模块 -->
+            <div class="form-module">
+                <div class="module-header" @click="toggleModule('extract')">
+                    <div class="module-title">
+                        <i class="fas fa-calculator"></i>
+                        提取数据
+                    </div>
+                    <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.extract }"></i>
+                </div>
+                <div class="module-content" :class="{ collapsed: !modules.extract }">
+                    <el-form :model="formData" label-width="200px" label-position="left">
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="建筑安装工程造价(万元)" prop="constructionCost" required>
+                                    <el-input v-model="formData.constructionCostDisplay" placeholder="请输入工程造价"
+                                        :disabled="isView" @input="handleConstructionCostInput"
+                                        @blur="formatConstructionCost" />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="工程应提取金额(万元)" required>
+                                    <el-input :model-value="formatAmount(calculatedAmount)" disabled>
+                                        <template #suffix>
+                                            <el-button link type="primary" @click="showCalculationDialog"
+                                                style="padding: 0; margin-right: 8px;">
+                                                <i class="fas fa-calculator" style="font-size: 16px;"></i>
+                                            </el-button>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
+                                <el-form-item label="工程实际提取金额(万元)" prop="actualExtractAmount" required>
+                                    <el-input v-model="formData.actualExtractAmountDisplay" placeholder="请输入实际提取金额"
+                                        :disabled="isView" @input="handleActualExtractInput"
+                                        @blur="formatActualExtract" />
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 计算规则弹窗 -->
+        <el-dialog v-model="calculationDialogVisible" title="提取金额计算规则" width="550px">
+            <div style="margin-bottom: 16px;">
+                <div
+                    style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
+                    <div style="font-weight: 600; color: #303133; margin-bottom: 8px;">
+                        <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 6px;"></i>
+                        计算规则说明
+                    </div>
+                    <div style="color: #606266; font-size: 14px; line-height: 1.6;">
+                        采用<strong style="color: #E6A23C;">比例提取</strong>方式计算，按建筑安装工程造价比例提取安全费用
+                    </div>
+                </div>
+                <el-table :data="calculationRulesDisplay" border stripe>
+                    <el-table-column label="计算项目" min-width="180">
+                        <template #default="{ row }">
+                            <span>{{ row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="数值" width="180" align="right">
+                        <template #default="{ row }">
+                            <span
+                                :style="{ color: row.isTotal ? '#409EFF' : '#303133', fontWeight: row.isTotal ? '700' : 'normal' }">
+                                {{ row.value }}
+                            </span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            <template #footer>
+                <el-button type="primary" @click="calculationDialogVisible = false">确定</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button type="primary" @click="handleSave" v-if="!isView">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="primary" @click="switchToEdit" v-if="isView">
+                <i class="fas fa-edit"></i> 编辑
+            </el-button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        createApp({
+            setup() {
+                const formRef = ref(null);
+
+                // 页面模式
+                const mode = ref('edit');
+                const isView = ref(false);
+
+                // 模块折叠状态
+                const modules = ref({
+                    basic: true,
+                    extract: true,
+                    plan: true
+                });
+
+                // 弹窗控制
+                const calculationDialogVisible = ref(false);
+
+                // 表单数据 - 工程进度提取默认值
+                const formData = ref({
+                    code: '',
+                    orgName: 'xx工程',
+                    industryType: '建设工程施工企业',
+                    extractType: '水利水电工程',
+                    ruleType: 'proportion',
+                    cycleType: 'projectProgress',
+                    cycle: '',
+                    constructionCost: 10000000,
+                    constructionCostDisplay: '1,000',
+                    actualExtractAmount: 0,
+                    actualExtractAmountDisplay: '',
+                    categories: []
+                });
+
+                // 类别默认数据 - 工程进度提取使用工程累计数据
+                const defaultCategories = [
+                    { code: 'TRLB-0001', name: '（一）安全防护设备、设施支出', planCost: 50000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 100000, projectTotalSpend: 75000 },
+                    { code: 'TRLB-0002', name: '（二）应急救援器材、设备设施支出和应急队伍建设支出', planCost: 40000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 90000, projectTotalSpend: 70000 },
+                    { code: 'TRLB-0003', name: '（三）重大危险源检测、评估、监控支出', planCost: 35000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 75000, projectTotalSpend: 60000 },
+                    { code: 'TRLB-0004', name: '（四）安全生产检查、评估评价支出', planCost: 30000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 60000, projectTotalSpend: 50000 },
+                    { code: 'TRLB-0005', name: '（五）安全生产宣传、教育、培训支出', planCost: 25000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 50000, projectTotalSpend: 40000 },
+                    { code: 'TRLB-0006', name: '（六）作业人员安全防护用品支出', planCost: 20000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 45000, projectTotalSpend: 35000 },
+                    { code: 'TRLB-0007', name: '（七）新技术、新标准推广应用支出', planCost: 30000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 65000, projectTotalSpend: 50000 },
+                    { code: 'TRLB-0008', name: '（八）安全设施检测检验支出', planCost: 25000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 50000, projectTotalSpend: 40000 },
+                    { code: 'TRLB-0009', name: '（九）安全生产责任保险支出', planCost: 20000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 40000, projectTotalSpend: 30000 },
+                    { code: 'TRLB-0010', name: '（十）其他安全生产相关支出', planCost: 25000, accrualAmount: 0, accrualAmountDisplay: '', projectTotalExtract: 50000, projectTotalSpend: 40000 }
+                ];
+
+                // 表单验证规则
+                const formRules = ref({
+                    cycle: [{ required: true, message: '请选择提取周期', trigger: 'change' }]
+                });
+
+                // 计算工程应提取金额：建筑安装工程造价 × 2.5%
+                const calculatedAmount = computed(() => {
+                    const cost = formData.value.constructionCost || 0;
+                    return cost * 0.025;
+                });
+
+                // 计算本周期计提金额
+                const totalAccrualCalculated = computed(() => {
+                    return calculatedAmount.value + (formData.value.carryOver || 0);
+                });
+
+                // 计算计划投入合计
+                const totalPlanCost = computed(() => {
+                    return formData.value.categories.reduce((sum, item) => sum + (item.planCost || 0), 0);
+                });
+
+                // 计算类别计提金额合计
+                const totalCategoryAccrual = computed(() => {
+                    return formData.value.categories.reduce((sum, item) => sum + (item.accrualAmount || 0), 0);
+                });
+
+                // 类别数据
+                const categoriesData = computed(() => {
+                    return formData.value.categories;
+                });
+
+                // 计算规则显示数据 - 工程进度比例提取
+                const calculationRulesDisplay = computed(() => {
+                    const cost = formData.value.constructionCost || 0;
+                    // const progress = formData.value.periodProgress || 0; // Removed as per requirement
+                    const amount = cost * 0.025;
+                    return [
+                        { name: '建筑安装工程造价', value: formatAmount(cost) + ' 万元' },
+                        // { name: '本周期工程进度', value: progress.toFixed(2) + ' %' }, // Removed
+                        { name: '提取比例', value: '2.5 %' },
+                        { name: '应提取金额', value: formatAmount(amount) + ' 万元', isTotal: true }
+                    ];
+                });
+
+                // 格式化金额 (万)
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined || value === '') return '-';
+                    const num = parseFloat(value);
+                    if (isNaN(num)) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(num / 10000); // 转换为万元
+                };
+
+                // 格式化输入金额 (不除以10000，直接格式化显示)
+                const formatInputAmount = (value) => {
+                    if (value === null || value === undefined || value === '') return '';
+                    const num = parseFloat(value);
+                    if (isNaN(num)) return '';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6,
+                        useGrouping: false // 输入框不显示千分位
+                    }).format(num);
+                };
+
+                // 解析金额字符串
+                const parseAmount = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(str.replace(/,/g, '')) || 0;
+                };
+
+                // 处理工程造价输入
+                const handleConstructionCostInput = (value) => {
+                    formData.value.constructionCostDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化工程造价
+                const formatConstructionCost = () => {
+                    const value = parseAmount(formData.value.constructionCostDisplay);
+                    formData.value.constructionCost = value * 10000; // 存为元
+                    formData.value.constructionCostDisplay = formatInputAmount(value); // 显示为万元输入值
+                    // 初始化实际提取金额为应提取金额
+                    if (!formData.value.actualExtractAmount) {
+                        formData.value.actualExtractAmount = formData.value.constructionCost * 0.025;
+                        formData.value.actualExtractAmountDisplay = formatInputAmount(formData.value.actualExtractAmount / 10000);
+                    }
+                };
+
+                // 处理实际提取金额输入
+                const handleActualExtractInput = (value) => {
+                    formData.value.actualExtractAmountDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化实际提取金额
+                const formatActualExtract = () => {
+                    const value = parseAmount(formData.value.actualExtractAmountDisplay);
+                    formData.value.actualExtractAmount = value * 10000; // 存为元
+                    formData.value.actualExtractAmountDisplay = formatInputAmount(value); // 显示为万元
+                };
+
+                // 处理工程进度变化
+                const handleProgressChange = () => {
+                    // 触发重新计算
+                };
+
+                // 处理结余金额输入
+                const handleCarryOverInput = (value) => {
+                    formData.value.carryOverDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化结余金额
+                const formatCarryOver = () => {
+                    const value = parseAmount(formData.value.carryOverDisplay);
+                    formData.value.carryOver = value;
+                    formData.value.carryOverDisplay = formatAmount(value);
+                };
+
+                // 处理计提金额输入
+                const handleTotalAccrualInput = (value) => {
+                    formData.value.totalAccrualDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化计提金额
+                const formatTotalAccrual = () => {
+                    const value = parseAmount(formData.value.totalAccrualDisplay);
+                    formData.value.totalAccrual = value;
+                    formData.value.totalAccrualDisplay = formatAmount(value);
+                };
+
+                // 处理类别金额输入
+                const handleCategoryInput = (row) => {
+                    row.accrualAmountDisplay = row.accrualAmountDisplay.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化类别金额
+                const formatCategoryAmount = (row) => {
+                    const value = parseAmount(row.accrualAmountDisplay);
+                    row.accrualAmount = value;
+                    row.accrualAmountDisplay = value.toFixed(2);
+                };
+
+                // 提取周期变化
+                const handleCycleChange = () => {
+                    generateCode();
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const cycle = formData.value.cycle || new Date().toISOString().slice(0, 7);
+                    formData.value.code = `GCJD-${cycle.replace('-', '')}-001`;
+                };
+
+                // 切换模块
+                const toggleModule = (module) => {
+                    modules.value[module] = !modules.value[module];
+                };
+
+                // 显示计算规则弹窗
+                const showCalculationDialog = () => {
+                    calculationDialogVisible.value = true;
+                };
+
+                // 监听计算值变化
+                watch(totalAccrualCalculated, (newVal) => {
+                    if (!formData.value.totalAccrualDisplay || formData.value.totalAccrualDisplay === '') {
+                        formData.value.totalAccrual = newVal;
+                        formData.value.totalAccrualDisplay = formatAmount(newVal);
+                    }
+                });
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    mode.value = urlParams.get('mode') || 'add';
+                    const id = urlParams.get('id');
+
+                    // 设置当前月份作为默认值
+                    formData.value.cycle = new Date().toISOString().slice(0, 7);
+
+                    // 初始化类别列表
+                    formData.value.categories = JSON.parse(JSON.stringify(defaultCategories));
+
+                    if (id && (mode.value === 'view' || mode.value === 'edit')) {
+                        loadData(id);
+                    } else {
+                        generateCode();
+                        formData.value.totalAccrual = totalAccrualCalculated.value;
+                        formData.value.totalAccrualDisplay = formatAmount(totalAccrualCalculated.value);
+                    }
+                });
+
+                // 加载数据
+                const loadData = (id) => {
+                    // 模拟加载数据
+                    ElMessage.info('加载数据中...');
+                };
+
+                // 保存
+                const handleSave = () => {
+                    ElMessage.success('保存成功');
+                };
+
+                // 返回
+                const goBack = () => {
+                    window.location.href = '计划提取.html';
+                };
+
+                // 切换到编辑模式
+                const switchToEdit = () => {
+                    mode.value = 'edit';
+                };
+
+                return {
+                    formRef,
+                    mode,
+                    isView,
+                    modules,
+                    formData,
+                    formRules,
+                    calculatedAmount,
+                    totalPlanCost,
+                    totalCategoryAccrual,
+                    categoriesData,
+                    calculationDialogVisible,
+                    calculationRulesDisplay,
+                    formatAmount,
+                    handleConstructionCostInput,
+                    formatConstructionCost,
+                    handleActualExtractInput,
+                    formatActualExtract,
+                    handleProgressChange,
+                    handleCarryOverInput,
+                    formatCarryOver,
+                    handleTotalAccrualInput,
+                    formatTotalAccrual,
+                    handleCategoryInput,
+                    formatCategoryAmount,
+                    handleCycleChange,
+                    toggleModule,
+                    showCalculationDialog,
+                    handleSave,
+                    goBack,
+                    switchToEdit
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

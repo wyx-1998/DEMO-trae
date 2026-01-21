@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全费用计划管理</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .tab-container {
+            padding: 16px 24px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table-area {
+            flex: 1;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        .pagination-bar {
+            padding: 16px 24px;
+            background: #f8f9fa;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .amount-text {
+            font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-weight: 500;
+        }
+
+        .link-text {
+            color: #409EFF;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            color: #66b1ff;
+        }
+
+        /* 状态标签样式 */
+        .status-tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-pending {
+            background-color: #f5f5f5;
+            color: #909399;
+        }
+
+        .status-reviewing {
+            background-color: #e6f7ff;
+            color: #409EFF;
+        }
+
+        .status-approved {
+            background-color: #f0f9eb;
+            color: #67C23A;
+        }
+
+        .status-rejected {
+            background-color: #fef0f0;
+            color: #F56C6C;
+        }
+
+        .function-bar {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .reminder-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+
+        .reminder-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .reminder-card-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #303133;
+        }
+
+        .reminder-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .reminder-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reminder-label {
+            width: 70px;
+            color: #606266;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <div class="content-card">
+                <!-- Tab页签区域 -->
+                <div class="tab-container">
+                    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+                        <el-tab-pane label="正式计划" name="actual"></el-tab-pane>
+                        <el-tab-pane label="预审计划" name="report"></el-tab-pane>
+                    </el-tabs>
+                </div>
+
+                <!-- 功能按钮区 -->
+                <div class="function-bar">
+                    <el-button @click="openReminderDialog">
+                        <i class="fas fa-bell"></i> 提醒设置
+                    </el-button>
+                </div>
+
+                <!-- 实际安全费用计划 Tab -->
+                <template v-if="activeTab === 'actual'">
+                    <!-- 表格区域 -->
+                    <div class="table-area">
+                        <el-table :data="actualPlanData" style="width: 100%" stripe border v-loading="loading">
+                            <el-table-column prop="year" label="年度" width="120" align="center">
+                                <template #default="{ row }">
+                                    <span>{{ row.year }}年</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="totalAmount" label="年度计划总额(元)" min-width="180">
+                                <template #default="{ row }">
+                                    <span class="amount-text">{{ formatAmount(row.totalAmount) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="projectCount" label="计划项目数" min-width="120" align="center">
+                                <template #default="{ row }">
+                                    <a href="javascript:void(0)" @click="goToProjectList(row)" class="link-text">
+                                        {{ row.projectCount }}
+                                    </a>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="120" fixed="right" align="center">
+                                <template #default="{ row }">
+                                    <el-button size="small" @click="goToProjectList(row)" link>
+                                        <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                    </el-button>
+                                    <el-button size="small" @click="handleAddPlan(row)" link>
+                                        <i class="fas fa-plus" style="color: #409EFF;"></i>
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="pagination-bar">
+                        <el-pagination background size="small" v-model:current-page="actualCurrentPage"
+                            v-model:page-size="actualPageSize" :page-sizes="[10, 20, 50, 100]"
+                            :total="actualPlanData.length" layout="total, ->, sizes, prev, pager, next, jumper" />
+                    </div>
+                </template>
+
+                <!-- 报子公司计划 Tab -->
+                <template v-if="activeTab === 'report'">
+                    <!-- 表格区域 -->
+                    <div class="table-area">
+                        <el-table :data="reportPlanData" style="width: 100%" stripe border v-loading="loading">
+                            <el-table-column prop="year" label="年度" width="120" align="center">
+                                <template #default="{ row }">
+                                    <span>{{ row.year }}年</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="totalAmount" label="年度计划总额(元)" min-width="200">
+                                <template #default="{ row }">
+                                    <span class="amount-text">{{ formatAmount(row.totalAmount) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="status" label="状态" width="120" align="center">
+                                <template #default="{ row }">
+                                    <span :class="getStatusClass(row.status)">{{ row.status }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="120" fixed="right" align="center">
+                                <template #default="{ row }">
+                                    <el-button size="small" @click="handleViewReport(row)" link>
+                                        <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                    </el-button>
+                                    <el-button size="small" @click="handleSubmitReport(row)" link
+                                        :disabled="row.status !== '未提交' && row.status !== '已驳回'">
+                                        <i class="fas fa-paper-plane" style="color: #409EFF;"></i>
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="pagination-bar">
+                        <el-pagination background size="small" v-model:current-page="reportCurrentPage"
+                            v-model:page-size="reportPageSize" :page-sizes="[10, 20, 50, 100]"
+                            :total="reportPlanData.length" layout="total, ->, sizes, prev, pager, next, jumper" />
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- 提醒设置弹窗 -->
+        <el-dialog v-model="reminderDialogVisible" title="提醒设置" width="700px" :close-on-click-modal="false">
+            <div class="reminder-card" v-for="(item, index) in reminderSettings" :key="index">
+                <div class="reminder-card-header">
+                    <span class="reminder-card-title">{{ item.name }}</span>
+                    <el-switch v-model="item.enabled" />
+                </div>
+                <div class="reminder-card-body" v-if="item.enabled">
+                    <div class="reminder-row">
+                        <span class="reminder-label">提醒频率</span>
+                        <el-radio-group v-model="item.frequencyType">
+                            <el-radio label="yearly">年度</el-radio>
+                            <el-radio label="monthly">月度</el-radio>
+                        </el-radio-group>
+                        <template v-if="item.frequencyType === 'yearly'">
+                            <span>每年</span>
+                            <el-date-picker v-model="item.yearlyDate" type="date" placeholder="选择日期" format="MM月DD日"
+                                value-format="MM-DD" style="width: 140px;" />
+                        </template>
+                        <template v-if="item.frequencyType === 'monthly'">
+                            <span>每月</span>
+                            <el-input-number v-model="item.day" :min="1" :max="31" size="small" style="width: 80px;" />
+                            <span>日</span>
+                        </template>
+                    </div>
+                    <div class="reminder-row">
+                        <span class="reminder-label">提醒人员</span>
+                        <el-select v-model="item.persons" multiple placeholder="请选择提醒人员" style="flex: 1;">
+                            <el-option v-for="person in personList" :key="person.id" :label="person.name"
+                                :value="person.id" />
+                        </el-select>
+                    </div>
+                    <div class="reminder-row">
+                        <span class="reminder-label">通知方式</span>
+                        <el-checkbox-group v-model="item.notifyMethods">
+                            <el-checkbox label="system">系统通知</el-checkbox>
+                            <el-checkbox label="email">邮件</el-checkbox>
+                            <el-checkbox label="sms">短信</el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="reminderDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveReminder">保存</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const activeTab = ref('actual');
+
+                // 提醒设置弹窗
+                const reminderDialogVisible = ref(false);
+
+                // 人员列表
+                const personList = ref([
+                    { id: 1, name: '张三' },
+                    { id: 2, name: '李四' },
+                    { id: 3, name: '王五' },
+                    { id: 4, name: '赵六' },
+                    { id: 5, name: '孙七' }
+                ]);
+
+                // 提醒设置数据
+                const reminderSettings = ref([
+                    {
+                        name: '提醒编制预审计划',
+                        enabled: false,
+                        frequencyType: 'yearly',
+                        yearlyDate: '01-15',
+                        day: 15,
+                        persons: [],
+                        notifyMethods: ['system']
+                    },
+                    {
+                        name: '提醒提交预审计划',
+                        enabled: false,
+                        frequencyType: 'yearly',
+                        yearlyDate: '02-01',
+                        day: 1,
+                        persons: [],
+                        notifyMethods: ['system']
+                    },
+                    {
+                        name: '提醒维护正式计划',
+                        enabled: false,
+                        frequencyType: 'yearly',
+                        yearlyDate: '03-01',
+                        day: 1,
+                        persons: [],
+                        notifyMethods: ['system']
+                    }
+                ]);
+
+                const openReminderDialog = () => {
+                    reminderDialogVisible.value = true;
+                };
+
+                const saveReminder = () => {
+                    ElMessage.success('提醒设置保存成功');
+                    reminderDialogVisible.value = false;
+                };
+
+                // 实际安全费用计划分页
+                const actualCurrentPage = ref(1);
+                const actualPageSize = ref(20);
+
+                // 报子公司计划分页
+                const reportCurrentPage = ref(1);
+                const reportPageSize = ref(20);
+
+                // 实际安全费用计划数据
+                const actualPlanData = ref([
+                    { id: 1, year: '2026', totalAmount: 12000000.00, projectCount: 15 },
+                    { id: 2, year: '2025', totalAmount: 10500000.00, projectCount: 12 },
+                    { id: 3, year: '2024', totalAmount: 9800000.00, projectCount: 10 },
+                    { id: 4, year: '2023', totalAmount: 8500000.00, projectCount: 8 }
+                ]);
+
+                // 报子公司计划数据
+                const reportPlanData = ref([
+                    { id: 1, year: '2026', totalAmount: 12000000.00, status: '未提交' },
+                    { id: 2, year: '2025', totalAmount: 10500000.00, status: '审批通过' },
+                    { id: 3, year: '2024', totalAmount: 9800000.00, status: '审批通过' },
+                    { id: 4, year: '2023', totalAmount: 8500000.00, status: '审批通过' }
+                ]);
+
+                // 格式化金额（千分号，2位小数）
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(value);
+                };
+
+                // 获取状态样式类
+                const getStatusClass = (status) => {
+                    const classMap = {
+                        '未提交': 'status-tag status-pending',
+                        '审批中': 'status-tag status-reviewing',
+                        '审批通过': 'status-tag status-approved',
+                        '已驳回': 'status-tag status-rejected'
+                    };
+                    return classMap[status] || 'status-tag';
+                };
+
+                // Tab切换
+                const handleTabClick = (tab) => {
+                    // 切换时可以做一些清理操作
+                };
+
+                // 进入项目列表页（下一级）
+                const goToProjectList = (row) => {
+                    window.location.href = `安措计划.html?year=${row.year}`;
+                };
+
+                // 新增计划
+                const handleAddPlan = (row) => {
+                    window.location.href = `安措计划.html?year=${row.year}&action=add`;
+                };
+
+                // 查看预审计划
+                const handleViewReport = (row) => {
+                    window.location.href = `安措计划-预审.html?year=${row.year}`;
+                };
+
+                // 提交报子公司计划
+                const handleSubmitReport = (row) => {
+                    ElMessageBox.confirm(
+                        `确定要将${row.year}年度计划提交至子公司审批吗？`,
+                        '确认提交',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'info' }
+                    ).then(() => {
+                        row.status = '审批中';
+                        ElMessage.success('提交成功，等待子公司审批');
+                    }).catch(() => { });
+                };
+
+                return {
+                    loading,
+                    activeTab,
+                    actualCurrentPage,
+                    actualPageSize,
+                    reportCurrentPage,
+                    reportPageSize,
+                    actualPlanData,
+                    reportPlanData,
+                    formatAmount,
+                    getStatusClass,
+                    handleTabClick,
+                    goToProjectList,
+                    handleAddPlan,
+                    handleViewReport,
+                    handleSubmitReport,
+                    reminderDialogVisible,
+                    reminderSettings,
+                    personList,
+                    openReminderDialog,
+                    saveReminder
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

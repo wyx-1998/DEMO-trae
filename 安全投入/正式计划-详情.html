@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正式计划详情</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #303133;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .form-module {
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .form-module:last-child {
+            border-bottom: none;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-title i {
+            color: #409EFF;
+        }
+
+        .module-content {
+            padding: 24px;
+        }
+
+        /* 功能按钮区 */
+        .function-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .function-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-fields .el-form-item {
+            margin-bottom: 0;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        /* 表格区域 */
+        .table-area {
+            margin-top: 0;
+        }
+
+        .content-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 底部按钮条 */
+        .form-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: #fff;
+            border-top: 1px solid #ebeef5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 编辑模式下隐藏Tab头 */
+        .edit-mode-tabs .el-tabs__header {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <!-- 本企业计划模块 -->
+        <div class="form-container">
+            <div class="form-module">
+                <div class="module-header">
+                    <div class="module-title">
+                        <i class="fas fa-list-alt"></i>
+                        {{ companyName }}正式计划 - {{ currentYear }}年度
+                    </div>
+                </div>
+                <div class="module-content" :class="{ 'edit-mode-tabs': mode === 'edit' }">
+                    <el-tabs v-model="activeTab">
+                        <!-- 支出范围维度 -->
+                        <el-tab-pane label="支出范围维度" name="scope">
+                            <div class="table-area">
+                                <el-table :data="scopeData" style="width: 100%" stripe border>
+                                    <el-table-column type="index" label="序号" width="60"
+                                        align="center"></el-table-column>
+                                    <el-table-column prop="category" label="支出范围名称" min-width="400"></el-table-column>
+                                    <el-table-column prop="totalAmount" label="年度计划总额(万元)" min-width="160"
+                                        align="right">
+                                        <template #default="{ row }">
+                                            {{ formatAmount(row.totalAmount) }}
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                        </el-tab-pane>
+
+                        <!-- 项目维度 -->
+                        <el-tab-pane label="项目维度" name="project">
+                            <!-- 功能按钮区 -->
+                            <div class="function-bar" v-if="mode === 'edit'" style="margin-top: 16px;">
+                                <div class="function-left">
+                                    <el-button type="primary" @click="handleAdd">
+                                        <i class="fas fa-plus"></i> 新建
+                                    </el-button>
+                                    <el-button type="danger" @click="handleBatchDelete"
+                                        :disabled="selectedRows.length === 0">
+                                        <i class="fas fa-trash-alt"></i> 批量删除
+                                    </el-button>
+                                    <el-button @click="handleImport">
+                                        <i class="fas fa-file-import"></i> 导入
+                                    </el-button>
+                                    <el-button @click="handleExport">
+                                        <i class="fas fa-file-export"></i> 导出
+                                    </el-button>
+                                </div>
+                            </div>
+
+                            <!-- 搜索区域 -->
+                            <div class="search-area" :style="{ marginTop: mode === 'view' ? '16px' : '0' }">
+                                <el-form :model="searchForm" :inline="true">
+                                    <div class="search-row">
+                                        <div class="search-fields">
+                                            <el-form-item label="支出范围">
+                                                <el-select v-model="searchForm.category" placeholder="请选择" clearable
+                                                    style="width: 300px;">
+                                                    <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
+                                                        :value="cat"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                            <el-form-item label="项目名称">
+                                                <el-input v-model="searchForm.projectName" placeholder="请输入" clearable
+                                                    style="width: 160px;" />
+                                            </el-form-item>
+                                            <el-form-item label="责任单位">
+                                                <el-select v-model="searchForm.responsibleUnit" placeholder="请选择"
+                                                    clearable style="width: 140px;">
+                                                    <el-option label="设备部" value="设备部"></el-option>
+                                                    <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                                    <el-option label="生产部" value="生产部"></el-option>
+                                                    <el-option label="运维部" value="运维部"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </div>
+                                        <div class="search-buttons">
+                                            <el-button type="primary" @click="handleSearch">
+                                                <i class="fas fa-search"></i> 查询
+                                            </el-button>
+                                            <el-button @click="handleReset">
+                                                <i class="fas fa-redo"></i> 重置
+                                            </el-button>
+                                        </div>
+                                    </div>
+                                </el-form>
+                            </div>
+
+                            <!-- 表格区域 -->
+                            <div class="table-area">
+                                <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
+                                    @selection-change="handleSelectionChange">
+                                    <el-table-column type="selection" width="55"
+                                        v-if="mode === 'edit'"></el-table-column>
+                                    <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
+                                    <el-table-column prop="projectName" label="项目名称" min-width="180">
+                                        <template #default="{ row }">
+                                            <span>{{ row.projectName }}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
+                                    <el-table-column prop="projectContent" label="项目内容" min-width="200">
+                                        <template #default="{ row }">
+                                            <el-tooltip :content="row.projectContent" placement="top" :show-after="300">
+                                                <div class="content-cell">{{ row.projectContent }}</div>
+                                            </el-tooltip>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="planDate" label="计划完成时间" min-width="120"></el-table-column>
+                                    <el-table-column prop="planCost" label="计划金额(万元)" min-width="140" align="right">
+                                        <template #default="{ row }">
+                                            {{ formatAmount(row.planCost) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="responsibleUnit" label="责任单位"
+                                        min-width="120"></el-table-column>
+                                    <el-table-column prop="responsiblePerson" label="责任人"
+                                        min-width="80"></el-table-column>
+                                    <el-table-column label="操作" width="120" fixed="right" align="center">
+                                        <template #default="{ row }">
+                                            <div style="display: flex; justify-content: center; gap: 4px;">
+                                                <el-button size="small" @click="handleViewProject(row)" link>
+                                                    <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                                </el-button>
+                                                <el-button size="small" @click="handleEditProject(row)" link
+                                                    v-if="mode === 'edit'">
+                                                    <i class="fas fa-edit" style="color: #409EFF;"></i>
+                                                </el-button>
+                                                <el-button size="small" @click="handleDeleteProject(row)" link
+                                                    v-if="mode === 'edit'">
+                                                    <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>
+                                                </el-button>
+                                            </div>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+
+                                <!-- 分页 -->
+                                <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                                    <el-pagination background size="small" v-model:current-page="currentPage"
+                                        v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+                                        :total="filteredData.length"
+                                        layout="total, ->, sizes, prev, pager, next, jumper" />
+                                </div>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目详情弹窗 -->
+        <el-dialog v-model="detailDialogVisible" :title="dialogTitle" width="800px" :close-on-click-modal="false">
+            <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px" label-position="left">
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item label="项目编号" prop="projectCode">
+                            <el-input v-model="formData.projectCode" placeholder="请输入项目编号"
+                                :disabled="dialogMode === 'view'" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="支出范围" prop="category" required>
+                            <el-select v-model="formData.category" placeholder="请选择支出范围"
+                                :disabled="dialogMode === 'view'" style="width: 100%;">
+                                <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
+                                    :value="cat"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="项目名称" prop="projectName" required>
+                            <el-input v-model="formData.projectName" placeholder="请输入项目名称"
+                                :disabled="dialogMode === 'view'" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="项目内容" prop="projectContent" required>
+                            <el-input v-model="formData.projectContent" type="textarea" :rows="4" placeholder="请输入项目内容"
+                                :disabled="dialogMode === 'view'" :maxlength="200" show-word-limit />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item label="计划完成时间" prop="planDate" required>
+                            <el-date-picker v-model="formData.planDate" type="date" placeholder="请选择日期"
+                                value-format="YYYY-MM-DD" style="width: 100%;" :disabled="dialogMode === 'view'" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="计划金额(万元)" prop="planCost" required>
+                            <el-input v-model="formData.planCostDisplay" placeholder="请输入金额"
+                                :disabled="dialogMode === 'view'" @input="handleCostInput" @blur="formatCost">
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                            <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位"
+                                :disabled="dialogMode === 'view'" style="width: 100%;">
+                                <el-option label="设备部" value="设备部"></el-option>
+                                <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                <el-option label="生产部" value="生产部"></el-option>
+                                <el-option label="运维部" value="运维部"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="责任人" prop="responsiblePerson" required>
+                            <el-input v-model="formData.responsiblePerson" placeholder="请输入责任人"
+                                :disabled="dialogMode === 'view'" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="备注" prop="remark">
+                            <el-input v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注"
+                                :disabled="dialogMode === 'view'" :maxlength="200" show-word-limit />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <template #footer>
+                <el-button @click="detailDialogVisible = false">{{ dialogMode === 'view' ? '关闭' : '取消' }}</el-button>
+                <el-button type="primary" @click="handleDialogSaveAndNew" v-if="dialogMode === 'add'">
+                    <i class="fas fa-plus"></i> 保存并新建下一条
+                </el-button>
+                <el-button type="primary" @click="handleDialogSave" v-if="dialogMode !== 'view'">
+                    <i class="fas fa-save"></i> 保存
+                </el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 底部按钮 -->
+        <div class="form-actions">
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" @click="handleSave" v-if="mode === 'edit'">
+                <i class="fas fa-save"></i> 保存
+            </el-button>
+            <el-button type="success" @click="handleConfirmFinalize" v-if="mode === 'edit'">
+                <i class="fas fa-check-circle"></i> 确认定稿
+            </el-button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            setup() {
+                const loading = ref(false);
+                const selectedRows = ref([]);
+                const currentPage = ref(1);
+                const pageSize = ref(10);
+                const currentYear = ref('');
+                const companyName = ref('');
+                const mode = ref('view'); // view or edit
+                const formRef = ref(null);
+                const activeTab = ref('scope'); // 默认显示支出范围维度
+
+                // 支出范围选项
+                const categoryOptions = ref([
+                    '(一)安全防护设备、设施支出',
+                    '(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                    '(三)开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出',
+                    '(四)安全生产检查、评估评价、咨询和标准化建设支出',
+                    '(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
+                    '(六)配备和更新现场作业人员安全防护用品支出',
+                    '(七)安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出',
+                    '(八)安全设施及特种设备检测检验、检定校准支出',
+                    '(九)安全生产责任保险支出',
+                    '(十)与安全生产直接相关的其他支出'
+                ]);
+
+                // 弹窗相关
+                const detailDialogVisible = ref(false);
+                const dialogMode = ref('add'); // add, view, edit
+                const dialogTitle = computed(() => {
+                    const titles = {
+                        'add': '新建正式计划项目',
+                        'view': '查看正式计划项目',
+                        'edit': '编辑正式计划项目'
+                    };
+                    return titles[dialogMode.value] || '正式计划项目详情';
+                });
+
+                // 表单数据
+                const formData = ref({
+                    id: null,
+                    projectCode: '',
+                    category: '',
+                    projectName: '',
+                    projectContent: '',
+                    planDate: '',
+                    planCost: 0,
+                    planCostDisplay: '',
+                    responsibleUnit: '',
+                    responsiblePerson: '',
+                    remark: ''
+                });
+
+                // 表单验证规则
+                const formRules = ref({
+                    category: [{ required: true, message: '请选择支出范围', trigger: 'change' }],
+                    projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+                    projectContent: [{ required: true, message: '请输入项目内容', trigger: 'blur' }],
+                    planDate: [{ required: true, message: '请选择计划完成时间', trigger: 'change' }],
+                    planCost: [{ required: true, message: '请输入计划金额', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请选择责任单位', trigger: 'change' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }]
+                });
+
+                const searchForm = ref({
+                    category: '',
+                    projectName: '',
+                    responsibleUnit: ''
+                });
+
+                // 本企业计划数据
+                const tableData = ref([
+                    {
+                        id: 1,
+                        category: '(一)安全防护设备、设施支出',
+                        projectCode: 'ZSJH-20260101-0001',
+                        projectName: '厂区安全警示标志更新',
+                        projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
+                        planDate: '2026-03-31',
+                        planCost: 50000,
+                        responsibleUnit: '设备部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        id: 2,
+                        category: '(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                        projectCode: 'ZSJH-20260101-0002',
+                        projectName: '员工个人防护装备采购',
+                        projectContent: '采购安全帽、防护眼镜、防护手套等个人防护装备，确保一线员工安全',
+                        planDate: '2026-02-28',
+                        planCost: 120000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '李四'
+                    },
+                    {
+                        id: 3,
+                        category: '(五)安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
+                        projectCode: 'ZSJH-20260101-0003',
+                        projectName: '年度安全培训计划',
+                        projectContent: '组织全员安全知识培训，包括消防安全、用电安全、应急逃生等内容',
+                        planDate: '2026-06-30',
+                        planCost: 80000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '王五'
+                    },
+                    {
+                        id: 4,
+                        category: '(二)应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                        projectCode: 'ZSJH-20260101-0004',
+                        projectName: '应急救援器材配置',
+                        projectContent: '配置应急救援器材，包括担架、急救箱、消防器材等',
+                        planDate: '2026-04-30',
+                        planCost: 150000,
+                        responsibleUnit: '运维部',
+                        responsiblePerson: '赵六'
+                    },
+                    {
+                        id: 5,
+                        category: '(四)安全生产检查、评估评价、咨询和标准化建设支出',
+                        projectCode: 'ZSJH-20260101-0005',
+                        projectName: '隐患排查治理专项',
+                        projectContent: '开展全厂安全隐患排查，建立隐患台账并跟踪整改',
+                        planDate: '2026-12-31',
+                        planCost: 200000,
+                        responsibleUnit: '安健环管理部',
+                        responsiblePerson: '张三'
+                    }
+                ]);
+
+                // 支出范围维度汇总数据
+                const scopeData = computed(() => {
+                    // 构建基础结构，包含所有类别，初始金额为0
+                    const data = categoryOptions.value.map(cat => ({
+                        category: cat,
+                        totalAmount: 0
+                    }));
+
+                    // 累加计划金额
+                    tableData.value.forEach(item => {
+                        const target = data.find(d => d.category === item.category);
+                        if (target) {
+                            target.totalAmount += item.planCost;
+                        }
+                    });
+
+                    // 过滤掉金额为0的项？如果不要求过滤则保留所有
+                    // 需求只说“列表字段：序号、支出范围名称、年度计划总额”，未说过滤。保留所有。
+                    return data;
+                });
+
+                // 过滤后的数据
+                const filteredData = computed(() => {
+                    let data = tableData.value;
+
+                    if (searchForm.value.category) {
+                        data = data.filter(item => item.category === searchForm.value.category);
+                    }
+                    if (searchForm.value.projectName) {
+                        data = data.filter(item => item.projectName.includes(searchForm.value.projectName));
+                    }
+                    if (searchForm.value.responsibleUnit) {
+                        data = data.filter(item => item.responsibleUnit === searchForm.value.responsibleUnit);
+                    }
+
+                    return data;
+                });
+
+                // 分页数据
+                const pagedData = computed(() => {
+                    const start = (currentPage.value - 1) * pageSize.value;
+                    return filteredData.value.slice(start, start + pageSize.value);
+                });
+
+                // 格式化金额
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
+                    }).format(value);
+                };
+
+                // 生成编号
+                const generateCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    return `ZSJH-${dateStr}-${randomNum}`;
+                };
+
+                // 处理金额输入
+                const handleCostInput = (value) => {
+                    formData.value.planCostDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化金额显示
+                const formatCost = () => {
+                    const value = parseFloat(formData.value.planCostDisplay.replace(/,/g, '')) || 0;
+                    formData.value.planCost = value;
+                    formData.value.planCostDisplay = formatAmount(value);
+                };
+
+                // 重置表单数据
+                const resetFormData = () => {
+                    formData.value = {
+                        id: null,
+                        projectCode: generateCode(),
+                        category: '',
+                        projectName: '',
+                        projectContent: '',
+                        planDate: '',
+                        planCost: 0,
+                        planCostDisplay: '',
+                        responsibleUnit: '',
+                        responsiblePerson: '',
+                        remark: ''
+                    };
+                };
+
+                // 初始化
+                onMounted(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    currentYear.value = urlParams.get('year') || new Date().getFullYear().toString();
+                    companyName.value = urlParams.get('companyName') || '本企业';
+                    mode.value = urlParams.get('mode') || 'view';
+                    if (mode.value === 'edit') {
+                        activeTab.value = 'project';
+                    }
+                });
+
+                // 搜索
+                const handleSearch = () => {
+                    loading.value = true;
+                    currentPage.value = 1;
+                    setTimeout(() => {
+                        loading.value = false;
+                        ElMessage.success('查询完成');
+                    }, 300);
+                };
+
+                // 重置
+                const handleReset = () => {
+                    searchForm.value = {
+                        category: '',
+                        projectName: '',
+                        responsibleUnit: ''
+                    };
+                    currentPage.value = 1;
+                };
+
+                // 选择变化
+                const handleSelectionChange = (selection) => {
+                    selectedRows.value = selection;
+                };
+
+                // 新建
+                const handleAdd = () => {
+                    dialogMode.value = 'add';
+                    resetFormData();
+                    detailDialogVisible.value = true;
+                };
+
+                // 批量删除
+                const handleBatchDelete = () => {
+                    ElMessageBox.confirm(
+                        `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        selectedRows.value.forEach(row => {
+                            const index = tableData.value.findIndex(item => item.id === row.id);
+                            if (index > -1) tableData.value.splice(index, 1);
+                        });
+                        selectedRows.value = [];
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                // 导入
+                const handleImport = () => {
+                    ElMessage.info('导入功能开发中...');
+                };
+
+                // 导出
+                const handleExport = () => {
+                    ElMessage.info('导出功能开发中...');
+                };
+
+                // 查看项目
+                const handleViewProject = (row) => {
+                    dialogMode.value = 'view';
+                    formData.value = { ...row, planCostDisplay: formatAmount(row.planCost) };
+                    detailDialogVisible.value = true;
+                };
+
+                // 编辑项目
+                const handleEditProject = (row) => {
+                    dialogMode.value = 'edit';
+                    formData.value = { ...row, planCostDisplay: formatAmount(row.planCost) };
+                    detailDialogVisible.value = true;
+                };
+
+                // 删除项目
+                const handleDeleteProject = (row) => {
+                    ElMessageBox.confirm(
+                        `确定要删除项目"${row.projectName}"吗？`,
+                        '确认删除',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        const index = tableData.value.findIndex(item => item.id === row.id);
+                        if (index > -1) tableData.value.splice(index, 1);
+                        ElMessage.success('删除成功');
+                    }).catch(() => { });
+                };
+
+                // 弹窗保存
+                const handleDialogSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            if (dialogMode.value === 'add') {
+                                const newId = Math.max(...tableData.value.map(item => item.id), 0) + 1;
+                                tableData.value.push({
+                                    ...formData.value,
+                                    id: newId,
+                                    planCost: formData.value.planCost
+                                });
+                                ElMessage.success('新建成功');
+                            } else {
+                                const index = tableData.value.findIndex(item => item.id === formData.value.id);
+                                if (index > -1) {
+                                    tableData.value[index] = { ...formData.value, planCost: formData.value.planCost };
+                                }
+                                ElMessage.success('保存成功');
+                            }
+                            detailDialogVisible.value = false;
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                // 弹窗保存并新建下一条
+                const handleDialogSaveAndNew = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            const newId = Math.max(...tableData.value.map(item => item.id), 0) + 1;
+                            tableData.value.push({
+                                ...formData.value,
+                                id: newId,
+                                planCost: formData.value.planCost
+                            });
+                            ElMessage.success('新建成功');
+                            resetFormData();
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
+                };
+
+                // 查看下级企业计划
+                const handleViewSubordinate = (row) => {
+                    window.location.href = `预审计划-下级详情.html?id=${row.id}&year=${row.year}&companyName=${encodeURIComponent(row.companyName)}`;
+                };
+
+                // 返回
+                const goBack = () => {
+                    window.location.href = '正式计划.html';
+                };
+
+                // 保存
+                const handleSave = () => {
+                    ElMessage.success('保存成功');
+                };
+
+                // 确认定稿
+                const handleConfirmFinalize = () => {
+                    ElMessageBox.confirm(
+                        `确定要将${currentYear.value}年度正式计划定稿吗？定稿后将无法再修改。`,
+                        '确认定稿',
+                        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+                    ).then(() => {
+                        ElMessage.success('已成功定稿');
+                        // 获取当前页面的id参数，跳转到查看页面
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const id = urlParams.get('id') || '1';
+                        setTimeout(() => {
+                            window.location.href = `正式计划-详情.html?id=${id}&year=${currentYear.value}&companyName=${encodeURIComponent(companyName.value)}&mode=view`;
+                        }, 1000);
+                    }).catch(() => { });
+                };
+
+                return {
+                    loading,
+                    selectedRows,
+                    currentPage,
+                    pageSize,
+                    currentYear,
+                    companyName,
+                    mode,
+                    formRef,
+                    activeTab,
+                    categoryOptions,
+                    detailDialogVisible,
+                    dialogMode,
+                    dialogTitle,
+                    formData,
+                    formRules,
+                    searchForm,
+                    tableData,
+                    scopeData,
+                    filteredData,
+                    pagedData,
+                    formatAmount,
+                    handleCostInput,
+                    formatCost,
+                    handleSearch,
+                    handleReset,
+                    handleSelectionChange,
+                    handleAdd,
+                    handleBatchDelete,
+                    handleImport,
+                    handleExport,
+                    handleViewProject,
+                    handleEditProject,
+                    handleDeleteProject,
+                    handleDialogSave,
+                    handleDialogSaveAndNew,
+                    handleViewSubordinate,
+                    goBack,
+                    handleSave,
+                    handleConfirmFinalize
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

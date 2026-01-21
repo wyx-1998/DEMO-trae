@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投入计划管理 - 安措计划</title>
+    <title>投入计划管理 - 其他计划</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -162,12 +162,11 @@
                                 <div class="search-fields-row">
                                     <el-form-item label="投入类别">
                                         <el-select v-model="searchForm.category" placeholder="请选择类别" clearable
-                                            style="width: 160px;">
-                                            <el-option label="安全标志" value="安全标志"></el-option>
-                                            <el-option label="安全防护设备" value="安全防护设备"></el-option>
-                                            <el-option label="安全培训" value="安全培训"></el-option>
-                                            <el-option label="应急救援" value="应急救援"></el-option>
-                                            <el-option label="安全检查" value="安全检查"></el-option>
+                                            style="width: 220px;">
+                                            <el-option label="与安全生产直接相关的其他支出" value="与安全生产直接相关的其他支出"></el-option>
+                                            <el-option label="安全科技研发" value="安全科技研发"></el-option>
+                                            <el-option label="安全信息化建设" value="安全信息化建设"></el-option>
+                                            <el-option label="安全文化建设" value="安全文化建设"></el-option>
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="项目名称">
@@ -219,7 +218,6 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="category" label="投入类别" min-width="120"></el-table-column>
                         <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
                         <el-table-column prop="projectName" label="项目名称" min-width="180">
                             <template #default="{ row }">
@@ -228,6 +226,7 @@
                                     row.projectName }}</a>
                             </template>
                         </el-table-column>
+                        <el-table-column prop="category" label="投入类别" min-width="180"></el-table-column>
                         <el-table-column prop="projectContent" label="项目内容" min-width="200">
                             <template #default="{ row }">
                                 <el-tooltip :content="row.projectContent" placement="top" :show-after="300">
@@ -307,62 +306,50 @@
                 const tableData = ref([
                     {
                         id: 1,
-                        category: '安全标志',
-                        projectCode: 'AQTRJH-20260101-0001',
-                        projectName: '厂区安全警示标志更新',
-                        projectContent: '对厂区内老旧安全警示标志进行全面更新，包括危险区域标识、安全通道指引等',
-                        planDate: '2026-03-31',
-                        planCost: 50000,
-                        responsibleUnit: '设备部',
+                        category: '与安全生产直接相关的其他支出',
+                        projectCode: 'AQTRJH-20260101-0003',
+                        projectName: '安全生产责任保险',
+                        projectContent: '购买企业安全生产责任保险，保障员工和企业安全',
+                        planDate: '2026-01-31',
+                        planCost: 300000,
+                        responsibleUnit: '安健环管理部',
                         responsiblePerson: '张三',
                         dataSource: '人工录入'
                     },
                     {
                         id: 2,
-                        category: '安全防护设备',
-                        projectCode: 'AQTRJH-20260101-0002',
-                        projectName: '员工个人防护装备采购',
-                        projectContent: '采购安全帽、防护眼镜、防护手套等个人防护装备，确保一线员工安全',
-                        planDate: '2026-02-28',
-                        planCost: 120000,
-                        responsibleUnit: '安健环管理部',
+                        category: '安全科技研发',
+                        projectCode: 'AQTRJH-20260101-0004',
+                        projectName: '智能安全监控系统研发',
+                        projectContent: '研发基于AI的安全监控预警系统，实现隐患自动识别',
+                        planDate: '2026-12-31',
+                        planCost: 500000,
+                        responsibleUnit: '设备部',
                         responsiblePerson: '李四',
-                        dataSource: '隐患治理'
+                        dataSource: '人工录入'
                     },
                     {
                         id: 3,
-                        category: '安全培训',
-                        projectCode: 'AQTRJH-20260101-0003',
-                        projectName: '年度安全培训计划',
-                        projectContent: '组织全员安全知识培训，包括消防安全、用电安全、应急逃生等内容',
-                        planDate: '2026-06-30',
-                        planCost: 80000,
-                        responsibleUnit: '安健环管理部',
+                        category: '安全信息化建设',
+                        projectCode: 'AQTRJH-20260101-0005',
+                        projectName: '安全管理信息平台升级',
+                        projectContent: '升级安全管理信息平台，增加移动端功能和数据分析模块',
+                        planDate: '2026-09-30',
+                        planCost: 280000,
+                        responsibleUnit: '设备部',
                         responsiblePerson: '王五',
-                        dataSource: '安全培训'
+                        dataSource: '人工录入'
                     },
                     {
                         id: 4,
-                        category: '应急救援',
-                        projectCode: 'AQTRJH-20260101-0004',
-                        projectName: '应急救援器材配置',
-                        projectContent: '配置应急救援器材，包括担架、急救箱、消防器材等',
-                        planDate: '2026-04-30',
-                        planCost: 150000,
-                        responsibleUnit: '运维部',
-                        responsiblePerson: '赵六',
-                        dataSource: '应急演练'
-                    },
-                    {
-                        id: 5,
-                        category: '安全检查',
-                        projectCode: 'AQTRJH-20260101-0005',
-                        projectName: '隐患排查治理专项',
-                        projectContent: '开展全厂安全隐患排查，建立隐患台账并跟踪整改',
-                        planDate: '2026-12-31',
-                        planCost: 200000,
+                        category: '安全文化建设',
+                        projectCode: 'AQTRJH-20260101-0006',
+                        projectName: '安全文化宣传活动',
+                        projectContent: '开展安全生产月活动，制作安全宣传资料，组织安全知识竞赛',
+                        planDate: '2026-06-30',
+                        planCost: 100000,
                         responsibleUnit: '安健环管理部',
-                        responsiblePerson: '张三',
+                        responsiblePerson: '赵六',
                         dataSource: '人工录入'
                     }
                 ]);
@@ -435,7 +422,7 @@
 
                 // 新建
                 const handleAdd = () => {
-                    window.location.href = '安措计划-详情.html?mode=add';
+                    window.location.href = '其他计划-详情.html?mode=add';
                 };
 
                 // 批量删除
@@ -471,12 +458,12 @@
 
                 // 查看
                 const handleView = (row) => {
-                    window.location.href = `安措计划-详情.html?mode=view&id=${row.id}`;
+                    window.location.href = `其他计划-详情.html?mode=view&id=${row.id}`;
                 };
 
                 // 编辑
                 const handleEdit = (row) => {
-                    window.location.href = `安措计划-详情.html?mode=edit&id=${row.id}`;
+                    window.location.href = `其他计划-详情.html?mode=edit&id=${row.id}`;
                 };
 
                 // 导入

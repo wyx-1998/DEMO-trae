@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全投入 - 统计查询</title>
+    <title>安全投入 - 多维度统计分析</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -28,13 +28,13 @@
         .main-content {
             flex: 1;
             padding: 16px;
-            overflow-y: auto;
+            overflow: hidden;
             display: flex;
             gap: 16px;
         }
 
-        /* 左侧部门树 */
-        .dept-tree-panel {
+        /* 左侧组织树面板 */
+        .org-tree-panel {
             width: 260px;
             background: #fff;
             border-radius: 8px;
@@ -62,205 +62,253 @@
             flex-direction: column;
             gap: 12px;
             min-width: 0;
-        }
-
-        /* 查询区域 */
-        .search-section {
-            background: #fff;
-            border-radius: 8px;
-            padding: 12px 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .search-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-fields {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-
-        .search-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* 统计卡片区域 */
-        .stats-section {
-            background: #fff;
-            border-radius: 8px;
-            padding: 12px 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            padding: 12px 14px;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 110px;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .stat-card.blue {
-            background: linear-gradient(135deg, #409EFF 0%, #36D1DC 100%);
-        }
-
-        .stat-card.green {
-            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
-        }
-
-        .stat-card.orange {
-            background: linear-gradient(135deg, #E6A23C 0%, #F7BA2A 100%);
-        }
-
-        .stat-card.purple {
-            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
-        }
-
-        .stat-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 6px;
-        }
-
-        .stat-card-title {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .stat-card-icon {
-            font-size: 22px;
-            opacity: 0.8;
-        }
-
-        .stat-card-value {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .stat-card-compare {
-            display: flex;
-            gap: 8px;
-            margin-top: auto;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .compare-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #fff;
-        }
-
-        .compare-up {
-            background: #F56C6C;
-        }
-
-        .compare-down {
-            background: #67C23A;
-        }
-
-        /* 表格区域 */
-        .table-section {
-            flex: 1;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
 
-        .table-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #f0f0f0;
+        /* 查询条件区 */
+        .query-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .query-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
         }
 
-        .table-title {
-            font-size: 16px;
+        .query-title-text {
             font-weight: 600;
             color: #303133;
             display: flex;
             align-items: center;
+            gap: 6px;
+        }
+
+        .query-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .query-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .query-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 快捷统计卡片 */
+        .quick-stats {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 12px;
+        }
+
+        .quick-stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 150px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .quick-stat-card.double-width {
+            flex: 2;
+        }
+
+        .quick-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .quick-stat-card-divider {
+            width: 1px;
+            background: #f0f0f0;
+        }
+
+        .quick-stat-card-section {
+            flex: 1;
+        }
+
+        .quick-stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .quick-stat-title {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+        }
+
+        .quick-stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .quick-stat-icon.blue {
+            background: linear-gradient(135deg, #409EFF 0%, #36D1DC 100%);
+        }
+
+        .quick-stat-icon.green {
+            background: linear-gradient(135deg, #67C23A 0%, #20c997 100%);
+        }
+
+        .quick-stat-icon.orange {
+            background: linear-gradient(135deg, #E6A23C 0%, #F7BA2A 100%);
+        }
+
+        .quick-stat-icon.purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+        }
+
+        .quick-stat-content {
+            flex: 1;
+        }
+
+        .quick-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .quick-stat-subtitle {
+            font-size: 12px;
+            color: #606266;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quick-stat-progress {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .table-title i {
-            color: #409EFF;
+        .quick-stat-progress-label {
+            font-size: 12px;
+            color: #606266;
+            white-space: nowrap;
+            min-width: 42px;
         }
 
-        .table-body {
+        .quick-stat-progress-bar {
             flex: 1;
-            padding: 0 24px 24px;
+        }
+
+        .quick-stat-compare {
+            display: flex;
+            gap: 12px;
+            padding-top: 12px;
+            margin-top: auto;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .quick-stat-compare-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .quick-stat-compare-item.up {
+            color: #F56C6C;
+        }
+
+        .quick-stat-compare-item.down {
+            color: #67C23A;
+        }
+
+        /* 数据展示区 */
+        .data-section {
+            flex: 1;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .data-tabs {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .data-tabs .el-tabs__content {
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .data-tabs .el-tab-pane {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 表格容器 */
+        .table-container {
+            height: 100%;
+            padding: 16px;
             overflow: auto;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* 总计行样式 */
-        .summary-row {
-            background-color: #fafafa !important;
-            font-weight: 600;
-        }
-
-        .summary-row td {
-            background-color: #fafafa !important;
+        .table-container .el-table {
+            flex: 1;
+            min-height: 0;
         }
 
         /* 响应式 */
-        @media (max-width: 1400px) {
-            .stats-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         @media (max-width: 1200px) {
             .main-content {
                 flex-direction: column;
             }
 
-            .dept-tree-panel {
+            .org-tree-panel {
                 width: 100%;
                 max-height: 300px;
             }
         }
 
         @media (max-width: 768px) {
-            .stats-cards {
-                grid-template-columns: 1fr;
+            .query-row {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>
@@ -269,18 +317,18 @@
 <body>
     <div id="app" class="app-container">
         <div class="main-content">
-            <!-- 左侧部门树 -->
-            <div class="dept-tree-panel">
+            <!-- 左侧组织树面板 -->
+            <div class="org-tree-panel">
                 <div class="tree-search">
-                    <el-input v-model="treeFilterText" placeholder="搜索部门" clearable size="small">
+                    <el-input v-model="treeFilterText" placeholder="搜索组织" clearable size="small">
                         <template #prefix>
                             <i class="fas fa-search" style="color: #999;"></i>
                         </template>
                     </el-input>
                 </div>
                 <div class="tree-body">
-                    <el-tree ref="treeRef" :data="deptTreeData" :props="treeProps" node-key="id" default-expand-all
-                        highlight-current :filter-node-method="filterNode" @node-click="handleNodeClick">
+                    <el-tree ref="treeRef" :data="orgTreeData" :props="treeProps" node-key="id" default-expand-all
+                        :filter-node-method="filterNode" @node-click="handleTreeNodeClick" highlight-current>
                         <template #default="{ node, data }">
                             <span class="custom-tree-node">
                                 <i :class="data.children ? 'fas fa-folder' : 'fas fa-building'"
@@ -294,171 +342,222 @@
 
             <!-- 右侧内容区 -->
             <div class="content-panel">
-                <!-- 查询区域 -->
-                <div class="search-section">
-                    <div class="search-row">
-                        <div class="search-fields">
-                            <el-form-item label="费用周期" style="margin-bottom: 0;">
-                                <el-date-picker v-model="queryYear" type="year" placeholder="选择年份" value-format="YYYY"
-                                    style="width: 120px;" size="small" />
-                            </el-form-item>
+                <!-- 查询条件区 -->
+                <div class="query-section">
+                    <div class="query-title" @click="queryCollapsed = !queryCollapsed">
+                        <div class="query-title-text">
+                            <i class="fas fa-filter"></i>
+                            <span>查询条件</span>
                         </div>
-                        <div class="search-buttons">
-                            <el-button type="primary" size="small" @click="handleSearch">
-                                <i class="fas fa-search"></i> 查询
-                            </el-button>
-                            <el-button size="small" @click="handleReset">
-                                <i class="fas fa-redo"></i> 重置
-                            </el-button>
-                            <el-button size="small" @click="handleExport">
-                                <i class="fas fa-file-export"></i> 导出
-                            </el-button>
-                        </div>
+                        <el-icon :class="{ 'is-rotate': !queryCollapsed }">
+                            <i class="fas fa-chevron-down"></i>
+                        </el-icon>
                     </div>
+                    <el-collapse-transition>
+                        <div v-show="!queryCollapsed" class="query-form">
+                            <div class="query-row">
+                                <el-form-item label="统计周期" style="margin-bottom: 0;">
+                                    <el-date-picker v-model="queryForm.year" type="year" placeholder="选择年份"
+                                        value-format="YYYY" style="width: 140px;" size="small" />
+                                </el-form-item>
+                                <el-form-item label="时间粒度" style="margin-bottom: 0;">
+                                    <el-select v-model="queryForm.granularity" placeholder="请选择" style="width: 140px;"
+                                        size="small" @change="handleGranularityChange">
+                                        <el-option label="年度" value="year"></el-option>
+                                        <el-option label="季度" value="quarter"></el-option>
+                                        <el-option label="月度" value="month"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <div style="flex: 1;"></div>
+                                <el-button type="primary" size="small" @click="handleQuery">
+                                    <i class="fas fa-search"></i> 查询
+                                </el-button>
+                                <el-button size="small" @click="handleReset">
+                                    <i class="fas fa-redo"></i> 重置
+                                </el-button>
+                            </div>
+                        </div>
+                    </el-collapse-transition>
                 </div>
 
-                <!-- 统计卡片区域 -->
-                <div class="stats-section">
-                    <div class="stats-cards">
-                        <!-- 计划投入费用 -->
-                        <div class="stat-card blue">
-                            <div class="stat-card-header">
-                                <div class="stat-card-title">计划投入费用（元）</div>
-                                <i class="fas fa-clipboard-list stat-card-icon"></i>
-                            </div>
-                            <div class="stat-card-value">{{ formatNumber(statsData.planTotal) }}</div>
-                            <div class="stat-card-compare">
-                                <div class="compare-item"
-                                    :class="statsData.planYoy >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>同比</span>
-                                    <i :class="statsData.planYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.planYoy) }}%</span>
-                                </div>
-                                <div class="compare-item"
-                                    :class="statsData.planMom >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>环比</span>
-                                    <i :class="statsData.planMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.planMom) }}%</span>
-                                </div>
+                <!-- 快捷统计卡片区 -->
+                <div class="quick-stats" style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+                    <!-- 计划总额 -->
+                    <div class="quick-stat-card" @click="handleCardClick('plan')">
+                        <div class="quick-stat-header">
+                            <div class="quick-stat-title">计划总额（万元）</div>
+                            <div class="quick-stat-icon purple">
+                                <i class="fas fa-clipboard-list"></i>
                             </div>
                         </div>
-
-                        <!-- 投入预算 -->
-                        <div class="stat-card green">
-                            <div class="stat-card-header">
-                                <div class="stat-card-title">投入预算（元）</div>
-                                <i class="fas fa-wallet stat-card-icon"></i>
-                            </div>
-                            <div class="stat-card-value">{{ formatNumber(statsData.budget) }}</div>
-                            <div class="stat-card-compare">
-                                <div class="compare-item"
-                                    :class="statsData.budgetYoy >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>同比</span>
-                                    <i :class="statsData.budgetYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.budgetYoy) }}%</span>
-                                </div>
-                                <div class="compare-item"
-                                    :class="statsData.budgetMom >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>环比</span>
-                                    <i :class="statsData.budgetMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.budgetMom) }}%</span>
-                                </div>
-                            </div>
+                        <div class="quick-stat-content">
+                            <div class="quick-stat-value">{{ formatMoney(quickStats.planTotal) }}</div>
                         </div>
+                    </div>
 
-                        <!-- 实际投入费用 -->
-                        <div class="stat-card orange">
-                            <div class="stat-card-header">
-                                <div class="stat-card-title">实际投入费用（元）</div>
-                                <i class="fas fa-coins stat-card-icon"></i>
-                            </div>
-                            <div class="stat-card-value">{{ formatNumber(statsData.actual) }}</div>
-                            <div class="stat-card-compare">
-                                <div class="compare-item"
-                                    :class="statsData.actualYoy >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>同比</span>
-                                    <i :class="statsData.actualYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.actualYoy) }}%</span>
+                    <!-- 提取总额、实际总额和投入率合并卡片 -->
+                    <div class="quick-stat-card" @click="handleCardClick('accrualAndActual')">
+                        <div class="quick-stat-content" style="display: flex; flex-direction: column; height: 100%;">
+                            <!-- 三个并排的区域 -->
+                            <div style="display: flex; gap: 20px; flex: 1;">
+                                <!-- 提取总额部分 -->
+                                <div class="quick-stat-card-section" style="flex: 1;">
+                                    <div class="quick-stat-header" style="margin-bottom: 8px;">
+                                        <div class="quick-stat-title">提取总额（万元）</div>
+                                        <div class="quick-stat-icon blue">
+                                            <i class="fas fa-coins"></i>
+                                        </div>
+                                    </div>
+                                    <div class="quick-stat-value">{{ formatMoney(quickStats.accrualTotal) }}</div>
                                 </div>
-                                <div class="compare-item"
-                                    :class="statsData.actualMom >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>环比</span>
-                                    <i :class="statsData.actualMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.actualMom) }}%</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- 投入率 -->
-                        <div class="stat-card purple">
-                            <div class="stat-card-header">
-                                <div class="stat-card-title">投入率（%）</div>
-                                <i class="fas fa-percentage stat-card-icon"></i>
-                            </div>
-                            <div class="stat-card-value">{{ statsData.investmentRate.toFixed(2) }}%</div>
-                            <div class="stat-card-compare">
-                                <div class="compare-item"
-                                    :class="statsData.rateYoy >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>同比</span>
-                                    <i :class="statsData.rateYoy >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.rateYoy) }}%</span>
+                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"></div>
+
+                                <!-- 实际总额部分 -->
+                                <div class="quick-stat-card-section" style="flex: 1;">
+                                    <div class="quick-stat-header" style="margin-bottom: 8px;">
+                                        <div class="quick-stat-title">实际总额（万元）</div>
+                                        <div class="quick-stat-icon orange">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                    </div>
+                                    <div class="quick-stat-value">{{ formatMoney(quickStats.actualTotal) }}</div>
                                 </div>
-                                <div class="compare-item"
-                                    :class="statsData.rateMom >= 0 ? 'compare-up' : 'compare-down'">
-                                    <span>环比</span>
-                                    <i :class="statsData.rateMom >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                                    <span>{{ Math.abs(statsData.rateMom) }}%</span>
+
+                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"></div>
+
+                                <!-- 投入率部分 -->
+                                <div class="quick-stat-card-section" style="flex: 1;">
+                                    <div class="quick-stat-header" style="margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="quick-stat-title">投入率（%）</span>
+                                            <el-tooltip placement="top" effect="light">
+                                                <template #content>
+                                                    投入率=实际总额/提取总额×100%
+                                                </template>
+                                                <i class="fas fa-question-circle"
+                                                    style="color: #909399; font-size: 12px; cursor: help;"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="quick-stat-icon green">
+                                            <i class="fas fa-percentage"></i>
+                                        </div>
+                                    </div>
+                                    <div class="quick-stat-value">{{ quickStats.completionRate }}%</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 表格区域 -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <div class="table-title">
-                            <i class="fas fa-table"></i>
-                            <span>投入明细统计</span>
-                        </div>
-                    </div>
-                    <div class="table-body">
-                        <el-table :data="tableDataWithSummary" style="width: 100%" stripe border v-loading="loading"
-                            :row-class-name="tableRowClassName" max-height="400">
-                            <el-table-column prop="index" label="序号" width="60" align="center" fixed>
-                                <template #default="{ row }">
-                                    {{ row.isSummary ? '' : row.index }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="categoryName" label="投入类别名称" min-width="160" fixed>
-                                <template #default="{ row }">
-                                    <span :style="{ fontWeight: row.isSummary ? '600' : 'normal' }">{{
-                                        row.categoryName }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="yearPlan" label="年度计划投入费用（元）" min-width="160" align="right">
-                                <template #default="{ row }">
-                                    {{ formatNumber(row.yearPlan) }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="yearBudget" label="年度投入预算（元）" min-width="140" align="right">
-                                <template #default="{ row }">
-                                    {{ formatNumber(row.yearBudget) }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="yearActual" label="年度实际投入费用（元）" min-width="160" align="right">
-                                <template #default="{ row }">
-                                    {{ formatNumber(row.yearActual) }}
-                                </template>
-                            </el-table-column>
-                            <el-table-column v-for="month in 12" :key="month" :prop="'month' + month"
-                                :label="month + '月（元）'" min-width="100" align="right">
-                                <template #default="{ row }">
-                                    {{ formatNumber(row['month' + month]) }}
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
+                <!-- 数据展示区 -->
+                <div class="data-section">
+                    <el-tabs v-model="activeTab" class="data-tabs">
+                        <!-- Tab1: 支出范围维度 -->
+                        <el-tab-pane label="支出范围维度" name="category">
+                            <div class="table-container">
+                                <el-table :data="categoryTableData" stripe border style="width: 100%; height: 100%;"
+                                    v-loading="tableLoading" show-summary :summary-method="getCategorySummary"
+                                    :key="'category-' + queryForm.granularity">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="categoryName" label="支出范围名称" min-width="350" fixed
+                                        show-overflow-tooltip></el-table-column>
+                                    <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.planAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column v-if="isCompanyNode" prop="accrualAmount" label="提取总额（万元）"
+                                        width="150" align="right" sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.accrualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="actualAmount" label="实际总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.actualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <!-- 季度列组 - 仅当时间粒度为季度时显示 -->
+                                    <el-table-column v-if="queryForm.granularity === 'quarter'" label="实际总额（万元）"
+                                        align="center">
+                                        <el-table-column label="一季度" width="120" align="right">
+                                            <template #default="{ row }">
+                                                {{ formatNumber(row.q1 / 10000) }}
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="二季度" width="120" align="right">
+                                            <template #default="{ row }">
+                                                {{ formatNumber(row.q2 / 10000) }}
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="三季度" width="120" align="right">
+                                            <template #default="{ row }">
+                                                {{ formatNumber(row.q3 / 10000) }}
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="四季度" width="120" align="right">
+                                            <template #default="{ row }">
+                                                {{ formatNumber(row.q4 / 10000) }}
+                                            </template>
+                                        </el-table-column>
+                                    </el-table-column>
+                                    <!-- 月份列组 - 仅当时间粒度为月份时显示 -->
+                                    <el-table-column v-if="queryForm.granularity === 'month'" label="实际总额（万元）"
+                                        align="center">
+                                        <el-table-column v-for="m in 12" :key="m" :label="`${m}月`" width="100"
+                                            align="right">
+                                            <template #default="{ row }">
+                                                {{ formatNumber(row['m' + m] / 10000) }}
+                                            </template>
+                                        </el-table-column>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                        </el-tab-pane>
+
+                        <!-- Tab2: 项目维度 -->
+                        <el-tab-pane label="项目维度" name="project">
+                            <div class="table-container">
+                                <el-table :data="projectTableData" stripe border style="width: 100%; flex: 1;"
+                                    v-loading="tableLoading">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="projectName" label="项目名称" width="200"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="categoryName" label="支出范围名称" width="150"></el-table-column>
+                                    <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.planAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column v-if="isCompanyNode" prop="accrualAmount" label="提取总额（万元）"
+                                        width="150" align="right" sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.accrualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="actualAmount" label="实际总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.actualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="deptName" label="责任部门" width="150"></el-table-column>
+                                    <el-table-column prop="responsiblePerson" label="责任人" width="120"></el-table-column>
+                                </el-table>
+                                <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                                    <el-pagination v-model:current-page="tablePage" v-model:page-size="tablePageSize"
+                                        :page-sizes="[20, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
+                                        :total="tableTotal" small />
+                                </div>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
             </div>
         </div>
@@ -467,19 +566,27 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
     <script>
-        const { createApp, ref, reactive, computed, watch, onMounted } = Vue;
+        const { createApp, ref, reactive, watch, computed } = Vue;
         const { ElMessage } = ElementPlus;
 
         createApp({
             setup() {
-                const loading = ref(false);
                 const treeRef = ref(null);
                 const treeFilterText = ref('');
-                const selectedDept = ref('国投电力公司');
-                const queryYear = ref(new Date().getFullYear().toString());
+                const queryCollapsed = ref(false);
+                const activeTab = ref('category');
+                const tableLoading = ref(false);
+                const tablePage = ref(1);
+                const tablePageSize = ref(20);
+                const tableTotal = ref(100);
+                const selectedNodeType = ref('company'); // 'company' 或 'contractor'
 
-                // 部门树数据
-                const deptTreeData = ref([
+                // 是否为公司节点（国投电力公司及其子节点）
+                const isCompanyNode = computed(() => {
+                    return selectedNodeType.value === 'company';
+                });
+
+                const orgTreeData = ref([
                     {
                         id: 1,
                         label: '国投电力公司',
@@ -507,9 +614,30 @@
                                     { id: 131, label: '资金管理科' },
                                     { id: 132, label: '成本核算科' }
                                 ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        label: '承包商',
+                        children: [
+                            {
+                                id: 21,
+                                label: '中电建设承包商',
+                                children: [
+                                    { id: 211, label: '变电站改造项目' },
+                                    { id: 212, label: '输电线路检修项目' },
+                                    { id: 213, label: '配电网升级项目' }
+                                ]
                             },
-                            { id: 14, label: '人力资源部' },
-                            { id: 15, label: '综合管理部' }
+                            {
+                                id: 22,
+                                label: '华能施工队',
+                                children: [
+                                    { id: 221, label: '电缆敷设工程' },
+                                    { id: 222, label: '设备安装项目' }
+                                ]
+                            }
                         ]
                     }
                 ]);
@@ -519,118 +647,265 @@
                     label: 'label'
                 };
 
-                const statsData = reactive({
-                    planTotal: 15800000,
-                    planYoy: 12.5,
-                    planMom: 3.2,
-                    budget: 15000000,
-                    budgetYoy: 8.3,
-                    budgetMom: -2.1,
-                    actual: 12855000,
-                    actualYoy: 15.6,
-                    actualMom: 5.8,
-                    investmentRate: 85.70,
-                    rateYoy: 6.8,
-                    rateMom: 8.1
+                const queryForm = reactive({
+                    year: new Date().getFullYear().toString(),
+                    granularity: 'year'
                 });
 
-                // 表格数据
-                const tableData = ref([
+                const quickStats = reactive({
+                    planTotal: 15800000,
+                    anCuo: 8500000,
+                    fanCuo: 5200000,
+                    other: 2100000,
+                    planYoy: 12.5,
+                    planMom: 3.2,
+                    budgetTotal: 15000000,
+                    budgetYoy: 8.3,
+                    budgetMom: -2.1,
+                    accrualTotal: 14200000,
+                    accrualYoy: 10.2,
+                    accrualMom: 4.5,
+                    actualTotal: 12855000,
+                    actualYoy: 15.6,
+                    actualMom: 5.8,
+                    completionRate: ((12855000 / 14200000) * 100).toFixed(2)
+                });
+
+                // 类别维度表格数据（使用电力生产与供应企业一级投入类别）
+                const categoryTableData = ref([
                     {
                         index: 1,
-                        categoryName: '安全防护设施',
-                        yearPlan: 3800000,
-                        yearBudget: 3500000,
-                        yearActual: 3200000,
-                        month1: 250000, month2: 280000, month3: 300000, month4: 260000,
-                        month5: 270000, month6: 280000, month7: 250000, month8: 260000,
-                        month9: 270000, month10: 260000, month11: 250000, month12: 270000
+                        categoryName: '（一）安全防护设备、设施支出',
+                        planAmount: 2500000,
+                        budgetAmount: 2400000,
+                        accrualAmount: 2450000,
+                        actualAmount: 2200000,
+                        q1: 500000, q2: 550000, q3: 600000, q4: 550000,
+                        m1: 180000, m2: 170000, m3: 150000, m4: 185000, m5: 180000, m6: 185000,
+                        m7: 195000, m8: 200000, m9: 205000, m10: 180000, m11: 185000, m12: 185000
                     },
                     {
                         index: 2,
-                        categoryName: '安全培训教育',
-                        yearPlan: 3200000,
-                        yearBudget: 3000000,
-                        yearActual: 2800000,
-                        month1: 200000, month2: 220000, month3: 250000, month4: 240000,
-                        month5: 230000, month6: 250000, month7: 220000, month8: 240000,
-                        month9: 250000, month10: 230000, month11: 240000, month12: 230000
+                        categoryName: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
+                        planAmount: 1800000,
+                        budgetAmount: 1750000,
+                        accrualAmount: 1820000,
+                        actualAmount: 1680000,
+                        q1: 400000, q2: 420000, q3: 450000, q4: 410000,
+                        m1: 130000, m2: 135000, m3: 135000, m4: 140000, m5: 140000, m6: 140000,
+                        m7: 150000, m8: 150000, m9: 150000, m10: 135000, m11: 137500, m12: 137500
                     },
                     {
                         index: 3,
-                        categoryName: '劳动防护用品',
-                        yearPlan: 2800000,
-                        yearBudget: 2600000,
-                        yearActual: 2500000,
-                        month1: 180000, month2: 200000, month3: 220000, month4: 210000,
-                        month5: 200000, month6: 220000, month7: 200000, month8: 210000,
-                        month9: 220000, month10: 210000, month11: 220000, month12: 210000
+                        categoryName: '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出',
+                        planAmount: 1500000,
+                        budgetAmount: 1450000,
+                        accrualAmount: 1480000,
+                        actualAmount: 1320000,
+                        q1: 300000, q2: 330000, q3: 350000, q4: 340000,
+                        m1: 100000, m2: 100000, m3: 100000, m4: 110000, m5: 110000, m6: 110000,
+                        m7: 115000, m8: 117500, m9: 117500, m10: 112500, m11: 113750, m12: 113750
                     },
                     {
                         index: 4,
-                        categoryName: '安全检测检验',
-                        yearPlan: 2500000,
-                        yearBudget: 2400000,
-                        yearActual: 2000000,
-                        month1: 150000, month2: 160000, month3: 180000, month4: 170000,
-                        month5: 160000, month6: 180000, month7: 160000, month8: 170000,
-                        month9: 170000, month10: 160000, month11: 170000, month12: 170000
+                        categoryName: '（四）安全生产检查、评估评价、咨询和标准化建设支出',
+                        planAmount: 1200000,
+                        budgetAmount: 1150000,
+                        accrualAmount: 1180000,
+                        actualAmount: 1080000,
+                        q1: 250000, q2: 270000, q3: 280000, q4: 280000,
+                        m1: 85000, m2: 82500, m3: 82500, m4: 90000, m5: 90000, m6: 90000,
+                        m7: 93000, m8: 93500, m9: 93500, m10: 93000, m11: 93500, m12: 93500
                     },
                     {
                         index: 5,
-                        categoryName: '应急救援器材',
-                        yearPlan: 2000000,
-                        yearBudget: 2000000,
-                        yearActual: 1500000,
-                        month1: 120000, month2: 120000, month3: 130000, month4: 120000,
-                        month5: 130000, month6: 120000, month7: 120000, month8: 130000,
-                        month9: 120000, month10: 130000, month11: 130000, month12: 130000
+                        categoryName: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
+                        planAmount: 980000,
+                        budgetAmount: 950000,
+                        accrualAmount: 970000,
+                        actualAmount: 885000,
+                        q1: 200000, q2: 220000, q3: 230000, q4: 235000,
+                        m1: 70000, m2: 65000, m3: 65000, m4: 72500, m5: 73750, m6: 73750,
+                        m7: 76000, m8: 77000, m9: 77000, m10: 78000, m11: 78500, m12: 78500
                     },
                     {
                         index: 6,
-                        categoryName: '其他安全投入',
-                        yearPlan: 1500000,
-                        yearBudget: 1500000,
-                        yearActual: 855000,
-                        month1: 60000, month2: 70000, month3: 75000, month4: 70000,
-                        month5: 70000, month6: 75000, month7: 70000, month8: 70000,
-                        month9: 75000, month10: 70000, month11: 70000, month12: 80000
+                        categoryName: '（六）配备和更新现场作业人员安全防护用品支出',
+                        planAmount: 850000,
+                        budgetAmount: 820000,
+                        accrualAmount: 840000,
+                        actualAmount: 780000,
+                        q1: 180000, q2: 195000, q3: 205000, q4: 200000,
+                        m1: 60000, m2: 60000, m3: 60000, m4: 65000, m5: 65000, m6: 65000,
+                        m7: 68000, m8: 68500, m9: 68500, m10: 66000, m11: 67000, m12: 67000
+                    },
+                    {
+                        index: 7,
+                        categoryName: '（七）安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出',
+                        planAmount: 1100000,
+                        budgetAmount: 1050000,
+                        accrualAmount: 1080000,
+                        actualAmount: 950000,
+                        q1: 220000, q2: 240000, q3: 250000, q4: 240000,
+                        m1: 75000, m2: 72500, m3: 72500, m4: 80000, m5: 80000, m6: 80000,
+                        m7: 83000, m8: 83500, m9: 83500, m10: 80000, m11: 80000, m12: 80000
+                    },
+                    {
+                        index: 8,
+                        categoryName: '（八）安全设施及特种设备检测检验、检定校准支出',
+                        planAmount: 750000,
+                        budgetAmount: 720000,
+                        accrualAmount: 740000,
+                        actualAmount: 680000,
+                        q1: 160000, q2: 170000, q3: 175000, q4: 175000,
+                        m1: 55000, m2: 52500, m3: 52500, m4: 56000, m5: 57000, m6: 57000,
+                        m7: 58000, m8: 58500, m9: 58500, m10: 58000, m11: 58500, m12: 58500
+                    },
+                    {
+                        index: 9,
+                        categoryName: '（九）安全生产责任保险支出',
+                        planAmount: 450000,
+                        budgetAmount: 430000,
+                        accrualAmount: 440000,
+                        actualAmount: 400000,
+                        q1: 100000, q2: 100000, q3: 100000, q4: 100000,
+                        m1: 33000, m2: 33500, m3: 33500, m4: 33000, m5: 33500, m6: 33500,
+                        m7: 33000, m8: 33500, m9: 33500, m10: 33000, m11: 33500, m12: 33500
+                    },
+                    {
+                        index: 10,
+                        categoryName: '（十）与安全生产直接相关的其他支出',
+                        planAmount: 670000,
+                        budgetAmount: 630000,
+                        accrualAmount: 650000,
+                        actualAmount: 580000,
+                        q1: 140000, q2: 145000, q3: 150000, q4: 145000,
+                        m1: 48000, m2: 46000, m3: 46000, m4: 48000, m5: 48500, m6: 48500,
+                        m7: 50000, m8: 50000, m9: 50000, m10: 48000, m11: 48500, m12: 48500
                     }
                 ]);
 
-                // 带总计行的表格数据
-                const tableDataWithSummary = computed(() => {
-                    const data = [...tableData.value];
-                    // 计算总计
-                    const summary = {
-                        isSummary: true,
-                        index: '',
-                        categoryName: '合计',
-                        yearPlan: 0,
-                        yearBudget: 0,
-                        yearActual: 0
-                    };
-                    for (let i = 1; i <= 12; i++) {
-                        summary['month' + i] = 0;
+                // 项目维度表格数据
+                const projectTableData = ref([
+                    {
+                        index: 1,
+                        projectName: '车间防护栏杆更新',
+                        categoryName: '安全防护设施',
+                        planType: 'ancuo',
+                        planAmount: 500000,
+                        budgetAmount: 480000,
+                        accrualAmount: 490000,
+                        actualAmount: 455000,
+                        deptName: '安全生产部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        index: 2,
+                        projectName: '全员安全培训',
+                        categoryName: '安全培训教育',
+                        planType: 'ancuo',
+                        planAmount: 350000,
+                        budgetAmount: 340000,
+                        accrualAmount: 345000,
+                        actualAmount: 328000,
+                        deptName: '安全生产部',
+                        responsiblePerson: '李四'
+                    },
+                    {
+                        index: 3,
+                        projectName: '防护用品采购',
+                        categoryName: '劳动防护用品',
+                        planType: 'other',
+                        planAmount: 280000,
+                        budgetAmount: 270000,
+                        accrualAmount: 275000,
+                        actualAmount: 258000,
+                        deptName: '综合管理部',
+                        responsiblePerson: '王五'
+                    },
+                    {
+                        index: 4,
+                        projectName: '设备安全检测',
+                        categoryName: '安全检测检验',
+                        planType: 'fancuo',
+                        planAmount: 420000,
+                        budgetAmount: 410000,
+                        accrualAmount: 415000,
+                        actualAmount: 398000,
+                        deptName: '生产技术部',
+                        responsiblePerson: '赵六'
+                    },
+                    {
+                        index: 5,
+                        projectName: '应急救援装备更新',
+                        categoryName: '应急救援器材',
+                        planType: 'ancuo',
+                        planAmount: 380000,
+                        budgetAmount: 370000,
+                        accrualAmount: 375000,
+                        actualAmount: 352000,
+                        deptName: '安全生产部',
+                        responsiblePerson: '张三'
+                    },
+                    {
+                        index: 6,
+                        projectName: '安全标志标识更新',
+                        categoryName: '安全防护设施',
+                        planType: 'other',
+                        planAmount: 180000,
+                        budgetAmount: 175000,
+                        accrualAmount: 178000,
+                        actualAmount: 168000,
+                        deptName: '安全生产部',
+                        responsiblePerson: '李四'
+                    },
+                    {
+                        index: 7,
+                        projectName: '特种作业人员培训',
+                        categoryName: '安全培训教育',
+                        planType: 'ancuo',
+                        planAmount: 220000,
+                        budgetAmount: 215000,
+                        accrualAmount: 218000,
+                        actualAmount: 205000,
+                        deptName: '人力资源部',
+                        responsiblePerson: '周七'
+                    },
+                    {
+                        index: 8,
+                        projectName: '环境检测仪器校准',
+                        categoryName: '安全检测检验',
+                        planType: 'other',
+                        planAmount: 150000,
+                        budgetAmount: 145000,
+                        accrualAmount: 148000,
+                        actualAmount: 138000,
+                        deptName: '生产技术部',
+                        responsiblePerson: '赵六'
                     }
-                    data.forEach(row => {
-                        summary.yearPlan += row.yearPlan || 0;
-                        summary.yearBudget += row.yearBudget || 0;
-                        summary.yearActual += row.yearActual || 0;
-                        for (let i = 1; i <= 12; i++) {
-                            summary['month' + i] += row['month' + i] || 0;
-                        }
-                    });
-                    data.push(summary);
-                    return data;
-                });
+                ]);
+
+                const formatMoney = (value) => {
+                    if (value >= 100000000) {
+                        return (value / 100000000).toFixed(2) + '亿';
+                    } else if (value >= 10000) {
+                        return (value / 10000).toFixed(2) + '万';
+                    }
+                    return value.toFixed(2);
+                };
 
                 const formatNumber = (num) => {
                     if (num === null || num === undefined) return '-';
                     return new Intl.NumberFormat('zh-CN', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 6
                     }).format(num);
+                };
+
+                const getProgressColor = (percentage) => {
+                    if (percentage >= 90) return '#67C23A';
+                    if (percentage >= 70) return '#E6A23C';
+                    return '#F56C6C';
                 };
 
                 const filterNode = (value, data) => {
@@ -638,61 +913,103 @@
                     return data.label.indexOf(value) !== -1;
                 };
 
-                const handleNodeClick = (data) => {
-                    selectedDept.value = data.label;
-                    handleSearch();
+                const handleTreeNodeClick = (data) => {
+                    // 检查节点ID来确定是公司节点还是承包商节点
+                    // id为1或以1开头的是公司节点，id为2或以2开头的是承包商节点
+                    const idStr = String(data.id);
+                    if (idStr === '1' || idStr.startsWith('1')) {
+                        selectedNodeType.value = 'company';
+                    } else if (idStr === '2' || idStr.startsWith('2')) {
+                        selectedNodeType.value = 'contractor';
+                    }
+                    ElMessage.success(`已选择：${data.label}`);
+                    handleQuery();
                 };
 
-                const handleSearch = () => {
-                    loading.value = true;
+                const handleQuery = () => {
+                    tableLoading.value = true;
                     setTimeout(() => {
-                        loading.value = false;
-                        ElMessage.success('查询完成');
+                        tableLoading.value = false;
+                        ElMessage.success('查询成功');
                     }, 500);
                 };
 
                 const handleReset = () => {
-                    queryYear.value = new Date().getFullYear().toString();
-                    selectedDept.value = '国投电力公司';
+                    queryForm.year = new Date().getFullYear().toString();
+                    queryForm.granularity = 'year';
+                    ElMessage.success('已重置');
                 };
 
-                const handleExport = () => {
-                    ElMessage.info('导出功能开发中...');
+                const handleGranularityChange = () => {
+                    ElMessage.info('时间粒度已更改，数据将自动刷新');
+                    handleQuery();
                 };
 
-                const tableRowClassName = ({ row }) => {
-                    if (row.isSummary) {
-                        return 'summary-row';
-                    }
-                    return '';
+                const handleCardClick = (type) => {
+                    ElMessage.info(`点击了${type}卡片，可跳转到详情页面`);
+                };
+
+                // 类别维度表格合计行
+                const getCategorySummary = (param) => {
+                    const { columns, data } = param;
+                    const sums = [];
+                    columns.forEach((column, index) => {
+                        if (index === 0) {
+                            sums[index] = '合计';
+                            return;
+                        }
+                        if (index === 1) {
+                            sums[index] = '';
+                            return;
+                        }
+                        const values = data.map(item => Number(item[column.property]));
+                        if (!values.every(value => Number.isNaN(value))) {
+                            const sum = values.reduce((prev, curr) => {
+                                const value = Number(curr);
+                                if (!Number.isNaN(value)) {
+                                    return prev + curr;
+                                } else {
+                                    return prev;
+                                }
+                            }, 0);
+                            sums[index] = formatNumber(sum / 10000);
+                        } else {
+                            sums[index] = '-';
+                        }
+                    });
+                    return sums;
                 };
 
                 watch(treeFilterText, (val) => {
                     treeRef.value?.filter(val);
                 });
 
-                onMounted(() => {
-                    // 默认选中根节点
-                });
-
                 return {
-                    loading,
                     treeRef,
                     treeFilterText,
-                    selectedDept,
-                    queryYear,
-                    deptTreeData,
+                    queryCollapsed,
+                    activeTab,
+                    tableLoading,
+                    tablePage,
+                    tablePageSize,
+                    tableTotal,
+                    isCompanyNode,
+                    orgTreeData,
                     treeProps,
-                    statsData,
-                    tableData,
-                    tableDataWithSummary,
+                    queryForm,
+                    quickStats,
+                    categoryTableData,
+                    projectTableData,
+                    formatMoney,
                     formatNumber,
+                    getProgressColor,
                     filterNode,
-                    handleNodeClick,
-                    handleSearch,
+                    handleTreeNodeClick,
+                    handleQuery,
                     handleReset,
-                    handleExport,
-                    tableRowClassName
+                    handleGranularityChange,
+                    handleCardClick,
+                    getCategorySummary
                 };
             }
         }).use(ElementPlus).mount('#app');
