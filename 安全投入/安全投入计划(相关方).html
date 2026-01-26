@@ -347,8 +347,10 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
-                        <el-table-column prop="projectCode" label="项目编号" min-width="160"></el-table-column>
+                        <!-- 关联相关方项目放在第一列 -->
+                        <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160"
+                            fixed="left"></el-table-column>
+                        <el-table-column prop="projectCode" label="安全费用项目编号" min-width="160"></el-table-column>
                         <el-table-column prop="projectName" label="项目名称" min-width="180">
                             <template #default="{ row }">
                                 <a href="javascript:void(0)" @click="handleView(row)"
@@ -356,6 +358,8 @@
                                     row.projectName }}</a>
                             </template>
                         </el-table-column>
+                        <!-- 支出范围移到项目名称右侧 -->
+                        <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
                         <el-table-column prop="projectContent" label="项目内容" min-width="200">
                             <template #default="{ row }">
                                 <el-tooltip :content="row.projectContent" placement="top" :show-after="300">
@@ -369,24 +373,15 @@
                                 {{ formatAmount(row.planCost) }}
                             </template>
                         </el-table-column>
-                        <!-- 新增：关联相关方项目 -->
-                        <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160">
-                            <template #default="{ row }">
-                                <span class="project-tag">{{ row.relatedProject }}</span>
-                            </template>
-                        </el-table-column>
                         <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
                         <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
-                        <el-table-column label="操作" width="160" fixed="right" align="center">
+                        <el-table-column label="操作" width="120" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
                                     <i class="fas fa-eye" style="color: #67C23A;"></i>
                                 </el-button>
                                 <el-button size="small" @click="handleEdit(row)" link>
                                     <i class="fas fa-edit" style="color: #409EFF;"></i>
-                                </el-button>
-                                <el-button size="small" @click="handleChange(row)" link>
-                                    <i class="fas fa-exchange-alt" style="color: #E6A23C;"></i>
                                 </el-button>
                                 <el-button size="small" @click="handleDelete(row)" link>
                                     <i class="fas fa-trash-alt" style="color: #F56C6C;"></i>

@@ -302,6 +302,8 @@
                             <el-table :data="planPagedData" style="width: 100%" stripe border v-loading="loading">
                                 <el-table-column type="index" label="序号" width="60" fixed="left"
                                     align="center"></el-table-column>
+                                <el-table-column prop="projectCode" label="项目编号" min-width="160"
+                                    fixed="left"></el-table-column>
                                 <el-table-column prop="projectName" label="项目名称" min-width="180" fixed="left">
                                     <template #default="{ row }">
                                         <a href="javascript:void(0)" @click="handleViewProject(row)"
@@ -311,7 +313,10 @@
                                     </template>
                                 </el-table-column>
                                 <el-table-column prop="category" label="支出范围" min-width="180"></el-table-column>
-                                <el-table-column prop="planCost" label="计划金额(万元)" min-width="140" align="right">
+                                <el-table-column prop="responsibleUnit" label="责任单位（部门）"
+                                    min-width="140"></el-table-column>
+                                <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
+                                <el-table-column prop="planCost" label="正式计划金额(万元)" min-width="140" align="right">
                                     <template #default="{ row }">
                                         {{ formatAmount(row.planCost) }}
                                     </template>
@@ -329,7 +334,6 @@
                                         '' }}
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
                             </el-table>
 
                             <!-- 分页 -->
@@ -396,7 +400,7 @@
                             <el-table :data="usagePagedData" style="width: 100%" stripe border v-loading="loading"
                                 @selection-change="handleSelectionChange">
                                 <el-table-column type="selection" width="55"></el-table-column>
-                                <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
+                                <el-table-column prop="code" label="项目使用编号" min-width="160"></el-table-column>
                                 <el-table-column prop="projectName" label="项目名称" min-width="180">
                                     <template #default="{ row }">
                                         <a href="javascript:void(0)" @click="handleViewUsage(row)"
@@ -578,8 +582,10 @@
                 const planData = ref([
                     {
                         id: 1,
+                        projectCode: 'AQJH-20260101-0001',
                         projectName: '现场消防设备维护保养',
                         category: '消防设施维护及检测',
+                        responsibleUnit: '设备部',
                         planCost: 80000,
                         actualCost: 15000,
                         monthlyUsage: { 1: 5000, 2: 10000 },
@@ -587,8 +593,10 @@
                     },
                     {
                         id: 2,
+                        projectCode: 'AQJH-20260101-0002',
                         projectName: '员工个人防护装备采购',
                         category: '安全防护设备',
+                        responsibleUnit: '安健环管理部',
                         planCost: 120000,
                         actualCost: 128000,
                         monthlyUsage: { 1: 128000 },
@@ -735,7 +743,7 @@
                 const handleAddUsage = () => { window.location.href = '安全费用使用-详情.html?mode=add&type=record'; };
 
                 // 重点：区分查看项目（Project View）和查看记录（Record View）
-                // 需求：查看详情页基于现在的详情页，将实际投入的内容变更为列表的形式展示 (即 Project View)
+                // 需求：查看详情页基于现在的详情页，将实际使用的内容变更为列表的形式展示 (即 Project View)
                 const handleViewProject = (row) => {
                     window.location.href = `安全费用使用-详情.html?mode=view&type=project&id=${row.id}`;
                 };

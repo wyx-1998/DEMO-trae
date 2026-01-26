@@ -284,10 +284,10 @@
 
             <!-- 核心指标卡片区 -->
             <div class="stats-cards-section">
-                <!-- 计划总额 -->
+                <!-- 正式计划总额 -->
                 <div class="stats-card" @click="handleCardClick('plan')">
                     <div class="stats-card-header">
-                        <div class="stats-card-title">计划总额（万元）</div>
+                        <div class="stats-card-title">正式计划总额（万元）</div>
                         <div class="stats-card-icon purple">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
@@ -305,7 +305,7 @@
                             <!-- 提取总额部分 -->
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
-                                    <div class="stats-card-title">提取总额（万元）</div>
+                                    <div class="stats-card-title">实际提取总额（万元）</div>
                                     <div class="stats-card-icon blue">
                                         <i class="fas fa-coins"></i>
                                     </div>
@@ -318,7 +318,7 @@
                             <!-- 实际总额部分 -->
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
-                                    <div class="stats-card-title">实际总额（万元）</div>
+                                    <div class="stats-card-title">实际使用总额（万元）</div>
                                     <div class="stats-card-icon orange">
                                         <i class="fas fa-chart-line"></i>
                                     </div>
@@ -328,14 +328,14 @@
 
                             <div class="stats-card-divider" style="width: 1px; height: auto; margin: 0;"></div>
 
-                            <!-- 投入率部分 -->
+                            <!-- 使用率部分 -->
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
                                     <div class="stats-card-label-with-tip">
-                                        <span class="stats-card-title">投入率（%）</span>
+                                        <span class="stats-card-title">使用率（%）</span>
                                         <el-tooltip placement="top" effect="light">
                                             <template #content>
-                                                投入率=实际总额/提取总额×100%
+                                                使用率=实际使用总额/正式计划总额×100%
                                             </template>
                                             <i class="fas fa-question-circle"
                                                 style="color: #909399; font-size: 12px; cursor: help;"></i>
@@ -428,7 +428,7 @@
                             axisPointer: { type: 'shadow' }
                         },
                         legend: {
-                            data: ['实际金额', '提取金额'],
+                            data: ['实际使用金额', '实际提取金额'],
                             bottom: 0
                         },
                         grid: {
@@ -447,7 +447,7 @@
                         },
                         series: [
                             {
-                                name: '实际金额',
+                                name: '实际使用金额',
                                 type: 'bar',
                                 data: [105, 115, 120, 110, 118, 125, 115, 122, 128, 120, 125, 132],
                                 itemStyle: {
@@ -459,7 +459,7 @@
                                 barWidth: '50%'
                             },
                             {
-                                name: '提取金额',
+                                name: '实际提取金额',
                                 type: 'line',
                                 data: Array(12).fill(parseFloat(monthlyAccrual)),
                                 lineStyle: {

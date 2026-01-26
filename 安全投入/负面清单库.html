@@ -182,8 +182,8 @@
                     <el-form :model="searchForm" :inline="true" class="search-form"
                         style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; gap: 16px;">
-                            <el-form-item label="所属支出范围名称">
-                                <el-input v-model="searchForm.scopeName" placeholder="请输入支出范围名称" clearable
+                            <el-form-item label="所属支出范围">
+                                <el-input v-model="searchForm.scopeName" placeholder="请选择支出范围" clearable
                                     style="width: 200px;" />
                             </el-form-item>
                             <el-form-item label="负面清单名称">
@@ -207,7 +207,7 @@
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
                         <el-table-column prop="industryType" label="所属企业分类" min-width="180"></el-table-column>
-                        <el-table-column prop="scopeName" label="所属支出范围名称" min-width="300"></el-table-column>
+                        <el-table-column prop="scopeName" label="所属支出范围" min-width="300"></el-table-column>
                         <el-table-column prop="negativeListName" label="负面清单名称" min-width="300"></el-table-column>
                         <el-table-column label="操作" width="140" fixed="right" align="center">
                             <template #default="{ row }">
@@ -238,7 +238,7 @@
                         :props="{ label: 'label', value: 'value' }" placeholder="请选择企业分类" style="width: 100%;"
                         check-strictly :render-after-expand="false" @change="handleIndustryChange" />
                 </el-form-item>
-                <el-form-item label="所属支出范围名称" prop="scopeName">
+                <el-form-item label="所属支出范围" prop="scopeName">
                     <el-select v-model="formData.scopeName" placeholder="请选择支出范围" style="width: 100%;" filterable>
                         <el-option v-for="item in scopeOptions" :key="item.value" :label="item.label"
                             :value="item.value" />
@@ -454,7 +454,7 @@
                         data = data.filter(item => item.industryValue === currentIndustry.value);
                     }
 
-                    // 按支出范围名称搜索
+                    // 按支出范围搜索
                     if (searchForm.value.scopeName) {
                         const keyword = searchForm.value.scopeName.toLowerCase();
                         data = data.filter(item => item.scopeName.toLowerCase().includes(keyword));

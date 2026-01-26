@@ -234,7 +234,7 @@
                         label-position="left">
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="编码" prop="code">
+                                <el-form-item label="编号" prop="code">
                                     <el-input v-model="formData.code" placeholder="自动生成，如AQTR-0001"
                                         :disabled="isView || isEdit" />
                                 </el-form-item>
@@ -326,7 +326,7 @@
                             </div>
                             <el-table :data="formData.excessRules" border stripe>
                                 <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-                                <el-table-column prop="lowerLimit" label="下限" min-width="180">
+                                <el-table-column prop="lowerLimit" label="下限（万元）" min-width="180">
                                     <template #default="{ row }">
                                         <span v-if="isView">{{ formatNumber(row.lowerLimit) }}</span>
                                         <el-input-number v-else v-model="row.lowerLimit" :min="0"
@@ -335,7 +335,7 @@
                                             style="width: 100%;"></el-input-number>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="upperLimit" label="上限" min-width="180">
+                                <el-table-column prop="upperLimit" label="上限（万元）" min-width="180">
                                     <template #default="{ row }">
                                         <span v-if="isView">{{ row.upperLimit ? formatNumber(row.upperLimit) : '无上限'
                                             }}</span>
@@ -606,8 +606,8 @@
                     extractType: '',
                     cycleType: '',
                     ruleType: '',
-                    basisName: '',
-                    basisUnit: '',
+                    basisName: '上一年度营业收入',
+                    basisUnit: '万元',
                     proportionRatio: '',
                     ruleUnit: '',
                     proportionRules: [
@@ -626,7 +626,7 @@
 
                 // 表单验证规则
                 const formRules = ref({
-                    code: [{ required: true, message: '请输入编码', trigger: 'blur' }],
+                    code: [{ required: true, message: '请输入编号', trigger: 'blur' }],
                     industryType: [{ required: true, message: '请选择行业类型', trigger: 'change' }],
                     extractType: [{ required: true, message: '请输入提取类型', trigger: 'blur' }]
                 });
@@ -674,7 +674,7 @@
                     }
 
                     if (mode.value === 'add') {
-                        // 生成新编码
+                        // 生成新编号
                         formData.value.code = 'AQTR-' + String(Math.floor(Math.random() * 9000) + 1000).padStart(4, '0');
                     }
                 });
@@ -754,7 +754,14 @@
                 // 格式化数字（千分号）
                 const formatNumber = (value) => {
                     if (value === null || value === undefined) return '无上限';
-                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    // 去掉小数点后无意义的0，添加千分号
+                    let num = parseFloat(value);
+                    let str = num.toString();
+                    // 分离整数和小数部分
+                    let parts = str.split('.');
+                    // 整数部分添加千分号
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    return parts.join('.');
                 };
 
                 // 规则类型变化

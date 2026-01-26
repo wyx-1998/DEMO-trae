@@ -171,11 +171,6 @@
                         label-position="left">
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="编号" prop="code">
-                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
-                                </el-form-item>
-                            </div>
-                            <div class="form-item">
                                 <el-form-item label="项目名称" prop="projectName" required>
                                     <el-select v-model="formData.projectName" placeholder="请选择项目"
                                         :disabled="pageType==='project' || pageType==='record' && isView"
@@ -186,20 +181,13 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
+                                <el-form-item label="项目编号" prop="code" required>
+                                    <el-input v-model="formData.code" placeholder="自动生成" disabled />
+                                </el-form-item>
+                            </div>
+                            <div class="form-item">
                                 <el-form-item label="支出范围" prop="category" required>
                                     <el-input v-model="formData.category" disabled />
-                                </el-form-item>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-item">
-                                <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
-                                    <el-input v-model="formData.responsibleUnit" disabled />
-                                </el-form-item>
-                            </div>
-                            <div class="form-item">
-                                <el-form-item label="责任人" prop="responsiblePerson" required>
-                                    <el-input v-model="formData.responsiblePerson" disabled />
                                 </el-form-item>
                             </div>
                         </div>
@@ -221,17 +209,36 @@
                                     <el-input v-model="formData.planCostDisplay" disabled />
                                 </el-form-item>
                             </div>
+                            <div class="form-item">
+                                <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                                    <el-input v-model="formData.responsibleUnit" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <el-form-item label="责任人" prop="responsiblePerson" required>
+                                    <el-input v-model="formData.responsiblePerson" disabled />
+                                </el-form-item>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item full-width">
+                                <el-form-item label="备注" prop="remark">
+                                    <el-input v-model="formData.remark" type="textarea" :rows="3" disabled />
+                                </el-form-item>
+                            </div>
                         </div>
                     </el-form>
                 </div>
             </div>
 
-            <!-- 实际投入模块 -->
+            <!-- 实际使用模块 -->
             <div class="form-module">
                 <div class="module-header" @click="toggleModule('actual')">
                     <div class="module-title">
                         <i class="fas fa-coins"></i>
-                        实际投入
+                        实际使用
                     </div>
                     <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.actual }"></i>
                 </div>
@@ -241,7 +248,8 @@
                     <template v-if="pageType === 'project'">
                         <el-table :data="projectUsageRecords" style="width: 100%" stripe border>
                             <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-                            <el-table-column prop="actualDate" label="实际投入时间" min-width="120"></el-table-column>
+                            <el-table-column prop="code" label="项目使用编号" min-width="150"></el-table-column>
+                            <el-table-column prop="actualDate" label="实际使用时间" min-width="120"></el-table-column>
                             <el-table-column prop="actualCost" label="实际金额(万元)" min-width="140" align="right">
                                 <template #default="{ row }">
                                     {{ formatAmount(row.actualCost) }}
@@ -269,7 +277,12 @@
                             label-position="left">
                             <div class="form-row">
                                 <div class="form-item">
-                                    <el-form-item label="实际投入时间" prop="actualDate" required>
+                                    <el-form-item label="项目使用编号" prop="code">
+                                        <el-input v-model="formData.code" placeholder="自动生成" disabled />
+                                    </el-form-item>
+                                </div>
+                                <div class="form-item">
+                                    <el-form-item label="实际使用时间" prop="actualDate" required>
                                         <el-date-picker v-model="formData.actualDate" type="date" placeholder="请选择日期"
                                             value-format="YYYY-MM-DD" style="width: 100%;" :disabled="isView" />
                                     </el-form-item>
@@ -419,11 +432,12 @@
 
                 // 表单验证规则
                 const formRules = ref({
+                    code: [{ required: true, message: '请输入项目编号', trigger: 'blur' }],
                     projectName: [{ required: true, message: '请选择项目', trigger: 'change' }],
                     category: [{ required: true, message: '请输入支出范围', trigger: 'blur' }],
                     responsibleUnit: [{ required: true, message: '请输入责任单位', trigger: 'blur' }],
                     responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
-                    actualDate: [{ required: true, message: '请选择实际投入时间', trigger: 'change' }],
+                    actualDate: [{ required: true, message: '请选择实际使用时间', trigger: 'change' }],
                     actualCost: [{ required: true, message: '请输入实际金额', trigger: 'blur' }],
                     actualProjectContent: [{ required: true, message: '请输入实际项目内容', trigger: 'blur' }]
                 });
@@ -489,6 +503,7 @@
                         if (id == 1) {
                             projectUsageRecords.value = [
                                 {
+                                    code: 'AQTR-20260105-001',
                                     actualDate: '2026-01-05',
                                     actualCost: 5000,
                                     actualProjectContent: '1月份消防设备巡检，更换灭火器3个',
@@ -496,6 +511,7 @@
                                     attachments: []
                                 },
                                 {
+                                    code: 'AQTR-20260205-001',
                                     actualDate: '2026-02-05',
                                     actualCost: 10000,
                                     actualProjectContent: '2月份消防设备维修，更换消防栓阀门',
@@ -558,7 +574,7 @@
                                         ElMessage.success('保存成功');
                                         setTimeout(() => goBack(), 1000);
                                     } else {
-                                        ElMessage.warning('请填写实际投入信息的必填项');
+                                        ElMessage.warning('请填写实际使用信息的必填项');
                                     }
                                 })
                             } else {

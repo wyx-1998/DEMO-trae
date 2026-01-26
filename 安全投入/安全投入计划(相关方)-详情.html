@@ -251,7 +251,7 @@
                                     </el-form-item>
                                 </div>
                                 <div class="form-item">
-                                    <el-form-item label="项目编号" prop="projectCode">
+                                    <el-form-item label="安全费用项目编号" prop="projectCode">
                                         <el-input v-model="formData.projectCode" placeholder="请输入项目编号"
                                             :disabled="isView" />
                                     </el-form-item>
@@ -361,7 +361,7 @@
             <el-descriptions :column="2" border>
                 <el-descriptions-item label="版本号">{{ historyDetail.version }}</el-descriptions-item>
                 <el-descriptions-item label="变更时间">{{ historyDetail.changeTime }}</el-descriptions-item>
-                <el-descriptions-item label="项目编号">{{ historyDetail.projectCode }}</el-descriptions-item>
+                <el-descriptions-item label="安全费用项目编号">{{ historyDetail.projectCode }}</el-descriptions-item>
                 <el-descriptions-item label="支出范围">{{ historyDetail.category }}</el-descriptions-item>
                 <el-descriptions-item label="项目名称" :span="2">{{ historyDetail.projectName }}</el-descriptions-item>
                 <el-descriptions-item label="项目内容" :span="2">{{ historyDetail.projectContent }}</el-descriptions-item>
@@ -409,7 +409,7 @@
             <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row
                 @current-change="handleProjectSelect" :current-row-key="selectedProjectInDialog">
                 <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="code" label="项目编号" min-width="180"></el-table-column>
+                <el-table-column prop="code" label="安全费用项目编号" min-width="180"></el-table-column>
                 <el-table-column prop="name" label="项目名称" min-width="200"></el-table-column>
             </el-table>
             <template #footer>

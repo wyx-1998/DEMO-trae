@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全投入 - 多维度统计分析</title>
+    <title>安全投入 - 多维度统计分析（相关方）</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,46 +33,85 @@
             gap: 16px;
         }
 
-        /* 左侧组织树面板 */
-        .org-tree-panel {
+        /* 左侧项目树面板 - 来自 安全投入(相关方).html */
+        .left-panel {
             width: 280px;
             background: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
             flex-shrink: 0;
         }
 
-        .tree-tabs {
-            padding: 12px 12px 0;
+        .tree-header {
+            padding: 16px 20px;
             border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .tree-tabs .el-tabs__header {
-            margin-bottom: 0;
+        .tree-header i {
+            color: #409EFF;
         }
 
-        .tree-tabs .el-tabs__nav-wrap::after {
-            display: none;
-        }
-
-        .tree-tabs .el-tabs__item {
-            font-size: 13px;
-            padding: 0 16px;
-            height: 36px;
-            line-height: 36px;
-        }
-
-        .tree-search {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .tree-body {
+        .tree-content {
             flex: 1;
             padding: 12px;
             overflow-y: auto;
+        }
+
+        .tree-node {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            background: #f5f7fa;
+        }
+
+        .tree-node.active {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .tree-node-root {
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-root i {
+            color: #E6A23C;
+            font-size: 14px;
+        }
+
+        .tree-children {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+
+        .tree-node-child {
+            font-size: 14px;
+            color: #606266;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tree-node-child i {
+            color: #67C23A;
+            font-size: 12px;
         }
 
         /* 右侧内容区 */
@@ -319,7 +358,7 @@
                 flex-direction: column;
             }
 
-            .org-tree-panel {
+            .left-panel {
                 width: 100%;
                 max-height: 300px;
             }
@@ -337,81 +376,46 @@
 <body>
     <div id="app" class="app-container">
         <div class="main-content">
-            <!-- 左侧组织树面板 -->
-            <div class="org-tree-panel">
-                <div class="tree-tabs">
-                    <el-tabs v-model="activeTreeTab" @tab-change="handleTreeTabChange">
-                        <el-tab-pane label="内部企业" name="internal"></el-tab-pane>
-                        <el-tab-pane label="相关方" name="relatedParty"></el-tab-pane>
-                    </el-tabs>
+            <!-- 左侧相关方项目树 -->
+            <div class="left-panel">
+                <div class="tree-header">
+                    <i class="fas fa-sitemap"></i>
+                    <span>相关方项目</span>
                 </div>
-                <div class="tree-search">
-                    <el-input v-model="treeFilterText" placeholder="搜索组织" clearable size="small">
-                        <template #prefix>
-                            <i class="fas fa-search" style="color: #999;"></i>
-                        </template>
-                    </el-input>
-                </div>
-                <div class="tree-body">
-                    <el-tree ref="treeRef" :data="currentTreeData" :props="treeProps" node-key="id" default-expand-all
-                        :filter-node-method="filterNode" @node-click="handleTreeNodeClick" highlight-current>
-                        <template #default="{ node, data }">
-                            <span class="custom-tree-node">
-                                <i :class="getTreeNodeIcon(data)"
-                                    :style="{ marginRight: '6px', color: getTreeNodeIconColor(data) }"></i>
-                                <span>{{ node.label }}</span>
-                            </span>
-                        </template>
-                    </el-tree>
+                <div class="tree-content">
+                    <div v-for="contractor in contractors" :key="contractor.id">
+                        <div class="tree-node"
+                            :class="{ active: selectedContractor === contractor.id && !selectedProject }"
+                            @click="selectContractor(contractor.id)">
+                            <div class="tree-node-root">
+                                <i class="fas fa-building"></i>
+                                <span>{{ contractor.name }}</span>
+                            </div>
+                        </div>
+                        <div class="tree-children">
+                            <div v-for="project in contractor.projects" :key="project.id" class="tree-node"
+                                :class="{ active: selectedProject === project.id }" @click="selectProject(project.id)">
+                                <div class="tree-node-child">
+                                    <i class="fas fa-folder"></i>
+                                    <span>{{ project.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- 右侧内容区 -->
             <div class="content-panel">
                 <!-- 查询条件区 -->
-                <div class="query-section">
-                    <div class="query-title" @click="queryCollapsed = !queryCollapsed">
-                        <div class="query-title-text">
-                            <i class="fas fa-filter"></i>
-                            <span>查询条件</span>
-                        </div>
-                        <el-icon :class="{ 'is-rotate': !queryCollapsed }">
-                            <i class="fas fa-chevron-down"></i>
-                        </el-icon>
-                    </div>
-                    <el-collapse-transition>
-                        <div v-show="!queryCollapsed" class="query-form">
-                            <div class="query-row">
-                                <el-form-item label="统计周期" style="margin-bottom: 0;">
-                                    <el-date-picker v-model="queryForm.year" type="year" placeholder="选择年份"
-                                        value-format="YYYY" style="width: 140px;" size="small" />
-                                </el-form-item>
-                                <el-form-item label="时间粒度" style="margin-bottom: 0;">
-                                    <el-select v-model="queryForm.granularity" placeholder="请选择" style="width: 140px;"
-                                        size="small" @change="handleGranularityChange">
-                                        <el-option label="年度" value="year"></el-option>
-                                        <el-option label="季度" value="quarter"></el-option>
-                                        <el-option label="月度" value="month"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <div style="flex: 1;"></div>
-                                <el-button type="primary" size="small" @click="handleQuery">
-                                    <i class="fas fa-search"></i> 查询
-                                </el-button>
-                                <el-button size="small" @click="handleReset">
-                                    <i class="fas fa-redo"></i> 重置
-                                </el-button>
-                            </div>
-                        </div>
-                    </el-collapse-transition>
-                </div>
+
 
                 <!-- 快捷统计卡片区 -->
-                <div class="quick-stats" style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
-                    <!-- 正式计划总额 -->
+                <div class="quick-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <!-- 计划总额 -->
                     <div class="quick-stat-card" @click="handleCardClick('plan')">
                         <div class="quick-stat-header">
-                            <div class="quick-stat-title">正式计划总额（万元）</div>
+                            <div class="quick-stat-title">计划总额（万元）</div>
                             <div class="quick-stat-icon purple">
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
@@ -426,8 +430,8 @@
                         <div class="quick-stat-content" style="display: flex; flex-direction: column; height: 100%;">
                             <!-- 三个并排的区域 -->
                             <div style="display: flex; gap: 20px; flex: 1;">
-                                <!-- 提取总额部分 -->
-                                <div class="quick-stat-card-section" style="flex: 1;">
+                                <!-- 提取总额部分 - 相关方页面通常没有提取，但保持结构一致 -->
+                                <div class="quick-stat-card-section" style="flex: 1;" v-if="isCompanyNode">
                                     <div class="quick-stat-header" style="margin-bottom: 8px;">
                                         <div class="quick-stat-title">实际提取总额（万元）</div>
                                         <div class="quick-stat-icon blue">
@@ -437,7 +441,8 @@
                                     <div class="quick-stat-value">{{ formatMoney(quickStats.accrualTotal) }}</div>
                                 </div>
 
-                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"></div>
+                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"
+                                    v-if="isCompanyNode"></div>
 
                                 <!-- 实际总额部分 -->
                                 <div class="quick-stat-card-section" style="flex: 1;">
@@ -450,10 +455,11 @@
                                     <div class="quick-stat-value">{{ formatMoney(quickStats.actualTotal) }}</div>
                                 </div>
 
-                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"></div>
+                                <div class="quick-stat-card-divider" style="width: 1px; height: auto; margin: 0;"
+                                    v-if="isCompanyNode"></div>
 
-                                <!-- 投入率部分 -->
-                                <div class="quick-stat-card-section" style="flex: 1;">
+                                <!-- 投入率部分 - 仅当有提取时有投入率 -->
+                                <div class="quick-stat-card-section" style="flex: 1;" v-if="isCompanyNode">
                                     <div class="quick-stat-header" style="margin-bottom: 8px;">
                                         <div style="display: flex; align-items: center; gap: 4px;">
                                             <span class="quick-stat-title">使用率（%）</span>
@@ -483,13 +489,12 @@
                         <el-tab-pane label="支出范围维度" name="category">
                             <div class="table-container">
                                 <el-table :data="categoryTableData" stripe border style="width: 100%; height: 100%;"
-                                    v-loading="tableLoading" show-summary :summary-method="getCategorySummary"
-                                    :key="'category-' + queryForm.granularity">
+                                    v-loading="tableLoading" show-summary :summary-method="getCategorySummary">
                                     <el-table-column prop="index" label="序号" width="70" align="center"
                                         fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
                                         show-overflow-tooltip></el-table-column>
-                                    <el-table-column prop="planAmount" label="正式计划总额（万元）" width="150" align="right"
+                                    <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
                                             {{ formatNumber(row.planAmount / 10000) }}
@@ -507,41 +512,7 @@
                                             {{ formatNumber(row.actualAmount / 10000) }}
                                         </template>
                                     </el-table-column>
-                                    <!-- 季度列组 - 仅当时间粒度为季度时显示 -->
-                                    <el-table-column v-if="queryForm.granularity === 'quarter'" label="实际使用总额（万元）"
-                                        align="center">
-                                        <el-table-column label="一季度" width="120" align="right">
-                                            <template #default="{ row }">
-                                                {{ formatNumber(row.q1 / 10000) }}
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="二季度" width="120" align="right">
-                                            <template #default="{ row }">
-                                                {{ formatNumber(row.q2 / 10000) }}
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="三季度" width="120" align="right">
-                                            <template #default="{ row }">
-                                                {{ formatNumber(row.q3 / 10000) }}
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="四季度" width="120" align="right">
-                                            <template #default="{ row }">
-                                                {{ formatNumber(row.q4 / 10000) }}
-                                            </template>
-                                        </el-table-column>
-                                    </el-table-column>
-                                    <!-- 月份列组 - 仅当时间粒度为月份时显示 -->
-                                    <el-table-column v-if="queryForm.granularity === 'month'" label="实际使用总额（万元）"
-                                        align="center">
-                                        <el-table-column v-for="m in 12" :key="m" :label="`${m}月`" width="100"
-                                            align="right">
-                                            <template #default="{ row }">
-                                                {{ formatNumber(row['m' + m] / 10000) }}
-                                            </template>
-                                        </el-table-column>
-                                    </el-table-column>
-                                </el-table>
+
                             </div>
                         </el-tab-pane>
 
@@ -555,7 +526,7 @@
                                     <el-table-column prop="projectName" label="项目名称" width="200"
                                         fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" width="150"></el-table-column>
-                                    <el-table-column prop="planAmount" label="正式计划总额（万元）" width="150" align="right"
+                                    <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
                                             {{ formatNumber(row.planAmount / 10000) }}
@@ -597,226 +568,36 @@
 
         createApp({
             setup() {
-                const treeRef = ref(null);
-                const treeFilterText = ref('');
-                const queryCollapsed = ref(false);
                 const activeTab = ref('category');
-                const activeTreeTab = ref('internal'); // 'internal' 或 'relatedParty'
                 const tableLoading = ref(false);
                 const tablePage = ref(1);
                 const tablePageSize = ref(20);
                 const tableTotal = ref(100);
-                const selectedNodeType = ref('company'); // 'company' 或 'contractor'
 
-                // 是否为公司节点（国投电力公司及其子节点）
+                // 选中的相关方和项目 (逻辑来自 @[安全投入/安全投入(相关方).html])
+                const selectedContractor = ref('c1');
+                const selectedProject = ref(null);
+
+                // 相关方和项目树数据 (来自 @[安全投入/安全投入(相关方).html])
+                const contractors = ref([
+                    {
+                        id: 'c1',
+                        name: '中电建设承包商',
+                        projects: [
+                            { id: 'p1', name: '变电站改造项目' },
+                            { id: 'p2', name: '输电线路检修项目' },
+                            { id: 'p3', name: '配电网升级项目' }
+                        ]
+                    }
+                ]);
+
+                // 强制设置为承包商节点，因为这是“相关方”页
+                const selectedNodeType = ref('contractor');
+
+                // 是否为公司节点 (兼容旧逻辑，确保提取列不显示)
                 const isCompanyNode = computed(() => {
                     return selectedNodeType.value === 'company';
                 });
-
-                // 内部企业树数据
-                const internalTreeData = ref([
-                    {
-                        id: 1,
-                        label: '国投电力',
-                        type: 'company',
-                        children: [
-                            {
-                                id: 11,
-                                label: '国投电力本部',
-                                type: 'company',
-                                children: [
-                                    { id: 1101, label: '安健环管理部', type: 'department' },
-                                    { id: 1102, label: '设备部', type: 'department' },
-                                    { id: 1103, label: '生产运营部', type: 'department' },
-                                    { id: 1104, label: '综合管理部', type: 'department' }
-                                ]
-                            },
-                            {
-                                id: 12,
-                                label: '云南大朝山',
-                                type: 'company',
-                                children: [
-                                    { id: 1201, label: '安健环管理部', type: 'department' },
-                                    { id: 1202, label: '设备部', type: 'department' },
-                                    { id: 1203, label: '生产运营部', type: 'department' }
-                                ]
-                            },
-                            {
-                                id: 13,
-                                label: '华夏电力',
-                                type: 'company',
-                                children: [
-                                    { id: 1301, label: '安健环管理部', type: 'department' },
-                                    { id: 1302, label: '设备部', type: 'department' },
-                                    { id: 1303, label: '生产运营部', type: 'department' }
-                                ]
-                            },
-                            {
-                                id: 14,
-                                label: '广西新能源',
-                                type: 'company',
-                                children: [
-                                    {
-                                        id: 141,
-                                        label: '广西新能源本部',
-                                        type: 'company',
-                                        children: [
-                                            { id: 14101, label: '安健环管理部', type: 'department' },
-                                            { id: 14102, label: '设备部', type: 'department' },
-                                            { id: 14103, label: '生产运营部', type: 'department' }
-                                        ]
-                                    },
-                                    {
-                                        id: 142,
-                                        label: '分公司1',
-                                        type: 'company',
-                                        children: [
-                                            { id: 14201, label: '安健环管理部', type: 'department' },
-                                            { id: 14202, label: '设备部', type: 'department' }
-                                        ]
-                                    },
-                                    {
-                                        id: 143,
-                                        label: '分公司2',
-                                        type: 'company',
-                                        children: [
-                                            { id: 14301, label: '安健环管理部', type: 'department' },
-                                            { id: 14302, label: '设备部', type: 'department' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]);
-
-                // 相关方树数据（内部企业 + 承包商）
-                const relatedPartyTreeData = ref([
-                    {
-                        id: 1,
-                        label: '国投电力',
-                        type: 'company',
-                        children: [
-                            {
-                                id: 11,
-                                label: '国投电力本部',
-                                type: 'company',
-                                children: [
-                                    {
-                                        id: 1101,
-                                        label: '中电建设承包商',
-                                        type: 'contractor',
-                                        children: [
-                                            { id: 11011, label: '变电站改造项目组', type: 'project' },
-                                            { id: 11012, label: '输电线路检修项目组', type: 'project' }
-                                        ]
-                                    },
-                                    {
-                                        id: 1102,
-                                        label: '华能施工队',
-                                        type: 'contractor',
-                                        children: [
-                                            { id: 11021, label: '电缆敷设工程组', type: 'project' },
-                                            { id: 11022, label: '设备安装项目组', type: 'project' }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                id: 12,
-                                label: '云南大朝山',
-                                type: 'company',
-                                children: [
-                                    {
-                                        id: 1201,
-                                        label: '云南电力工程公司',
-                                        type: 'contractor',
-                                        children: [
-                                            { id: 12011, label: '水电站维护项目组', type: 'project' }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                id: 13,
-                                label: '华夏电力',
-                                type: 'company',
-                                children: [
-                                    {
-                                        id: 1301,
-                                        label: '华夏建设集团',
-                                        type: 'contractor',
-                                        children: [
-                                            { id: 13011, label: '火电厂改造项目组', type: 'project' }
-                                        ]
-                                    },
-                                    {
-                                        id: 1302,
-                                        label: '安全检测有限公司',
-                                        type: 'contractor'
-                                    }
-                                ]
-                            },
-                            {
-                                id: 14,
-                                label: '广西新能源',
-                                type: 'company',
-                                children: [
-                                    {
-                                        id: 141,
-                                        label: '广西新能源本部',
-                                        type: 'company',
-                                        children: [
-                                            {
-                                                id: 14101,
-                                                label: '新能源建设公司',
-                                                type: 'contractor',
-                                                children: [
-                                                    { id: 141011, label: '风电项目组', type: 'project' },
-                                                    { id: 141012, label: '光伏项目组', type: 'project' }
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        id: 142,
-                                        label: '分公司1',
-                                        type: 'company',
-                                        children: [
-                                            {
-                                                id: 14201,
-                                                label: '分公司1承包商A',
-                                                type: 'contractor'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        id: 143,
-                                        label: '分公司2',
-                                        type: 'company',
-                                        children: [
-                                            {
-                                                id: 14301,
-                                                label: '分公司2承包商B',
-                                                type: 'contractor'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]);
-
-                // 当前显示的树数据
-                const currentTreeData = computed(() => {
-                    return activeTreeTab.value === 'internal' ? internalTreeData.value : relatedPartyTreeData.value;
-                });
-
-                const treeProps = {
-                    children: 'children',
-                    label: 'label'
-                };
 
                 const queryForm = reactive({
                     year: new Date().getFullYear().toString(),
@@ -842,7 +623,7 @@
                     completionRate: ((12855000 / 14200000) * 100).toFixed(2)
                 });
 
-                // 类别维度表格数据（使用电力生产与供应企业一级投入类别）
+                // 类别维度表格数据
                 const categoryTableData = ref([
                     {
                         index: 1,
@@ -981,80 +762,41 @@
                         actualAmount: 328000,
                         deptName: '安全生产部',
                         responsiblePerson: '李四'
-                    },
-                    {
-                        index: 3,
-                        projectName: '防护用品采购',
-                        categoryName: '劳动防护用品',
-                        planType: 'other',
-                        planAmount: 280000,
-                        budgetAmount: 270000,
-                        accrualAmount: 275000,
-                        actualAmount: 258000,
-                        deptName: '综合管理部',
-                        responsiblePerson: '王五'
-                    },
-                    {
-                        index: 4,
-                        projectName: '设备安全检测',
-                        categoryName: '安全检测检验',
-                        planType: 'fancuo',
-                        planAmount: 420000,
-                        budgetAmount: 410000,
-                        accrualAmount: 415000,
-                        actualAmount: 398000,
-                        deptName: '生产技术部',
-                        responsiblePerson: '赵六'
-                    },
-                    {
-                        index: 5,
-                        projectName: '应急救援装备更新',
-                        categoryName: '应急救援器材',
-                        planType: 'ancuo',
-                        planAmount: 380000,
-                        budgetAmount: 370000,
-                        accrualAmount: 375000,
-                        actualAmount: 352000,
-                        deptName: '安全生产部',
-                        responsiblePerson: '张三'
-                    },
-                    {
-                        index: 6,
-                        projectName: '安全标志标识更新',
-                        categoryName: '安全防护设施',
-                        planType: 'other',
-                        planAmount: 180000,
-                        budgetAmount: 175000,
-                        accrualAmount: 178000,
-                        actualAmount: 168000,
-                        deptName: '安全生产部',
-                        responsiblePerson: '李四'
-                    },
-                    {
-                        index: 7,
-                        projectName: '特种作业人员培训',
-                        categoryName: '安全培训教育',
-                        planType: 'ancuo',
-                        planAmount: 220000,
-                        budgetAmount: 215000,
-                        accrualAmount: 218000,
-                        actualAmount: 205000,
-                        deptName: '人力资源部',
-                        responsiblePerson: '周七'
-                    },
-                    {
-                        index: 8,
-                        projectName: '环境检测仪器校准',
-                        categoryName: '安全检测检验',
-                        planType: 'other',
-                        planAmount: 150000,
-                        budgetAmount: 145000,
-                        accrualAmount: 148000,
-                        actualAmount: 138000,
-                        deptName: '生产技术部',
-                        responsiblePerson: '赵六'
                     }
                 ]);
+
+                // 选择相关方
+                const selectContractor = (contractorId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = null;
+                    const contractor = contractors.value.find(c => c.id === contractorId);
+                    if (contractor) {
+                        ElMessage.success(`已选择：${contractor.name}`);
+                    }
+                    handleQuery();
+                };
+
+                // 选择项目
+                const selectProject = (projectId) => {
+                    selectedProject.value = projectId;
+                    let foundProject = null;
+                    contractors.value.forEach(c => {
+                        const p = c.projects.find(p => p.id === projectId);
+                        if (p) foundProject = p;
+                    });
+                    if (foundProject) {
+                        ElMessage.success(`已选择：${foundProject.name}`);
+                    }
+                    handleQuery();
+                };
+
+                const handleQuery = () => {
+                    tableLoading.value = true;
+                    setTimeout(() => {
+                        tableLoading.value = false;
+                        ElMessage.success('查询成功');
+                    }, 500);
+                };
 
                 const formatMoney = (value) => {
                     if (value >= 100000000) {
@@ -1073,84 +815,12 @@
                     }).format(num);
                 };
 
-                const getProgressColor = (percentage) => {
-                    if (percentage >= 90) return '#67C23A';
-                    if (percentage >= 70) return '#E6A23C';
-                    return '#F56C6C';
-                };
 
-                const filterNode = (value, data) => {
-                    if (!value) return true;
-                    return data.label.indexOf(value) !== -1;
-                };
-
-                // 根据节点类型获取图标
-                const getTreeNodeIcon = (data) => {
-                    if (data.type === 'department') {
-                        return 'fas fa-home';
-                    } else if (data.type === 'contractor') {
-                        return 'fas fa-handshake';
-                    } else if (data.type === 'project') {
-                        return 'fas fa-project-diagram';
-                    } else if (data.children && data.children.length > 0) {
-                        return 'fas fa-folder';
-                    } else {
-                        return 'fas fa-building';
-                    }
-                };
-
-                // 根据节点类型获取图标颜色
-                const getTreeNodeIconColor = (data) => {
-                    if (data.type === 'department') {
-                        return '#8B5CF6';
-                    } else if (data.type === 'contractor') {
-                        return '#E6A23C';
-                    } else if (data.type === 'project') {
-                        return '#67C23A';
-                    }
-                    return '#409EFF';
-                };
-
-                const handleTreeTabChange = (tabName) => {
-                    treeFilterText.value = '';
-                    selectedNodeType.value = 'company';
-                };
-
-                const handleTreeNodeClick = (data) => {
-                    // 根据节点类型设置
-                    if (data.type === 'contractor' || data.type === 'project') {
-                        selectedNodeType.value = 'contractor';
-                    } else {
-                        selectedNodeType.value = 'company';
-                    }
-                    ElMessage.success(`已选择：${data.label}`);
-                    handleQuery();
-                };
-
-                const handleQuery = () => {
-                    tableLoading.value = true;
-                    setTimeout(() => {
-                        tableLoading.value = false;
-                        ElMessage.success('查询成功');
-                    }, 500);
-                };
-
-                const handleReset = () => {
-                    queryForm.year = new Date().getFullYear().toString();
-                    queryForm.granularity = 'year';
-                    ElMessage.success('已重置');
-                };
-
-                const handleGranularityChange = () => {
-                    ElMessage.info('时间粒度已更改，数据将自动刷新');
-                    handleQuery();
-                };
 
                 const handleCardClick = (type) => {
                     ElMessage.info(`点击了${type}卡片，可跳转到详情页面`);
                 };
 
-                // 类别维度表格合计行
                 const getCategorySummary = (param) => {
                     const { columns, data } = param;
                     const sums = [];
@@ -1181,38 +851,23 @@
                     return sums;
                 };
 
-                watch(treeFilterText, (val) => {
-                    treeRef.value?.filter(val);
-                });
-
                 return {
-                    treeRef,
-                    treeFilterText,
-                    queryCollapsed,
                     activeTab,
-                    activeTreeTab,
                     tableLoading,
                     tablePage,
                     tablePageSize,
                     tableTotal,
                     isCompanyNode,
-                    currentTreeData,
-                    treeProps,
-                    queryForm,
                     quickStats,
                     categoryTableData,
                     projectTableData,
+                    contractors,
+                    selectedContractor,
+                    selectedProject,
+                    selectContractor,
+                    selectProject,
                     formatMoney,
                     formatNumber,
-                    getProgressColor,
-                    getTreeNodeIcon,
-                    getTreeNodeIconColor,
-                    filterNode,
-                    handleTreeTabChange,
-                    handleTreeNodeClick,
-                    handleQuery,
-                    handleReset,
-                    handleGranularityChange,
                     handleCardClick,
                     getCategorySummary
                 };
