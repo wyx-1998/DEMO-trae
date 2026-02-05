@@ -486,39 +486,14 @@
                     <!-- 其他规则 (如使用率不足) -->
                     <template v-else>
                         <div class="reminder-row">
-                            <span class="reminder-label">提醒频率</span>
-                            <el-radio-group v-model="item.frequencyType">
-                                <el-radio label="yearly">年度</el-radio>
-                                <el-radio label="monthly">月度</el-radio>
-                            </el-radio-group>
-                            <template v-if="item.frequencyType === 'yearly'">
-                                <span>每年</span>
-                                <el-date-picker v-model="item.yearlyDate" type="date" placeholder="选择日期" format="MM月DD日"
-                                    value-format="MM-DD" style="width: 140px; margin: 0 8px;" />
-                            </template>
-                            <template v-if="item.frequencyType === 'monthly'">
-                                <span>每月</span>
-                                <el-input-number v-model="item.day" :min="1" :max="31" size="small"
-                                    style="width: 80px; margin: 0 8px;" controls-position="right" />
-                                <span>日</span>
-                                <el-tooltip v-if="item.day === 31" content="当前选择为每月31日提醒，当遇到月度没有31日时，默认将在该月度最后一天发送提醒"
-                                    placement="top">
-                                    <span
-                                        style="color: #E6A23C; margin-left: 8px; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center;">
-                                        <svg viewBox="0 0 1024 1024" width="16" height="16" fill="currentColor">
-                                            <path
-                                                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm-32 232c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v272c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V296zm32 440a48.01 48.01 0 0 1 0-96 48.01 48.01 0 0 1 0 96z">
-                                            </path>
-                                        </svg>
-                                    </span>
-                                </el-tooltip>
-                            </template>
+                            <span class="reminder-label">提醒时间</span>
+                            <el-date-picker v-model="item.reminderTime" type="date" placeholder="选择提醒日期" format="MM月DD日"
+                                value-format="MM-DD" style="width: 160px;" />
                         </div>
                         <div class="reminder-row">
                             <span class="reminder-label">提醒人员</span>
                             <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
                                 <el-checkbox-group v-model="item.personnelConfig">
-                                    <el-checkbox label="responsible">责任人</el-checkbox>
                                     <el-checkbox label="ehs">安健环部门负责人</el-checkbox>
                                     <el-checkbox label="others">其他人员</el-checkbox>
                                 </el-checkbox-group>
@@ -530,14 +505,6 @@
                             </div>
                         </div>
                     </template>
-                    <div class="reminder-row">
-                        <span class="reminder-label">通知方式</span>
-                        <el-checkbox-group v-model="item.notifyMethods">
-                            <el-checkbox label="system">系统通知</el-checkbox>
-                            <el-checkbox label="email">邮件</el-checkbox>
-                            <el-checkbox label="sms">短信</el-checkbox>
-                        </el-checkbox-group>
-                    </div>
                 </div>
             </div>
             <template #footer>
@@ -703,17 +670,15 @@
                         daysBefore: 7,
                         personnelConfig: ['responsible'], // 默认勾选责任人
                         otherPersons: [], // 其他人员选中列表
-                        notifyMethods: ['system']
+                        personnelConfig: ['responsible'], // 默认勾选责任人
+                        otherPersons: [] // 其他人员选中列表
                     },
                     {
                         name: '提醒使用率不足',
                         enabled: true, // 默认开启以直接查看效果
-                        frequencyType: 'monthly',
-                        yearlyDate: '12-01',
-                        day: 31,
-                        personnelConfig: ['responsible', 'ehs'],
-                        otherPersons: [],
-                        notifyMethods: ['system']
+                        reminderTime: '12-01', // 提醒时间
+                        personnelConfig: ['ehs'], // 默认只选安健环部门负责人
+                        otherPersons: []
                     }
                 ]);
                 const personList = ref([
