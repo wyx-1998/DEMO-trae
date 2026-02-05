@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安全投入 · 统计查询</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* 主题色 */
+            --color-brand: #3366cc;
+            --color-brand-light: #e3f2fd;
+
+            /* 功能色 */
+            --color-success: #00b042;
+            --color-warning: #ff943e;
+            --color-error: #f25643;
+            --color-purple: #8B5CF6;
+
+            /* 文字层级 */
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+
+            /* 背景 */
+            --bg-page: #f5f7fa;
+            --bg-card: #ffffff;
+
+            /* 间距 */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 20px;
+            --spacing-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 520px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-page);
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            background: var(--color-brand);
+            padding: var(--spacing-md);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+        }
+
+        .nav-left i {
+            font-size: 18px;
+        }
+
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .nav-right i {
+            font-size: 18px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .nav-right i:active {
+            opacity: 0.7;
+        }
+
+        /* 查询条件区 */
+        .filter-section {
+            background: var(--bg-card);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .filter-select {
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0 var(--spacing-sm);
+            font-size: 14px;
+            color: var(--text-primary);
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .filter-btn {
+            height: 36px;
+            padding: 0 var(--spacing-md);
+            background: var(--color-brand);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 18px;
+        }
+
+        .filter-btn:active {
+            opacity: 0.8;
+        }
+
+        /* 组织选择器 */
+        .org-selector {
+            background: var(--bg-card);
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .org-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .org-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--color-brand-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-brand);
+        }
+
+        .org-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .org-arrow {
+            color: var(--text-tertiary);
+        }
+
+        /* 主内容区 */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        /* 统计卡片 */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:active {
+            transform: scale(0.98);
+        }
+
+        .stat-card.full-width {
+            grid-column: span 2;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #409EFF 0%, #36D1DC 100%);
+        }
+
+        .stat-icon.orange {
+            background: linear-gradient(135deg, #E6A23C 0%, #F7BA2A 100%);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #67C23A 0%, #20c997 100%);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--text-tertiary);
+            margin-left: 4px;
+        }
+
+        /* 三列并排统计 */
+        .stat-row {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .stat-col {
+            flex: 1;
+            text-align: center;
+            padding: var(--spacing-xs) 0;
+        }
+
+        .stat-col+.stat-col {
+            border-left: 1px solid #f0f0f0;
+        }
+
+        .stat-col .stat-title {
+            margin-bottom: 4px;
+        }
+
+        .stat-col .stat-value {
+            font-size: 18px;
+        }
+
+        /* Tab切换 */
+        .tab-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-item.active {
+            color: var(--color-brand);
+            font-weight: 500;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--color-brand);
+            border-radius: 3px;
+        }
+
+        /* 数据列表 */
+        .data-list {
+            padding: var(--spacing-sm);
+        }
+
+        .data-item {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .data-item:active {
+            background: #f9f9f9;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .data-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+            flex: 1;
+            margin-right: var(--spacing-sm);
+        }
+
+        .data-item-index {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .data-item-body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .data-field {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .data-field-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .data-field-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* 项目维度样式 */
+        .project-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .project-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs) var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .project-tag {
+            padding: 2px 8px;
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .project-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-xs);
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .project-stat {
+            flex: 1;
+        }
+
+        .project-stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 2px;
+        }
+
+        .project-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 底部操作栏 */
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            padding: var(--spacing-sm) var(--spacing-md);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: var(--spacing-sm);
+            z-index: 100;
+        }
+
+        .action-btn {
+            flex: 1;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: var(--color-brand);
+            color: #fff;
+        }
+
+        .action-btn.secondary {
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 组织树弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 100%;
+            max-width: 520px;
+            max-height: 70vh;
+            background: var(--bg-card);
+            border-radius: 20px 20px 0 0;
+            z-index: 201;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .modal-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-tabs {
+            display: flex;
+            padding: 0 var(--spacing-md);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-tab {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .modal-tab.active {
+            color: var(--color-brand);
+            font-weight: 500;
+        }
+
+        .modal-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 2px;
+            background: var(--color-brand);
+        }
+
+        .modal-search {
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #eee;
+            border-radius: 18px;
+            padding: 0 var(--spacing-md);
+            font-size: 14px;
+            background: #f5f5f5;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        /* 树形组织 */
+        .tree-node {
+            cursor: pointer;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            gap: var(--spacing-xs);
+        }
+
+        .tree-node-content:active {
+            background: #f9f9f9;
+        }
+
+        .tree-expand {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .tree-expand.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .tree-icon.company {
+            background: #e3f2fd;
+            color: var(--color-brand);
+        }
+
+        .tree-icon.department {
+            background: #f3e5f5;
+            color: var(--color-purple);
+        }
+
+        .tree-icon.contractor {
+            background: #fff3e0;
+            color: var(--color-warning);
+        }
+
+        .tree-icon.project {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .tree-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .tree-children {
+            padding-left: 28px;
+            display: none;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 加载更多 */
+        .load-more {
+            padding: var(--spacing-md);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            padding: 60px var(--spacing-md);
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        /* 底部安全区域 */
+        .safe-area-bottom {
+            height: 70px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app">
+        <!-- 顶部导航 -->
+        <header class="top-nav">
+            <div class="nav-left" @click="goBack">
+                <i class="fas fa-chevron-left"></i>
+                <span class="nav-title">统计查询</span>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-filter" @click="showFilter = !showFilter"></i>
+            </div>
+        </header>
+
+        <!-- 组织选择器 -->
+        <div class="org-selector" @click="showOrgModal = true">
+            <div class="org-info">
+                <div class="org-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <span class="org-name">{{ selectedOrg }}</span>
+            </div>
+            <i class="fas fa-chevron-right org-arrow"></i>
+        </div>
+
+        <!-- 查询条件区（可折叠） -->
+        <div class="filter-section" v-show="showFilter">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <span class="filter-label">统计周期</span>
+                    <select class="filter-select" v-model="queryForm.year">
+                        <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}年</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <span class="filter-label">时间粒度</span>
+                    <select class="filter-select" v-model="queryForm.granularity">
+                        <option value="year">年度</option>
+                        <option value="quarter">季度</option>
+                        <option value="month">月度</option>
+                    </select>
+                </div>
+                <button class="filter-btn" @click="handleQuery">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <main>
+            <!-- 统计卡片区 -->
+            <div class="stat-cards">
+                <!-- 正式计划总额 -->
+                <div class="stat-card" @click="handleCardClick('plan')">
+                    <div class="stat-header">
+                        <span class="stat-title">正式计划总额</span>
+                        <div class="stat-icon purple">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">
+                        {{ formatMoney(quickStats.planTotal) }}
+                        <span class="stat-unit">万元</span>
+                    </div>
+                </div>
+
+                <!-- 使用率 -->
+                <div class="stat-card" @click="handleCardClick('rate')">
+                    <div class="stat-header">
+                        <span class="stat-title">使用率</span>
+                        <div class="stat-icon green">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">
+                        {{ quickStats.completionRate }}
+                        <span class="stat-unit">%</span>
+                    </div>
+                </div>
+
+                <!-- 提取与使用 -->
+                <div class="stat-card full-width">
+                    <div class="stat-row">
+                        <div class="stat-col">
+                            <div class="stat-title">实际提取总额</div>
+                            <div class="stat-value">
+                                {{ formatMoney(quickStats.accrualTotal) }}
+                                <span class="stat-unit">万元</span>
+                            </div>
+                        </div>
+                        <div class="stat-col">
+                            <div class="stat-title">实际使用总额</div>
+                            <div class="stat-value">
+                                {{ formatMoney(quickStats.actualTotal) }}
+                                <span class="stat-unit">万元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab切换区 -->
+            <div class="tab-section">
+                <div class="tab-header">
+                    <div class="tab-item" :class="{ active: activeTab === 'category' }" @click="activeTab = 'category'">
+                        支出范围维度
+                    </div>
+                    <div class="tab-item" :class="{ active: activeTab === 'project' }" @click="activeTab = 'project'">
+                        项目维度
+                    </div>
+                </div>
+
+                <!-- 支出范围维度列表 -->
+                <div class="data-list" v-show="activeTab === 'category'">
+                    <div class="data-item" v-for="item in categoryTableData" :key="item.index"
+                        @click="handleItemClick(item)">
+                        <div class="data-item-header">
+                            <span class="data-item-title">{{ item.categoryName }}</span>
+                            <span class="data-item-index">{{ item.index }}</span>
+                        </div>
+                        <div class="data-item-body">
+                            <div class="data-field">
+                                <span class="data-field-label">计划:</span>
+                                <span class="data-field-value">{{ formatNumber(item.planAmount / 10000) }}万</span>
+                            </div>
+                            <div class="data-field">
+                                <span class="data-field-label">实际:</span>
+                                <span class="data-field-value">{{ formatNumber(item.actualAmount / 10000) }}万</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="load-more" v-if="categoryTableData.length >= 10">
+                        <span>已显示全部 {{ categoryTableData.length }} 条数据</span>
+                    </div>
+                </div>
+
+                <!-- 项目维度列表 -->
+                <div class="data-list" v-show="activeTab === 'project'">
+                    <div class="project-item" v-for="item in projectTableData" :key="item.index"
+                        @click="handleItemClick(item)">
+                        <div class="project-name">{{ item.projectName }}</div>
+                        <div class="project-meta">
+                            <span class="project-tag">{{ item.categoryName }}</span>
+                            <span class="data-field">
+                                <span class="data-field-label">责任人:</span>
+                                <span class="data-field-value">{{ item.responsiblePerson }}</span>
+                            </span>
+                        </div>
+                        <div class="project-stats">
+                            <div class="project-stat">
+                                <div class="project-stat-label">计划金额</div>
+                                <div class="project-stat-value">{{ formatNumber(item.planAmount / 10000) }}万</div>
+                            </div>
+                            <div class="project-stat">
+                                <div class="project-stat-label">实际使用</div>
+                                <div class="project-stat-value">{{ formatNumber(item.actualAmount / 10000) }}万</div>
+                            </div>
+                            <div class="project-stat">
+                                <div class="project-stat-label">责任部门</div>
+                                <div class="project-stat-value">{{ item.deptName }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="load-more">
+                        <span>已加载 {{ projectTableData.length }} 条，下拉加载更多</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部安全区域 -->
+            <div class="safe-area-bottom"></div>
+        </main>
+
+        <!-- 组织树弹窗 -->
+        <div class="modal-overlay" :class="{ show: showOrgModal }" @click.self="showOrgModal = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">选择组织</span>
+                    <div class="modal-close" @click="showOrgModal = false">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="modal-tabs">
+                    <div class="modal-tab" :class="{ active: activeTreeTab === 'internal' }"
+                        @click="activeTreeTab = 'internal'">内部企业</div>
+                    <div class="modal-tab" :class="{ active: activeTreeTab === 'relatedParty' }"
+                        @click="activeTreeTab = 'relatedParty'">相关方</div>
+                </div>
+                <div class="modal-search">
+                    <input type="text" class="search-input" placeholder="搜索组织..." v-model="searchText">
+                </div>
+                <div class="modal-body">
+                    <template v-if="activeTreeTab === 'internal'">
+                        <tree-node v-for="node in internalTreeData" :key="node.id" :node="node"
+                            @select="handleOrgSelect"></tree-node>
+                    </template>
+                    <template v-else>
+                        <tree-node v-for="node in relatedPartyTreeData" :key="node.id" :node="node"
+                            @select="handleOrgSelect"></tree-node>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast提示 -->
+        <div class="toast" :class="{ show: toast.show }">{{ toast.message }}</div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        const app = createApp({
+            setup() {
+                const showFilter = ref(true);
+                const showOrgModal = ref(false);
+                const activeTab = ref('category');
+                const activeTreeTab = ref('internal');
+                const selectedOrg = ref('国投电力');
+                const searchText = ref('');
+
+                const yearOptions = computed(() => {
+                    const currentYear = new Date().getFullYear();
+                    return [currentYear, currentYear - 1, currentYear - 2];
+                });
+
+                const queryForm = reactive({
+                    year: new Date().getFullYear().toString(),
+                    granularity: 'year'
+                });
+
+                const toast = reactive({
+                    show: false,
+                    message: ''
+                });
+
+                const showToast = (message) => {
+                    toast.message = message;
+                    toast.show = true;
+                    setTimeout(() => {
+                        toast.show = false;
+                    }, 2000);
+                };
+
+                const quickStats = reactive({
+                    planTotal: 15800000,
+                    accrualTotal: 14200000,
+                    actualTotal: 12855000,
+                    completionRate: ((12855000 / 14200000) * 100).toFixed(1)
+                });
+
+                const categoryTableData = ref([
+                    { index: 1, categoryName: '安全防护设备、设施支出', planAmount: 2500000, actualAmount: 2200000 },
+                    { index: 2, categoryName: '应急救援器材、设备设施支出', planAmount: 1800000, actualAmount: 1680000 },
+                    { index: 3, categoryName: '重大危险源检测评估监控支出', planAmount: 1500000, actualAmount: 1320000 },
+                    { index: 4, categoryName: '安全生产检查评估咨询支出', planAmount: 1200000, actualAmount: 1080000 },
+                    { index: 5, categoryName: '安全生产宣传教育培训支出', planAmount: 980000, actualAmount: 885000 },
+                    { index: 6, categoryName: '安全防护用品支出', planAmount: 850000, actualAmount: 780000 },
+                    { index: 7, categoryName: '新技术新设备推广应用支出', planAmount: 1100000, actualAmount: 950000 },
+                    { index: 8, categoryName: '安全设施检测检验支出', planAmount: 750000, actualAmount: 680000 },
+                    { index: 9, categoryName: '安全生产责任保险支出', planAmount: 450000, actualAmount: 400000 },
+                    { index: 10, categoryName: '其他安全生产支出', planAmount: 670000, actualAmount: 580000 }
+                ]);
+
+                const projectTableData = ref([
+                    { index: 1, projectName: '车间防护栏杆更新', categoryName: '安全防护设施', planAmount: 500000, actualAmount: 455000, deptName: '安全生产部', responsiblePerson: '张三' },
+                    { index: 2, projectName: '全员安全培训', categoryName: '安全培训教育', planAmount: 350000, actualAmount: 328000, deptName: '安全生产部', responsiblePerson: '李四' },
+                    { index: 3, projectName: '防护用品采购', categoryName: '劳动防护用品', planAmount: 280000, actualAmount: 258000, deptName: '综合管理部', responsiblePerson: '王五' },
+                    { index: 4, projectName: '设备安全检测', categoryName: '安全检测检验', planAmount: 420000, actualAmount: 398000, deptName: '生产技术部', responsiblePerson: '赵六' },
+                    { index: 5, projectName: '应急救援装备更新', categoryName: '应急救援器材', planAmount: 380000, actualAmount: 352000, deptName: '安全生产部', responsiblePerson: '张三' },
+                    { index: 6, projectName: '安全标志标识更新', categoryName: '安全防护设施', planAmount: 180000, actualAmount: 168000, deptName: '安全生产部', responsiblePerson: '李四' },
+                    { index: 7, projectName: '特种作业人员培训', categoryName: '安全培训教育', planAmount: 220000, actualAmount: 205000, deptName: '人力资源部', responsiblePerson: '周七' },
+                    { index: 8, projectName: '环境检测仪器校准', categoryName: '安全检测检验', planAmount: 150000, actualAmount: 138000, deptName: '生产技术部', responsiblePerson: '赵六' }
+                ]);
+
+                // 内部企业树数据
+                const internalTreeData = ref([
+                    {
+                        id: 1, label: '国投电力', type: 'company',
+                        children: [
+                            {
+                                id: 11, label: '国投电力本部', type: 'company',
+                                children: [
+                                    { id: 1101, label: '安健环管理部', type: 'department' },
+                                    { id: 1102, label: '设备部', type: 'department' },
+                                    { id: 1103, label: '生产运营部', type: 'department' }
+                                ]
+                            },
+                            {
+                                id: 12, label: '云南大朝山', type: 'company',
+                                children: [
+                                    { id: 1201, label: '安健环管理部', type: 'department' },
+                                    { id: 1202, label: '设备部', type: 'department' }
+                                ]
+                            },
+                            { id: 13, label: '华夏电力', type: 'company' },
+                            { id: 14, label: '广西新能源', type: 'company' }
+                        ]
+                    }
+                ]);
+
+                // 相关方树数据
+                const relatedPartyTreeData = ref([
+                    {
+                        id: 1, label: '国投电力', type: 'company',
+                        children: [
+                            {
+                                id: 11, label: '国投电力本部', type: 'company',
+                                children: [
+                                    {
+                                        id: 1101, label: '中电建设承包商', type: 'contractor',
+                                        children: [
+                                            { id: 11011, label: '变电站改造项目组', type: 'project' },
+                                            { id: 11012, label: '输电线路检修项目组', type: 'project' }
+                                        ]
+                                    },
+                                    { id: 1102, label: '华能施工队', type: 'contractor' }
+                                ]
+                            },
+                            {
+                                id: 12, label: '云南大朝山', type: 'company',
+                                children: [
+                                    { id: 1201, label: '云南电力工程公司', type: 'contractor' }
+                                ]
+                            }
+                        ]
+                    }
+                ]);
+
+                const formatMoney = (value) => {
+                    if (value >= 100000000) {
+                        return (value / 100000000).toFixed(2);
+                    } else if (value >= 10000) {
+                        return (value / 10000).toFixed(0);
+                    }
+                    return value.toFixed(2);
+                };
+
+                const formatNumber = (num) => {
+                    if (num === null || num === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }).format(num);
+                };
+
+                const goBack = () => {
+                    showToast('返回上一页');
+                };
+
+                const handleQuery = () => {
+                    showToast('查询成功');
+                };
+
+                const handleCardClick = (type) => {
+                    showToast(`查看${type}详情`);
+                };
+
+                const handleItemClick = (item) => {
+                    showToast(`查看「${item.categoryName || item.projectName}」详情`);
+                };
+
+                const handleOrgSelect = (node) => {
+                    selectedOrg.value = node.label;
+                    showOrgModal.value = false;
+                    showToast(`已选择：${node.label}`);
+                };
+
+                return {
+                    showFilter,
+                    showOrgModal,
+                    activeTab,
+                    activeTreeTab,
+                    selectedOrg,
+                    searchText,
+                    yearOptions,
+                    queryForm,
+                    toast,
+                    quickStats,
+                    categoryTableData,
+                    projectTableData,
+                    internalTreeData,
+                    relatedPartyTreeData,
+                    formatMoney,
+                    formatNumber,
+                    goBack,
+                    handleQuery,
+                    handleCardClick,
+                    handleItemClick,
+                    handleOrgSelect
+                };
+            }
+        });
+
+        // 树节点组件
+        app.component('tree-node', {
+            props: ['node'],
+            emits: ['select'],
+            template: `
+                <div class="tree-node">
+                    <div class="tree-node-content" @click="handleClick">
+                        <span class="tree-expand" :class="{ expanded: isExpanded }" v-if="node.children?.length">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                        <span class="tree-expand" v-else></span>
+                        <span class="tree-icon" :class="node.type">
+                            <i :class="getIcon()"></i>
+                        </span>
+                        <span class="tree-label">{{ node.label }}</span>
+                    </div>
+                    <div class="tree-children" :class="{ expanded: isExpanded }" v-if="node.children?.length">
+                        <tree-node 
+                            v-for="child in node.children" 
+                            :key="child.id" 
+                            :node="child"
+                            @select="$emit('select', $event)"
+                        ></tree-node>
+                    </div>
+                </div>
+            `,
+            setup(props, { emit }) {
+                const isExpanded = ref(props.node.id === 1);
+
+                const handleClick = () => {
+                    if (props.node.children?.length) {
+                        isExpanded.value = !isExpanded.value;
+                    }
+                    emit('select', props.node);
+                };
+
+                const getIcon = () => {
+                    const iconMap = {
+                        company: 'fas fa-building',
+                        department: 'fas fa-home',
+                        contractor: 'fas fa-handshake',
+                        project: 'fas fa-project-diagram'
+                    };
+                    return iconMap[props.node.type] || 'fas fa-folder';
+                };
+
+                return { isExpanded, handleClick, getIcon };
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

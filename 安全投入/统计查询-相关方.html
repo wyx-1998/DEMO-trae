@@ -181,8 +181,6 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             min-height: 150px;
@@ -192,11 +190,6 @@
 
         .quick-stat-card.double-width {
             flex: 2;
-        }
-
-        .quick-stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
         }
 
         .quick-stat-card-divider {
@@ -370,6 +363,32 @@
                 align-items: stretch;
             }
         }
+
+        /* 增加说明标识样式 */
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -378,12 +397,24 @@
         <div class="main-content">
             <!-- 左侧相关方项目树 -->
             <div class="left-panel">
-                <div class="tree-header">
-                    <i class="fas fa-sitemap"></i>
-                    <span>相关方项目</span>
+                <div class="tree-search" style="padding: 12px;">
+                    <el-input v-model="treeFilterText" placeholder="请输入相关方项目名称" clearable size="small">
+                        <template #prefix>
+                            <i class="fas fa-search" style="color: #999;"></i>
+                        </template>
+                    </el-input>
+                    <!-- 相关方项目状态过滤 -->
+                    <div style="margin-top: 8px;">
+                        <el-radio-group v-model="projectStatusFilter" size="small">
+                            <el-radio label="unfinished">未完成</el-radio>
+                            <el-radio label="all">全部</el-radio>
+                            <info-mark
+                                content="1、为当前登录的账号所属的相关方，下级节点为所属相关方在当前登录组织下的相关方项目，其中未完成的项目按照开工时间正序排序，选择全部时展示全部的相关方项目"></info-mark>
+                        </el-radio-group>
+                    </div>
                 </div>
                 <div class="tree-content">
-                    <div v-for="contractor in contractors" :key="contractor.id">
+                    <div v-for="contractor in filteredContractors" :key="contractor.id">
                         <div class="tree-node"
                             :class="{ active: selectedContractor === contractor.id && !selectedProject }"
                             @click="selectContractor(contractor.id)">
@@ -413,9 +444,12 @@
                 <!-- 快捷统计卡片区 -->
                 <div class="quick-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <!-- 计划总额 -->
-                    <div class="quick-stat-card" @click="handleCardClick('plan')">
+                    <div class="quick-stat-card">
                         <div class="quick-stat-header">
-                            <div class="quick-stat-title">计划总额（万元）</div>
+                            <div class="quick-stat-title">
+                                计划总额（万元）
+                                <info-mark content="统计为相关方项目下所有安全生产项目的计划金额的总额，单位为万元"></info-mark>
+                            </div>
                             <div class="quick-stat-icon purple">
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
@@ -426,7 +460,7 @@
                     </div>
 
                     <!-- 提取总额、实际总额和投入率合并卡片 -->
-                    <div class="quick-stat-card" @click="handleCardClick('accrualAndActual')">
+                    <div class="quick-stat-card">
                         <div class="quick-stat-content" style="display: flex; flex-direction: column; height: 100%;">
                             <!-- 三个并排的区域 -->
                             <div style="display: flex; gap: 20px; flex: 1;">
@@ -447,7 +481,10 @@
                                 <!-- 实际总额部分 -->
                                 <div class="quick-stat-card-section" style="flex: 1;">
                                     <div class="quick-stat-header" style="margin-bottom: 8px;">
-                                        <div class="quick-stat-title">实际使用总额（万元）</div>
+                                        <div class="quick-stat-title">
+                                            实际使用总额（万元）
+                                            <info-mark content="统计为相关方项目下所有安全生产项目的实际使用的总额，单位为万元"></info-mark>
+                                        </div>
                                         <div class="quick-stat-icon orange">
                                             <i class="fas fa-chart-line"></i>
                                         </div>
@@ -486,7 +523,11 @@
                 <div class="data-section">
                     <el-tabs v-model="activeTab" class="data-tabs">
                         <!-- Tab1: 支出范围维度 -->
-                        <el-tab-pane label="支出范围维度" name="category">
+                        <el-tab-pane name="category">
+                            <template #label>
+                                支出范围维度
+                                <info-mark content="根据所选相关方项目显示对应支出范围下的数据"></info-mark>
+                            </template>
                             <div class="table-container">
                                 <el-table :data="categoryTableData" stripe border style="width: 100%; height: 100%;"
                                     v-loading="tableLoading" show-summary :summary-method="getCategorySummary">
@@ -517,7 +558,11 @@
                         </el-tab-pane>
 
                         <!-- Tab2: 项目维度 -->
-                        <el-tab-pane label="项目维度" name="project">
+                        <el-tab-pane name="project">
+                            <template #label>
+                                项目维度
+                                <info-mark content="根据所选相关方项目显示该项目的安全费用项目数据"></info-mark>
+                            </template>
                             <div class="table-container">
                                 <el-table :data="projectTableData" stripe border style="width: 100%; flex: 1;"
                                     v-loading="tableLoading">
@@ -566,7 +611,7 @@
         const { createApp, ref, reactive, watch, computed } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const activeTab = ref('category');
                 const tableLoading = ref(false);
@@ -578,7 +623,9 @@
                 const selectedContractor = ref('c1');
                 const selectedProject = ref(null);
 
-                // 相关方和项目树数据 (来自 @[安全投入/安全投入(相关方).html])
+                // 树相关
+                const treeFilterText = ref('');
+                const projectStatusFilter = ref('unfinished'); // 相关方项目状态过滤               // 相关方和项目树数据 (来自 @[安全投入/安全投入(相关方).html])
                 const contractors = ref([
                     {
                         id: 'c1',
@@ -590,6 +637,28 @@
                         ]
                     }
                 ]);
+
+                // 过滤后的承包商和项目（基于搜索框）
+                const filteredContractors = computed(() => {
+                    if (!treeFilterText.value) {
+                        return contractors.value;
+                    }
+                    const keyword = treeFilterText.value.toLowerCase();
+                    return contractors.value.map(contractor => {
+                        const filteredProjects = contractor.projects.filter(project =>
+                            project.name.toLowerCase().includes(keyword)
+                        );
+                        if (contractor.name.toLowerCase().includes(keyword) || filteredProjects.length > 0) {
+                            return {
+                                ...contractor,
+                                projects: contractor.name.toLowerCase().includes(keyword)
+                                    ? contractor.projects
+                                    : filteredProjects
+                            };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                });
 
                 // 强制设置为承包商节点，因为这是“相关方”页
                 const selectedNodeType = ref('contractor');
@@ -800,9 +869,9 @@
 
                 const formatMoney = (value) => {
                     if (value >= 100000000) {
-                        return (value / 100000000).toFixed(2) + '亿';
+                        return (value / 100000000).toFixed(2);
                     } else if (value >= 10000) {
-                        return (value / 10000).toFixed(2) + '万';
+                        return (value / 10000).toFixed(2);
                     }
                     return value.toFixed(2);
                 };
@@ -862,8 +931,11 @@
                     categoryTableData,
                     projectTableData,
                     contractors,
+                    filteredContractors,
                     selectedContractor,
                     selectedProject,
+                    treeFilterText,
+                    projectStatusFilter,
                     selectContractor,
                     selectProject,
                     formatMoney,
@@ -872,7 +944,39 @@
                     getCategorySummary
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        // 注册全局说明组件
+        // 全局计数器对象，使用 reactive 保证响应性（虽然这里简单的变量也可以，但为了稳妥）
+        const infoMarkState = reactive({ count: 0 });
+
+        app.component('info-mark', {
+            props: ['content'],
+            setup() {
+                const index = ref(0);
+                // 在挂载时分配序号
+                Vue.onMounted(() => {
+                    infoMarkState.count++;
+                    index.value = infoMarkState.count;
+                });
+                return { index };
+            },
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop>{{ index }}</span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

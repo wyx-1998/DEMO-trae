@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业务提醒配置</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 14px;
+            color: #606266;
+            white-space: nowrap;
+        }
+
+        .filter-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 表格区域 */
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 触发类型标签 */
+        .trigger-type-tag {
+            font-size: 12px;
+        }
+
+        /* 通知方式图标 */
+        .notify-methods {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .notify-icon {
+            font-size: 16px;
+        }
+
+        /* 对话框样式 */
+        .dialog-form-item {
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+            margin: 20px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #EBEEF5;
+        }
+
+        .form-section-title:first-child {
+            margin-top: 0;
+        }
+
+        /* 规则配置区域 */
+        .rule-config-area {
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .rule-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .rule-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .rule-label {
+            font-size: 13px;
+            color: #606266;
+            min-width: 80px;
+        }
+
+        /* 人员选择区域 */
+        .personnel-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <div class="main-content">
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>配置名称：</label>
+                        <el-input v-model="filterForm.configName" placeholder="请输入配置名称" clearable
+                            style="width: 200px;" />
+                    </div>
+                    <div class="filter-item">
+                        <label>触发类型：</label>
+                        <el-select v-model="filterForm.triggerType" placeholder="请选择" clearable style="width: 150px;">
+                            <el-option label="全部" value="" />
+                            <el-option label="临期提醒" value="deadline" />
+                            <el-option label="定时提醒" value="scheduled" />
+                            <el-option label="即时提醒" value="instant" />
+                        </el-select>
+                    </div>
+                    <div class="filter-item">
+                        <label>状态：</label>
+                        <el-select v-model="filterForm.status" placeholder="请选择" clearable style="width: 120px;">
+                            <el-option label="全部" value="" />
+                            <el-option label="启用" value="1" />
+                            <el-option label="禁用" value="0" />
+                        </el-select>
+                    </div>
+                    <div class="filter-actions">
+                        <el-button type="primary" @click="handleSearch">
+                            <i class="fa fa-search"></i> 查询
+                        </el-button>
+                        <el-button @click="handleReset">
+                            <i class="fa fa-redo"></i> 重置
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 表格区域 -->
+            <div class="table-section">
+                <div class="table-header">
+                    <div class="table-title">业务提醒配置列表</div>
+                    <el-button type="primary" @click="handleAdd">
+                        <i class="fa fa-plus"></i> 新增配置
+                    </el-button>
+                </div>
+
+                <el-table :data="tableData" border stripe style="width: 100%">
+                    <el-table-column type="index" label="序号" width="60" align="center" />
+                    <el-table-column prop="configName" label="配置名称" min-width="180" show-overflow-tooltip />
+                    <el-table-column prop="configCode" label="配置编号" width="150" show-overflow-tooltip />
+                    <el-table-column prop="templateCode" label="关联模板" width="150" show-overflow-tooltip />
+                    <el-table-column prop="triggerType" label="触发类型" width="110" align="center">
+                        <template #default="{ row }">
+                            <el-tag :type="getTriggerTypeTagType(row.triggerType)" class="trigger-type-tag" size="small">
+                                {{ getTriggerTypeText(row.triggerType) }}
+                            </el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="triggerRule" label="触发规则" min-width="200" show-overflow-tooltip />
+                    <el-table-column prop="notifyMethods" label="通知方式" width="120" align="center">
+                        <template #default="{ row }">
+                            <div class="notify-methods">
+                                <el-tooltip content="系统通知" placement="top" v-if="row.notifyMethods.includes('system')">
+                                    <i class="fa fa-bell notify-icon" style="color: #409EFF;"></i>
+                                </el-tooltip>
+                                <el-tooltip content="邮件通知" placement="top" v-if="row.notifyMethods.includes('email')">
+                                    <i class="fa fa-envelope notify-icon" style="color: #67C23A;"></i>
+                                </el-tooltip>
+                                <el-tooltip content="短信通知" placement="top" v-if="row.notifyMethods.includes('sms')">
+                                    <i class="fa fa-comment-dots notify-icon" style="color: #E6A23C;"></i>
+                                </el-tooltip>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="status" label="状态" width="100" align="center">
+                        <template #default="{ row }">
+                            <el-switch v-model="row.status" :active-value="1" :inactive-value="0"
+                                @change="handleStatusChange(row)" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="180" align="center" fixed="right">
+                        <template #default="{ row }">
+                            <el-button link type="primary" size="small" @click="handleEdit(row)">
+                                <i class="fa fa-edit"></i> 编辑
+                            </el-button>
+                            <el-button link type="danger" size="small" @click="handleDelete(row)">
+                                <i class="fa fa-trash"></i> 删除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                    <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+                        :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                        layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange" />
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增/编辑对话框 -->
+        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="700px" :close-on-click-modal="false">
+            <el-form :model="formData" :rules="formRules" ref="formRef" label-width="110px">
+                <!-- 基本信息 -->
+                <div class="form-section-title">基本信息</div>
+                <el-form-item label="配置名称" prop="configName">
+                    <el-input v-model="formData.configName" placeholder="请输入配置名称" maxlength="50" show-word-limit />
+                </el-form-item>
+                <el-form-item label="配置编号" prop="configCode">
+                    <el-input v-model="formData.configCode" placeholder="请输入配置编号" maxlength="50" />
+                </el-form-item>
+                <el-form-item label="关联模板" prop="templateCode">
+                    <el-select v-model="formData.templateCode" placeholder="请选择消息模板" style="width: 100%;">
+                        <el-option v-for="item in templateOptions" :key="item.value" :label="item.label"
+                            :value="item.value" />
+                    </el-select>
+                </el-form-item>
+
+                <!-- 触发规则 -->
+                <div class="form-section-title">触发规则</div>
+                <el-form-item label="触发类型" prop="triggerType">
+                    <el-radio-group v-model="formData.triggerType" @change="handleTriggerTypeChange">
+                        <el-radio label="deadline">临期提醒</el-radio>
+                        <el-radio label="scheduled">定时提醒</el-radio>
+                        <el-radio label="instant">即时提醒</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <!-- 临期提醒配置 -->
+                <el-form-item label="提醒规则" prop="triggerRule" v-if="formData.triggerType === 'deadline'">
+                    <div class="rule-config-area" style="width: 100%;">
+                        <div class="rule-item">
+                            <span class="rule-label">提前天数：</span>
+                            <el-input-number v-model="formData.deadlineConfig.advanceDays" :min="1" :max="365"
+                                style="width: 150px;" />
+                            <span style="margin-left: 8px; color: #909399; font-size: 13px;">天</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-label">日期字段：</span>
+                            <el-input v-model="formData.deadlineConfig.dateField" placeholder="如：下次检查日期"
+                                style="flex: 1;" />
+                        </div>
+                    </div>
+                </el-form-item>
+
+                <!-- 定时提醒配置 -->
+                <el-form-item label="提醒规则" prop="triggerRule" v-if="formData.triggerType === 'scheduled'">
+                    <div class="rule-config-area" style="width: 100%;">
+                        <div class="rule-item">
+                            <span class="rule-label">提醒频率：</span>
+                            <el-radio-group v-model="formData.scheduledConfig.frequency">
+                                <el-radio label="daily">每日</el-radio>
+                                <el-radio label="monthly">每月</el-radio>
+                                <el-radio label="yearly">每年</el-radio>
+                            </el-radio-group>
+                        </div>
+                        <div class="rule-item" v-if="formData.scheduledConfig.frequency === 'monthly'">
+                            <span class="rule-label">每月第几日：</span>
+                            <el-input-number v-model="formData.scheduledConfig.dayOfMonth" :min="1" :max="31"
+                                style="width: 150px;" />
+                            <span style="margin-left: 8px; color: #909399; font-size: 13px;">日</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-label">提醒时间：</span>
+                            <el-time-picker v-model="formData.scheduledConfig.time" format="HH:mm" value-format="HH:mm"
+                                placeholder="选择时间" style="width: 150px;" />
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-label">触发条件：</span>
+                            <el-input v-model="formData.scheduledConfig.condition" placeholder="如：使用率低于60%"
+                                style="flex: 1;" />
+                        </div>
+                    </div>
+                </el-form-item>
+
+                <!-- 即时提醒配置 -->
+                <el-form-item label="提醒规则" prop="triggerRule" v-if="formData.triggerType === 'instant'">
+                    <div class="rule-config-area" style="width: 100%;">
+                        <div class="rule-item">
+                            <span class="rule-label">触发事件：</span>
+                            <el-select v-model="formData.instantConfig.event" placeholder="请选择触发事件"
+                                style="flex: 1;">
+                                <el-option label="数据创建" value="create" />
+                                <el-option label="数据更新" value="update" />
+                                <el-option label="数据删除" value="delete" />
+                                <el-option label="审批提交" value="submit" />
+                                <el-option label="审批通过" value="approve" />
+                                <el-option label="审批驳回" value="reject" />
+                                <el-option label="指标超限" value="exceed" />
+                            </el-select>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-label">业务场景：</span>
+                            <el-input v-model="formData.instantConfig.scenario" placeholder="如：安全会议、审批流程"
+                                style="flex: 1;" />
+                        </div>
+                    </div>
+                </el-form-item>
+
+                <!-- 通知对象 -->
+                <div class="form-section-title">通知对象</div>
+                <el-form-item label="通知对象" prop="notifyTargets">
+                    <el-checkbox-group v-model="formData.notifyTargets">
+                        <el-checkbox label="creator">创建人</el-checkbox>
+                        <el-checkbox label="responsible">责任人</el-checkbox>
+                        <el-checkbox label="deptLeader">部门负责人</el-checkbox>
+                        <el-checkbox label="approver">审批人</el-checkbox>
+                        <el-checkbox label="custom">指定人员</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item label="指定人员" v-if="formData.notifyTargets.includes('custom')">
+                    <el-select v-model="formData.customPersonnel" multiple placeholder="请选择人员" style="width: 100%;">
+                        <el-option v-for="item in personnelOptions" :key="item.value" :label="item.label"
+                            :value="item.value" />
+                    </el-select>
+                </el-form-item>
+
+                <!-- 通知方式 -->
+                <div class="form-section-title">通知方式</div>
+                <el-form-item label="通知渠道" prop="notifyMethods">
+                    <el-checkbox-group v-model="formData.notifyMethods">
+                        <el-checkbox label="system">
+                            <i class="fa fa-bell" style="color: #409EFF;"></i> 系统通知
+                        </el-checkbox>
+                        <el-checkbox label="email">
+                            <i class="fa fa-envelope" style="color: #67C23A;"></i> 邮件通知
+                        </el-checkbox>
+                        <el-checkbox label="sms">
+                            <i class="fa fa-comment-dots" style="color: #E6A23C;"></i> 短信通知
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+
+                <!-- 状态 -->
+                <div class="form-section-title">状态设置</div>
+                <el-form-item label="启用状态" prop="status">
+                    <el-radio-group v-model="formData.status">
+                        <el-radio :label="1">启用</el-radio>
+                        <el-radio :label="0">禁用</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+            </el-form>
+
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="handleSubmit">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://unpkg.com/vue@3.3.11/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 筛选表单
+                const filterForm = reactive({
+                    configName: '',
+                    triggerType: '',
+                    status: ''
+                });
+
+                // 分页
+                const pagination = reactive({
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0
+                });
+
+                // 表格数据
+                const tableData = ref([]);
+
+                // 对话框
+                const dialogVisible = ref(false);
+                const dialogTitle = ref('');
+                const formRef = ref(null);
+
+                // 表单数据
+                const formData = reactive({
+                    id: null,
+                    configName: '',
+                    configCode: '',
+                    templateCode: '',
+                    triggerType: 'deadline',
+                    triggerRule: '',
+                    deadlineConfig: {
+                        advanceDays: 7,
+                        dateField: ''
+                    },
+                    scheduledConfig: {
+                        frequency: 'daily',
+                        dayOfMonth: 1,
+                        time: '09:00',
+                        condition: ''
+                    },
+                    instantConfig: {
+                        event: '',
+                        scenario: ''
+                    },
+                    notifyTargets: [],
+                    customPersonnel: [],
+                    notifyMethods: ['system'],
+                    status: 1
+                });
+
+                // 表单验证规则
+                const formRules = {
+                    configName: [
+                        { required: true, message: '请输入配置名称', trigger: 'blur' }
+                    ],
+                    configCode: [
+                        { required: true, message: '请输入配置编号', trigger: 'blur' }
+                    ],
+                    templateCode: [
+                        { required: true, message: '请选择关联模板', trigger: 'change' }
+                    ],
+                    triggerType: [
+                        { required: true, message: '请选择触发类型', trigger: 'change' }
+                    ],
+                    notifyTargets: [
+                        { required: true, message: '请选择通知对象', trigger: 'change', type: 'array', min: 1 }
+                    ],
+                    notifyMethods: [
+                        { required: true, message: '请选择通知方式', trigger: 'change', type: 'array', min: 1 }
+                    ]
+                };
+
+                // 模板选项
+                const templateOptions = ref([
+                    { label: 'TPL001 - 检查到期提醒模板', value: 'TPL001' },
+                    { label: 'TPL002 - 使用率不足提醒模板', value: 'TPL002' },
+                    { label: 'TPL003 - 会议通知模板', value: 'TPL003' },
+                    { label: 'TPL004 - 审批通知模板', value: 'TPL004' },
+                    { label: 'TPL005 - 有效期临期提醒模板', value: 'TPL005' },
+                    { label: 'TPL006 - 指标超限预警模板', value: 'TPL006' }
+                ]);
+
+                // 人员选项
+                const personnelOptions = ref([
+                    { label: '张三', value: 'user001' },
+                    { label: '李四', value: 'user002' },
+                    { label: '王五', value: 'user003' },
+                    { label: '赵六', value: 'user004' }
+                ]);
+
+                // 模拟数据
+                const mockData = [
+                    {
+                        id: 1,
+                        configName: '消防设施器材检查到期提醒',
+                        configCode: 'REMIND_001',
+                        templateCode: 'TPL001',
+                        triggerType: 'deadline',
+                        triggerRule: '到期前7天提醒',
+                        notifyMethods: ['system', 'email'],
+                        status: 1
+                    },
+                    {
+                        id: 2,
+                        configName: '安全费用使用率不足提醒',
+                        configCode: 'REMIND_002',
+                        templateCode: 'TPL002',
+                        triggerType: 'scheduled',
+                        triggerRule: '每月1日09:00检查，使用率低于60%时提醒',
+                        notifyMethods: ['system', 'email', 'sms'],
+                        status: 1
+                    },
+                    {
+                        id: 3,
+                        configName: '安全会议通知',
+                        configCode: 'REMIND_003',
+                        templateCode: 'TPL003',
+                        triggerType: 'instant',
+                        triggerRule: '会议创建/变更时即时通知参会人员',
+                        notifyMethods: ['system', 'sms'],
+                        status: 1
+                    },
+                    {
+                        id: 4,
+                        configName: '审批流程通知',
+                        configCode: 'REMIND_004',
+                        templateCode: 'TPL004',
+                        triggerType: 'instant',
+                        triggerRule: '审批提交/通过/驳回时即时通知',
+                        notifyMethods: ['system'],
+                        status: 1
+                    },
+                    {
+                        id: 5,
+                        configName: '危险化学品有效期临期提醒',
+                        configCode: 'REMIND_005',
+                        templateCode: 'TPL005',
+                        triggerType: 'deadline',
+                        triggerRule: '到期前30天提醒',
+                        notifyMethods: ['system', 'email'],
+                        status: 0
+                    },
+                    {
+                        id: 6,
+                        configName: '重大危险源监测指标超限预警',
+                        configCode: 'REMIND_006',
+                        templateCode: 'TPL006',
+                        triggerType: 'instant',
+                        triggerRule: '监测指标超限时即时预警',
+                        notifyMethods: ['system', 'email', 'sms'],
+                        status: 1
+                    }
+                ];
+
+                // 获取触发类型文本
+                const getTriggerTypeText = (type) => {
+                    const map = {
+                        'deadline': '临期提醒',
+                        'scheduled': '定时提醒',
+                        'instant': '即时提醒'
+                    };
+                    return map[type] || type;
+                };
+
+                // 获取触发类型标签类型
+                const getTriggerTypeTagType = (type) => {
+                    const map = {
+                        'deadline': 'warning',
+                        'scheduled': 'success',
+                        'instant': 'danger'
+                    };
+                    return map[type] || '';
+                };
+
+                // 查询
+                const handleSearch = () => {
+                    console.log('查询条件：', filterForm);
+                    loadTableData();
+                };
+
+                // 重置
+                const handleReset = () => {
+                    filterForm.configName = '';
+                    filterForm.triggerType = '';
+                    filterForm.status = '';
+                    loadTableData();
+                };
+
+                // 加载表格数据
+                const loadTableData = () => {
+                    // 模拟数据加载
+                    tableData.value = mockData;
+                    pagination.total = mockData.length;
+                };
+
+                // 新增
+                const handleAdd = () => {
+                    dialogTitle.value = '新增业务提醒配置';
+                    resetForm();
+                    dialogVisible.value = true;
+                };
+
+                // 编辑
+                const handleEdit = (row) => {
+                    dialogTitle.value = '编辑业务提醒配置';
+                    // 复制数据到表单
+                    Object.assign(formData, {
+                        id: row.id,
+                        configName: row.configName,
+                        configCode: row.configCode,
+                        templateCode: row.templateCode,
+                        triggerType: row.triggerType,
+                        triggerRule: row.triggerRule,
+                        notifyMethods: [...row.notifyMethods],
+                        status: row.status,
+                        notifyTargets: ['responsible', 'deptLeader'],
+                        customPersonnel: []
+                    });
+                    dialogVisible.value = true;
+                };
+
+                // 删除
+                const handleDelete = (row) => {
+                    ElementPlus.ElMessageBox.confirm(
+                        `确定要删除配置"${row.configName}"吗？`,
+                        '提示',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
+                    ).then(() => {
+                        ElementPlus.ElMessage.success('删除成功');
+                        loadTableData();
+                    }).catch(() => { });
+                };
+
+                // 状态切换
+                const handleStatusChange = (row) => {
+                    const statusText = row.status === 1 ? '启用' : '禁用';
+                    ElementPlus.ElMessage.success(`已${statusText}配置"${row.configName}"`);
+                };
+
+                // 触发类型变化
+                const handleTriggerTypeChange = (value) => {
+                    // 清空触发规则
+                    formData.triggerRule = '';
+                };
+
+                // 提交表单
+                const handleSubmit = () => {
+                    formRef.value.validate((valid) => {
+                        if (valid) {
+                            // 构建触发规则描述
+                            let triggerRule = '';
+                            if (formData.triggerType === 'deadline') {
+                                triggerRule = `到期前${formData.deadlineConfig.advanceDays}天提醒`;
+                            } else if (formData.triggerType === 'scheduled') {
+                                const freqMap = { 'daily': '每日', 'monthly': '每月', 'yearly': '每年' };
+                                const freq = freqMap[formData.scheduledConfig.frequency];
+                                const day = formData.scheduledConfig.frequency === 'monthly'
+                                    ? `${formData.scheduledConfig.dayOfMonth}日` : '';
+                                triggerRule = `${freq}${day}${formData.scheduledConfig.time}检查`;
+                                if (formData.scheduledConfig.condition) {
+                                    triggerRule += `，${formData.scheduledConfig.condition}时提醒`;
+                                }
+                            } else if (formData.triggerType === 'instant') {
+                                const eventMap = {
+                                    'create': '创建', 'update': '更新', 'delete': '删除',
+                                    'submit': '提交审批', 'approve': '审批通过', 'reject': '审批驳回',
+                                    'exceed': '指标超限'
+                                };
+                                triggerRule = `${eventMap[formData.instantConfig.event] || ''}时即时通知`;
+                            }
+                            formData.triggerRule = triggerRule;
+
+                            console.log('提交数据：', formData);
+                            ElementPlus.ElMessage.success(formData.id ? '修改成功' : '新增成功');
+                            dialogVisible.value = false;
+                            loadTableData();
+                        }
+                    });
+                };
+
+                // 重置表单
+                const resetForm = () => {
+                    Object.assign(formData, {
+                        id: null,
+                        configName: '',
+                        configCode: '',
+                        templateCode: '',
+                        triggerType: 'deadline',
+                        triggerRule: '',
+                        deadlineConfig: {
+                            advanceDays: 7,
+                            dateField: ''
+                        },
+                        scheduledConfig: {
+                            frequency: 'daily',
+                            dayOfMonth: 1,
+                            time: '09:00',
+                            condition: ''
+                        },
+                        instantConfig: {
+                            event: '',
+                            scenario: ''
+                        },
+                        notifyTargets: [],
+                        customPersonnel: [],
+                        notifyMethods: ['system'],
+                        status: 1
+                    });
+                    if (formRef.value) {
+                        formRef.value.clearValidate();
+                    }
+                };
+
+                // 分页
+                const handleSizeChange = (val) => {
+                    pagination.pageSize = val;
+                    loadTableData();
+                };
+
+                const handleCurrentChange = (val) => {
+                    pagination.currentPage = val;
+                    loadTableData();
+                };
+
+                // 初始化
+                onMounted(() => {
+                    loadTableData();
+                });
+
+                return {
+                    filterForm,
+                    pagination,
+                    tableData,
+                    dialogVisible,
+                    dialogTitle,
+                    formRef,
+                    formData,
+                    formRules,
+                    templateOptions,
+                    personnelOptions,
+                    getTriggerTypeText,
+                    getTriggerTypeTagType,
+                    handleSearch,
+                    handleReset,
+                    handleAdd,
+                    handleEdit,
+                    handleDelete,
+                    handleStatusChange,
+                    handleTriggerTypeChange,
+                    handleSubmit,
+                    handleSizeChange,
+                    handleCurrentChange
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+
+</html>

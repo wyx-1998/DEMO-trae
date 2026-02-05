@@ -29,91 +29,48 @@
             gap: 20px;
         }
 
-        /* 左侧年度卡片区域 */
-        .left-panel {
-            width: 280px;
-            flex-shrink: 0;
+        .container {
+            width: 100%;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
-            gap: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-            padding: 0;
-            height: calc(100vh - 40px);
-            overflow-y: auto;
-        }
-
-        .year-card {
             padding: 20px;
-            border-bottom: 1px solid #ebeef5;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            background: #fff;
-            border-radius: 0;
-            margin-bottom: 0;
-        }
-
-        .year-card:hover {
-            background-color: #f5f7fa;
-        }
-
-        .year-card.active {
-            background-color: #ecf5ff;
-            border-right: 3px solid #409EFF;
-        }
-
-        .year-card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #303133;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .year-card-title i {
-            color: #409EFF;
-            margin-right: 0;
-        }
-
-        .year-card-stats {
-            display: flex;
+            gap: 20px;
             flex-direction: column;
-            gap: 8px;
+            /* Changed to column if full width needed or just keep flex but no left panel */
         }
 
-        .stat-item {
+        .container {
+            display: block;
+            /* Simpler block layout */
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .search-row {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
             align-items: center;
-            font-size: 13px;
-        }
-
-        .stat-label {
-            color: #909399;
-        }
-
-        .stat-value {
-            color: #303133;
-            font-family: Monaco, 'Courier New', Courier, monospace;
-        }
-
-        .stat-value.highlight {
-            color: #409EFF;
-            font-weight: 600;
-        }
-
-        .stat-value.success {
-            color: #67C23A;
-            font-weight: 600;
-        }
-
-        .stat-value.warning {
-            color: #E6A23C;
-            font-weight: 600;
+            flex-shrink: 0;
+            margin-left: 16px;
         }
 
         /* 右侧详情区域 */
@@ -338,339 +295,420 @@
             display: none !important;
             /* 隐藏下拉箭头 */
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
 <body>
     <div id="app" class="container">
-        <!-- 左侧年度卡片 -->
-        <div class="left-panel">
-            <div v-for="year in yearCards" :key="year.year" class="year-card"
-                :class="{ active: selectedYear === year.year }" @click="selectYear(year.year)">
-                <div class="year-card-title">
-                    <i class="fas fa-calendar-alt"></i>
-                    {{ year.year }}年度
-                </div>
-                <div class="year-card-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">应提取金额(万元)</span>
-                        <span class="stat-value">{{ formatAmount(year.extractAmount) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">上年结余金额(万元)</span>
-                        <span class="stat-value">{{ formatAmount(year.carryOverAmount) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">可使用金额(万元)</span>
-                        <span class="stat-value">{{ formatAmount(year.usableAmount) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">实际提取金额(万元)</span>
-                        <span class="stat-value">{{ formatAmount(year.actualExtractAmount) }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右侧详情内容 -->
-        <div class="right-panel">
-            <div class="panel-content">
-                <!-- 功能按钮区 -->
-
-
-
-
-                <!-- 当前提取内容 -->
-                <!-- 当前提取内容 -->
-                <div>
-                    <!-- 基础数据模块 -->
-                    <div class="form-module">
-                        <div class="module-header" @click="toggleModule('basic')">
-                            <div class="module-title">
-                                <i class="fas fa-info-circle"></i>
-                                基础数据
-                            </div>
-                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
-                        </div>
-                        <div class="module-content" :class="{ collapsed: !modules.basic }">
-                            <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
-                                label-position="left">
-                                <div class="form-row">
-
-                                    <div class="form-item">
-                                        <el-form-item label="组织名称" prop="orgName" required>
-                                            <el-input v-model="formData.orgName" placeholder="组织名称" disabled />
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item label="所属企业分类" prop="industryType" required>
-                                            <el-input v-model="formData.industryType" placeholder="行业类型" disabled />
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item label="提取类型" prop="extractType" required>
-                                            <el-input v-model="formData.extractType" placeholder="提取类型" disabled />
-                                        </el-form-item>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-
-                                    <div class="form-item">
-                                        <el-form-item label="提取规则类型" prop="ruleType" required>
-                                            <el-select v-model="formData.ruleType" placeholder="请选择" disabled
-                                                style="width: 100%;">
-                                                <el-option label="超额累退" value="excess"></el-option>
-                                                <el-option label="比例提取" value="proportion"></el-option>
+        <div id="app" class="container">
+            <!-- 右侧详情内容，全宽显示 -->
+            <div class="right-panel">
+                <div class="panel-content">
+                    <!-- 顶部搜索区域 -->
+                    <div class="search-area">
+                        <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                            <div class="search-row">
+                                <div class="search-fields">
+                                    <el-form-item label="年度">
+                                        <div style="display: flex; align-items: center;">
+                                            <el-select v-model="searchForm.year" placeholder="请选择年度"
+                                                style="width: 200px;">
+                                                <el-option v-for="item in yearOptions" :key="item.value"
+                                                    :label="item.label" :value="item.value">
+                                                </el-option>
                                             </el-select>
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item label="提取周期类型" prop="cycleType" required>
-                                            <el-select v-model="formData.cycleType" placeholder="请选择" disabled
-                                                style="width: 100%;">
-                                                <el-option label="年度分摊提取" value="yearly"></el-option>
-                                                <el-option label="月度实时提取" value="monthly"></el-option>
-                                                <el-option label="项目进度提取" value="project"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </div>
+                                            <info-mark
+                                                content="1、年份倒序排序，进入默认选中当前年；2、初始化时默认增加2026年（当前年）；3、每年7月1日0点自动新增下一年度的选项"></info-mark>
+                                        </div>
+                                    </el-form-item>
                                 </div>
-                            </el-form>
+                                <div class="search-buttons">
+                                    <el-button type="primary" @click="onSearch">
+                                        <i class="fas fa-search"></i> 查询
+                                    </el-button>
+                                    <el-button @click="onReset">
+                                        <i class="fas fa-redo"></i> 重置
+                                    </el-button>
+                                </div>
+                            </div>
+                        </el-form>
+                    </div>
+
+                    <!-- 功能按钮区 -->
+
+
+
+
+                    <!-- 当前提取内容 -->
+                    <!-- 当前提取内容 -->
+                    <div>
+                        <!-- 基础数据模块 -->
+                        <div class="form-module">
+                            <div class="module-header" @click="toggleModule('basic')">
+                                <div class="module-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    基础数据
+                                </div>
+                                <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.basic }"></i>
+                            </div>
+                            <div class="module-content" :class="{ collapsed: !modules.basic }">
+                                <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px"
+                                    label-position="left">
+                                    <div class="form-row">
+
+                                        <div class="form-item">
+                                            <el-form-item label="组织名称" prop="orgName" required>
+                                                <el-input v-model="formData.orgName" placeholder="组织名称" disabled>
+                                                    <template #suffix>
+                                                        <info-mark content="为当前组织简称"></info-mark>
+                                                    </template>
+                                                </el-input>
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item label="所属企业分类" prop="industryType" required>
+                                                <el-input v-model="formData.industryType" placeholder="行业类型" disabled>
+                                                    <template #suffix>
+                                                        <info-mark content="为当前组织所属企业分类"></info-mark>
+                                                    </template>
+                                                </el-input>
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item label="提取类型" prop="extractType" required>
+                                                <el-input v-model="formData.extractType" placeholder="提取类型" disabled>
+                                                    <template #suffix>
+                                                        <info-mark content="为当前组织所属提取类型"></info-mark>
+                                                    </template>
+                                                </el-input>
+                                            </el-form-item>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+
+                                        <div class="form-item">
+                                            <el-form-item label="提取规则类型" prop="ruleType" required>
+                                                <template #label>
+                                                    <span>提取规则类型<info-mark content="为当前组织所属提取规则"></info-mark></span>
+                                                </template>
+                                                <el-select v-model="formData.ruleType" placeholder="请选择" disabled
+                                                    style="width: 100%;">
+                                                    <el-option label="超额累退" value="excess"></el-option>
+                                                    <el-option label="比例提取" value="proportion"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item label="提取周期类型" prop="cycleType" required>
+                                                <template #label>
+                                                    <span>提取周期类型<info-mark content="为当前组织所属提取周期类型"></info-mark></span>
+                                                </template>
+                                                <el-select v-model="formData.cycleType" placeholder="请选择" disabled
+                                                    style="width: 100%;">
+                                                    <el-option label="年度分摊提取" value="yearly"></el-option>
+                                                    <el-option label="月度实时提取" value="monthly"></el-option>
+                                                    <el-option label="项目进度提取" value="project"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </div>
+                                    </div>
+                                </el-form>
+                            </div>
+                        </div>
+
+                        <!-- 提取数据模块 -->
+                        <div class="form-module">
+                            <div class="module-header" @click="toggleModule('extract')">
+                                <div class="module-title">
+                                    <i class="fas fa-calculator"></i>
+                                    提取数据
+                                </div>
+                                <i class="fas fa-chevron-down module-toggle"
+                                    :class="{ collapsed: !modules.extract }"></i>
+                            </div>
+                            <div class="module-content" :class="{ collapsed: !modules.extract }">
+                                <el-form :model="formData" label-width="200px" label-position="left">
+                                    <div class="form-row">
+                                        <div class="form-item">
+                                            <el-form-item :label="formData.basisName" prop="basisValue" required>
+                                                <template #label>
+                                                    <span>{{ formData.basisName }}<info-mark
+                                                            content="1、字段标签名为当前组织所属提取依据值+单位；2、输入后触发"
+                                                            应提取金额"计算"></info-mark></span>
+                                                </template>
+                                                <el-input v-model="formData.basisValueDisplay" placeholder="请输入金额"
+                                                    @input="handleBasisValueInput" @blur="formatBasisValue" />
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item :label="selectedYear + '年应提取金额(万元)'" required>
+                                                <template #label>
+                                                    <span>{{ selectedYear }}年应提取金额(万元)<info-mark
+                                                            content="1、需要根据当前组织所属提取规则自动进行计算；2、点击计算器按钮打开计算规则弹窗查看详细的计算规则"></info-mark></span>
+                                                </template>
+                                                <el-input :model-value="formatAmount(calculatedAmount)" disabled>
+                                                    <template #suffix>
+                                                        <el-button link type="primary" @click="showCalculationDialog"
+                                                            style="padding: 0; margin-right: 8px;">
+                                                            <i class="fas fa-calculator" style="font-size: 16px;"></i>
+                                                        </el-button>
+                                                    </template>
+                                                </el-input>
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item :label="(selectedYear - 1) + '年结余金额(万元)'" prop="carryOver"
+                                                required>
+                                                <template #label>
+                                                    <span>{{ selectedYear - 1 }}年结余金额(万元)<info-mark
+                                                            content="1、初始化进入时默认计算上年度的结余金额=上年度的实际提取金额-上年度实际使用金额；2、支持修改；3、如果没有上年度的数据则不填充初始化数据"></info-mark></span>
+                                                </template>
+                                                <el-input v-model="formData.carryOverDisplay" placeholder="请输入金额"
+                                                    @input="handleCarryOverInput" @blur="formatCarryOver" />
+                                            </el-form-item>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-item">
+                                            <el-form-item required>
+                                                <template #label>
+                                                    <span>{{ selectedYear }}年可使用金额(万元)</span>
+                                                    <el-tooltip placement="top" effect="light">
+                                                        <template #content>
+                                                            {{ selectedYear }}年可使用金额 = {{ selectedYear }}年应提取金额 + {{
+                                                            selectedYear - 1 }}年结余金额
+                                                        </template>
+                                                        <i class="fas fa-question-circle"
+                                                            style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
+                                                    </el-tooltip>
+                                                </template>
+                                                <el-input
+                                                    :model-value="formatAmount(calculatedAmount + formData.carryOver)"
+                                                    disabled />
+                                            </el-form-item>
+                                        </div>
+                                        <div class="form-item">
+                                            <el-form-item required>
+                                                <template #label>
+                                                    <span>{{ selectedYear }}年补提金额(万元)<info-mark
+                                                            content="1、默认初始化数据为0；2、点击补提费用，打开补提弹窗，输入补提金额和补提原因，确认后将补提金额回显到补提金额字段中"></info-mark></span>
+                                                    <el-tooltip placement="top" effect="light">
+                                                        <template #content>
+                                                            企业安全生产费用出现赤字（即当年计提企业安全生产费用加上年初结余小于年度实际支出）的，应当于年末补提企业安全生产费用。如果补提金额数字为0，则代表当前未发生补提。
+                                                        </template>
+                                                        <i class="fas fa-question-circle"
+                                                            style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
+                                                    </el-tooltip>
+                                                </template>
+                                                <el-input :model-value="formatAmount(formData.supplementaryAmount || 0)"
+                                                    disabled>
+                                                    <template #suffix>
+                                                        <el-button link type="primary" @click="openSupplementaryDialog"
+                                                            style="font-weight: bold; height: auto; padding: 0 10px;">
+                                                            补提费用
+                                                        </el-button>
+                                                    </template>
+                                                </el-input>
+                                            </el-form-item>
+                                        </div>
+                                    </div>
+                                </el-form>
+                            </div>
+                        </div>
+
+
+
+                        <!-- 月度提取数据模块 -->
+                        <div class="form-module">
+                            <div class="module-header" @click="toggleModule('monthly')">
+                                <div class="module-title">
+                                    <i class="fas fa-calendar-check"></i>
+                                    月度提取数据
+                                    <info-mark content="月份为1-12月"></info-mark>
+                                </div>
+                                <i class="fas fa-chevron-down module-toggle"
+                                    :class="{ collapsed: !modules.monthly }"></i>
+                            </div>
+                            <div class="module-content" :class="{ collapsed: !modules.monthly }">
+                                <el-table :data="monthlyAccrualData" border stripe>
+                                    <el-table-column prop="month" label="月份" width="100" align="center">
+                                        <template #default="{ row }">
+                                            {{ row.month }}月
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="应提取金额(万元)" min-width="180">
+                                        <template #header>
+                                            <span>应提取金额(万元)<info-mark
+                                                    content="根据当前年度的应提取金额/12自动填充，如果上面的应提取金额变了，需要同步变"></info-mark></span>
+                                        </template>
+                                        <template #default="{ row }">
+                                            <span>{{ formatAmount(row.amount) }}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="实际提取金额(万元)" min-width="180">
+                                        <template #header>
+                                            <span>实际提取金额(万元)<info-mark content="手动输入实际提取金额"></info-mark></span>
+                                        </template>
+                                        <template #default="{ row }">
+                                            <el-input v-model="row.actualAmountDisplay" placeholder="请输入金额"
+                                                @input="handleMonthlyActualInput(row)"
+                                                @blur="formatMonthlyActualAmount(row)" style="text-align: right;" />
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <div style="margin-top: 16px; text-align: right; font-size: 14px; color: #606266;">
+                                    <span>月度应提取合计：<info-mark content="月度应提取合计为所有月份的应提取金额之和"></info-mark></span>
+                                    <span style="font-weight: 700; color: #409EFF; font-size: 16px;">{{
+                                        formatAmount(monthlyTotal) }} 万元</span>
+                                    <span style="margin-left: 24px;">月度实际提取合计：<info-mark
+                                            content="月度实际提取合计为所有月份的实际提取金额之和"></info-mark></span>
+                                    <span style="font-weight: 700; color: #67C23A; font-size: 16px;">{{
+                                        formatAmount(monthlyActualTotal) }} 万元</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 提取数据模块 -->
-                    <div class="form-module">
-                        <div class="module-header" @click="toggleModule('extract')">
-                            <div class="module-title">
-                                <i class="fas fa-calculator"></i>
-                                提取数据
-                            </div>
-                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.extract }"></i>
-                        </div>
-                        <div class="module-content" :class="{ collapsed: !modules.extract }">
-                            <el-form :model="formData" label-width="200px" label-position="left">
-                                <div class="form-row">
-                                    <div class="form-item">
-                                        <el-form-item :label="formData.basisName" prop="basisValue" required>
-                                            <el-input v-model="formData.basisValueDisplay" placeholder="请输入金额"
-                                                @input="handleBasisValueInput" @blur="formatBasisValue" />
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item :label="selectedYear + '年应提取金额(万元)'" required>
-                                            <el-input :model-value="formatAmount(calculatedAmount)" disabled>
-                                                <template #suffix>
-                                                    <el-button link type="primary" @click="showCalculationDialog"
-                                                        style="padding: 0; margin-right: 8px;">
-                                                        <i class="fas fa-calculator" style="font-size: 16px;"></i>
-                                                    </el-button>
-                                                </template>
-                                            </el-input>
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item :label="(selectedYear - 1) + '年结余金额(万元)'" prop="carryOver"
-                                            required>
-                                            <el-input v-model="formData.carryOverDisplay" placeholder="请输入金额"
-                                                @input="handleCarryOverInput" @blur="formatCarryOver" />
-                                        </el-form-item>
-                                    </div>
+                    <el-dialog v-model="calculationDialogVisible" title="提取金额计算规则" width="700px">
+                        <div style="margin-bottom: 16px;">
+                            <div
+                                style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
+                                <div style="font-weight: 600; color: #303133; margin-bottom: 8px;">
+                                    <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 6px;"></i>
+                                    计算规则说明
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-item">
-                                        <el-form-item required>
-                                            <template #label>
-                                                <span>{{ selectedYear }}年可使用金额(万元)</span>
-                                                <el-tooltip placement="top" effect="light">
-                                                    <template #content>
-                                                        {{ selectedYear }}年可使用金额 = {{ selectedYear }}年应提取金额 + {{
-                                                        selectedYear - 1 }}年结余金额
-                                                    </template>
-                                                    <i class="fas fa-question-circle"
-                                                        style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
-                                                </el-tooltip>
-                                            </template>
-                                            <el-input :model-value="formatAmount(calculatedAmount + formData.carryOver)"
-                                                disabled />
-                                        </el-form-item>
-                                    </div>
-                                    <div class="form-item">
-                                        <el-form-item required>
-                                            <template #label>
-                                                <span>{{ selectedYear }}年补提金额(万元)</span>
-                                                <el-tooltip placement="top" effect="light">
-                                                    <template #content>
-                                                        企业安全生产费用出现赤字（即当年计提企业安全生产费用加上年初结余小于年度实际支出）的，应当于年末补提企业安全生产费用。如果补提金额数字为0，则代表当前未发生补提。
-                                                    </template>
-                                                    <i class="fas fa-question-circle"
-                                                        style="color: #909399; font-size: 12px; cursor: help; margin-left: 4px;"></i>
-                                                </el-tooltip>
-                                            </template>
-                                            <el-input :model-value="formatAmount(formData.supplementaryAmount || 0)"
-                                                disabled>
-                                                <template #suffix>
-                                                    <el-button link type="primary" @click="openSupplementaryDialog"
-                                                        style="font-weight: bold; height: auto; padding: 0 10px;">
-                                                        补提费用
-                                                    </el-button>
-                                                </template>
-                                            </el-input>
-                                        </el-form-item>
-                                    </div>
+                                <div style="color: #606266; font-size: 14px; line-height: 1.6;">
+                                    采用<strong style="color: #E6A23C;">超额累退</strong>方式计算，根据提取依据值分段按不同比例提取安全费用
                                 </div>
-                            </el-form>
-                        </div>
-                    </div>
-
-
-
-                    <!-- 月度提取数据模块 -->
-                    <div class="form-module">
-                        <div class="module-header" @click="toggleModule('monthly')">
-                            <div class="module-title">
-                                <i class="fas fa-calendar-check"></i>
-                                月度提取数据
                             </div>
-                            <i class="fas fa-chevron-down module-toggle" :class="{ collapsed: !modules.monthly }"></i>
-                        </div>
-                        <div class="module-content" :class="{ collapsed: !modules.monthly }">
-                            <el-table :data="monthlyAccrualData" border stripe>
-                                <el-table-column prop="month" label="月份" width="100" align="center">
+                            <el-table :data="calculationRulesDisplay" border stripe>
+                                <el-table-column label="序号" width="60" align="center" type="index"></el-table-column>
+                                <el-table-column label="提取依据值范围" min-width="200">
                                     <template #default="{ row }">
-                                        {{ row.month }}月
+                                        <span>{{ row.range }}</span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="应提取金额(万元)" min-width="180">
+                                <el-table-column label="提取比例" width="120" align="center">
                                     <template #default="{ row }">
-                                        <span>{{ formatAmount(row.amount) }}</span>
+                                        <el-tag type="primary">{{ row.ratio }}</el-tag>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="实际提取金额(万元)" min-width="180">
+                                <el-table-column label="本次提取金额(万元)" width="160" align="right">
                                     <template #default="{ row }">
-                                        <el-input v-model="row.actualAmountDisplay" placeholder="请输入金额"
-                                            @input="handleMonthlyActualInput(row)"
-                                            @blur="formatMonthlyActualAmount(row)" style="text-align: right;" />
+                                        <span
+                                            :style="{ color: row.amount > 0 ? '#409EFF' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
+                                            {{ formatAmount(row.amount) }}
+                                        </span>
                                     </template>
                                 </el-table-column>
                             </el-table>
-                            <div style="margin-top: 16px; text-align: right; font-size: 14px; color: #606266;">
-                                <span>月度应提取合计：</span>
-                                <span style="font-weight: 700; color: #409EFF; font-size: 16px;">{{
-                                    formatAmount(monthlyTotal) }} 万元</span>
-                                <span style="margin-left: 24px;">月度实际提取合计：</span>
-                                <span style="font-weight: 700; color: #67C23A; font-size: 16px;">{{
-                                    formatAmount(monthlyActualTotal) }} 万元</span>
+                            <div style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 14px; color: #606266;">提取依据值：</span>
+                                    <span style="font-size: 16px; font-weight: 600; color: #303133;">{{
+                                        formatAmount(formData.basisValue) }} 万元</span>
+                                </div>
+                                <el-divider style="margin: 12px 0;"></el-divider>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 14px; color: #606266;">{{ selectedYear }}年应提取金额：</span>
+                                    <span style="font-size: 18px; font-weight: 700; color: #409EFF;">{{
+                                        formatAmount(calculatedAmount) }} 万元</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <template #footer>
+                            <el-button type="primary" @click="calculationDialogVisible = false">确定</el-button>
+                        </template>
+                    </el-dialog>
+
+                    <!-- 补提费用弹窗 -->
+                    <el-dialog v-model="supplementaryDialogVisible" :title="selectedYear + '年补提费用'" width="500px"
+                        :close-on-click-modal="false">
+                        <el-form label-width="160px" label-position="left">
+                            <el-form-item :label="selectedYear + '年补提金额(万元)'" required>
+                                <el-input v-model="supplementaryForm.amountDisplay" placeholder="请输入补提金额"
+                                    @input="handleSupplementaryAmountInput" @blur="formatSupplementaryAmount" />
+                            </el-form-item>
+                            <el-form-item label="补提原因" required>
+                                <el-input v-model="supplementaryForm.reason" type="textarea" :rows="3"
+                                    placeholder="请输入补提原因" />
+                            </el-form-item>
+                        </el-form>
+                        <template #footer>
+                            <el-button @click="supplementaryDialogVisible = false">取消</el-button>
+                            <el-button type="primary" @click="confirmSupplementary">确定</el-button>
+                        </template>
+                    </el-dialog>
                 </div>
 
-                <el-dialog v-model="calculationDialogVisible" title="提取金额计算规则" width="700px">
-                    <div style="margin-bottom: 16px;">
-                        <div
-                            style="padding: 12px; background: #f0f9ff; border-left: 4px solid #409EFF; border-radius: 4px; margin-bottom: 16px;">
-                            <div style="font-weight: 600; color: #303133; margin-bottom: 8px;">
-                                <i class="fas fa-info-circle" style="color: #409EFF; margin-right: 6px;"></i>
-                                计算规则说明
-                            </div>
-                            <div style="color: #606266; font-size: 14px; line-height: 1.6;">
-                                采用<strong style="color: #E6A23C;">超额累退</strong>方式计算，根据提取依据值分段按不同比例提取安全费用
-                            </div>
-                        </div>
-                        <el-table :data="calculationRulesDisplay" border stripe>
-                            <el-table-column label="序号" width="60" align="center" type="index"></el-table-column>
-                            <el-table-column label="提取依据值范围" min-width="200">
-                                <template #default="{ row }">
-                                    <span>{{ row.range }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="提取比例" width="120" align="center">
-                                <template #default="{ row }">
-                                    <el-tag type="primary">{{ row.ratio }}</el-tag>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="本次提取金额(万元)" width="160" align="right">
-                                <template #default="{ row }">
-                                    <span
-                                        :style="{ color: row.amount > 0 ? '#409EFF' : '#909399', fontWeight: row.amount > 0 ? '600' : 'normal' }">
-                                        {{ formatAmount(row.amount) }}
-                                    </span>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                        <div style="margin-top: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 14px; color: #606266;">提取依据值：</span>
-                                <span style="font-size: 16px; font-weight: 600; color: #303133;">{{
-                                    formatAmount(formData.basisValue) }} 万元</span>
-                            </div>
-                            <el-divider style="margin: 12px 0;"></el-divider>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 14px; color: #606266;">{{ selectedYear }}年应提取金额：</span>
-                                <span style="font-size: 18px; font-weight: 700; color: #409EFF;">{{
-                                    formatAmount(calculatedAmount) }} 万元</span>
-                            </div>
-                        </div>
+                <!-- 补提记录内容 -->
+                <div v-show="isView && activeTab === 'history'" style="padding: 24px;">
+                    <div style="margin-bottom: 16px; font-size: 14px; color: #606266;">
+                        共 <span style="color: #409EFF; font-weight: 600;">{{ supplementaryRecords.length }}</span> 条补提记录
                     </div>
-                    <template #footer>
-                        <el-button type="primary" @click="calculationDialogVisible = false">确定</el-button>
-                    </template>
-                </el-dialog>
-
-                <!-- 补提费用弹窗 -->
-                <el-dialog v-model="supplementaryDialogVisible" :title="selectedYear + '年补提费用'" width="500px"
-                    :close-on-click-modal="false">
-                    <el-form label-width="160px" label-position="left">
-                        <el-form-item :label="selectedYear + '年补提金额(万元)'" required>
-                            <el-input v-model="supplementaryForm.amountDisplay" placeholder="请输入补提金额"
-                                @input="handleSupplementaryAmountInput" @blur="formatSupplementaryAmount" />
-                        </el-form-item>
-                        <el-form-item label="补提原因" required>
-                            <el-input v-model="supplementaryForm.reason" type="textarea" :rows="3"
-                                placeholder="请输入补提原因" />
-                        </el-form-item>
-                    </el-form>
-                    <template #footer>
-                        <el-button @click="supplementaryDialogVisible = false">取消</el-button>
-                        <el-button type="primary" @click="confirmSupplementary">确定</el-button>
-                    </template>
-                </el-dialog>
-            </div>
-
-            <!-- 补提记录内容 -->
-            <div v-show="isView && activeTab === 'history'" style="padding: 24px;">
-                <div style="margin-bottom: 16px; font-size: 14px; color: #606266;">
-                    共 <span style="color: #409EFF; font-weight: 600;">{{ supplementaryRecords.length }}</span> 条补提记录
+                    <el-table :data="supplementaryRecords" border stripe empty-text="暂无补提记录">
+                        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                        <el-table-column prop="date" label="补提日期" width="120"></el-table-column>
+                        <el-table-column prop="amount" label="补提金额(万元)" width="160" align="right">
+                            <template #default="{ row }">
+                                <span style="color: #E6A23C; font-weight: 600;">{{ formatAmount(row.amount) }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="operator" label="操作人" width="100"></el-table-column>
+                        <el-table-column prop="remark" label="备注" min-width="200"></el-table-column>
+                        <el-table-column label="操作" width="80" align="center">
+                            <template #default="{ row }">
+                                <el-button size="small" @click="viewSupplementaryDetail(row)" link>
+                                    <i class="fas fa-eye" style="color: #67C23A;"></i>
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
                 </div>
-                <el-table :data="supplementaryRecords" border stripe empty-text="暂无补提记录">
-                    <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-                    <el-table-column prop="date" label="补提日期" width="120"></el-table-column>
-                    <el-table-column prop="amount" label="补提金额(万元)" width="160" align="right">
-                        <template #default="{ row }">
-                            <span style="color: #E6A23C; font-weight: 600;">{{ formatAmount(row.amount) }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="operator" label="操作人" width="100"></el-table-column>
-                    <el-table-column prop="remark" label="备注" min-width="200"></el-table-column>
-                    <el-table-column label="操作" width="80" align="center">
-                        <template #default="{ row }">
-                            <el-button size="small" @click="viewSupplementaryDetail(row)" link>
-                                <i class="fas fa-eye" style="color: #67C23A;"></i>
-                            </el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="form-actions">
+                <el-button type="primary" @click="handleSave">
+                    <i class="fas fa-save"></i> 保存
+                </el-button>
             </div>
         </div>
-
-        <!-- 底部按钮 -->
-        <div class="form-actions">
-            <el-button type="primary" @click="handleSave">
-                <i class="fas fa-save"></i> 保存
-            </el-button>
-        </div>
-    </div>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -679,7 +717,7 @@
         const { createApp, ref, computed, onMounted, watch } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const formRef = ref(null);
 
@@ -689,6 +727,19 @@
 
                 // 选中的年度
                 const selectedYear = ref(2026);
+                const loading = ref(false);
+
+                // 搜索表单
+                const searchForm = ref({
+                    year: 2026
+                });
+
+                // 年度选项
+                const yearOptions = ref([
+                    { value: 2026, label: '2026年' },
+                    { value: 2025, label: '2025年' },
+                    { value: 2024, label: '2024年' }
+                ]);
 
                 // 模块折叠状态
                 const modules = ref({
@@ -1191,7 +1242,29 @@
                     window.location.href = `安全费用计提-补提.html?mode=view&id=${row.id}`;
                 };
 
+                // 查询
+                const onSearch = () => {
+                    loading.value = true;
+                    setTimeout(() => {
+                        selectYear(searchForm.value.year);
+                        loading.value = false;
+                        ElMessage.success(`已切换至 ${searchForm.value.year} 年度`);
+                    }, 300);
+                };
+
+                // 重置
+                const onReset = () => {
+                    searchForm.value.year = 2026;
+                    onSearch();
+                    ElMessage.info('查询条件已重置');
+                };
+
                 return {
+                    loading,
+                    searchForm,
+                    yearOptions,
+                    onSearch,
+                    onReset,
                     formRef,
                     mode,
                     isView,
@@ -1242,7 +1315,26 @@
                     viewSupplementaryDetail
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

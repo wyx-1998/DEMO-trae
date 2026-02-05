@@ -190,47 +190,42 @@
             justify-content: flex-end;
         }
 
-        /* 提醒设置样式 */
-        .reminder-card {
-            border: 1px solid #ebeef5;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-            background: #fafafa;
+        .pagination-bar {
+            padding-top: 16px;
+            display: flex;
+            justify-content: flex-end;
         }
 
-        .reminder-card-header {
-            display: flex;
-            justify-content: space-between;
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
             align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #ebeef5;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
         }
 
-        .reminder-card-title {
-            font-weight: 500;
-            font-size: 14px;
-            color: #303133;
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
         }
 
-        .reminder-card-body {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .reminder-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .reminder-label {
-            width: 70px;
-            color: #606266;
-            font-size: 14px;
-            flex-shrink: 0;
+        .info-mark:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -239,12 +234,26 @@
     <div id="app" class="container">
         <!-- 左侧相关方项目树 -->
         <div class="left-panel">
-            <div class="tree-header">
-                <i class="fas fa-sitemap"></i>
-                <span>相关方项目</span>
+            <div class="tree-search" style="padding: 12px;">
+                <el-input v-model="treeFilterText" placeholder="请输入相关方项目名称" clearable size="small">
+                    <template #prefix>
+                        <i class="fas fa-search" style="color: #999;"></i>
+                    </template>
+                </el-input>
+                <div style="margin-top: 8px;">
+                    <!-- 相关方项目状态过滤 -->
+                    <div style="margin-top: 8px;">
+                        <el-radio-group v-model="projectStatusFilter" size="small">
+                            <el-radio label="unfinished">未完成</el-radio>
+                            <el-radio label="all">全部</el-radio>
+                            <info-mark
+                                content="1、为当前登录的账号所属的相关方，下级节点为所属相关方在当前登录组织下的相关方项目，其中未完成的项目按照开工时间正序排序，选择全部时展示全部的相关方项目"></info-mark>
+                        </el-radio-group>
+                    </div>
+                </div>
             </div>
             <div class="tree-content">
-                <div v-for="contractor in contractors" :key="contractor.id">
+                <div v-for="contractor in filteredContractors" :key="contractor.id">
                     <div class="tree-node" :class="{ active: selectedContractor === contractor.id && !selectedProject }"
                         @click="selectContractor(contractor.id)">
                         <div class="tree-node-root">
@@ -280,9 +289,6 @@
                                 <el-button @click="handleExport">
                                     <i class="fas fa-file-export"></i> 导出
                                 </el-button>
-                                <el-button @click="openReminderDialog">
-                                    <i class="fas fa-bell"></i> 提醒设置
-                                </el-button>
                             </div>
                         </div>
 
@@ -291,9 +297,9 @@
                             <el-form :model="planSearchForm" :inline="true">
                                 <div class="search-row">
                                     <div class="search-fields">
-                                        <el-form-item label="项目名称">
-                                            <el-input v-model="planSearchForm.projectName" placeholder="请输入" clearable
-                                                style="width: 180px;" />
+                                        <el-form-item label="安全费用项目名称">
+                                            <el-input v-model="planSearchForm.projectName" placeholder="请输入安全费用项目名称"
+                                                clearable style="width: 180px;" />
                                         </el-form-item>
                                     </div>
                                     <div class="search-buttons">
@@ -317,7 +323,7 @@
                                     fixed="left"></el-table-column>
                                 <el-table-column prop="projectCode" label="安全费用项目编号" min-width="160"
                                     fixed="left"></el-table-column>
-                                <el-table-column prop="projectName" label="项目名称" min-width="180">
+                                <el-table-column prop="projectName" label="安全费用项目名称" min-width="180">
                                     <template #default="{ row }">
                                         <a href="javascript:void(0)" @click="handleViewProject(row)"
                                             style="color: #409EFF; text-decoration: underline; cursor: pointer;">
@@ -335,6 +341,10 @@
                                     </template>
                                 </el-table-column>
                                 <el-table-column prop="actualCost" label="实际使用总额(万元)" min-width="140" align="right">
+                                    <template #header>
+                                        实际使用总额(万元)
+                                        <info-mark content="该计划所有支出的实际使用金额总和"></info-mark>
+                                    </template>
                                     <template #default="{ row }">
                                         {{ formatAmount(row.actualCost) }}
                                     </template>
@@ -375,9 +385,9 @@
                             <el-form :model="usageSearchForm" :inline="true">
                                 <div class="search-row">
                                     <div class="search-fields">
-                                        <el-form-item label="项目名称">
-                                            <el-input v-model="usageSearchForm.projectName" placeholder="请输入" clearable
-                                                style="width: 160px;" />
+                                        <el-form-item label="安全费用项目名称">
+                                            <el-input v-model="usageSearchForm.projectName" placeholder="请输入安全费用项目名称"
+                                                clearable style="width: 160px;" />
                                         </el-form-item>
                                         <el-form-item label="实际使用内容">
                                             <el-input v-model="usageSearchForm.content" placeholder="请输入" clearable
@@ -409,7 +419,7 @@
                                 <el-table-column prop="relatedProject" label="关联相关方项目"
                                     min-width="160"></el-table-column>
                                 <el-table-column prop="code" label="项目使用编号" min-width="160"></el-table-column>
-                                <el-table-column prop="projectName" label="项目名称" min-width="180">
+                                <el-table-column prop="projectName" label="安全费用项目名称" min-width="180">
                                     <template #default="{ row }">
                                         <a href="javascript:void(0)" @click="handleViewUsage(row)"
                                             style="color: #409EFF; text-decoration: underline; cursor: pointer;">
@@ -456,102 +466,6 @@
             </div>
         </div>
 
-        <!-- 提醒设置弹窗 -->
-        <el-dialog v-model="reminderDialogVisible" title="提醒设置" width="700px" :close-on-click-modal="false">
-            <div class="reminder-card" v-for="(item, index) in reminderSettings" :key="index">
-                <div class="reminder-card-header">
-                    <span class="reminder-card-title">{{ item.name }}</span>
-                    <el-switch v-model="item.enabled" />
-                </div>
-                <div class="reminder-card-body" v-if="item.enabled">
-                    <!-- 提而不用规则 -->
-                    <template v-if="item.name === '提醒提而不用'">
-                        <div class="reminder-row">
-                            <span class="reminder-label">提醒规则</span>
-                            <span style="color: #606266;">计划完成日期前</span>
-                            <el-input-number v-model="item.daysBefore" :min="1" :max="365" size="small"
-                                style="width: 80px; margin: 0 8px;" controls-position="right" />
-                            <span style="color: #606266;">天</span>
-                        </div>
-                        <div class="reminder-row" style="align-items: flex-start;">
-                            <span class="reminder-label" style="margin-top: 6px;">提醒人员</span>
-                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
-                                <el-checkbox-group v-model="item.personnelConfig">
-                                    <el-checkbox label="responsible">责任人</el-checkbox>
-                                    <el-checkbox label="ehs">安健环部门负责人</el-checkbox>
-                                    <el-checkbox label="others">其他人员</el-checkbox>
-                                </el-checkbox-group>
-                                <el-select v-if="item.personnelConfig.includes('others')" v-model="item.otherPersons"
-                                    multiple placeholder="请选择其他人员" style="width: 100%;">
-                                    <el-option v-for="person in personList" :key="person.id" :label="person.name"
-                                        :value="person.id" />
-                                </el-select>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- 其他规则 (如使用率不足) -->
-                    <template v-else>
-                        <div class="reminder-row">
-                            <span class="reminder-label">提醒频率</span>
-                            <el-radio-group v-model="item.frequencyType">
-                                <el-radio label="yearly">年度</el-radio>
-                                <el-radio label="monthly">月度</el-radio>
-                            </el-radio-group>
-                            <template v-if="item.frequencyType === 'yearly'">
-                                <span>每年</span>
-                                <el-date-picker v-model="item.yearlyDate" type="date" placeholder="选择日期" format="MM月DD日"
-                                    value-format="MM-DD" style="width: 140px; margin: 0 8px;" />
-                            </template>
-                            <template v-if="item.frequencyType === 'monthly'">
-                                <span>每月</span>
-                                <el-input-number v-model="item.day" :min="1" :max="31" size="small"
-                                    style="width: 80px; margin: 0 8px;" controls-position="right" />
-                                <span>日</span>
-                                <el-tooltip v-if="item.day === 31" content="当前选择为每月31日提醒，当遇到月度没有31日时，默认将在该月度最后一天发送提醒"
-                                    placement="top">
-                                    <span
-                                        style="color: #E6A23C; margin-left: 8px; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center;">
-                                        <svg viewBox="0 0 1024 1024" width="16" height="16" fill="currentColor">
-                                            <path
-                                                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm-32 232c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v272c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V296zm32 440a48.01 48.01 0 0 1 0-96 48.01 48.01 0 0 1 0 96z">
-                                            </path>
-                                        </svg>
-                                    </span>
-                                </el-tooltip>
-                            </template>
-                        </div>
-                        <div class="reminder-row">
-                            <span class="reminder-label">提醒人员</span>
-                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
-                                <el-checkbox-group v-model="item.personnelConfig">
-                                    <el-checkbox label="responsible">责任人</el-checkbox>
-                                    <el-checkbox label="ehs">安健环部门负责人</el-checkbox>
-                                    <el-checkbox label="others">其他人员</el-checkbox>
-                                </el-checkbox-group>
-                                <el-select v-if="item.personnelConfig && item.personnelConfig.includes('others')"
-                                    v-model="item.otherPersons" multiple placeholder="请选择其他人员" style="width: 100%;">
-                                    <el-option v-for="person in personList" :key="person.id" :label="person.name"
-                                        :value="person.id" />
-                                </el-select>
-                            </div>
-                        </div>
-                    </template>
-                    <div class="reminder-row">
-                        <span class="reminder-label">通知方式</span>
-                        <el-checkbox-group v-model="item.notifyMethods">
-                            <el-checkbox label="system">系统通知</el-checkbox>
-                            <el-checkbox label="email">邮件</el-checkbox>
-                            <el-checkbox label="sms">短信</el-checkbox>
-                        </el-checkbox-group>
-                    </div>
-                </div>
-            </div>
-            <template #footer>
-                <el-button @click="reminderDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="saveReminder">保存</el-button>
-            </template>
-        </el-dialog>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -560,7 +474,7 @@
         const { createApp, ref, computed } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const loading = ref(false);
                 const activeTab = ref('planUsage');
@@ -570,6 +484,9 @@
                 const selectedContractor = ref('c1');
                 const selectedProject = ref(null);
 
+                // 树相关
+                const treeFilterText = ref('');
+                const projectStatusFilter = ref('unfinished'); // 相关方项目状态过滤：'unfinished'(未完成) 或 'all'(全部)
                 // 相关方和项目树数据
                 const contractors = ref([
                     {
@@ -582,6 +499,28 @@
                         ]
                     }
                 ]);
+
+                // 过滤后的承包商和项目（基于搜索框）
+                const filteredContractors = computed(() => {
+                    if (!treeFilterText.value) {
+                        return contractors.value;
+                    }
+                    const keyword = treeFilterText.value.toLowerCase();
+                    return contractors.value.map(contractor => {
+                        const filteredProjects = contractor.projects.filter(project =>
+                            project.name.toLowerCase().includes(keyword)
+                        );
+                        if (contractor.name.toLowerCase().includes(keyword) || filteredProjects.length > 0) {
+                            return {
+                                ...contractor,
+                                projects: contractor.name.toLowerCase().includes(keyword)
+                                    ? contractor.projects
+                                    : filteredProjects
+                            };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                });
 
                 // 选择相关方
                 const selectContractor = (contractorId) => {
@@ -633,7 +572,7 @@
                     {
                         id: 101,
                         relatedProject: '变电站改造项目',
-                        code: 'XGFTR-20260105-001',
+                        code: 'XGFSJSY-20260105-0001',
                         projectName: '现场消防设备维护保养',
                         content: '1月份消防设备巡检',
                         category: '消防设施维护及检测',
@@ -645,7 +584,7 @@
                     {
                         id: 102,
                         relatedProject: '变电站改造项目',
-                        code: 'XGFTR-20260205-001',
+                        code: 'XGFSJSY-20260205-0001',
                         projectName: '现场消防设备维护保养',
                         content: '2月份消防设备维修',
                         category: '消防设施维护及检测',
@@ -759,48 +698,40 @@
                 const handleSelectionChange = (val) => { selectedRows.value = val; };
                 const handleExport = () => ElMessage.info('导出功能开发中...');
 
-                // 提醒设置
-                const reminderDialogVisible = ref(false);
-                const reminderSettings = ref([
-                    {
-                        name: '提醒提而不用',
-                        enabled: true,
-                        daysBefore: 7,
-                        personnelConfig: ['responsible'], // 默认勾选责任人
-                        otherPersons: [], // 其他人员选中列表
-                        notifyMethods: ['system']
-                    },
-                    {
-                        name: '提醒使用率不足',
-                        enabled: true, // 默认开启以直接查看效果
-                        frequencyType: 'monthly',
-                        yearlyDate: '12-01',
-                        day: 31,
-                        personnelConfig: ['responsible', 'ehs'],
-                        otherPersons: [],
-                        notifyMethods: ['system']
-                    }
-                ]);
-                const personList = ref([
-                    { id: 1, name: '张三' }, { id: 2, name: '李四' }, { id: 3, name: '王五' }
-                ]);
 
-                const openReminderDialog = () => reminderDialogVisible.value = true;
-                const saveReminder = () => { reminderDialogVisible.value = false; ElMessage.success('保存成功'); };
 
                 return {
                     loading, activeTab, selectedRows,
-                    contractors, selectedContractor, selectedProject, selectContractor, selectProject,
+                    contractors, filteredContractors, selectedContractor, selectedProject, selectContractor, selectProject,
+                    treeFilterText, projectStatusFilter,
                     planCurrentPage, planPageSize, planSearchForm, planPagedData, planFilteredData,
                     usageCurrentPage, usagePageSize, usageSearchForm, usagePagedData, usageFilteredData,
                     formatAmount,
                     handlePlanSearch, handlePlanReset, handleUsageSearch, handleUsageReset, handleTabClick,
                     handleAdd, handleAddUsage, handleExport,
                     handleViewProject, handleViewUsage, handleEditUsage, handleDeleteUsage, handleBatchDelete, handleSelectionChange,
-                    reminderDialogVisible, reminderSettings, personList, openReminderDialog, saveReminder
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

@@ -114,6 +114,12 @@
             font-size: 12px;
         }
 
+        .custom-tree-node {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
         .content-card {
             flex: 1;
             background: #ffffff;
@@ -217,6 +223,38 @@
             border-radius: 4px;
             font-size: 12px;
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -225,24 +263,39 @@
         <div class="main-content">
             <!-- 左侧项目树 -->
             <div class="tree-panel">
-                <div class="tree-header">
-                    <i class="fas fa-sitemap"></i>
-                    相关方项目
+                <div class="tree-search" style="padding: 12px;">
+                    <el-input v-model="treeFilterText" placeholder="请输入相关方项目名称" clearable size="small">
+                        <template #prefix>
+                            <i class="fas fa-search" style="color: #999;"></i>
+                        </template>
+                    </el-input>
+                    <!-- 相关方项目状态过滤 -->
+                    <div style="margin-top: 8px;">
+                        <el-radio-group v-model="projectStatusFilter" size="small">
+                            <el-radio label="unfinished">未完成</el-radio>
+                            <el-radio label="all">全部</el-radio>
+                            <info-mark
+                                content="1、为当前登录的账号所属的相关方，下级节点为所属相关方在当前登录组织下的相关方项目，其中未完成的项目按照开工时间正序排序，选择全部时展示全部的相关方项目"></info-mark>
+                        </el-radio-group>
+                    </div>
                 </div>
                 <div class="tree-content">
-                    <div v-for="contractor in contractors" :key="contractor.id">
-                        <div class="tree-node tree-node-root"
+                    <div v-for="contractor in filteredContractors" :key="contractor.id">
+                        <div class="tree-node"
                             :class="{ active: selectedContractor === contractor.id && !selectedProject }"
                             @click="selectContractor(contractor.id)">
-                            <i class="fas fa-building"></i>
-                            {{ contractor.name }}
+                            <div class="tree-node-root">
+                                <i class="fas fa-building"></i>
+                                <span>{{ contractor.name }}</span>
+                            </div>
                         </div>
                         <div class="tree-children">
-                            <div v-for="project in contractor.projects" :key="project.id"
-                                class="tree-node tree-node-child" :class="{ active: selectedProject === project.id }"
-                                @click="selectProject(contractor.id, project.id)">
-                                <i class="fas fa-folder"></i>
-                                {{ project.name }}
+                            <div v-for="project in contractor.projects" :key="project.id" class="tree-node"
+                                :class="{ active: selectedProject === project.id }" @click="selectProject(project.id)">
+                                <div class="tree-node-child">
+                                    <i class="fas fa-folder"></i>
+                                    <span>{{ project.name }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -277,6 +330,10 @@
                                 <!-- 第一行：3个字段 -->
                                 <div class="search-fields-row">
                                     <el-form-item label="支出范围">
+                                        <template #label>
+                                            支出范围
+                                            <info-mark content="支出范围下拉选项为支出范围简称"></info-mark>
+                                        </template>
                                         <el-select v-model="searchForm.category" placeholder="请选择支出范围" clearable
                                             style="width: 300px;">
                                             <el-option label="(一)安全防护设备、设施支出" value="(一)安全防护设备、设施支出"></el-option>
@@ -299,8 +356,8 @@
                                             <el-option label="(十)与安全生产直接相关的其他支出" value="(十)与安全生产直接相关的其他支出"></el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="项目名称">
-                                        <el-input v-model="searchForm.projectName" placeholder="请输入项目名称" clearable
+                                    <el-form-item label="安全费用项目名称">
+                                        <el-input v-model="searchForm.projectName" placeholder="请输入安全费用项目名称" clearable
                                             style="width: 180px;" />
                                     </el-form-item>
                                     <el-form-item label="责任单位">
@@ -350,8 +407,17 @@
                         <!-- 关联相关方项目放在第一列 -->
                         <el-table-column prop="relatedProject" label="关联相关方项目" min-width="160"
                             fixed="left"></el-table-column>
-                        <el-table-column prop="projectCode" label="安全费用项目编号" min-width="160"></el-table-column>
-                        <el-table-column prop="projectName" label="项目名称" min-width="180">
+                        <el-table-column prop="projectCode" label="安全费用项目编号" min-width="160">
+                            <template #header>
+                                安全费用项目编号
+                                <info-mark content="编号规则 XGFAQJH-yyyymmdd-0001"></info-mark>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="projectName" label="安全费用项目名称" min-width="180">
+                            <template #header>
+                                安全费用项目名称
+                                <info-mark content="项目名称超长时，使用 Tooltip"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <a href="javascript:void(0)" @click="handleView(row)"
                                     style="color: #409EFF; text-decoration: underline; cursor: pointer;">{{
@@ -361,6 +427,10 @@
                         <!-- 支出范围移到项目名称右侧 -->
                         <el-table-column prop="category" label="支出范围" min-width="200"></el-table-column>
                         <el-table-column prop="projectContent" label="项目内容" min-width="200">
+                            <template #header>
+                                项目内容
+                                <info-mark content="项目内容超长时，使用 Tooltip"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <el-tooltip :content="row.projectContent" placement="top" :show-after="300">
                                     <div class="content-cell">{{ row.projectContent }}</div>
@@ -368,7 +438,11 @@
                             </template>
                         </el-table-column>
                         <el-table-column prop="planDate" label="计划完成时间" min-width="120"></el-table-column>
-                        <el-table-column prop="planCost" label="计划金额(元)" min-width="150" align="right">
+                        <el-table-column prop="planCost" label="计划金额(万元)" min-width="150" align="right">
+                            <template #header>
+                                计划金额(万元)
+                                <info-mark content="单位为万元，金额均需要千分号间隔，6位小数，小数点后面无意义的0不显示"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 {{ formatAmount(row.planCost) }}
                             </template>
@@ -407,7 +481,7 @@
         const { createApp, ref, computed } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const loading = ref(false);
                 const selectedRows = ref([]);
@@ -418,8 +492,11 @@
                 // 选中的相关方和项目
                 const selectedContractor = ref('c1');
                 const selectedProject = ref(null);
+                const selectedNode = ref(null); // 当前选中的树节点
 
-                // 相关方和项目树数据
+                // 树相关
+                const treeFilterText = ref('');
+                const projectStatusFilter = ref('unfinished'); // 相关方项目状态过滤：'unfinished'(未完成) 或 'all'(全部)              // 相关方和项目树数据（承包商 > 项目）
                 const contractors = ref([
                     {
                         id: 'c1',
@@ -432,6 +509,43 @@
                     }
                 ]);
 
+                // 选择承包商
+                const selectContractor = (contractorId) => {
+                    selectedContractor.value = contractorId;
+                    selectedProject.value = null;
+                    currentPage.value = 1;
+                };
+
+                // 选择项目
+                const selectProject = (projectId) => {
+                    selectedProject.value = projectId;
+                    currentPage.value = 1;
+                };
+
+                // 过滤后的承包商和项目（基于搜索框）
+                const filteredContractors = computed(() => {
+                    if (!treeFilterText.value) {
+                        return contractors.value;
+                    }
+                    const keyword = treeFilterText.value.toLowerCase();
+                    return contractors.value.map(contractor => {
+                        // 过滤项目
+                        const filteredProjects = contractor.projects.filter(project =>
+                            project.name.toLowerCase().includes(keyword)
+                        );
+                        // 如果承包商名称匹配或有匹配的项目，则显示
+                        if (contractor.name.toLowerCase().includes(keyword) || filteredProjects.length > 0) {
+                            return {
+                                ...contractor,
+                                projects: contractor.name.toLowerCase().includes(keyword)
+                                    ? contractor.projects  // 承包商名称匹配时显示所有项目
+                                    : filteredProjects     // 否则只显示匹配的项目
+                            };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                });
+
                 const searchForm = ref({
                     category: '',
                     projectName: '',
@@ -443,20 +557,6 @@
                 // 切换展开/收起
                 const toggleExpand = () => {
                     isExpanded.value = !isExpanded.value;
-                };
-
-                // 选择相关方
-                const selectContractor = (contractorId) => {
-                    selectedContractor.value = contractorId;
-                    selectedProject.value = null;
-                    currentPage.value = 1;
-                };
-
-                // 选择项目
-                const selectProject = (contractorId, projectId) => {
-                    selectedContractor.value = contractorId;
-                    selectedProject.value = projectId;
-                    currentPage.value = 1;
                 };
 
                 // 模拟表格数据
@@ -676,14 +776,17 @@
                     isExpanded,
                     selectedContractor,
                     selectedProject,
+                    treeFilterText,
+                    projectStatusFilter,
                     contractors,
+                    filteredContractors,
+                    selectContractor,
+                    selectProject,
                     searchForm,
                     tableData,
                     filteredData,
                     pagedData,
                     toggleExpand,
-                    selectContractor,
-                    selectProject,
                     formatAmount,
                     handleSearch,
                     handleReset,
@@ -693,12 +796,31 @@
                     handleDelete,
                     handleView,
                     handleEdit,
-                    handleChange,
+
                     handleImport,
                     handleExport
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

@@ -135,6 +135,42 @@
             color: #409EFF;
         }
     </style>
+    <style>
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 
 <body>
@@ -156,6 +192,8 @@
                             <span class="custom-tree-node" :class="{ active: currentIndustry === data.value }">
                                 <i :class="data.icon || 'fas fa-folder'"></i>
                                 <span>{{ node.label }}</span>
+                                <info-mark v-if="!data.value"
+                                    content="和计提标准库一样，为内置安全生产费用企业分类，总共12个企业分类+其他企业"></info-mark>
                             </span>
                         </template>
                     </el-tree>
@@ -234,11 +272,17 @@
         <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" :close-on-click-modal="false">
             <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px" label-position="left">
                 <el-form-item label="所属企业分类" prop="industryType">
+                    <template #label>
+                        所属企业分类 <info-mark content="1、数据来源“安全生产费用企业分类”；2、新建时需要将列表左侧树所选节点值带过来"></info-mark>
+                    </template>
                     <el-tree-select v-model="formData.industryType" :data="industryTreeOptions"
                         :props="{ label: 'label', value: 'value' }" placeholder="请选择企业分类" style="width: 100%;"
                         check-strictly :render-after-expand="false" @change="handleIndustryChange" />
                 </el-form-item>
                 <el-form-item label="所属支出范围" prop="scopeName">
+                    <template #label>
+                        所属支出范围 <info-mark content="数据来源支出范围库，根据所选的企业分类过滤"></info-mark>
+                    </template>
                     <el-select v-model="formData.scopeName" placeholder="请选择支出范围" style="width: 100%;" filterable>
                         <el-option v-for="item in scopeOptions" :key="item.value" :label="item.label"
                             :value="item.value" />
@@ -278,7 +322,7 @@
         const { createApp, ref, computed, watch } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const treeRef = ref(null);
                 const formRef = ref(null);
@@ -682,7 +726,26 @@
                     handleBatchDelete
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

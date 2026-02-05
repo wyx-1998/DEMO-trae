@@ -28,79 +28,43 @@
             height: 100%;
             margin: 0;
             padding: 20px;
-            display: flex;
-            gap: 20px;
+            display: block;
+            /* Removed flex */
         }
 
-        /* 左侧面板 */
-        .left-panel {
-            width: 280px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex-shrink: 0;
+        /* 搜索区域 */
+        .search-area {
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 16px;
         }
 
-        .year-card {
-            padding: 20px;
-            border-bottom: 1px solid #ebeef5;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .year-card:hover {
-            background-color: #f5f7fa;
-        }
-
-        .year-card.active {
-            background-color: #ecf5ff;
-            border-right: 3px solid #409EFF;
-        }
-
-        .year-card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #303133;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-        }
-
-        .year-card-title i {
-            margin-right: 8px;
-            color: #409EFF;
-        }
-
-        .year-card-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stat-item {
+        .search-row {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .search-fields {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 8px;
             align-items: center;
-            font-size: 13px;
-        }
-
-        .stat-label {
-            color: #909399;
-        }
-
-        .stat-value {
-            color: #303133;
-            font-family: Monaco, 'Courier New', Courier, monospace;
-            font-weight: 500;
+            flex-shrink: 0;
+            margin-left: 16px;
         }
 
         /* 右侧面板 */
         .right-panel {
-            flex: 1;
+            width: 100%;
+            height: 100%;
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -135,62 +99,139 @@
             text-decoration: underline;
             font-weight: 600;
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
 <body>
     <div id="app" class="container">
-        <!-- 左侧年度卡片 -->
-        <div class="left-panel">
-            <div v-for="year in yearCards" :key="year.year" class="year-card"
-                :class="{ active: selectedYear === year.year }" @click="selectYear(year.year)">
-                <div class="year-card-title">
-                    <i class="fas fa-calendar-alt"></i>
-                    {{ year.year }}年度
-                </div>
-                <div class="year-card-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">年度计划总额(万元)</span>
-                        <span class="stat-value">{{ formatAmount(year.totalAmount) }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右侧详情内容 -->
+        <!-- 右侧详情内容，全宽显示 -->
         <div class="right-panel">
             <div class="panel-content">
+                <!-- 顶部搜索区域 -->
+                <div class="search-area">
+                    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                        <div class="search-row">
+                            <div class="search-fields">
+                                <el-form-item label="年度">
+                                    <div style="display: flex; align-items: center;">
+                                        <el-select v-model="searchForm.year" placeholder="请选择年度" style="width: 200px;">
+                                            <el-option v-for="item in yearOptions" :key="item.value" :label="item.label"
+                                                :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                        <info-mark
+                                            content="1、年份倒序排序，进入默认选中当前年；2、初始化时默认增加2026年（当前年）；3、每年7月1日0点自动新增下一年度的选项"></info-mark>
+                                    </div>
+                                </el-form-item>
+                            </div>
+                            <div class="search-buttons">
+                                <el-button type="primary" @click="onSearch">
+                                    <i class="fas fa-search"></i> 查询
+                                </el-button>
+                                <el-button @click="onReset">
+                                    <i class="fas fa-redo"></i> 重置
+                                </el-button>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
+
                 <!-- 正式计划列表表格 -->
                 <div class="table-area">
                     <el-table :data="tableData" style="width: 100%" stripe border v-loading="loading" row-key="id"
                         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" default-expand-all>
-                        <el-table-column prop="companyName" label="企业名称" min-width="280"></el-table-column>
+                        <el-table-column prop="companyName" label="企业名称" min-width="280">
+                            <template #header>
+                                <span>企业名称</span>
+                                <info-mark
+                                    content="1、根据当前登录账号所属组织显示本组织及下级组织，并且当组织节点存在下级组织的时候，需要增加xx节点本部节点；2、需要以树形结构展开，默认展开下1级，再下级不展开；3、显示为企业简称"></info-mark>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="totalAmount" label="年度计划总额(万元)" min-width="180" align="left">
+                            <template #header>
+                                <span>年度计划总额(万元)</span>
+                                <info-mark
+                                    content="1、为该组织本年度维护的预审计划内所有项目计划金额的总额；如果是父节点，则为下级金额的合计值；2、单位为万元，金额均需要千分号间隔，6位小数，小数点后面无意义的0不显示"></info-mark>
+                            </template>
                             <template #default="{ row }">
-                                <span class="amount-link" @click="handleView(row)">
+                                <span v-if="['国投电力', '广西新能源'].includes(row.companyName)">
+                                    {{ formatAmount(row.totalAmount) }}
+                                </span>
+                                <span v-else class="amount-link" @click="handleView(row)">
                                     {{ formatAmount(row.totalAmount) }}
                                 </span>
                             </template>
                         </el-table-column>
                         <el-table-column prop="status" label="状态" min-width="100" align="center">
+                            <template #header>
+                                <span>状态</span>
+                                <info-mark
+                                    content="1、正式计划状态为：草稿/已定稿；2、每一级均会维护本组织的预审计划并且提交上1级审批，进行状态的变更；3、当组织节点存在下级组织的时候，状态显示为“-”"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <span v-if="hasChildren(row)">-</span>
                                 <span v-else :class="getStatusClass(row.status)">{{ row.status }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="提交人" min-width="120" align="center">
+                            <template #header>
+                                <span>提交人</span>
+                                <info-mark
+                                    content="1、提交审批的人名；2、如果多次提交，取最后一次提交的人名；3、当组织节点存在下级组织的时候，或者状态为草稿时，显示为“-”"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <span v-if="hasChildren(row)">-</span>
                                 <span v-else-if="row.status !== '草稿'">{{ row.submitter || '-' }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="提交时间" min-width="170" align="center">
+                            <template #header>
+                                <span>提交时间</span>
+                                <info-mark
+                                    content="1、提交审批的时间；2、如果多次提交，取最后一次提交的时间；3、当组织节点存在下级组织的时候，或者状态为草稿时，显示为“-”"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <span v-if="hasChildren(row)">-</span>
                                 <span v-else-if="row.status !== '草稿'">{{ row.submitTime || '-' }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" width="120" fixed="right" align="center">
+                            <template #header>
+                                <span>操作</span>
+                                <info-mark content="1、仅限本组织节点有编辑按钮，不可编辑其他组织数据；2、正式计划状态为“已定稿”时，不显示编辑按钮"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <div style="display: flex; justify-content: center; gap: 4px;">
                                     <el-button size="small" @click="handleView(row)" link>
@@ -204,16 +245,10 @@
                             </template>
                         </el-table-column>
                     </el-table>
-
-                    <!-- 分页 -->
-                    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-                        <el-pagination background size="small" v-model:current-page="currentPage"
-                            v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]" :total="tableData.length"
-                            layout="total, ->, sizes, prev, pager, next, jumper" />
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -223,60 +258,67 @@
         const { ElMessage } = ElementPlus;
 
         createApp({
+            components: {
+                'info-mark': {
+                    props: ['content'],
+                    template: `
+                        <el-popover
+                            placement="top"
+                            title="说明"
+                            :width="200"
+                            trigger="click"
+                            :content="content"
+                        >
+                            <template #reference>
+                                <span class="info-mark" @click.stop></span>
+                            </template>
+                        </el-popover>
+                    `
+                }
+            },
             setup() {
                 const loading = ref(false);
                 const currentPage = ref(1);
                 const pageSize = ref(10);
-                const selectedYear = ref(2026);
 
-                // 年度卡片数据
-                const yearCards = ref([
-                    {
-                        year: 2026,
-                        totalAmount: 6000000
-                    },
-                    {
-                        year: 2025,
-                        totalAmount: 5500000
-                    },
-                    {
-                        year: 2024,
-                        totalAmount: 5200000
-                    }
+                // 搜索表单
+                const searchForm = ref({
+                    year: 2026
+                });
+
+                // 年度选项
+                const yearOptions = ref([
+                    { value: 2026, label: '2026年' },
+                    { value: 2025, label: '2025年' },
+                    { value: 2024, label: '2024年' }
                 ]);
-
-                // 选择年度
-                const selectYear = (year) => {
-                    selectedYear.value = year;
-                    ElMessage.success(`已切换至 ${year} 年度`);
-                };
 
                 // 模拟表格数据（树形结构）
                 const sourceData = ref([
                     {
                         id: 1,
-                        year: '2026',
+                        year: 2026,
                         companyName: '国投电力',
                         totalAmount: 6000000,
                         status: '草稿',
                         children: [
                             {
                                 id: 11,
-                                year: '2026',
+                                year: 2026,
                                 companyName: '国投电力本部',
                                 totalAmount: 1500000,
                                 status: '草稿'
                             },
                             {
                                 id: 12,
-                                year: '2026',
+                                year: 2026,
                                 companyName: '云南大朝山',
                                 totalAmount: 1200000,
                                 status: '草稿'
                             },
                             {
                                 id: 13,
-                                year: '2026',
+                                year: 2026,
                                 companyName: '华夏电力',
                                 totalAmount: 1800000,
                                 status: '已定稿',
@@ -285,28 +327,28 @@
                             },
                             {
                                 id: 14,
-                                year: '2026',
+                                year: 2026,
                                 companyName: '广西新能源',
                                 totalAmount: 1500000,
                                 status: '草稿',
                                 children: [
                                     {
                                         id: 140,
-                                        year: '2026',
+                                        year: 2026,
                                         companyName: '广西新能源本部',
                                         totalAmount: 400000,
                                         status: '草稿'
                                     },
                                     {
                                         id: 141,
-                                        year: '2026',
+                                        year: 2026,
                                         companyName: '分公司1',
                                         totalAmount: 600000,
                                         status: '草稿'
                                     },
                                     {
                                         id: 142,
-                                        year: '2026',
+                                        year: 2026,
                                         companyName: '分公司2',
                                         totalAmount: 500000,
                                         status: '草稿'
@@ -317,7 +359,7 @@
                     },
                     {
                         id: 2,
-                        year: '2025',
+                        year: 2025,
                         companyName: '国投电力',
                         totalAmount: 5500000,
                         status: '已定稿',
@@ -326,28 +368,28 @@
                         children: [
                             {
                                 id: 21,
-                                year: '2025',
+                                year: 2025,
                                 companyName: '国投电力本部',
                                 totalAmount: 1400000,
                                 status: '已定稿'
                             },
                             {
                                 id: 22,
-                                year: '2025',
+                                year: 2025,
                                 companyName: '云南大朝山',
                                 totalAmount: 1100000,
                                 status: '已定稿'
                             },
                             {
                                 id: 23,
-                                year: '2025',
+                                year: 2025,
                                 companyName: '华夏电力',
                                 totalAmount: 1700000,
                                 status: '已定稿'
                             },
                             {
                                 id: 24,
-                                year: '2025',
+                                year: 2025,
                                 companyName: '广西新能源',
                                 totalAmount: 1300000,
                                 status: '已定稿'
@@ -356,10 +398,33 @@
                     }
                 ]);
 
-                // 过滤后的表格数据
-                const tableData = computed(() => {
-                    return sourceData.value.filter(item => item.year == selectedYear.value);
-                });
+                // 实际显示的表格数据
+                const tableData = ref([]);
+
+                // 过滤数据方法
+                const filterData = () => {
+                    tableData.value = sourceData.value.filter(item => item.year == searchForm.value.year);
+                };
+
+                // 初始化
+                filterData();
+
+                // 查询
+                const onSearch = () => {
+                    loading.value = true;
+                    setTimeout(() => {
+                        filterData();
+                        loading.value = false;
+                        ElMessage.success('查询成功');
+                    }, 300);
+                };
+
+                // 重置
+                const onReset = () => {
+                    searchForm.value.year = 2026;
+                    onSearch();
+                    ElMessage.info('查询条件已重置');
+                };
 
                 // 格式化金额
                 const formatAmount = (value) => {
@@ -395,9 +460,10 @@
                 };
 
                 return {
-                    selectedYear,
-                    yearCards,
-                    selectYear,
+                    searchForm,
+                    yearOptions,
+                    onSearch,
+                    onReset,
                     loading,
                     currentPage,
                     pageSize,

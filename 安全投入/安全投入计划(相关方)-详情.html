@@ -205,6 +205,38 @@
         .history-title i {
             color: #409EFF;
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -214,7 +246,6 @@
         <div class="view-tabs" v-if="isView">
             <el-tabs v-model="activeTab" type="card">
                 <el-tab-pane label="当前计划" name="current"></el-tab-pane>
-                <el-tab-pane label="历史记录" name="history"></el-tab-pane>
             </el-tabs>
         </div>
 
@@ -237,6 +268,10 @@
                             <div class="form-row">
                                 <div class="form-item">
                                     <el-form-item label="关联相关方项目" prop="relatedProject" required>
+                                        <template #label>
+                                            关联相关方项目
+                                            <info-mark content="携带列表页左侧树所选的相关方项目"></info-mark>
+                                        </template>
                                         <div class="project-select-input">
                                             <el-select v-model="formData.relatedProject" placeholder="请选择项目"
                                                 :disabled="isView" style="flex: 1;" filterable>
@@ -252,12 +287,20 @@
                                 </div>
                                 <div class="form-item">
                                     <el-form-item label="安全费用项目编号" prop="projectCode">
+                                        <template #label>
+                                            安全费用项目编号
+                                            <info-mark content="编号规则 XGFAQJH-yyyymmdd-0001"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.projectCode" placeholder="请输入项目编号"
                                             :disabled="isView" />
                                     </el-form-item>
                                 </div>
                                 <div class="form-item">
                                     <el-form-item label="支出范围" prop="category" required>
+                                        <template #label>
+                                            支出范围
+                                            <info-mark content="1、相关方默认为“其他企业”对应支出范围；2、为支出范围简称"></info-mark>
+                                        </template>
                                         <el-select v-model="formData.category" placeholder="请选择支出范围" :disabled="isView"
                                             style="width: 100%;">
                                             <el-option label="安全标志" value="安全标志"></el-option>
@@ -271,8 +314,12 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-item">
-                                    <el-form-item label="项目名称" prop="projectName" required>
-                                        <el-input v-model="formData.projectName" placeholder="请输入项目名称"
+                                    <el-form-item label="安全费用项目名称" prop="projectName" required>
+                                        <template #label>
+                                            安全费用项目名称
+                                            <info-mark content="保存时需进行负面清单校验"></info-mark>
+                                        </template>
+                                        <el-input v-model="formData.projectName" placeholder="请输入安全费用项目名称"
                                             :disabled="isView" />
                                     </el-form-item>
                                 </div>
@@ -280,6 +327,10 @@
                             <div class="form-row">
                                 <div class="form-item full-width">
                                     <el-form-item label="项目内容" prop="projectContent" required>
+                                        <template #label>
+                                            项目内容
+                                            <info-mark content="保存时需进行负面清单校验"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.projectContent" type="textarea" :rows="4"
                                             placeholder="请输入项目内容" :disabled="isView" :maxlength="200" show-word-limit />
                                     </el-form-item>
@@ -294,16 +345,24 @@
                                 </div>
                                 <div class="form-item">
                                     <el-form-item label="计划金额" prop="planCost" required>
+                                        <template #label>
+                                            计划金额(万元)
+                                            <info-mark content="金额单位为万元，千分位，保留小数点后6位，小数点后面无意义的0不显示"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.planCostDisplay" placeholder="请输入金额"
                                             :disabled="isView" @input="handleCostInput" @blur="formatCost">
                                             <template #suffix>
-                                                <span style="color: #909399;">元</span>
+                                                <span style="color: #909399;">万元</span>
                                             </template>
                                         </el-input>
                                     </el-form-item>
                                 </div>
                                 <div class="form-item">
                                     <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                                        <template #label>
+                                            责任单位（部门）
+                                            <info-mark content="1、为选择部门组件，2、默认为当前登录账号所属部门，可选择其下级部门"></info-mark>
+                                        </template>
                                         <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位"
                                             :disabled="isView" style="width: 100%;">
                                             <el-option label="施工一队" value="施工一队"></el-option>
@@ -316,6 +375,10 @@
                             <div class="form-row">
                                 <div class="form-item">
                                     <el-form-item label="责任人" prop="responsiblePerson" required>
+                                        <template #label>
+                                            责任人
+                                            <info-mark content="1、为选择人员组件，2、默认为当前登录账号所属部门的负责人，可选择其所属相关方的人员"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.responsiblePerson" placeholder="请输入责任人"
                                             :disabled="isView" />
                                     </el-form-item>
@@ -335,45 +398,7 @@
             </div>
         </div>
 
-        <!-- 历史记录Tab内容 -->
-        <div class="history-container" v-show="activeTab === 'history' && isView">
-            <div class="history-title">
-                <i class="fas fa-history"></i>
-                历史版本记录
-            </div>
-            <el-table :data="historyData" border stripe>
-                <el-table-column prop="version" label="版本号" width="100" align="center"></el-table-column>
-                <el-table-column prop="changeTime" label="变更时间" width="180"></el-table-column>
-                <el-table-column prop="changeUser" label="变更人" width="120"></el-table-column>
-                <el-table-column prop="changeReason" label="变更说明" min-width="200"></el-table-column>
-                <el-table-column label="操作" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-button size="small" type="primary" link @click="viewHistoryVersion(row)">
-                            <i class="fas fa-eye"></i> 查看
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-
-        <!-- 历史版本详情弹窗 -->
-        <el-dialog v-model="historyDialogVisible" title="历史版本详情" width="800px">
-            <el-descriptions :column="2" border>
-                <el-descriptions-item label="版本号">{{ historyDetail.version }}</el-descriptions-item>
-                <el-descriptions-item label="变更时间">{{ historyDetail.changeTime }}</el-descriptions-item>
-                <el-descriptions-item label="安全费用项目编号">{{ historyDetail.projectCode }}</el-descriptions-item>
-                <el-descriptions-item label="支出范围">{{ historyDetail.category }}</el-descriptions-item>
-                <el-descriptions-item label="项目名称" :span="2">{{ historyDetail.projectName }}</el-descriptions-item>
-                <el-descriptions-item label="项目内容" :span="2">{{ historyDetail.projectContent }}</el-descriptions-item>
-                <el-descriptions-item label="计划完成时间">{{ historyDetail.planDate }}</el-descriptions-item>
-                <el-descriptions-item label="计划金额">{{ historyDetail.planCostDisplay }} 元</el-descriptions-item>
-                <el-descriptions-item label="责任单位">{{ historyDetail.responsibleUnit }}</el-descriptions-item>
-                <el-descriptions-item label="责任人">{{ historyDetail.responsiblePerson }}</el-descriptions-item>
-            </el-descriptions>
-            <template #footer>
-                <el-button @click="historyDialogVisible = false">关闭</el-button>
-            </template>
-        </el-dialog>
+        <!-- 历史记录Tab内容 和 历史版本详情弹窗 已移除 -->
 
         <!-- 底部按钮 -->
         <div class="form-actions">
@@ -387,7 +412,14 @@
         </div>
 
         <!-- 项目选择弹窗 -->
-        <el-dialog v-model="projectDialogVisible" title="选择相关方项目" width="700px" :close-on-click-modal="false">
+        <el-dialog v-model="projectDialogVisible" width="700px" :close-on-click-modal="false">
+            <template #header>
+                <div style="font-size: 18px; color: #303133; font-weight: bold;">
+                    选择相关方项目
+                    <info-mark
+                        content="1、数据为当前登录账号所属组织下的所属相关方的相关方项目（需要过滤掉项目状态为已完成的，其他所有状态的相关方项目均可被选择）；2、数据来源：相关方管理-项目管理-项目档案"></info-mark>
+                </div>
+            </template>
             <div class="project-dialog-search">
                 <el-input v-model="projectSearch.name" placeholder="请输入项目名称" clearable>
                     <template #prefix>
@@ -406,17 +438,20 @@
                     <i class="fas fa-redo"></i> 重置
                 </el-button>
             </div>
-            <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row
-                @current-change="handleProjectSelect" :current-row-key="selectedProjectInDialog">
-                <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="code" label="安全费用项目编号" min-width="180"></el-table-column>
-                <el-table-column prop="name" label="项目名称" min-width="200"></el-table-column>
+            <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row>
+                <el-table-column label="确认" width="80" align="center">
+                    <template #default="{ row }">
+                        <el-button link type="primary" @click="confirmSelection(row)">
+                            确认
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="code" label="相关方项目编号" min-width="150"></el-table-column>
+                <el-table-column prop="name" label="相关方项目名称" min-width="200"></el-table-column>
+                <el-table-column prop="contractor" label="相关方名称" min-width="150"></el-table-column>
             </el-table>
             <template #footer>
                 <el-button @click="projectDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmProjectSelect" :disabled="!selectedProjectInDialog">
-                    确定
-                </el-button>
             </template>
         </el-dialog>
     </div>
@@ -427,7 +462,7 @@
         const { createApp, ref, computed, onMounted } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const formRef = ref(null);
 
@@ -444,58 +479,9 @@
                     basic: true
                 });
 
-                // 历史记录数据
-                const historyData = ref([
-                    {
-                        version: 'V3',
-                        changeTime: '2026-01-10 14:30:00',
-                        changeUser: '李明',
-                        changeReason: '调整计划金额',
-                        projectCode: 'XGFAQJH-20260101-0001',
-                        category: '安全标志',
-                        projectName: '施工现场安全标识设置',
-                        projectContent: '在施工现场设置安全警示标识、安全通道指引等',
-                        planDate: '2026-03-31',
-                        planCost: 28000,
-                        planCostDisplay: '28,000.00',
-                        responsibleUnit: '施工一队',
-                        responsiblePerson: '王建国'
-                    },
-                    {
-                        version: 'V2',
-                        changeTime: '2026-01-05 10:20:00',
-                        changeUser: '王建国',
-                        changeReason: '更新责任人信息',
-                        projectCode: 'XGFAQJH-20260101-0001',
-                        category: '安全标志',
-                        projectName: '施工现场安全标识设置',
-                        projectContent: '在施工现场设置安全警示标识',
-                        planDate: '2026-03-15',
-                        planCost: 25000,
-                        planCostDisplay: '25,000.00',
-                        responsibleUnit: '施工一队',
-                        responsiblePerson: '张伟'
-                    },
-                    {
-                        version: 'V1',
-                        changeTime: '2026-01-01 09:00:00',
-                        changeUser: '王建国',
-                        changeReason: '初始创建',
-                        projectCode: 'XGFAQJH-20260101-0001',
-                        category: '安全标志',
-                        projectName: '施工现场安全标识',
-                        projectContent: '施工现场安全标识',
-                        planDate: '2026-03-01',
-                        planCost: 20000,
-                        planCostDisplay: '20,000.00',
-                        responsibleUnit: '施工一队',
-                        responsiblePerson: '王建国'
-                    }
-                ]);
+                // 历史记录数据移除
 
-                // 历史版本详情
-                const historyDialogVisible = ref(false);
-                const historyDetail = ref({});
+                // 历史版本详情移除
 
                 // 项目选择弹窗
                 const projectDialogVisible = ref(false);
@@ -516,7 +502,7 @@
 
                 // 过滤后的项目列表
                 const filteredProjects = computed(() => {
-                    let data = allProjects.value;
+                    let data = allProjects.value.filter(p => p.contractor === '中电建设承包商');
                     if (projectSearch.value.name) {
                         data = data.filter(p => p.name.includes(projectSearch.value.name));
                     }
@@ -606,16 +592,9 @@
                     projectSearch.value = { name: '', code: '' };
                 };
 
-                // 选择项目
-                const handleProjectSelect = (row) => {
-                    if (row) {
-                        selectedProjectInDialog.value = row.id;
-                    }
-                };
-
-                // 确认选择项目
-                const confirmProjectSelect = () => {
-                    formData.value.relatedProject = selectedProjectInDialog.value;
+                // 确认选择项目 (直接点击确认按钮)
+                const confirmSelection = (row) => {
+                    formData.value.relatedProject = row.id;
                     projectDialogVisible.value = false;
                 };
 
@@ -676,12 +655,6 @@
                     modules.value[name] = !modules.value[name];
                 };
 
-                // 查看历史版本
-                const viewHistoryVersion = (row) => {
-                    historyDetail.value = { ...row };
-                    historyDialogVisible.value = true;
-                };
-
                 // 保存
                 const handleSave = () => {
                     formRef.value?.validate((valid) => {
@@ -719,9 +692,6 @@
                     modules,
                     formData,
                     formRules,
-                    historyData,
-                    historyDialogVisible,
-                    historyDetail,
                     allProjects,
                     filteredProjects,
                     projectDialogVisible,
@@ -733,15 +703,32 @@
                     openProjectDialog,
                     searchProjects,
                     resetProjectSearch,
-                    handleProjectSelect,
-                    confirmProjectSelect,
-                    viewHistoryVersion,
+                    confirmSelection,
                     handleSave,
                     switchToEdit,
                     goBack
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

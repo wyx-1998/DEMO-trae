@@ -56,8 +56,6 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             min-height: 150px;
@@ -85,10 +83,7 @@
             gap: 4px;
         }
 
-        .stats-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        }
+
 
         .stats-card-header {
             display: flex;
@@ -265,6 +260,41 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -274,6 +304,7 @@
             <!-- 筛选区域 -->
             <div class="filter-section">
                 <el-form-item label="统计周期" style="margin-bottom: 0;">
+                    <info-mark content="默认为当前年"></info-mark>
                     <el-date-picker v-model="queryYear" type="year" placeholder="选择年份" value-format="YYYY"
                         style="width: 120px;" size="small" />
                 </el-form-item>
@@ -285,9 +316,12 @@
             <!-- 核心指标卡片区 -->
             <div class="stats-cards-section">
                 <!-- 正式计划总额 -->
-                <div class="stats-card" @click="handleCardClick('plan')">
+                <div class="stats-card">
                     <div class="stats-card-header">
-                        <div class="stats-card-title">正式计划总额（万元）</div>
+                        <div class="stats-card-title">
+                            正式计划总额（万元）
+                            <info-mark content="为该年份正式计划总额"></info-mark>
+                        </div>
                         <div class="stats-card-icon purple">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
@@ -298,14 +332,17 @@
                 </div>
 
                 <!-- 提取总额、实际总额和投入率合并卡片 -->
-                <div class="stats-card" @click="handleCardClick('accrualAndActual')">
+                <div class="stats-card">
                     <div class="stats-card-content" style="display: flex; flex-direction: column; height: 100%;">
                         <!-- 上半部分：三个并排的区域 -->
                         <div style="display: flex; gap: 20px; flex: 1;">
                             <!-- 提取总额部分 -->
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
-                                    <div class="stats-card-title">实际提取总额（万元）</div>
+                                    <div class="stats-card-title">
+                                        实际提取总额（万元）
+                                        <info-mark content="为该年份实际提取总额"></info-mark>
+                                    </div>
                                     <div class="stats-card-icon blue">
                                         <i class="fas fa-coins"></i>
                                     </div>
@@ -318,7 +355,10 @@
                             <!-- 实际总额部分 -->
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
-                                    <div class="stats-card-title">实际使用总额（万元）</div>
+                                    <div class="stats-card-title">
+                                        实际使用总额（万元）
+                                        <info-mark content="为该年份实际使用总额"></info-mark>
+                                    </div>
                                     <div class="stats-card-icon orange">
                                         <i class="fas fa-chart-line"></i>
                                     </div>
@@ -332,10 +372,13 @@
                             <div class="stats-card-section" style="flex: 1;">
                                 <div class="stats-card-header" style="margin-bottom: 8px;">
                                     <div class="stats-card-label-with-tip">
-                                        <span class="stats-card-title">使用率（%）</span>
+                                        <span class="stats-card-title">
+                                            使用率（%）
+                                            <info-mark content="为该年份使用率=实际使用总额/实际提取总额*100%"></info-mark>
+                                        </span>
                                         <el-tooltip placement="top" effect="light">
                                             <template #content>
-                                                使用率=实际使用总额/正式计划总额×100%
+                                                使用率=实际使用总额/实际提取总额×100%
                                             </template>
                                             <i class="fas fa-question-circle"
                                                 style="color: #909399; font-size: 12px; cursor: help;"></i>
@@ -360,6 +403,7 @@
                     <div class="chart-title">
                         <i class="fas fa-chart-bar"></i>
                         <span>月度趋势图</span>
+                        <info-mark content="本组织的月度趋势，柱状图为实际使用金额（来源于安全费用使用），折线图为实际提取金额（来源于安全费用提取）"></info-mark>
                     </div>
                     <div class="chart-container" ref="trendChartRef"></div>
                 </div>
@@ -369,6 +413,7 @@
                     <div class="chart-title">
                         <i class="fas fa-chart-pie"></i>
                         <span>支出范围实际分布图</span>
+                        <info-mark content="本组织的支出范围实际使用分布，数据来源于安全费用使用"></info-mark>
                     </div>
                     <div class="chart-container" ref="categoryChartRef"></div>
                 </div>
@@ -384,7 +429,7 @@
         const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const queryYear = ref(new Date().getFullYear().toString());
 
@@ -567,7 +612,27 @@
                     handleCardClick
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        // 注册 info-mark 组件
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

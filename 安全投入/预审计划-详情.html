@@ -145,6 +145,43 @@
             box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
         }
 
+
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
+
         /* 编辑模式下隐藏Tab头 */
         .edit-mode-tabs .el-tabs__header {
             display: none;
@@ -161,6 +198,7 @@
                     <div class="module-title">
                         <i class="fas fa-list-alt"></i>
                         {{ companyName }}预审计划 - {{ currentYear }}年度
+                        <info-mark content="1、模块标题显示为所选的组织简称+预审计划+年度"></info-mark>
                     </div>
                 </div>
                 <div class="module-content" :class="{ 'edit-mode-tabs': mode === 'edit' }">
@@ -174,6 +212,11 @@
                                     <el-table-column prop="category" label="支出范围名称" min-width="400"></el-table-column>
                                     <el-table-column prop="totalAmount" label="年度计划总额(万元)" min-width="160"
                                         align="right">
+                                        <template #header>
+                                            <span>年度计划总额(万元)</span>
+                                            <info-mark
+                                                content="1、为该组织该年度预审计划中属于此支出范围的项目的计划金额总和；2、金额均需要千分号间隔，6位小数，小数点后面无意义的0不显示"></info-mark>
+                                        </template>
                                         <template #default="{ row }">
                                             {{ formatAmount(row.totalAmount) }}
                                         </template>
@@ -291,12 +334,7 @@
                                 </el-table>
 
                                 <!-- 分页 -->
-                                <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-                                    <el-pagination background size="small" v-model:current-page="currentPage"
-                                        v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
-                                        :total="filteredData.length"
-                                        layout="total, ->, sizes, prev, pager, next, jumper" />
-                                </div>
+
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -309,13 +347,21 @@
             <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px" label-position="left">
                 <el-row :gutter="24">
                     <el-col :span="12">
-                        <el-form-item label="项目编号" prop="projectCode">
+                        <el-form-item prop="projectCode" required>
+                            <template #label>
+                                项目编号
+                                <info-mark content="1、编号规则：YSJH-yyyymmdd-0001，默认填充，支持修改"></info-mark>
+                            </template>
                             <el-input v-model="formData.projectCode" placeholder="请输入项目编号"
                                 :disabled="dialogMode === 'view'" />
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="支出范围" prop="category" required>
+                        <el-form-item prop="category" required>
+                            <template #label>
+                                支出范围
+                                <info-mark content="1、需要根据该组织所属的安全生产企业分类显示对应的支出范围，如果该组织没有配置，则默认为其他企业的支出范围"></info-mark>
+                            </template>
                             <el-select v-model="formData.category" placeholder="请选择支出范围"
                                 :disabled="dialogMode === 'view'" style="width: 100%;">
                                 <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
@@ -357,7 +403,11 @@
                 </el-row>
                 <el-row :gutter="24">
                     <el-col :span="12">
-                        <el-form-item label="责任单位（部门）" prop="responsibleUnit" required>
+                        <el-form-item prop="responsibleUnit" required>
+                            <template #label>
+                                责任单位（部门）
+                                <info-mark content="1、打开本组织的选择部门组件"></info-mark>
+                            </template>
                             <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位"
                                 :disabled="dialogMode === 'view'" style="width: 100%;">
                                 <el-option label="设备部" value="设备部"></el-option>
@@ -368,7 +418,11 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="责任人" prop="responsiblePerson" required>
+                        <el-form-item prop="responsiblePerson" required>
+                            <template #label>
+                                责任人
+                                <info-mark content="1、打开本组织的选择人员组件"></info-mark>
+                            </template>
                             <el-input v-model="formData.responsiblePerson" placeholder="请输入责任人"
                                 :disabled="dialogMode === 'view'" />
                         </el-form-item>
@@ -386,22 +440,22 @@
             <template #footer>
                 <el-button @click="detailDialogVisible = false">{{ dialogMode === 'view' ? '关闭' : '取消' }}</el-button>
                 <el-button type="primary" @click="handleDialogSaveAndNew" v-if="dialogMode === 'add'">
-                    <i class="fas fa-plus"></i> 保存并新建下一条
+                    <i class="fas fa-plus"></i> 保存并新建下一条 <info-mark
+                        content="1、在保存时对必填项进行校验；2、保存时需要对项目名称和项目内容进行负面清单校验，如果存在负面清单则进行提示：疑似负面清单，不合规请检查；3、保存成功后，清空表单数据"></info-mark>
                 </el-button>
                 <el-button type="primary" @click="handleDialogSave" v-if="dialogMode !== 'view'">
-                    <i class="fas fa-save"></i> 保存
+                    <i class="fas fa-save"></i> 保存 <info-mark
+                        content="1、在保存时对必填项进行校验；2、保存时需要对项目名称和项目内容进行负面清单校验，如果存在负面清单则进行提示：疑似负面清单，不合规请检查。"></info-mark>
                 </el-button>
             </template>
         </el-dialog>
 
         <!-- 底部按钮 -->
         <div class="form-actions">
-            <el-button @click="goBack">取消</el-button>
-            <el-button type="primary" @click="handleSave" v-if="mode === 'edit'">
-                <i class="fas fa-save"></i> 保存
-            </el-button>
+            <el-button @click="goBack">关闭</el-button>
             <el-button type="success" @click="handleSubmit" v-if="mode === 'edit'">
-                <i class="fas fa-paper-plane"></i> 提交审批
+                <i class="fas fa-paper-plane"></i> 提交审批 <info-mark
+                    content="1、必填项校验；2、校验通过后，需要将数据提交审批，默认审批流为：提交人-本组织安健环负责人-上1级组织安健环负责人"></info-mark>
             </el-button>
         </div>
     </div>
@@ -413,6 +467,24 @@
         const { ElMessage, ElMessageBox } = ElementPlus;
 
         createApp({
+            components: {
+                'info-mark': {
+                    props: ['content'],
+                    template: `
+                        <el-popover
+                            placement="top"
+                            title="说明"
+                            :width="200"
+                            trigger="click"
+                            :content="content"
+                        >
+                            <template #reference>
+                                <span class="info-mark" @click.stop></span>
+                            </template>
+                        </el-popover>
+                    `
+                }
+            },
             setup() {
                 const loading = ref(false);
                 const selectedRows = ref([]);
@@ -467,6 +539,7 @@
 
                 // 表单验证规则
                 const formRules = ref({
+                    projectCode: [{ required: true, message: '请输入项目编号', trigger: 'blur' }],
                     category: [{ required: true, message: '请选择支出范围', trigger: 'change' }],
                     projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
                     projectContent: [{ required: true, message: '请输入项目内容', trigger: 'blur' }],
@@ -733,6 +806,13 @@
                 const handleDialogSave = () => {
                     formRef.value?.validate((valid) => {
                         if (valid) {
+                            // 负面清单校验
+                            if ((formData.value.projectName && formData.value.projectName.includes('环保用防控粉尘等设施设备的支出')) ||
+                                (formData.value.projectContent && formData.value.projectContent.includes('环保用防控粉尘等设施设备的支出'))) {
+                                ElMessage.warning('疑似负面清单，不合规请检查。');
+                                return;
+                            }
+
                             if (dialogMode.value === 'add') {
                                 const newId = Math.max(...tableData.value.map(item => item.id), 0) + 1;
                                 tableData.value.push({
@@ -759,6 +839,13 @@
                 const handleDialogSaveAndNew = () => {
                     formRef.value?.validate((valid) => {
                         if (valid) {
+                            // 负面清单校验
+                            if ((formData.value.projectName && formData.value.projectName.includes('环保用防控粉尘等设施设备的支出')) ||
+                                (formData.value.projectContent && formData.value.projectContent.includes('环保用防控粉尘等设施设备的支出'))) {
+                                ElMessage.warning('疑似负面清单，不合规请检查。');
+                                return;
+                            }
+
                             const newId = Math.max(...tableData.value.map(item => item.id), 0) + 1;
                             tableData.value.push({
                                 ...formData.value,

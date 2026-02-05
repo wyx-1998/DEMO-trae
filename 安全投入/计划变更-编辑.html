@@ -112,6 +112,49 @@
             gap: 16px;
             margin-bottom: 24px;
         }
+
+        .year-select-card {
+            background: #ecf5ff;
+            border: 1px solid #d9ecff;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -122,7 +165,10 @@
             <div class="header-section" style="padding: 24px 24px 0;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span style="color: #F56C6C;">*</span>
-                    <span style="font-size: 14px; color: #606266; font-weight: bold;">计划年份</span>
+                    <span style="font-size: 14px; color: #606266; font-weight: bold;">
+                        计划年份
+                        <info-mark content="1、下拉数据为当前登录账号所属组织的已定稿的正式计划年份；2、没有默认值；3、选择年份后加载出当前年份的正式计划数据"></info-mark>
+                    </span>
                     <el-select v-model="selectedYear" placeholder="请选择" style="width: 240px;" @change="handleYearChange"
                         :disabled="isViewMode">
                         <el-option label="2026" value="2026"></el-option>
@@ -233,11 +279,11 @@
                     </el-table>
 
                     <!-- 分页 -->
-                    <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                    <!-- <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
                         <el-pagination background size="small" v-model:current-page="currentPage"
                             v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]" :total="filteredData.length"
                             layout="total, ->, sizes, prev, pager, next, jumper" />
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -277,58 +323,113 @@
         <div class="form-actions"
             style="position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 24px; background: #fff; border-top: 1px solid #ebeef5; display: flex; justify-content: flex-end; gap: 12px; z-index: 1000; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
             <el-button @click="goBack">
-                <i class="fas fa-times"></i> {{ isViewMode ? '关闭' : '取消' }}
-            </el-button>
-            <el-button type="success" @click="handleSave" v-if="!isViewMode">
-                <i class="fas fa-save"></i> 保存
+                <i class="fas fa-times"></i> 关闭
             </el-button>
             <el-button type="primary" @click="handleSubmit" v-if="!isViewMode">
-                <i class="fas fa-paper-plane"></i> 提交审批
+                <i class="fas fa-paper-plane"></i> 提交审批 <info-mark
+                    content="1、必填项校验，2、提交审批，默认审批流为：提交人->本组织安健环部门负责人"></info-mark>
             </el-button>
         </div>
 
         <!-- 编辑/新建弹窗 -->
-        <el-dialog :title="dialogTitle" v-model="dialogVisible" width="800px" append-to-body>
-            <el-form :model="currentProject" label-width="120px">
-                <el-form-item label="项目名称">
-                    <el-input v-model="currentProject.projectName" />
-                </el-form-item>
-                <el-form-item label="支出范围">
-                    <el-select v-model="currentProject.category" style="width: 100%;">
-                        <el-option v-for="cat in categoryOptions" :key="cat" :label="cat" :value="cat"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="项目内容">
-                    <el-input type="textarea" v-model="currentProject.projectContent" />
-                </el-form-item>
-                <el-form-item label="计划投入费用">
-                    <el-input-number v-model="currentProject.planCost" :precision="2" :step="1000"
-                        style="width: 100%;" />
-                </el-form-item>
-                <el-form-item label="投入预算">
-                    <el-input-number v-model="currentProject.budgetCost" :precision="2" :step="1000"
-                        style="width: 100%;" />
-                </el-form-item>
-                <el-form-item label="计划完成时间">
-                    <el-date-picker v-model="currentProject.planDate" type="date" value-format="YYYY-MM-DD"
-                        style="width: 100%;" />
-                </el-form-item>
-                <el-form-item label="责任人">
-                    <el-input v-model="currentProject.responsiblePerson" />
-                </el-form-item>
-                <el-form-item label="责任单位">
-                    <el-select v-model="currentProject.responsibleUnit" style="width: 100%;">
-                        <el-option label="设备部" value="设备部"></el-option>
-                        <el-option label="安健环管理部" value="安健环管理部"></el-option>
-                        <el-option label="生产部" value="生产部"></el-option>
-                        <el-option label="运维部" value="运维部"></el-option>
-                    </el-select>
-                </el-form-item>
+        <!-- 编辑/新建弹窗 -->
+        <el-dialog :title="dialogTitle" v-model="dialogVisible" width="800px" :close-on-click-modal="false"
+            append-to-body>
+            <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px" label-position="left">
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item prop="projectCode" required>
+                            <template #label>
+                                项目编号
+                                <info-mark content="1、编号规则：ZSJH-yyyymmdd-0001，默认填充，支持修改"></info-mark>
+                            </template>
+                            <el-input v-model="formData.projectCode" placeholder="请输入项目编号" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item prop="category" required>
+                            <template #label>
+                                支出范围
+                                <info-mark content="1、需要根据该组织所属的安全生产企业分类显示对应的支出范围，如果该组织没有配置，则默认为其他企业的支出范围"></info-mark>
+                            </template>
+                            <el-select v-model="formData.category" placeholder="请选择支出范围" style="width: 100%;">
+                                <el-option v-for="cat in categoryOptions" :key="cat" :label="cat"
+                                    :value="cat"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="项目名称" prop="projectName" required>
+                            <el-input v-model="formData.projectName" placeholder="请输入项目名称" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="项目内容" prop="projectContent" required>
+                            <el-input v-model="formData.projectContent" type="textarea" :rows="4" placeholder="请输入项目内容"
+                                :maxlength="200" show-word-limit />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item label="计划完成时间" prop="planDate" required>
+                            <el-date-picker v-model="formData.planDate" type="date" placeholder="请选择日期"
+                                value-format="YYYY-MM-DD" style="width: 100%;" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="计划金额(万元)" prop="planCost" required>
+                            <el-input v-model="formData.planCostDisplay" placeholder="请输入金额" @input="handleCostInput"
+                                @blur="formatCost">
+                            </el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12">
+                        <el-form-item prop="responsibleUnit" required>
+                            <template #label>
+                                责任单位（部门）
+                                <info-mark content="1、打开本组织的选择部门组件"></info-mark>
+                            </template>
+                            <el-select v-model="formData.responsibleUnit" placeholder="请选择责任单位" style="width: 100%;">
+                                <el-option label="设备部" value="设备部"></el-option>
+                                <el-option label="安健环管理部" value="安健环管理部"></el-option>
+                                <el-option label="生产部" value="生产部"></el-option>
+                                <el-option label="运维部" value="运维部"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item prop="responsiblePerson" required>
+                            <template #label>
+                                责任人
+                                <info-mark content="1、打开本组织的选择人员组件"></info-mark>
+                            </template>
+                            <el-input v-model="formData.responsiblePerson" placeholder="请输入责任人" />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="24">
+                        <el-form-item label="备注" prop="remark">
+                            <el-input v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注"
+                                :maxlength="200" show-word-limit />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="submitProject">确定</el-button>
+                    <el-button type="primary" @click="handleDialogSave">
+                        确定 <info-mark
+                            content="1、在保存时对必填项进行校验；2、保存时需要对项目名称和项目内容进行负面清单校验，如果存在负面清单则进行提示：疑似负面清单，不合规请检查。"></info-mark>
+                    </el-button>
                 </span>
             </template>
         </el-dialog>
@@ -341,6 +442,24 @@
         const { ElMessage, ElMessageBox } = ElementPlus;
 
         createApp({
+            components: {
+                'info-mark': {
+                    props: ['content'],
+                    template: `
+                        <el-popover
+                            placement="top"
+                            title="说明"
+                            :width="200"
+                            trigger="click"
+                            :content="content"
+                        >
+                            <template #reference>
+                                <span class="info-mark" @click.stop></span>
+                            </template>
+                        </el-popover>
+                    `
+                }
+            },
             setup() {
                 const loading = ref(false);
                 const selectedYear = ref('');
@@ -350,7 +469,52 @@
 
                 const dialogVisible = ref(false);
                 const dialogTitle = ref('新建项目');
-                const currentProject = ref({});
+                const formData = ref({
+                    id: null,
+                    projectCode: '',
+                    category: '',
+                    projectName: '',
+                    projectContent: '',
+                    planDate: '',
+                    planCost: 0,
+                    planCostDisplay: '',
+                    responsibleUnit: '',
+                    responsiblePerson: '',
+                    remark: ''
+                });
+                const formRef = ref(null);
+                const formRules = ref({
+                    projectCode: [{ required: true, message: '请输入项目编号', trigger: 'blur' }],
+                    category: [{ required: true, message: '请选择支出范围', trigger: 'change' }],
+                    projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
+                    projectContent: [{ required: true, message: '请输入项目内容', trigger: 'blur' }],
+                    planDate: [{ required: true, message: '请选择计划完成时间', trigger: 'change' }],
+                    planCost: [{ required: true, message: '请输入计划金额', trigger: 'blur' }],
+                    responsibleUnit: [{ required: true, message: '请选择责任单位', trigger: 'change' }],
+                    responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }]
+                });
+
+                // 生成编号
+                const generateCode = () => {
+                    const now = new Date();
+                    const dateStr = now.getFullYear().toString() +
+                        String(now.getMonth() + 1).padStart(2, '0') +
+                        String(now.getDate()).padStart(2, '0');
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    return `ZSJH-${dateStr}-${randomNum}`;
+                };
+
+                // 处理金额输入
+                const handleCostInput = (value) => {
+                    formData.value.planCostDisplay = value.replace(/[^\d.]/g, '');
+                };
+
+                // 格式化金额显示
+                const formatCost = () => {
+                    const value = parseFloat(formData.value.planCostDisplay.replace(/,/g, '')) || 0;
+                    formData.value.planCost = value;
+                    formData.value.planCostDisplay = formatAmount(value);
+                };
 
                 // 视图模式
                 const isViewMode = ref(false);
@@ -472,31 +636,51 @@
                 // 增删改
                 const handleAdd = () => {
                     dialogTitle.value = '新增项目';
-                    currentProject.value = {
-                        projectCode: 'NEW-' + new Date().getTime(), // 临时编号
+                    formData.value = {
+                        id: null,
+                        projectCode: generateCode(),
+                        category: '',
+                        projectName: '',
+                        projectContent: '',
+                        planDate: '',
                         planCost: 0,
-                        budgetCost: 0
+                        planCostDisplay: '',
+                        responsibleUnit: '',
+                        responsiblePerson: '',
+                        remark: ''
                     };
                     dialogVisible.value = true;
                 };
 
                 const handleEdit = (row) => {
                     dialogTitle.value = '编辑项目';
-                    currentProject.value = { ...row };
+                    formData.value = { ...row, planCostDisplay: formatAmount(row.planCost) };
                     dialogVisible.value = true;
                 };
 
-                const submitProject = () => {
-                    // 简单模拟保存
-                    if (currentProject.value.id) {
-                        const index = tableData.value.findIndex(item => item.id === currentProject.value.id);
-                        if (index > -1) tableData.value[index] = { ...currentProject.value };
-                    } else {
-                        currentProject.value.id = new Date().getTime();
-                        tableData.value.unshift({ ...currentProject.value });
-                    }
-                    dialogVisible.value = false;
-                    ElMessage.success('操作成功');
+                const handleDialogSave = () => {
+                    formRef.value?.validate((valid) => {
+                        if (valid) {
+                            // 负面清单校验
+                            if ((formData.value.projectName && formData.value.projectName.includes('环保用防控粉尘等设施设备的支出')) ||
+                                (formData.value.projectContent && formData.value.projectContent.includes('环保用防控粉尘等设施设备的支出'))) {
+                                ElMessage.warning('疑似负面清单，不合规请检查。');
+                                return;
+                            }
+
+                            if (formData.value.id) {
+                                const index = tableData.value.findIndex(item => item.id === formData.value.id);
+                                if (index > -1) tableData.value[index] = { ...formData.value };
+                            } else {
+                                formData.value.id = new Date().getTime();
+                                tableData.value.unshift({ ...formData.value });
+                            }
+                            dialogVisible.value = false;
+                            ElMessage.success('操作成功');
+                        } else {
+                            ElMessage.warning('请填写必填项');
+                        }
+                    });
                 };
 
                 const handleDelete = (row) => {
@@ -556,10 +740,12 @@
                     loading, selectedYear, selectedRows, currentPage, pageSize,
                     searchForm, categoryOptions,
                     pagedData, filteredData,
-                    dialogVisible, dialogTitle, currentProject,
+                    dialogVisible, dialogTitle,
+                    formData, formRef, formRules,
                     handleYearChange, handleSearch, handleReset, handleSelectionChange,
                     formatAmount, handleAdd, handleEdit, handleDelete, handleBatchDelete,
-                    handleImport, goBack, handleSave, handleSubmit, submitProject,
+                    handleImport, goBack, handleSave, handleSubmit,
+                    handleDialogSave, handleCostInput, formatCost,
                     // 变更说明相关
                     changeForm, changeFormRules, changeFormRef, fileList, handleFileChange, handleFileRemove,
                     isViewMode

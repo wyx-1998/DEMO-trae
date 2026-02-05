@@ -135,6 +135,42 @@
             color: #409EFF;
         }
     </style>
+    <style>
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 
 <body>
@@ -156,6 +192,8 @@
                             <span class="custom-tree-node" :class="{ active: currentIndustry === data.value }">
                                 <i :class="data.icon || 'fas fa-folder'"></i>
                                 <span>{{ node.label }}</span>
+                                <info-mark v-if="!data.value"
+                                    content="和计提标准库一样，为内置安全生产费用企业分类，总共12个企业分类+其他企业"></info-mark>
                             </span>
                         </template>
                     </el-tree>
@@ -202,7 +240,14 @@
                         <el-table-column type="selection" width="55"></el-table-column>
                         <el-table-column prop="categoryName" label="支出范围名称" min-width="300"></el-table-column>
                         <el-table-column prop="shortName" label="支出范围简称" width="180"></el-table-column>
-                        <el-table-column prop="sortOrder" label="排序号" width="100" align="center"></el-table-column>
+                        <el-table-column label="排序号" width="120" align="center">
+                            <template #header>
+                                排序号 <info-mark content="按照企业分类顺序排序，再按照排序号排序"></info-mark>
+                            </template>
+                            <template #default="{ row }">
+                                {{ row.sortOrder }}
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="industryType" label="所属企业分类" min-width="180"></el-table-column>
                         <el-table-column label="操作" width="140" fixed="right" align="center">
                             <template #default="{ row }">
@@ -240,6 +285,9 @@
                     <el-input-number v-model="formData.sortOrder" :min="1" :max="9999" style="width: 100%;" />
                 </el-form-item>
                 <el-form-item label="所属企业分类" prop="industryType">
+                    <template #label>
+                        所属企业分类 <info-mark content="1、数据来源“安全生产费用企业分类”；2、新建时需要将列表左侧树所选节点值带过来"></info-mark>
+                    </template>
                     <el-tree-select v-model="formData.industryType" :data="industryTreeOptions"
                         :props="{ label: 'label', value: 'value' }" placeholder="请选择企业分类" style="width: 100%;"
                         check-strictly :render-after-expand="false" />
@@ -274,7 +322,7 @@
         const { createApp, ref, computed, watch } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const treeRef = ref(null);
                 const formRef = ref(null);
@@ -696,7 +744,26 @@
                     handleBatchDelete
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

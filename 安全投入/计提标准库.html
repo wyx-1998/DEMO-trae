@@ -188,6 +188,41 @@
       background-color: #fce4ec;
       color: #e91e63;
     }
+
+    /* 增加说明标识样式 */
+    body {
+      counter-reset: info-mark-counter;
+    }
+
+    .info-mark {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 16px;
+      height: 16px;
+      background-color: #E6A23C;
+      /* 警告黄 */
+      border-radius: 2px;
+      cursor: pointer;
+      vertical-align: middle;
+      margin-left: 4px;
+      position: relative;
+      top: -1px;
+
+      /* 文字样式 */
+      font-size: 10px;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .info-mark::after {
+      counter-increment: info-mark-counter;
+      content: counter(info-mark-counter);
+    }
+
+    .info-mark:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
 
@@ -210,6 +245,8 @@
               <span class="custom-tree-node" :class="{ active: currentIndustry === data.value }">
                 <i :class="data.icon || 'fas fa-folder'"></i>
                 <span>{{ node.label }}</span>
+                <info-mark v-if="data.value === ''"
+                  content="内置安全生产费用企业分类，总共12个企业分类+其他企业，详见文档：【金山文档 | WPS云文档】 【整理版】企业安全生产费用提取和使用管理办法 https://365.kdocs.cn/l/cl7gGRlofohV"></info-mark>
               </span>
             </template>
           </el-tree>
@@ -253,13 +290,22 @@
             <el-table-column prop="code" label="编号" min-width="140" fixed="left"></el-table-column>
             <el-table-column prop="industryType" label="所属企业分类" min-width="180"></el-table-column>
             <el-table-column prop="extractType" label="提取类型" min-width="180">
+              <template #header>
+                <span>提取类型</span>
+                <info-mark content="点击提取类型打开详情查看详细内容"></info-mark>
+              </template>
               <template #default="{ row }">
                 <a href="javascript:void(0)" @click="handleView(row)"
                   style="color: #409EFF; text-decoration: underline; cursor: pointer;">{{ row.extractType }}</a>
               </template>
             </el-table-column>
             <el-table-column prop="cycleType" label="提取周期类型" min-width="140"></el-table-column>
-            <el-table-column prop="basisName" label="提取依据名称" min-width="200"></el-table-column>
+            <el-table-column prop="basisName" label="提取依据名称" min-width="200">
+              <template #header>
+                <span>提取依据名称</span>
+                <info-mark content="为提取依据名称+提取依据单位"></info-mark>
+              </template>
+            </el-table-column>
             <el-table-column prop="ruleType" label="提取规则类型" min-width="120"></el-table-column>
             <el-table-column label="操作" width="140" fixed="right" align="center">
               <template #default="{ row }">
@@ -289,10 +335,10 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
   <script>
-    const { createApp, ref, computed, watch } = Vue;
+    const { createApp, ref, computed, watch, reactive, onMounted } = Vue;
     const { ElMessage, ElMessageBox } = ElementPlus;
 
-    createApp({
+    const app = createApp({
       setup() {
         const treeRef = ref(null);
         const treeFilterText = ref('');
@@ -572,7 +618,26 @@
           handleDelete
         };
       }
-    }).use(ElementPlus).mount('#app');
+    });
+
+    app.component('info-mark', {
+      props: ['content'],
+      template: `
+        <el-popover
+          placement="top"
+          title="说明"
+          :width="200"
+          trigger="click"
+          :content="content"
+        >
+          <template #reference>
+            <span class="info-mark" @click.stop></span>
+          </template>
+        </el-popover>
+      `
+    });
+
+    app.use(ElementPlus).mount('#app');
   </script>
 </body>
 

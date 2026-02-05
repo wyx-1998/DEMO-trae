@@ -213,6 +213,41 @@
             background-color: #f6ffed;
             color: #52c41a;
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -241,6 +276,10 @@
                             </div>
                             <div class="form-item">
                                 <el-form-item label="所属企业分类" prop="industryType">
+                                    <template #label>
+                                        <span>所属企业分类</span>
+                                        <info-mark content="1、数据来源“安全生产费用企业分类”；2、新建时需要将列表页左侧树所选节点值带过来"></info-mark>
+                                    </template>
                                     <el-select v-model="formData.industryType" placeholder="请选择行业类型" :disabled="isView"
                                         style="width: 100%;">
                                         <el-option v-for="item in industryOptions" :key="item.value" :label="item.label"
@@ -283,6 +322,11 @@
                             </div>
                             <div class="form-item">
                                 <el-form-item label="提取规则类型" prop="ruleType" required>
+                                    <template #label>
+                                        <span>提取规则类型</span>
+                                        <info-mark
+                                            content="1、选择“超额累退”时，需要显示下方的详细规则，用于后续的计算。超额累退的计算举例说明：比如某危险品生产企业上一年度营业收入为1200万元，其中1000万元按照4.5%提取，剩余的200万元按照2.25%提取，然后相加。计算方式如下：M ≤1000万元，按M×4.5%计提；1000万元＜M≤1亿元，按1000万元×4.5%+（M-1000万元）×2.25%计提；1亿元＜M≤10亿元，按1000万元×4.5%+（1亿元-1000万元）×2.25%+（M-1亿元）×0.55%计提；10亿元＜M，按1000万元×4.5%+（1亿元-1000万元）×2.25%+（10亿元-1亿元）×0.55%+（M-10亿元）×0.2%计提。2、选择“比例提取”时，需要显示提取比例和提取比例单位，用于后续的计算，计算规则为后续提取页面中输入的提取依据值*提取比例。3、需要注意单位的换算"></info-mark>
+                                    </template>
                                     <el-select v-model="formData.ruleType" placeholder="请选择提取规则类型" :disabled="isView"
                                         style="width: 100%;" @change="handleRuleTypeChange">
                                         <el-option label="比例提取" value="proportion"></el-option>
@@ -383,7 +427,12 @@
                     <el-table :data="investmentCategories" border stripe>
                         <el-table-column prop="categoryName" label="支出范围名称" min-width="350"></el-table-column>
                         <el-table-column prop="shortName" label="支出范围简称" width="180"></el-table-column>
-                        <el-table-column prop="sortOrder" label="排序号" width="100" align="center"></el-table-column>
+                        <el-table-column prop="sortOrder" label="排序号" width="100" align="center">
+                            <template #header>
+                                <span>排序号</span>
+                                <info-mark content="按照排序号排序"></info-mark>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </div>
             </div>
@@ -402,6 +451,8 @@
                         <div v-if="!isView" style="display: flex; gap: 8px;">
                             <el-button type="primary" size="small" @click="showSelectOrgDialog">
                                 <i class="fas fa-plus"></i> 添加
+                                <info-mark
+                                    content="1、打开多择组织组件弹窗多选组织；2、选择组织后则后续该组织在维护安全费用计划、安全费用提取、安全费用使用、统计查询等功能时，可以定位到企业所属的企业分类和提取类型，自动过滤对应的支出范围、根据提取标准规则计算提取金额；3、和企业档案内“安全生产费用企业分类”字段保持一致，两边修改变更需要同步"></info-mark>
                             </el-button>
                             <el-button type="danger" size="small" @click="batchDeleteOrgs"
                                 :disabled="selectedOrgs.length === 0">
@@ -462,10 +513,10 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, reactive } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const formRef = ref(null);
 
@@ -629,6 +680,15 @@
                     code: [{ required: true, message: '请输入编号', trigger: 'blur' }],
                     industryType: [{ required: true, message: '请选择行业类型', trigger: 'change' }],
                     extractType: [{ required: true, message: '请输入提取类型', trigger: 'blur' }]
+                });
+
+                const rulesFormRules = ref({
+                    cycleType: [{ required: true, message: '请选择提取周期类型', trigger: 'change' }],
+                    ruleType: [{ required: true, message: '请选择提取规则类型', trigger: 'change' }],
+                    basisName: [{ required: true, message: '请输入提取依据名称', trigger: 'blur' }],
+                    basisUnit: [{ required: true, message: '请输入提取依据单位', trigger: 'blur' }],
+                    proportionRatio: [{ required: true, message: '请输入提取比例', trigger: 'blur' }],
+                    ruleUnit: [{ required: true, message: '请输入提取比例单位', trigger: 'blur' }]
                 });
 
                 // 选中的数据
@@ -867,6 +927,7 @@
                     industryOptions,
                     formData,
                     formRules,
+                    rulesFormRules,
                     selectedOrgs,
                     orgDialogVisible,
                     orgSearchText,
@@ -892,7 +953,26 @@
                     getMeasureClass
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

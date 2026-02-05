@@ -142,8 +142,6 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             min-height: 150px;
@@ -155,10 +153,7 @@
             flex: 2;
         }
 
-        .quick-stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        }
+
 
         .quick-stat-card-divider {
             width: 1px;
@@ -331,6 +326,41 @@
                 align-items: stretch;
             }
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -341,16 +371,37 @@
             <div class="org-tree-panel">
                 <div class="tree-tabs">
                     <el-tabs v-model="activeTreeTab" @tab-change="handleTreeTabChange">
-                        <el-tab-pane label="内部企业" name="internal"></el-tab-pane>
-                        <el-tab-pane label="相关方" name="relatedParty"></el-tab-pane>
+                        <el-tab-pane name="internal">
+                            <template #label>
+                                <span>内部企业</span>
+                                <info-mark content="1、本级及下级的组织树+部门树；2、根据所选节点过滤右侧的数据"></info-mark>
+                            </template>
+                        </el-tab-pane>
+                        <el-tab-pane name="relatedParty">
+                            <template #label>
+                                <span>相关方</span>
+                                <info-mark
+                                    content="1、本级及下级的组织树+承包商+相关方项目；2、根据所选节点过滤右侧的数据，只能选择相关方项目节点，选择其他节点默认为选中下级的第一个相关方项目"></info-mark>
+                            </template>
+                        </el-tab-pane>
                     </el-tabs>
                 </div>
                 <div class="tree-search">
-                    <el-input v-model="treeFilterText" placeholder="搜索组织" clearable size="small">
+                    <el-input v-model="treeFilterText"
+                        :placeholder="activeTreeTab === 'internal' ? '搜索组织' : '请输入相关方项目名称'" clearable size="small">
                         <template #prefix>
                             <i class="fas fa-search" style="color: #999;"></i>
                         </template>
                     </el-input>
+                    <!-- 相关方项目状态过滤 -->
+                    <div v-if="activeTreeTab === 'relatedParty'" style="margin-top: 8px;">
+                        <el-radio-group v-model="projectStatusFilter" size="small">
+                            <el-radio label="unfinished">未完成</el-radio>
+                            <el-radio label="all">全部</el-radio>
+                            <info-mark
+                                content="1、根据相关方项目状态进行过滤，（1）未完成：除了状态为已完成的项目，按照开工时间正序排序；（2）全部：所有的相关方项目，包括状态为已完成的"></info-mark>
+                        </el-radio-group>
+                    </div>
                 </div>
                 <div class="tree-body">
                     <el-tree ref="treeRef" :data="currentTreeData" :props="treeProps" node-key="id" default-expand-all
@@ -368,8 +419,8 @@
 
             <!-- 右侧内容区 -->
             <div class="content-panel">
-                <!-- 查询条件区 -->
-                <div class="query-section">
+                <!-- 查询条件区 - 仅在内部企业tab时显示 -->
+                <div class="query-section" v-if="activeTreeTab === 'internal'">
                     <div class="query-title" @click="queryCollapsed = !queryCollapsed">
                         <div class="query-title-text">
                             <i class="fas fa-filter"></i>
@@ -383,10 +434,12 @@
                         <div v-show="!queryCollapsed" class="query-form">
                             <div class="query-row">
                                 <el-form-item label="统计周期" style="margin-bottom: 0;">
+                                    <info-mark content="默认显示当前年"></info-mark>
                                     <el-date-picker v-model="queryForm.year" type="year" placeholder="选择年份"
                                         value-format="YYYY" style="width: 140px;" size="small" />
                                 </el-form-item>
                                 <el-form-item label="时间粒度" style="margin-bottom: 0;">
+                                    <info-mark content="1、默认选择年度；2、切换时间粒度会改变下方表格的列结构"></info-mark>
                                     <el-select v-model="queryForm.granularity" placeholder="请选择" style="width: 140px;"
                                         size="small" @change="handleGranularityChange">
                                         <el-option label="年度" value="year"></el-option>
@@ -406,10 +459,11 @@
                     </el-collapse-transition>
                 </div>
 
-                <!-- 快捷统计卡片区 -->
-                <div class="quick-stats" style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+                <!-- 快捷统计卡片区 - 内部企业模式（非部门节点时显示） -->
+                <div class="quick-stats" v-if="activeTreeTab === 'internal' && !isDepartmentNode"
+                    style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
                     <!-- 正式计划总额 -->
-                    <div class="quick-stat-card" @click="handleCardClick('plan')">
+                    <div class="quick-stat-card">
                         <div class="quick-stat-header">
                             <div class="quick-stat-title">正式计划总额（万元）</div>
                             <div class="quick-stat-icon purple">
@@ -422,7 +476,7 @@
                     </div>
 
                     <!-- 提取总额、实际总额和投入率合并卡片 -->
-                    <div class="quick-stat-card" @click="handleCardClick('accrualAndActual')">
+                    <div class="quick-stat-card">
                         <div class="quick-stat-content" style="display: flex; flex-direction: column; height: 100%;">
                             <!-- 三个并排的区域 -->
                             <div style="display: flex; gap: 20px; flex: 1;">
@@ -476,33 +530,132 @@
                     </div>
                 </div>
 
-                <!-- 数据展示区 -->
-                <div class="data-section">
+                <!-- 快捷统计卡片区 - 相关方模式 -->
+                <div class="quick-stats" v-if="activeTreeTab === 'relatedParty'"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <!-- 计划总额 -->
+                    <div class="quick-stat-card">
+                        <div class="quick-stat-header">
+                            <div class="quick-stat-title">
+                                计划总额（万元）
+                                <info-mark content="统计为相关方项目下所有安全生产项目的计划金额的总额，单位为万元"></info-mark>
+                            </div>
+                            <div class="quick-stat-icon purple">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                        </div>
+                        <div class="quick-stat-content">
+                            <div class="quick-stat-value">{{ formatMoney(quickStats.planTotal) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- 实际使用总额卡片 -->
+                    <div class="quick-stat-card">
+                        <div class="quick-stat-content" style="display: flex; flex-direction: column; height: 100%;">
+                            <div style="display: flex; gap: 20px; flex: 1;">
+                                <!-- 实际使用总额部分 -->
+                                <div class="quick-stat-card-section" style="flex: 1;">
+                                    <div class="quick-stat-header" style="margin-bottom: 8px;">
+                                        <div class="quick-stat-title">
+                                            实际使用总额（万元）
+                                            <info-mark content="统计为相关方项目下所有安全生产项目的实际使用的总额，单位为万元"></info-mark>
+                                        </div>
+                                        <div class="quick-stat-icon orange">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                    </div>
+                                    <div class="quick-stat-value">{{ formatMoney(quickStats.actualTotal) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下级组织列表（内部企业tab下，选择的节点存在下级组织时显示） -->
+                <div class="data-section" v-if="activeTreeTab === 'internal' && hasChildOrgs && !isDepartmentNode">
+                    <div class="table-container" style="padding: 16px;">
+                        <el-table :data="subordinateOrgData" stripe border style="width: 100%;" v-loading="tableLoading"
+                            row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+                            default-expand-all>
+                            <el-table-column prop="companyName" label="企业名称" min-width="280">
+                                <template #header>
+                                    <span>企业名称</span>
+                                    <info-mark content="根据所选节点显示其下级组织，以树形结构展开"></info-mark>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="planAmount" label="正式计划总额（万元）" min-width="160" align="right">
+                                <template #header>
+                                    <span>正式计划总额（万元）</span>
+                                    <info-mark content="该组织本年度正式计划总额，父节点为下级金额的合计值"></info-mark>
+                                </template>
+                                <template #default="{ row }">
+                                    {{ formatNumber(row.planAmount / 10000) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="accrualAmount" label="实际提取总额（万元）" min-width="160" align="right">
+                                <template #header>
+                                    <span>实际提取总额（万元）</span>
+                                    <info-mark content="该组织本年度实际提取总额"></info-mark>
+                                </template>
+                                <template #default="{ row }">
+                                    {{ formatNumber(row.accrualAmount / 10000) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="actualAmount" label="实际使用总额（万元）" min-width="160" align="right">
+                                <template #header>
+                                    <span>实际使用总额（万元）</span>
+                                    <info-mark content="该组织本年度实际使用总额"></info-mark>
+                                </template>
+                                <template #default="{ row }">
+                                    {{ formatNumber(row.actualAmount / 10000) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="usageRate" label="使用率（%）" min-width="120" align="center">
+                                <template #header>
+                                    <span>使用率（%）</span>
+                                    <info-mark content="使用率=实际使用总额/实际提取总额×100%"></info-mark>
+                                </template>
+                                <template #default="{ row }">
+                                    {{ row.usageRate }}%
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+
+                <!-- 数据展示区（在内部企业tab下: 选择的节点不存在下级组织时显示，或选择部门节点时显示；在相关方tab下始终显示） -->
+                <div class="data-section" v-if="activeTreeTab === 'relatedParty' || !hasChildOrgs || isDepartmentNode">
                     <el-tabs v-model="activeTab" class="data-tabs">
                         <!-- Tab1: 支出范围维度 -->
-                        <el-tab-pane label="支出范围维度" name="category">
+                        <el-tab-pane name="category">
+                            <template #label>
+                                <span>支出范围维度</span>
+                                <info-mark content="根据所选节点显示对应支出范围下的数据"></info-mark>
+                            </template>
                             <div class="table-container">
-                                <el-table :data="categoryTableData" stripe border style="width: 100%; height: 100%;"
-                                    v-loading="tableLoading" show-summary :summary-method="getCategorySummary"
-                                    :key="'category-' + queryForm.granularity">
+                                <!-- 内部企业模式表格 -->
+                                <el-table v-if="activeTreeTab === 'internal'" :data="categoryTableData" stripe border
+                                    style="width: 100%; height: 100%;" v-loading="tableLoading" show-summary
+                                    :summary-method="getCategorySummary" :key="'category-' + queryForm.granularity">
                                     <el-table-column prop="index" label="序号" width="70" align="center"
                                         fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
                                         show-overflow-tooltip></el-table-column>
-                                    <el-table-column prop="planAmount" label="正式计划总额（万元）" width="150" align="right"
-                                        sortable>
+                                    <el-table-column prop="planAmount" min-width="150" align="right" sortable>
+                                        <template #header>
+                                            <span>正式计划总额（万元）</span>
+                                            <info-mark content="为该年份正式计划总额，数据来源正式计划"></info-mark>
+                                        </template>
                                         <template #default="{ row }">
                                             {{ formatNumber(row.planAmount / 10000) }}
                                         </template>
                                     </el-table-column>
-                                    <el-table-column v-if="isCompanyNode" prop="accrualAmount" label="实际提取总额（万元）"
-                                        width="150" align="right" sortable>
-                                        <template #default="{ row }">
-                                            {{ formatNumber(row.accrualAmount / 10000) }}
+
+                                    <el-table-column prop="actualAmount" min-width="150" align="right" sortable>
+                                        <template #header>
+                                            <span>实际使用总额（万元）</span>
+                                            <info-mark content="为该年份实际使用总额，数据来源安全费用使用"></info-mark>
                                         </template>
-                                    </el-table-column>
-                                    <el-table-column prop="actualAmount" label="实际使用总额（万元）" width="150" align="right"
-                                        sortable>
                                         <template #default="{ row }">
                                             {{ formatNumber(row.actualAmount / 10000) }}
                                         </template>
@@ -542,11 +695,37 @@
                                         </el-table-column>
                                     </el-table-column>
                                 </el-table>
+                                <!-- 相关方模式表格 -->
+                                <el-table v-if="activeTreeTab === 'relatedParty'" :data="categoryTableData" stripe
+                                    border style="width: 100%; height: 100%;" v-loading="tableLoading" show-summary
+                                    :summary-method="getCategorySummary">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
+                                        show-overflow-tooltip></el-table-column>
+                                    <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.planAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="actualAmount" label="实际使用总额（万元）" width="150" align="right"
+                                        sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.actualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
                             </div>
                         </el-tab-pane>
 
                         <!-- Tab2: 项目维度 -->
-                        <el-tab-pane label="项目维度" name="project">
+                        <el-tab-pane name="project">
+                            <template #label>
+                                <span>项目维度</span>
+                                <info-mark
+                                    :content="activeTreeTab === 'internal' ? '根据所选节点显示该节点该年度正式计划内项目数据' : '根据所选相关方项目显示项目数据'"></info-mark>
+                            </template>
                             <div class="table-container">
                                 <el-table :data="projectTableData" stripe border style="width: 100%; flex: 1;"
                                     v-loading="tableLoading">
@@ -555,8 +734,9 @@
                                     <el-table-column prop="projectName" label="项目名称" width="200"
                                         fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" width="150"></el-table-column>
-                                    <el-table-column prop="planAmount" label="正式计划总额（万元）" width="150" align="right"
-                                        sortable>
+                                    <el-table-column prop="planAmount"
+                                        :label="activeTreeTab === 'internal' ? '正式计划总额（万元）' : '计划总额（万元）'" width="150"
+                                        align="right" sortable>
                                         <template #default="{ row }">
                                             {{ formatNumber(row.planAmount / 10000) }}
                                         </template>
@@ -595,7 +775,7 @@
         const { createApp, ref, reactive, watch, computed } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const treeRef = ref(null);
                 const treeFilterText = ref('');
@@ -607,10 +787,25 @@
                 const tablePageSize = ref(20);
                 const tableTotal = ref(100);
                 const selectedNodeType = ref('company'); // 'company' 或 'contractor'
+                const selectedNode = ref(null); // 当前选中的树节点
+                const projectStatusFilter = ref('unfinished'); // 相关方项目状态过滤：'unfinished'(未完成) 或 'all'(全部)
 
                 // 是否为公司节点（国投电力公司及其子节点）
                 const isCompanyNode = computed(() => {
                     return selectedNodeType.value === 'company';
+                });
+
+                // 是否为部门节点
+                const isDepartmentNode = computed(() => {
+                    return selectedNode.value?.type === 'department';
+                });
+
+                // 检查节点是否有子组织节点（非部门节点）
+                const hasChildOrgs = computed(() => {
+                    if (!selectedNode.value || activeTreeTab.value !== 'internal') return false;
+                    const children = selectedNode.value.children || [];
+                    // 检查是否存在非部门类型的子节点（即子组织）
+                    return children.some(child => child.type === 'company');
                 });
 
                 // 内部企业树数据
@@ -1056,11 +1251,83 @@
                     }
                 ]);
 
+                // 下级组织数据（当选择存在下级组织的节点时显示）
+                const subordinateOrgData = ref([
+                    {
+                        id: 1,
+                        companyName: '国投电力',
+                        planAmount: 60000000,
+                        accrualAmount: 55000000,
+                        actualAmount: 48500000,
+                        usageRate: 88.2,
+                        children: [
+                            {
+                                id: 11,
+                                companyName: '国投电力本部',
+                                planAmount: 15000000,
+                                accrualAmount: 14200000,
+                                actualAmount: 12855000,
+                                usageRate: 90.5
+                            },
+                            {
+                                id: 12,
+                                companyName: '云南大朝山',
+                                planAmount: 12000000,
+                                accrualAmount: 11500000,
+                                actualAmount: 10200000,
+                                usageRate: 88.7
+                            },
+                            {
+                                id: 13,
+                                companyName: '华夏电力',
+                                planAmount: 18000000,
+                                accrualAmount: 16800000,
+                                actualAmount: 15000000,
+                                usageRate: 89.3
+                            },
+                            {
+                                id: 14,
+                                companyName: '广西新能源',
+                                planAmount: 15000000,
+                                accrualAmount: 12500000,
+                                actualAmount: 10445000,
+                                usageRate: 83.6,
+                                children: [
+                                    {
+                                        id: 141,
+                                        companyName: '广西新能源本部',
+                                        planAmount: 4000000,
+                                        accrualAmount: 3800000,
+                                        actualAmount: 3200000,
+                                        usageRate: 84.2
+                                    },
+                                    {
+                                        id: 142,
+                                        companyName: '分公司1',
+                                        planAmount: 6000000,
+                                        accrualAmount: 5200000,
+                                        actualAmount: 4300000,
+                                        usageRate: 82.7
+                                    },
+                                    {
+                                        id: 143,
+                                        companyName: '分公司2',
+                                        planAmount: 5000000,
+                                        accrualAmount: 3500000,
+                                        actualAmount: 2945000,
+                                        usageRate: 84.1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]);
+
                 const formatMoney = (value) => {
                     if (value >= 100000000) {
-                        return (value / 100000000).toFixed(2) + '亿';
+                        return (value / 100000000).toFixed(2);
                     } else if (value >= 10000) {
-                        return (value / 10000).toFixed(2) + '万';
+                        return (value / 10000).toFixed(2);
                     }
                     return value.toFixed(2);
                 };
@@ -1117,6 +1384,8 @@
                 };
 
                 const handleTreeNodeClick = (data) => {
+                    // 保存选中的节点
+                    selectedNode.value = data;
                     // 根据节点类型设置
                     if (data.type === 'contractor' || data.type === 'project') {
                         selectedNodeType.value = 'contractor';
@@ -1195,13 +1464,17 @@
                     tablePage,
                     tablePageSize,
                     tableTotal,
+                    projectStatusFilter,
                     isCompanyNode,
+                    isDepartmentNode,
+                    hasChildOrgs,
                     currentTreeData,
                     treeProps,
                     queryForm,
                     quickStats,
                     categoryTableData,
                     projectTableData,
+                    subordinateOrgData,
                     formatMoney,
                     formatNumber,
                     getProgressColor,
@@ -1217,7 +1490,27 @@
                     getCategorySummary
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        // 注册 info-mark 组件
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

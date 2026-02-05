@@ -214,6 +214,40 @@
             font-weight: 500;
             text-align: left;
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C; /* 警告黄 */
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+
+            /* 文字样式 */
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -234,29 +268,49 @@
                         label-position="left">
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="组织名称" prop="orgName" required>
+                                <el-form-item prop="orgName" required>
+                                    <template #label>
+                                        <span>组织名称</span>
+                                        <info-mark content="为当前组织简称"></info-mark>
+                                    </template>
                                     <el-input v-model="formData.orgName" placeholder="组织名称" disabled />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="所属企业类型" prop="industryType" required>
+                                <el-form-item prop="industryType" required>
+                                    <template #label>
+                                        <span>所属企业类型</span>
+                                        <info-mark content="为当前组织所属企业类型"></info-mark>
+                                    </template>
                                     <el-input v-model="formData.industryType" placeholder="企业类型" disabled />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="提取类型" prop="extractType" required>
+                                <el-form-item prop="extractType" required>
+                                    <template #label>
+                                        <span>提取类型</span>
+                                        <info-mark content="为当前组织所属提取类型"></info-mark>
+                                    </template>
                                     <el-input v-model="formData.extractType" placeholder="提取类型" disabled />
                                 </el-form-item>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="提取规则" prop="ruleType" required>
+                                <el-form-item prop="ruleType" required>
+                                    <template #label>
+                                        <span>提取规则</span>
+                                        <info-mark content="为当前组织所属提取规则"></info-mark>
+                                    </template>
                                     <el-input model-value="比例提取" disabled />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="提取周期类型" prop="cycleType" required>
+                                <el-form-item prop="cycleType" required>
+                                    <template #label>
+                                        <span>提取周期类型</span>
+                                        <info-mark content="为当前组织所属提取周期类型"></info-mark>
+                                    </template>
                                     <el-input model-value="工程进度提取" disabled />
                                 </el-form-item>
                             </div>
@@ -278,14 +332,22 @@
                     <el-form :model="formData" label-width="200px" label-position="left">
                         <div class="form-row">
                             <div class="form-item">
-                                <el-form-item label="建筑安装工程造价(万元)" prop="constructionCost" required>
+                                <el-form-item prop="constructionCost" required>
+                                    <template #label>
+                                        <span>建筑安装工程造价(万元)</span>
+                                        <info-mark content="1、字段标签名为当前组织所属提取依据值+单位；2、输入后触发"应提取金额"计算"></info-mark>
+                                    </template>
                                     <el-input v-model="formData.constructionCostDisplay" placeholder="请输入工程造价"
                                         :disabled="isView" @input="handleConstructionCostInput"
                                         @blur="formatConstructionCost" />
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="工程应提取金额(万元)" required>
+                                <el-form-item required>
+                                    <template #label>
+                                        <span>工程应提取金额(万元)</span>
+                                        <info-mark content="1、根据当前组织所属提取规则自动进行计算；2、点击计算器图标按钮打开计算规则弹窗查看详细的计算规则"></info-mark>
+                                    </template>
                                     <el-input :model-value="formatAmount(calculatedAmount)" disabled>
                                         <template #suffix>
                                             <el-button link type="primary" @click="showCalculationDialog"
@@ -297,7 +359,11 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="工程实际提取金额(万元)" prop="actualExtractAmount" required>
+                                <el-form-item prop="actualExtractAmount" required>
+                                    <template #label>
+                                        <span>工程实际提取金额(万元)</span>
+                                        <info-mark content="手动输入工程实际提取金额"></info-mark>
+                                    </template>
                                     <el-input v-model="formData.actualExtractAmountDisplay" placeholder="请输入实际提取金额"
                                         :disabled="isView" @input="handleActualExtractInput"
                                         @blur="formatActualExtract" />
@@ -360,7 +426,7 @@
         const { createApp, ref, computed, onMounted, watch } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const formRef = ref(null);
 
@@ -655,7 +721,27 @@
                     switchToEdit
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        // 注册 info-mark 组件
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

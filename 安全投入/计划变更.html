@@ -105,6 +105,43 @@
             background: #F0F9EB;
             color: #67C23A;
         }
+
+        .status-completed {
+            background: #F0F9EB;
+            color: #67C23A;
+        }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -170,14 +207,29 @@
                         <el-table-column prop="code" label="编号" min-width="160"></el-table-column>
                         <el-table-column prop="year" label="变更计划年份" min-width="120" align="center"></el-table-column>
                         <el-table-column prop="status" label="变更状态" min-width="100" align="center">
+                            <template #header>
+                                <span>变更状态</span>
+                                <info-mark
+                                    content="1、状态：待提交、审批中、已完成；2、提交审批变更为审批中，审批完成变更为已完成，同时变更审批完成后，需要将变更计划的数据更新到“正式计划”中，同时将变更人和变更时间更新到正式计划的提交人和提交时间内"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <span class="status-tag" :class="getStatusClass(row.status)">
                                     {{ row.status }}
                                 </span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="changer" label="变更人" min-width="100"></el-table-column>
-                        <el-table-column prop="changeTime" label="变更时间" min-width="160"></el-table-column>
+                        <el-table-column prop="changer" label="变更人" min-width="100">
+                            <template #header>
+                                <span>变更人</span>
+                                <info-mark content="1、提交变更的的人名"></info-mark>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="changeTime" label="变更时间" min-width="160">
+                            <template #header>
+                                <span>变更时间</span>
+                                <info-mark content="1、提交变更的时间"></info-mark>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" width="150" fixed="right" align="center">
                             <template #default="{ row }">
                                 <div style="display: flex; justify-content: center; gap: 4px;">
@@ -213,6 +265,24 @@
         const { ElMessage, ElMessageBox } = ElementPlus;
 
         createApp({
+            components: {
+                'info-mark': {
+                    props: ['content'],
+                    template: `
+                        <el-popover
+                            placement="top"
+                            title="说明"
+                            :width="200"
+                            trigger="click"
+                            :content="content"
+                        >
+                            <template #reference>
+                                <span class="info-mark" @click.stop></span>
+                            </template>
+                        </el-popover>
+                    `
+                }
+            },
             setup() {
                 const loading = ref(false);
                 const selectedRows = ref([]);

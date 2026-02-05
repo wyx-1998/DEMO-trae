@@ -172,6 +172,38 @@
                 width: 100%;
             }
         }
+
+        /* 增加说明标识样式 */
+        body {
+            counter-reset: info-mark-counter;
+        }
+
+        .info-mark {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #E6A23C;
+            border-radius: 2px;
+            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            top: -1px;
+            font-size: 10px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .info-mark::after {
+            counter-increment: info-mark-counter;
+            content: counter(info-mark-counter);
+        }
+
+        .info-mark:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -194,6 +226,10 @@
                         <div class="form-row">
                             <div class="form-item">
                                 <el-form-item label="关联相关方项目" prop="relatedProject" required>
+                                    <template #label>
+                                        关联相关方项目
+                                        <info-mark content="携带列表页左侧树所选的相关方项目"></info-mark>
+                                    </template>
                                     <div class="project-select-input">
                                         <el-select v-model="formData.relatedProject" placeholder="请选择项目"
                                             :disabled="pageType==='project' || isView" style="flex: 1;" filterable>
@@ -208,8 +244,13 @@
                                 </el-form-item>
                             </div>
                             <div class="form-item">
-                                <el-form-item label="项目名称" prop="projectName" required>
-                                    <el-select v-model="formData.projectName" placeholder="请选择项目"
+                                <el-form-item label="安全费用项目名称" prop="projectName" required>
+                                    <template #label>
+                                        安全费用项目名称
+                                        <info-mark
+                                            content="1、根据所选相关方项目过滤数据，如果没选择相关方项目则不显示数据；2、数据来源：安全费用计划(相关方)；3、选择后自动填充后续字段"></info-mark>
+                                    </template>
+                                    <el-select v-model="formData.projectName" placeholder="请选择安全费用项目"
                                         :disabled="pageType==='project' || pageType==='record' && isView"
                                         style="width: 100%;" @change="handleProjectChange" filterable>
                                         <el-option v-for="item in projectOptions" :key="item.id" :label="item.name"
@@ -317,6 +358,10 @@
                             <div class="form-row">
                                 <div class="form-item">
                                     <el-form-item label="项目使用编号" prop="code">
+                                        <template #label>
+                                            项目使用编号
+                                            <info-mark content="编号规则 XGFSJSY-yyyymmdd-0001"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.code" placeholder="自动生成" disabled />
                                     </el-form-item>
                                 </div>
@@ -328,6 +373,10 @@
                                 </div>
                                 <div class="form-item">
                                     <el-form-item label="实际金额(万元)" prop="actualCost" required>
+                                        <template #label>
+                                            实际金额(万元)
+                                            <info-mark content="金额单位为万元，千分位，保留小数点后6位，小数点后面无意义的0不显示"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.actualCostDisplay" placeholder="请输入金额"
                                             :disabled="isView" @input="handleCostInput" @blur="formatCost">
                                             <template #suffix>
@@ -340,6 +389,10 @@
                             <div class="form-row">
                                 <div class="form-item full-width">
                                     <el-form-item label="实际项目内容" prop="actualProjectContent" required>
+                                        <template #label>
+                                            实际项目内容
+                                            <info-mark content="保存时需进行负面清单校验"></info-mark>
+                                        </template>
                                         <el-input v-model="formData.actualProjectContent" type="textarea" :rows="3"
                                             placeholder="请输入实际项目内容" :disabled="isView" :maxlength="200"
                                             show-word-limit />
@@ -356,7 +409,11 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-item full-width">
-                                    <el-form-item label="附件" prop="attachments">
+                                    <el-form-item label="附件" prop="attachments" required>
+                                        <template #label>
+                                            附件
+                                            <info-mark content="1、相关方的实际使用记录必须上传附件"></info-mark>
+                                        </template>
                                         <el-upload action="#" :auto-upload="false" :file-list="formData.attachments"
                                             :disabled="isView" multiple>
                                             <el-button type="primary" :disabled="isView">
@@ -391,11 +448,23 @@
         </div>
 
         <!-- 项目选择弹窗 -->
-        <el-dialog v-model="projectDialogVisible" title="选择相关方项目" width="600px" :close-on-click-modal="false">
+        <el-dialog v-model="projectDialogVisible" width="700px" :close-on-click-modal="false">
+            <template #header>
+                <div style="font-size: 18px; color: #303133; font-weight: bold;">
+                    选择相关方项目
+                    <info-mark
+                        content="1、数据为当前登录账号所属组织下的所属相关方的相关方项目（需要过滤掉项目状态为已完成的，其他所有状态的相关方项目均可被选择）；2、数据来源：相关方管理-项目管理-项目档案"></info-mark>
+                </div>
+            </template>
             <div class="project-dialog-search">
                 <el-input v-model="projectSearch.name" placeholder="请输入项目名称" clearable>
                     <template #prefix>
                         <i class="fas fa-file-alt"></i>
+                    </template>
+                </el-input>
+                <el-input v-model="projectSearch.code" placeholder="请输入项目编号" clearable>
+                    <template #prefix>
+                        <i class="fas fa-hashtag"></i>
                     </template>
                 </el-input>
                 <el-button type="primary" @click="searchProjects">
@@ -405,17 +474,20 @@
                     <i class="fas fa-redo"></i> 重置
                 </el-button>
             </div>
-            <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row
-                @current-change="handleRelatedProjectSelect" :current-row-key="selectedProjectInDialog">
-                <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="code" label="安全费用项目编号" min-width="180"></el-table-column>
-                <el-table-column prop="name" label="项目名称" min-width="200"></el-table-column>
+            <el-table :data="filteredProjects" style="width: 100%" stripe border highlight-current-row>
+                <el-table-column label="确认" width="80" align="center">
+                    <template #default="{ row }">
+                        <el-button link type="primary" @click="confirmSelection(row)">
+                            确认
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="code" label="相关方项目编号" min-width="150"></el-table-column>
+                <el-table-column prop="name" label="相关方项目名称" min-width="200"></el-table-column>
+                <el-table-column prop="contractor" label="相关方名称" min-width="150"></el-table-column>
             </el-table>
             <template #footer>
                 <el-button @click="projectDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmProjectSelect" :disabled="!selectedProjectInDialog">
-                    确定
-                </el-button>
             </template>
         </el-dialog>
     </div>
@@ -426,7 +498,7 @@
         const { createApp, ref, computed, onMounted, watch } = Vue;
         const { ElMessage } = ElementPlus;
 
-        createApp({
+        const app = createApp({
             setup() {
                 const formRef = ref(null);
                 const actualFormRef = ref(null);
@@ -445,19 +517,24 @@
                 // 项目选择弹窗
                 const projectDialogVisible = ref(false);
                 const projectSearch = ref({ name: '' });
-                const selectedProjectInDialog = ref(null);
 
-                // 相关方可选项目
+                // 所有可选项目
                 const allProjects = ref([
-                    { id: 'p1', code: 'XGF-PRJ-001', name: '变电站改造项目' },
-                    { id: 'p2', code: 'XGF-PRJ-002', name: '输电线路检修项目' },
-                    { id: 'p3', code: 'XGF-PRJ-003', name: '配电网升级项目' }
+                    { id: 'p1', code: 'XGF-PRJ-001', name: '变电站改造项目', contractor: '中电建设承包商' },
+                    { id: 'p2', code: 'XGF-PRJ-002', name: '输电线路检修项目', contractor: '中电建设承包商' },
+                    { id: 'p3', code: 'XGF-PRJ-003', name: '配电网升级项目', contractor: '中电建设承包商' },
+                    { id: 'p4', code: 'XGF-PRJ-004', name: '电缆敷设工程', contractor: '华能施工队' },
+                    { id: 'p5', code: 'XGF-PRJ-005', name: '设备安装项目', contractor: '华能施工队' }
                 ]);
 
+                // 过滤后的项目列表
                 const filteredProjects = computed(() => {
-                    let data = allProjects.value;
+                    let data = allProjects.value.filter(p => p.contractor === '中电建设承包商');
                     if (projectSearch.value.name) {
                         data = data.filter(p => p.name.includes(projectSearch.value.name));
+                    }
+                    if (projectSearch.value.code) {
+                        data = data.filter(p => p.code.includes(projectSearch.value.code));
                     }
                     return data;
                 });
@@ -519,7 +596,8 @@
                     responsiblePerson: [{ required: true, message: '请输入责任人', trigger: 'blur' }],
                     actualDate: [{ required: true, message: '请选择实际使用时间', trigger: 'change' }],
                     actualCost: [{ required: true, message: '请输入实际金额', trigger: 'blur' }],
-                    actualProjectContent: [{ required: true, message: '请输入实际项目内容', trigger: 'blur' }]
+                    actualProjectContent: [{ required: true, message: '请输入实际项目内容', trigger: 'blur' }],
+                    attachments: [{ required: true, message: '请上传附件', trigger: 'change', type: 'array' }]
                 });
 
                 // 格式化金额
@@ -564,29 +642,24 @@
                     const dateStr = now.getFullYear().toString() +
                         String(now.getMonth() + 1).padStart(2, '0') +
                         String(now.getDate()).padStart(2, '0');
-                    const randomNum = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
-                    formData.value.code = `XGFTR-${dateStr}-${randomNum}`;
+                    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+                    formData.value.code = `XGFSJSY-${dateStr}-${randomNum}`;
                 };
 
                 const openProjectDialog = () => {
                     projectDialogVisible.value = true;
-                    selectedProjectInDialog.value = formData.value.relatedProject;
+                    // selectedProjectInDialog.value = formData.value.relatedProject; // Removed as we use inline selection
                 };
 
                 const searchProjects = () => { };
 
                 const resetProjectSearch = () => {
-                    projectSearch.value = { name: '' };
+                    projectSearch.value = { name: '', code: '' };
                 };
 
-                const handleRelatedProjectSelect = (row) => {
-                    if (row) {
-                        selectedProjectInDialog.value = row.id;
-                    }
-                };
-
-                const confirmProjectSelect = () => {
-                    formData.value.relatedProject = selectedProjectInDialog.value;
+                // 确认选择项目 (直接点击确认按钮)
+                const confirmSelection = (row) => {
+                    formData.value.relatedProject = row.id;
                     projectDialogVisible.value = false;
                 };
 
@@ -605,7 +678,7 @@
                         if (id == 1) {
                             projectUsageRecords.value = [
                                 {
-                                    code: 'XGFTR-20260105-001',
+                                    code: 'XGFSJSY-20260105-0001',
                                     actualDate: '2026-01-05',
                                     actualCost: 5000,
                                     actualProjectContent: '1月份消防设备巡检，更换灭火器3个',
@@ -613,7 +686,7 @@
                                     attachments: []
                                 },
                                 {
-                                    code: 'XGFTR-20260205-001',
+                                    code: 'XGFSJSY-20260205-0001',
                                     actualDate: '2026-02-05',
                                     actualCost: 10000,
                                     actualProjectContent: '2月份消防设备维修，更换消防栓阀门',
@@ -630,7 +703,7 @@
                         const recordData = {
                             '101': {
                                 relatedProject: 'p1',
-                                code: 'XGFTR-20260105-001',
+                                code: 'XGFSJSY-20260105-0001',
                                 projectName: '现场消防设备维护保养',
                                 actualDate: '2026-01-05',
                                 actualCost: 5000,
@@ -702,14 +775,33 @@
                     formRef, actualFormRef,
                     mode, pageType, isView, modules, formData, formRules, projectOptions,
                     projectUsageRecords, allProjects, filteredProjects,
-                    projectDialogVisible, projectSearch, selectedProjectInDialog,
+                    projectDialogVisible, projectSearch,
                     formatAmount, handleCostInput, formatCost, handleProjectChange,
                     toggleModule, handleSave, switchToEdit, goBack,
                     openProjectDialog, searchProjects, resetProjectSearch,
-                    handleRelatedProjectSelect, confirmProjectSelect
+                    confirmSelection
                 };
             }
-        }).use(ElementPlus).mount('#app');
+        });
+
+        app.component('info-mark', {
+            props: ['content'],
+            template: `
+                <el-popover
+                    placement="top"
+                    title="说明"
+                    :width="200"
+                    trigger="click"
+                    :content="content"
+                >
+                    <template #reference>
+                        <span class="info-mark" @click.stop></span>
+                    </template>
+                </el-popover>
+            `
+        });
+
+        app.use(ElementPlus).mount('#app');
     </script>
 </body>
 

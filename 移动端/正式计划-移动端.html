@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安全费用计划 · 正式计划</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* 主题色 */
+            --color-brand: #3366cc;
+            --color-brand-light: #e3f2fd;
+
+            /* 功能色 */
+            --color-success: #00b042;
+            --color-warning: #ff943e;
+            --color-error: #f25643;
+            --color-purple: #8B5CF6;
+
+            /* 文字层级 */
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+
+            /* 背景 */
+            --bg-page: #f5f7fa;
+            --bg-card: #ffffff;
+
+            /* 间距 */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 20px;
+            --spacing-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg-page);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 520px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-page);
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            background: var(--color-brand);
+            padding: var(--spacing-md);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+        }
+
+        .nav-left i {
+            font-size: 18px;
+        }
+
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .nav-right i {
+            font-size: 18px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .nav-right i:active {
+            opacity: 0.7;
+        }
+
+        /* 年度选择器 - 横向滚动 */
+        .year-selector {
+            background: var(--bg-card);
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-sm);
+            overflow-x: auto;
+            border-bottom: 1px solid #eee;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .year-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .year-chip {
+            flex-shrink: 0;
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .year-chip.active {
+            background: var(--color-brand);
+            color: #fff;
+        }
+
+        .year-chip:active {
+            transform: scale(0.96);
+        }
+
+        .year-chip-amount {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 主内容区 */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        /* 统计卡片 */
+        .summary-card {
+            background: linear-gradient(135deg, var(--color-brand) 0%, #4a7fd7 100%);
+            border-radius: 16px;
+            padding: var(--spacing-lg);
+            color: #fff;
+            margin-bottom: var(--spacing-md);
+            box-shadow: 0 4px 12px rgba(51, 102, 204, 0.3);
+        }
+
+        .summary-title {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .summary-unit {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .summary-year {
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 企业列表 */
+        .company-list {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .list-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .list-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .list-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--color-brand);
+            border-radius: 2px;
+        }
+
+        .list-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* 树形列表项 */
+        .tree-item {
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .tree-item:last-child {
+            border-bottom: none;
+        }
+
+        .tree-item-content {
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tree-item-content:active {
+            background: #f9f9f9;
+        }
+
+        .tree-expand {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tree-expand.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-expand.empty {
+            visibility: hidden;
+        }
+
+        .tree-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tree-icon.company {
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+        }
+
+        .tree-icon.sub {
+            background: #f3e5f5;
+            color: var(--color-purple);
+        }
+
+        .tree-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tree-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tree-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 12px;
+        }
+
+        .tree-amount {
+            color: var(--color-brand);
+            font-weight: 600;
+        }
+
+        .tree-status {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .tree-status.draft {
+            background: #f5f5f5;
+            color: var(--text-tertiary);
+        }
+
+        .tree-status.finalized {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .tree-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-icon.view {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .action-icon.edit {
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+        }
+
+        .action-icon:active {
+            transform: scale(0.9);
+        }
+
+        /* 子级列表 */
+        .tree-children {
+            display: none;
+            background: #fafafa;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .tree-children .tree-item-content {
+            padding-left: calc(var(--spacing-md) + 36px);
+        }
+
+        .tree-children .tree-children .tree-item-content {
+            padding-left: calc(var(--spacing-md) + 72px);
+        }
+
+        /* 详情弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 100%;
+            max-width: 520px;
+            max-height: 80vh;
+            background: var(--bg-card);
+            border-radius: 20px 20px 0 0;
+            z-index: 201;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .modal-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .detail-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .detail-section-title {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .detail-item {
+            background: #f9f9f9;
+            padding: var(--spacing-sm);
+            border-radius: 8px;
+        }
+
+        .detail-item.full {
+            grid-column: span 2;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .detail-value.amount {
+            color: var(--color-brand);
+            font-size: 18px;
+        }
+
+        .modal-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.primary {
+            background: var(--color-brand);
+            color: #fff;
+        }
+
+        .modal-btn.secondary {
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            padding: 60px var(--spacing-md);
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        /* 底部安全区域 */
+        .safe-area-bottom {
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app">
+        <!-- 顶部导航 -->
+        <header class="top-nav">
+            <div class="nav-left" @click="goBack">
+                <i class="fas fa-chevron-left"></i>
+                <span class="nav-title">正式计划</span>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search" @click="handleSearch"></i>
+            </div>
+        </header>
+
+        <!-- 年度选择器 -->
+        <div class="year-selector">
+            <div v-for="year in yearCards" :key="year.year" class="year-chip"
+                :class="{ active: selectedYear === year.year }" @click="selectYear(year.year)">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ year.year }}年</span>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <main>
+            <!-- 统计卡片 -->
+            <div class="summary-card">
+                <div class="summary-title">年度计划总额</div>
+                <div class="summary-value">
+                    {{ formatMoney(currentYearData.totalAmount) }}
+                    <span class="summary-unit">万元</span>
+                </div>
+                <div class="summary-year">
+                    <i class="fas fa-calendar-check"></i>
+                    {{ selectedYear }}年度正式计划
+                </div>
+            </div>
+
+            <!-- 企业列表 -->
+            <div class="company-list">
+                <div class="list-header">
+                    <span class="list-title">企业计划明细</span>
+                    <span class="list-count">共 {{ getTotalCount() }} 个企业</span>
+                </div>
+
+                <!-- 树形列表 -->
+                <template v-for="item in tableData" :key="item.id">
+                    <div class="tree-item">
+                        <div class="tree-item-content" @click="toggleExpand(item)">
+                            <span class="tree-expand"
+                                :class="{ expanded: expandedIds.includes(item.id), empty: !hasChildren(item) }">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                            <div class="tree-icon company">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="tree-info">
+                                <div class="tree-name">{{ item.companyName }}</div>
+                                <div class="tree-meta">
+                                    <span class="tree-amount">{{ formatAmount(item.totalAmount) }} 万</span>
+                                    <span v-if="!hasChildren(item)" class="tree-status"
+                                        :class="item.status === '已定稿' ? 'finalized' : 'draft'">
+                                        {{ item.status }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="tree-actions" @click.stop>
+                                <div class="action-icon view" @click="handleView(item)">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 子级 -->
+                        <div class="tree-children" :class="{ expanded: expandedIds.includes(item.id) }"
+                            v-if="item.children">
+                            <template v-for="child in item.children" :key="child.id">
+                                <div class="tree-item">
+                                    <div class="tree-item-content" @click="toggleExpand(child)">
+                                        <span class="tree-expand"
+                                            :class="{ expanded: expandedIds.includes(child.id), empty: !hasChildren(child) }">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                        <div class="tree-icon sub">
+                                            <i class="fas fa-building"></i>
+                                        </div>
+                                        <div class="tree-info">
+                                            <div class="tree-name">{{ child.companyName }}</div>
+                                            <div class="tree-meta">
+                                                <span class="tree-amount">{{ formatAmount(child.totalAmount) }} 万</span>
+                                                <span v-if="!hasChildren(child)" class="tree-status"
+                                                    :class="child.status === '已定稿' ? 'finalized' : 'draft'">
+                                                    {{ child.status }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="tree-actions" @click.stop>
+                                            <div class="action-icon view" @click="handleView(child)">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div v-if="child.companyName === '国投电力本部' && child.status !== '已定稿'"
+                                                class="action-icon edit" @click="handleEdit(child)">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 三级子节点 -->
+                                    <div class="tree-children" :class="{ expanded: expandedIds.includes(child.id) }"
+                                        v-if="child.children">
+                                        <div class="tree-item" v-for="grandChild in child.children"
+                                            :key="grandChild.id">
+                                            <div class="tree-item-content" @click="handleView(grandChild)">
+                                                <span class="tree-expand empty">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </span>
+                                                <div class="tree-icon sub">
+                                                    <i class="fas fa-building"></i>
+                                                </div>
+                                                <div class="tree-info">
+                                                    <div class="tree-name">{{ grandChild.companyName }}</div>
+                                                    <div class="tree-meta">
+                                                        <span class="tree-amount">{{
+                                                            formatAmount(grandChild.totalAmount) }} 万</span>
+                                                        <span class="tree-status"
+                                                            :class="grandChild.status === '已定稿' ? 'finalized' : 'draft'">
+                                                            {{ grandChild.status }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="tree-actions" @click.stop>
+                                                    <div class="action-icon view" @click="handleView(grandChild)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- 底部安全区域 -->
+            <div class="safe-area-bottom"></div>
+        </main>
+
+        <!-- 详情弹窗 -->
+        <div class="modal-overlay" :class="{ show: showDetail }" @click.self="showDetail = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">计划详情</span>
+                    <div class="modal-close" @click="showDetail = false">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="modal-body" v-if="detailData">
+                    <div class="detail-section">
+                        <div class="detail-section-title">基本信息</div>
+                        <div class="detail-grid">
+                            <div class="detail-item full">
+                                <div class="detail-label">企业名称</div>
+                                <div class="detail-value">{{ detailData.companyName }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">年度</div>
+                                <div class="detail-value">{{ detailData.year }}年</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">状态</div>
+                                <div class="detail-value">{{ detailData.status || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-section-title">金额信息</div>
+                        <div class="detail-grid">
+                            <div class="detail-item full">
+                                <div class="detail-label">年度计划总额</div>
+                                <div class="detail-value amount">{{ formatAmount(detailData.totalAmount) }} 万元</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" v-if="detailData.submitter">
+                        <div class="detail-section-title">提交信息</div>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">提交人</div>
+                                <div class="detail-value">{{ detailData.submitter }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">提交时间</div>
+                                <div class="detail-value">{{ detailData.submitTime }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn secondary" @click="showDetail = false">关闭</button>
+                    <button class="modal-btn primary" @click="goToDetail">查看完整详情</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast提示 -->
+        <div class="toast" :class="{ show: toast.show }">{{ toast.message }}</div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        createApp({
+            setup() {
+                const selectedYear = ref(2026);
+                const expandedIds = ref([1]); // 默认展开第一级
+                const showDetail = ref(false);
+                const detailData = ref(null);
+
+                const toast = reactive({
+                    show: false,
+                    message: ''
+                });
+
+                const showToast = (message) => {
+                    toast.message = message;
+                    toast.show = true;
+                    setTimeout(() => {
+                        toast.show = false;
+                    }, 2000);
+                };
+
+                // 年度卡片数据
+                const yearCards = ref([
+                    { year: 2026, totalAmount: 6000000 },
+                    { year: 2025, totalAmount: 5500000 },
+                    { year: 2024, totalAmount: 5200000 }
+                ]);
+
+                // 表格数据
+                const sourceData = ref([
+                    {
+                        id: 1, year: '2026', companyName: '国投电力', totalAmount: 6000000, status: '草稿',
+                        children: [
+                            { id: 11, year: '2026', companyName: '国投电力本部', totalAmount: 1500000, status: '草稿' },
+                            { id: 12, year: '2026', companyName: '云南大朝山', totalAmount: 1200000, status: '草稿' },
+                            { id: 13, year: '2026', companyName: '华夏电力', totalAmount: 1800000, status: '已定稿', submitter: '王建国', submitTime: '2025-11-20 14:30' },
+                            {
+                                id: 14, year: '2026', companyName: '广西新能源', totalAmount: 1500000, status: '草稿',
+                                children: [
+                                    { id: 140, year: '2026', companyName: '广西新能源本部', totalAmount: 400000, status: '草稿' },
+                                    { id: 141, year: '2026', companyName: '分公司1', totalAmount: 600000, status: '草稿' },
+                                    { id: 142, year: '2026', companyName: '分公司2', totalAmount: 500000, status: '草稿' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 2, year: '2025', companyName: '国投电力', totalAmount: 5500000, status: '已定稿', submitter: '张伟', submitTime: '2024-12-30 09:15',
+                        children: [
+                            { id: 21, year: '2025', companyName: '国投电力本部', totalAmount: 1400000, status: '已定稿' },
+                            { id: 22, year: '2025', companyName: '云南大朝山', totalAmount: 1100000, status: '已定稿' },
+                            { id: 23, year: '2025', companyName: '华夏电力', totalAmount: 1700000, status: '已定稿' },
+                            { id: 24, year: '2025', companyName: '广西新能源', totalAmount: 1300000, status: '已定稿' }
+                        ]
+                    }
+                ]);
+
+                const tableData = computed(() => {
+                    return sourceData.value.filter(item => item.year == selectedYear.value);
+                });
+
+                const currentYearData = computed(() => {
+                    const yearData = yearCards.value.find(y => y.year === selectedYear.value);
+                    return yearData || { totalAmount: 0 };
+                });
+
+                const selectYear = (year) => {
+                    selectedYear.value = year;
+                    expandedIds.value = []; // 切换年份时重置展开状态
+                    // 自动展开第一级
+                    const firstItem = tableData.value[0];
+                    if (firstItem) {
+                        expandedIds.value.push(firstItem.id);
+                    }
+                };
+
+                const toggleExpand = (item) => {
+                    if (!hasChildren(item)) return;
+                    const index = expandedIds.value.indexOf(item.id);
+                    if (index > -1) {
+                        expandedIds.value.splice(index, 1);
+                    } else {
+                        expandedIds.value.push(item.id);
+                    }
+                };
+
+                const hasChildren = (item) => {
+                    return item.children && item.children.length > 0;
+                };
+
+                const getTotalCount = () => {
+                    let count = 0;
+                    const countItems = (items) => {
+                        items.forEach(item => {
+                            count++;
+                            if (item.children) {
+                                countItems(item.children);
+                            }
+                        });
+                    };
+                    countItems(tableData.value);
+                    return count;
+                };
+
+                const formatMoney = (value) => {
+                    if (value >= 100000000) {
+                        return (value / 100000000).toFixed(2);
+                    } else if (value >= 10000) {
+                        return (value / 10000).toFixed(0);
+                    }
+                    return value.toFixed(2);
+                };
+
+                const formatAmount = (value) => {
+                    if (value === null || value === undefined) return '-';
+                    return new Intl.NumberFormat('zh-CN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }).format(value / 10000);
+                };
+
+                const handleView = (row) => {
+                    detailData.value = row;
+                    showDetail.value = true;
+                };
+
+                const handleEdit = (row) => {
+                    showToast(`进入编辑：${row.companyName}`);
+                };
+
+                const goToDetail = () => {
+                    showToast('跳转到完整详情页');
+                };
+
+                const goBack = () => {
+                    showToast('返回上一页');
+                };
+
+                const handleSearch = () => {
+                    showToast('搜索功能');
+                };
+
+                return {
+                    selectedYear,
+                    expandedIds,
+                    showDetail,
+                    detailData,
+                    toast,
+                    yearCards,
+                    tableData,
+                    currentYearData,
+                    selectYear,
+                    toggleExpand,
+                    hasChildren,
+                    getTotalCount,
+                    formatMoney,
+                    formatAmount,
+                    handleView,
+                    handleEdit,
+                    goToDetail,
+                    goBack,
+                    handleSearch
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
