@@ -763,6 +763,15 @@
                             </div>
                         </el-radio>
                     </div>
+                    <div style="padding: 16px; border: 1px solid #ebeef5; border-radius: 8px; cursor: pointer;"
+                        :style="{ borderColor: selectedCycleType === 'custom' ? '#409EFF' : '#ebeef5', background: selectedCycleType === 'custom' ? '#ecf5ff' : '#fff' }"
+                        @click="selectedCycleType = 'custom'">
+                        <el-radio label="custom" style="width: 100%;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 15px; color: #303133;">自定义提取</div>
+                            </div>
+                        </el-radio>
+                    </div>
                 </el-radio-group>
             </div>
             <template #footer>
@@ -879,8 +888,9 @@
                     if (selectedCycleType.value === 'monthly') {
                         plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-月度.html?mode=add';
                     } else if (selectedCycleType.value === 'projectProgress') {
-                        // 假设工程进度提取也有单独的页面，如果暂无则链接到开发中或默认详情页
                         plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-工程进度.html?mode=add';
+                    } else if (selectedCycleType.value === 'custom') {
+                        plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-自定义提取.html?mode=add';
                     } else {
                         plannedExtractionDetailSrc.value = './安全投入/计划提取-详情.html?mode=add';
                     }

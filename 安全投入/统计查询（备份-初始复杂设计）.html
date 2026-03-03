@@ -361,14 +361,6 @@
         .info-mark:hover {
             opacity: 0.8;
         }
-
-        /* 合计行固定样式 - 使合计行始终显示在表格顶部不随内容滚动 */
-        .el-table__body tr.summary-row td {
-            position: sticky;
-            top: 0;
-            z-index: 3;
-            background-color: #fafafa !important;
-        }
     </style>
 </head>
 
@@ -382,14 +374,14 @@
                         <el-tab-pane name="internal">
                             <template #label>
                                 <span>内部企业</span>
-                                <info-mark content="1、本组织的组织树+部门树（内部部门，不包括相关方）；2、根据所选节点过滤右侧的数据"></info-mark>
+                                <info-mark content="1、本级及下级的组织树+部门树；2、根据所选节点过滤右侧的数据"></info-mark>
                             </template>
                         </el-tab-pane>
                         <el-tab-pane name="relatedParty">
                             <template #label>
                                 <span>相关方</span>
                                 <info-mark
-                                    content="1、本组织的组织树+相关方+相关方项目；2、根据所选节点过滤右侧的数据，只能选择相关方项目节点，选择其他节点默认为选中下级的第一个相关方项目"></info-mark>
+                                    content="1、本级及下级的组织树+承包商+相关方项目；2、根据所选节点过滤右侧的数据，只能选择相关方项目节点，选择其他节点默认为选中下级的第一个相关方项目"></info-mark>
                             </template>
                         </el-tab-pane>
                     </el-tabs>
@@ -642,32 +634,20 @@
                             </template>
                             <div class="table-container">
                                 <!-- 内部企业模式表格 -->
-                                <el-table v-if="activeTreeTab === 'internal'" :data="categoryTableDataWithSummary"
-                                    stripe border style="width: 100%; height: 100%;" v-loading="tableLoading"
-                                    :key="'category-' + queryForm.granularity"
-                                    :row-class-name="({row}) => row.isSummary ? 'summary-row' : ''">
-                                    <el-table-column prop="index" label="序号" width="70" align="center" fixed>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.index
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
+                                <el-table v-if="activeTreeTab === 'internal'" :data="categoryTableData" stripe border
+                                    style="width: 100%; height: 100%;" v-loading="tableLoading" show-summary
+                                    :summary-method="getCategorySummary" :key="'category-' + queryForm.granularity">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
-                                        show-overflow-tooltip>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.categoryName
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
+                                        show-overflow-tooltip></el-table-column>
                                     <el-table-column prop="planAmount" min-width="150" align="right" sortable>
                                         <template #header>
                                             <span>正式计划总额（万元）</span>
                                             <info-mark content="为该年份正式计划总额，数据来源正式计划"></info-mark>
                                         </template>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''"></span>{{
-                                            row.isSummary ? row.planAmount : formatNumber(row.planAmount / 10000)
-                                            }}</span>
+                                            {{ formatNumber(row.planAmount / 10000) }}
                                         </template>
                                     </el-table-column>
 
@@ -677,8 +657,7 @@
                                             <info-mark content="为该年份实际使用总额，数据来源安全费用使用"></info-mark>
                                         </template>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary ?
-                                                row.actualAmount : formatNumber(row.actualAmount / 10000) }}</span>
+                                            {{ formatNumber(row.actualAmount / 10000) }}
                                         </template>
                                     </el-table-column>
                                     <!-- 季度列组 - 仅当时间粒度为季度时显示 -->
@@ -686,26 +665,22 @@
                                         align="center">
                                         <el-table-column label="一季度" width="120" align="right">
                                             <template #default="{ row }">
-                                                <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary
-                                                    ? row.q1 : formatNumber(row.q1 / 10000) }}</span>
+                                                {{ formatNumber(row.q1 / 10000) }}
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="二季度" width="120" align="right">
                                             <template #default="{ row }">
-                                                <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary
-                                                    ? row.q2 : formatNumber(row.q2 / 10000) }}</span>
+                                                {{ formatNumber(row.q2 / 10000) }}
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="三季度" width="120" align="right">
                                             <template #default="{ row }">
-                                                <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary
-                                                    ? row.q3 : formatNumber(row.q3 / 10000) }}</span>
+                                                {{ formatNumber(row.q3 / 10000) }}
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="四季度" width="120" align="right">
                                             <template #default="{ row }">
-                                                <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary
-                                                    ? row.q4 : formatNumber(row.q4 / 10000) }}</span>
+                                                {{ formatNumber(row.q4 / 10000) }}
                                             </template>
                                         </el-table-column>
                                     </el-table-column>
@@ -715,41 +690,29 @@
                                         <el-table-column v-for="m in 12" :key="m" :label="`${m}月`" width="100"
                                             align="right">
                                             <template #default="{ row }">
-                                                <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary
-                                                    ? row['m' + m] : formatNumber(row['m' + m] / 10000) }}</span>
+                                                {{ formatNumber(row['m' + m] / 10000) }}
                                             </template>
                                         </el-table-column>
                                     </el-table-column>
                                 </el-table>
                                 <!-- 相关方模式表格 -->
-                                <el-table v-if="activeTreeTab === 'relatedParty'" :data="categoryTableDataWithSummary"
-                                    stripe border style="width: 100%; height: 100%;" v-loading="tableLoading"
-                                    :row-class-name="({row}) => row.isSummary ? 'summary-row' : ''">
-                                    <el-table-column prop="index" label="序号" width="70" align="center" fixed>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.index
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
+                                <el-table v-if="activeTreeTab === 'relatedParty'" :data="categoryTableData" stripe
+                                    border style="width: 100%; height: 100%;" v-loading="tableLoading" show-summary
+                                    :summary-method="getCategorySummary">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
-                                        show-overflow-tooltip>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.categoryName
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
+                                        show-overflow-tooltip></el-table-column>
                                     <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary ?
-                                                row.planAmount : formatNumber(row.planAmount / 10000) }}</span>
+                                            {{ formatNumber(row.planAmount / 10000) }}
                                         </template>
                                     </el-table-column>
                                     <el-table-column prop="actualAmount" label="实际使用总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary ?
-                                                row.actualAmount : formatNumber(row.actualAmount / 10000) }}</span>
+                                            {{ formatNumber(row.actualAmount / 10000) }}
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -764,65 +727,34 @@
                                     :content="activeTreeTab === 'internal' ? '根据所选节点显示该节点该年度正式计划内项目数据' : '根据所选相关方项目显示项目数据'"></info-mark>
                             </template>
                             <div class="table-container">
-                                <el-table :data="projectTableDataWithSummary" stripe border
-                                    style="width: 100%; flex: 1;" v-loading="tableLoading"
-                                    :row-class-name="({row}) => row.isSummary ? 'summary-row' : ''">
-                                    <el-table-column prop="index" label="序号" width="70" align="center" fixed>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.index
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="projectCode" label="项目编号" width="180" align="center" fixed>
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.projectCode
-                                                || '' }}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="projectName" label="项目名称" width="200" fixed>
-                                        <template #default="{ row }">
-                                            <span v-if="row.index === '合计'" style="color: #303133;">{{ row.projectName
-                                                }}</span>
-                                            <a v-else href="javascript:void(0);" @click="handleProjectNameClick(row)"
-                                                style="color: #409EFF; text-decoration: underline; cursor: pointer;">
-                                                {{ row.projectName }}
-                                            </a>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="categoryName" label="支出范围" width="150">
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.categoryName
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
+                                <el-table :data="projectTableData" stripe border style="width: 100%; flex: 1;"
+                                    v-loading="tableLoading">
+                                    <el-table-column prop="index" label="序号" width="70" align="center"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="projectName" label="项目名称" width="200"
+                                        fixed></el-table-column>
+                                    <el-table-column prop="categoryName" label="支出范围" width="150"></el-table-column>
                                     <el-table-column prop="planAmount"
                                         :label="activeTreeTab === 'internal' ? '正式计划总额（万元）' : '计划总额（万元）'" width="150"
                                         align="right" sortable>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''"></span>{{
-                                            row.isSummary ? row.planAmount : formatNumber(row.planAmount / 10000)
-                                            }}</span>
+                                            {{ formatNumber(row.planAmount / 10000) }}
                                         </template>
                                     </el-table-column>
+                                    <!-- <el-table-column v-if="isCompanyNode" prop="accrualAmount" label="提取总额（万元）"
+                                        width="150" align="right" sortable>
+                                        <template #default="{ row }">
+                                            {{ formatNumber(row.accrualAmount / 10000) }}
+                                        </template>
+                                    </el-table-column> -->
                                     <el-table-column prop="actualAmount" label="实际使用总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.isSummary ?
-                                                row.actualAmount : formatNumber(row.actualAmount / 10000) }}</span>
+                                            {{ formatNumber(row.actualAmount / 10000) }}
                                         </template>
                                     </el-table-column>
-                                    <el-table-column prop="deptName" label="责任部门" width="150">
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.deptName
-                                                }}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="responsiblePerson" label="责任人" width="120">
-                                        <template #default="{ row }">
-                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{
-                                                row.responsiblePerson }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="deptName" label="责任部门" width="150"></el-table-column>
+                                    <el-table-column prop="responsiblePerson" label="责任人" width="120"></el-table-column>
                                 </el-table>
                                 <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
                                     <el-pagination v-model:current-page="tablePage" v-model:page-size="tablePageSize"
@@ -879,13 +811,76 @@
                 // 内部企业树数据
                 const internalTreeData = ref([
                     {
-                        id: 13,
-                        label: '华夏电力',
+                        id: 1,
+                        label: '国投电力',
                         type: 'company',
                         children: [
-                            { id: 1301, label: '安健环管理部', type: 'department' },
-                            { id: 1302, label: '设备部', type: 'department' },
-                            { id: 1303, label: '生产运营部', type: 'department' }
+                            {
+                                id: 11,
+                                label: '国投电力本部',
+                                type: 'company',
+                                children: [
+                                    { id: 1101, label: '安健环管理部', type: 'department' },
+                                    { id: 1102, label: '设备部', type: 'department' },
+                                    { id: 1103, label: '生产运营部', type: 'department' },
+                                    { id: 1104, label: '综合管理部', type: 'department' }
+                                ]
+                            },
+                            {
+                                id: 12,
+                                label: '云南大朝山',
+                                type: 'company',
+                                children: [
+                                    { id: 1201, label: '安健环管理部', type: 'department' },
+                                    { id: 1202, label: '设备部', type: 'department' },
+                                    { id: 1203, label: '生产运营部', type: 'department' }
+                                ]
+                            },
+                            {
+                                id: 13,
+                                label: '华夏电力',
+                                type: 'company',
+                                children: [
+                                    { id: 1301, label: '安健环管理部', type: 'department' },
+                                    { id: 1302, label: '设备部', type: 'department' },
+                                    { id: 1303, label: '生产运营部', type: 'department' }
+                                ]
+                            },
+                            {
+                                id: 14,
+                                label: '广西新能源',
+                                type: 'company',
+                                children: [
+                                    {
+                                        id: 141,
+                                        label: '广西新能源本部',
+                                        type: 'company',
+                                        children: [
+                                            { id: 14101, label: '安健环管理部', type: 'department' },
+                                            { id: 14102, label: '设备部', type: 'department' },
+                                            { id: 14103, label: '生产运营部', type: 'department' }
+                                        ]
+                                    },
+                                    {
+                                        id: 142,
+                                        label: '分公司1',
+                                        type: 'company',
+                                        children: [
+                                            { id: 14201, label: '安健环管理部', type: 'department' },
+                                            { id: 14202, label: '设备部', type: 'department' }
+                                        ]
+                                    },
+                                    {
+                                        id: 143,
+                                        label: '分公司2',
+                                        type: 'company',
+                                        children: [
+                                            { id: 14301, label: '安健环管理部', type: 'department' },
+                                            { id: 14302, label: '设备部', type: 'department' }
+                                        ]
+                                    }
+                                ]
+                            }
                         ]
                     }
                 ]);
@@ -893,46 +888,115 @@
                 // 相关方树数据（内部企业 + 承包商）
                 const relatedPartyTreeData = ref([
                     {
-                        id: 13,
-                        label: '华夏电力',
+                        id: 1,
+                        label: '国投电力',
                         type: 'company',
                         children: [
                             {
-                                id: 1301,
-                                label: '华夏建设集团',
-                                type: 'contractor',
+                                id: 11,
+                                label: '国投电力本部',
+                                type: 'company',
                                 children: [
-                                    { id: 13011, label: '火电厂改造项目组', type: 'project' },
-                                    { id: 13012, label: '锅炉设备更新项目组', type: 'project' }
+                                    {
+                                        id: 1101,
+                                        label: '中电建设承包商',
+                                        type: 'contractor',
+                                        children: [
+                                            { id: 11011, label: '变电站改造项目组', type: 'project' },
+                                            { id: 11012, label: '输电线路检修项目组', type: 'project' }
+                                        ]
+                                    },
+                                    {
+                                        id: 1102,
+                                        label: '华能施工队',
+                                        type: 'contractor',
+                                        children: [
+                                            { id: 11021, label: '电缆敷设工程组', type: 'project' },
+                                            { id: 11022, label: '设备安装项目组', type: 'project' }
+                                        ]
+                                    }
                                 ]
                             },
                             {
-                                id: 1302,
-                                label: '安全检测有限公司',
-                                type: 'contractor',
+                                id: 12,
+                                label: '云南大朝山',
+                                type: 'company',
                                 children: [
-                                    { id: 13021, label: '特种设备检测项目组', type: 'project' },
-                                    { id: 13022, label: '安全设施评估项目组', type: 'project' },
-                                    { id: 13023, label: '环境监测项目组', type: 'project' }
+                                    {
+                                        id: 1201,
+                                        label: '云南电力工程公司',
+                                        type: 'contractor',
+                                        children: [
+                                            { id: 12011, label: '水电站维护项目组', type: 'project' }
+                                        ]
+                                    }
                                 ]
                             },
                             {
-                                id: 1303,
-                                label: '华夏技术服务公司',
-                                type: 'contractor',
+                                id: 13,
+                                label: '华夏电力',
+                                type: 'company',
                                 children: [
-                                    { id: 13031, label: '电力系统维护项目组', type: 'project' },
-                                    { id: 13032, label: '信息化改造项目组', type: 'project' }
+                                    {
+                                        id: 1301,
+                                        label: '华夏建设集团',
+                                        type: 'contractor',
+                                        children: [
+                                            { id: 13011, label: '火电厂改造项目组', type: 'project' }
+                                        ]
+                                    },
+                                    {
+                                        id: 1302,
+                                        label: '安全检测有限公司',
+                                        type: 'contractor'
+                                    }
                                 ]
                             },
                             {
-                                id: 1304,
-                                label: '华夏劳务有限公司',
-                                type: 'contractor',
+                                id: 14,
+                                label: '广西新能源',
+                                type: 'company',
                                 children: [
-                                    { id: 13041, label: '日常运维项目组', type: 'project' },
-                                    { id: 13042, label: '设备巡检项目组', type: 'project' },
-                                    { id: 13043, label: '应急保障项目组', type: 'project' }
+                                    {
+                                        id: 141,
+                                        label: '广西新能源本部',
+                                        type: 'company',
+                                        children: [
+                                            {
+                                                id: 14101,
+                                                label: '新能源建设公司',
+                                                type: 'contractor',
+                                                children: [
+                                                    { id: 141011, label: '风电项目组', type: 'project' },
+                                                    { id: 141012, label: '光伏项目组', type: 'project' }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        id: 142,
+                                        label: '分公司1',
+                                        type: 'company',
+                                        children: [
+                                            {
+                                                id: 14201,
+                                                label: '分公司1承包商A',
+                                                type: 'contractor'
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        id: 143,
+                                        label: '分公司2',
+                                        type: 'company',
+                                        children: [
+                                            {
+                                                id: 14301,
+                                                label: '分公司2承包商B',
+                                                type: 'contractor'
+                                            }
+                                        ]
+                                    }
                                 ]
                             }
                         ]
@@ -1091,7 +1155,6 @@
                 const projectTableData = ref([
                     {
                         index: 1,
-                        projectCode: 'ZSJH-20260101-0001',
                         projectName: '车间防护栏杆更新',
                         categoryName: '安全防护设施',
                         planType: 'ancuo',
@@ -1104,7 +1167,6 @@
                     },
                     {
                         index: 2,
-                        projectCode: 'ZSJH-20260101-0002',
                         projectName: '全员安全培训',
                         categoryName: '安全培训教育',
                         planType: 'ancuo',
@@ -1117,7 +1179,6 @@
                     },
                     {
                         index: 3,
-                        projectCode: 'SJSY-20260101-0001',
                         projectName: '防护用品采购',
                         categoryName: '劳动防护用品',
                         planType: 'other',
@@ -1130,7 +1191,6 @@
                     },
                     {
                         index: 4,
-                        projectCode: 'ZSJH-20260101-0003',
                         projectName: '设备安全检测',
                         categoryName: '安全检测检验',
                         planType: 'fancuo',
@@ -1143,7 +1203,6 @@
                     },
                     {
                         index: 5,
-                        projectCode: 'ZSJH-20260101-0004',
                         projectName: '应急救援装备更新',
                         categoryName: '应急救援器材',
                         planType: 'ancuo',
@@ -1156,7 +1215,6 @@
                     },
                     {
                         index: 6,
-                        projectCode: 'SJSY-20260101-0002',
                         projectName: '安全标志标识更新',
                         categoryName: '安全防护设施',
                         planType: 'other',
@@ -1169,7 +1227,6 @@
                     },
                     {
                         index: 7,
-                        projectCode: 'ZSJH-20260101-0005',
                         projectName: '特种作业人员培训',
                         categoryName: '安全培训教育',
                         planType: 'ancuo',
@@ -1182,7 +1239,6 @@
                     },
                     {
                         index: 8,
-                        projectCode: 'SJSY-20260101-0003',
                         projectName: '环境检测仪器校准',
                         categoryName: '安全检测检验',
                         planType: 'other',
@@ -1194,61 +1250,6 @@
                         responsiblePerson: '赵六'
                     }
                 ]);
-
-                // 计算带合计行的类别表格数据
-                const categoryTableDataWithSummary = computed(() => {
-                    const data = categoryTableData.value;
-                    if (!data || data.length === 0) return [];
-
-                    // 计算合计
-                    const summary = {
-                        index: '合计',
-                        categoryName: '',
-                        isSummary: true,
-                        planAmount: formatNumber(data.reduce((sum, item) => sum + item.planAmount, 0) / 10000),
-                        actualAmount: formatNumber(data.reduce((sum, item) => sum + item.actualAmount, 0) / 10000),
-                        q1: formatNumber(data.reduce((sum, item) => sum + (item.q1 || 0), 0) / 10000),
-                        q2: formatNumber(data.reduce((sum, item) => sum + (item.q2 || 0), 0) / 10000),
-                        q3: formatNumber(data.reduce((sum, item) => sum + (item.q3 || 0), 0) / 10000),
-                        q4: formatNumber(data.reduce((sum, item) => sum + (item.q4 || 0), 0) / 10000),
-                        m1: formatNumber(data.reduce((sum, item) => sum + (item.m1 || 0), 0) / 10000),
-                        m2: formatNumber(data.reduce((sum, item) => sum + (item.m2 || 0), 0) / 10000),
-                        m3: formatNumber(data.reduce((sum, item) => sum + (item.m3 || 0), 0) / 10000),
-                        m4: formatNumber(data.reduce((sum, item) => sum + (item.m4 || 0), 0) / 10000),
-                        m5: formatNumber(data.reduce((sum, item) => sum + (item.m5 || 0), 0) / 10000),
-                        m6: formatNumber(data.reduce((sum, item) => sum + (item.m6 || 0), 0) / 10000),
-                        m7: formatNumber(data.reduce((sum, item) => sum + (item.m7 || 0), 0) / 10000),
-                        m8: formatNumber(data.reduce((sum, item) => sum + (item.m8 || 0), 0) / 10000),
-                        m9: formatNumber(data.reduce((sum, item) => sum + (item.m9 || 0), 0) / 10000),
-                        m10: formatNumber(data.reduce((sum, item) => sum + (item.m10 || 0), 0) / 10000),
-                        m11: formatNumber(data.reduce((sum, item) => sum + (item.m11 || 0), 0) / 10000),
-                        m12: formatNumber(data.reduce((sum, item) => sum + (item.m12 || 0), 0) / 10000)
-                    };
-
-                    return [summary, ...data];
-                });
-
-                // 计算带合计行的项目表格数据
-                const projectTableDataWithSummary = computed(() => {
-                    const data = projectTableData.value;
-                    if (!data || data.length === 0) return [];
-
-                    // 计算合计
-                    const summary = {
-                        index: '合计',
-                        projectCode: '',
-                        projectName: '',
-                        categoryName: '',
-                        isSummary: true,
-                        planAmount: formatNumber(data.reduce((sum, item) => sum + item.planAmount, 0) / 10000),
-                        actualAmount: formatNumber(data.reduce((sum, item) => sum + item.actualAmount, 0) / 10000),
-                        deptName: '',
-                        responsiblePerson: ''
-                    };
-
-                    return [summary, ...data];
-                });
-
 
                 // 下级组织数据（当选择存在下级组织的节点时显示）
                 const subordinateOrgData = ref([
@@ -1449,43 +1450,6 @@
                     return sums;
                 };
 
-                // 项目维度表格合计行
-                const getProjectSummary = (param) => {
-                    const { columns, data } = param;
-                    const sums = [];
-                    columns.forEach((column, index) => {
-                        if (index === 0) {
-                            sums[index] = '合计';
-                            return;
-                        }
-                        if (index === 1 || index === 2) {
-                            sums[index] = '';
-                            return;
-                        }
-                        const values = data.map(item => Number(item[column.property]));
-                        if (!values.every(value => Number.isNaN(value))) {
-                            const sum = values.reduce((prev, curr) => {
-                                const value = Number(curr);
-                                if (!Number.isNaN(value)) {
-                                    return prev + curr;
-                                } else {
-                                    return prev;
-                                }
-                            }, 0);
-                            sums[index] = formatNumber(sum / 10000);
-                        } else {
-                            sums[index] = '-';
-                        }
-                    });
-                    return sums;
-                };
-
-                // 处理项目名称点击
-                const handleProjectNameClick = (row) => {
-                    // 打开详情页面,传递项目ID、类型参数和来源页面
-                    window.location.href = `安全费用使用-详情.html?mode=view&type=project&id=${row.index}&from=statistics`;
-                };
-
                 watch(treeFilterText, (val) => {
                     treeRef.value?.filter(val);
                 });
@@ -1509,9 +1473,7 @@
                     queryForm,
                     quickStats,
                     categoryTableData,
-                    categoryTableDataWithSummary,
                     projectTableData,
-                    projectTableDataWithSummary,
                     subordinateOrgData,
                     formatMoney,
                     formatNumber,
@@ -1525,7 +1487,7 @@
                     handleReset,
                     handleGranularityChange,
                     handleCardClick,
-                    handleProjectNameClick
+                    getCategorySummary
                 };
             }
         });

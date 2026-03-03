@@ -389,6 +389,14 @@
         .info-mark:hover {
             opacity: 0.8;
         }
+
+        /* 合计行固定样式 - 使合计行始终显示在表格顶部不随内容滚动 */
+        .el-table__body tr.summary-row td {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background-color: #fafafa !important;
+        }
     </style>
 </head>
 
@@ -529,12 +537,22 @@
                                 <info-mark content="根据所选相关方项目显示对应支出范围下的数据"></info-mark>
                             </template>
                             <div class="table-container">
-                                <el-table :data="categoryTableData" stripe border style="width: 100%; height: 100%;"
-                                    v-loading="tableLoading" show-summary :summary-method="getCategorySummary">
-                                    <el-table-column prop="index" label="序号" width="70" align="center"
-                                        fixed></el-table-column>
+                                <el-table :data="categoryTableDataWithSummary" stripe border
+                                    style="width: 100%; height: 100%;" v-loading="tableLoading"
+                                    :row-class-name="({row}) => row.isSummary ? 'summary-row' : ''">
+                                    <el-table-column prop="index" label="序号" width="70" align="center" fixed>
+                                        <template #default="{ row }">
+                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.index
+                                                }}</span>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" min-width="350" fixed
-                                        show-overflow-tooltip></el-table-column>
+                                        show-overflow-tooltip>
+                                        <template #default="{ row }">
+                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.categoryName
+                                                }}</span>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
                                         sortable>
                                         <template #default="{ row }">
@@ -564,12 +582,38 @@
                                 <info-mark content="根据所选相关方项目显示该项目的安全费用项目数据"></info-mark>
                             </template>
                             <div class="table-container">
-                                <el-table :data="projectTableData" stripe border style="width: 100%; flex: 1;"
-                                    v-loading="tableLoading">
-                                    <el-table-column prop="index" label="序号" width="70" align="center"
-                                        fixed></el-table-column>
-                                    <el-table-column prop="projectName" label="项目名称" width="200"
-                                        fixed></el-table-column>
+                                <el-table :data="projectTableDataWithSummary" stripe border
+                                    style="width: 100%; flex: 1;" v-loading="tableLoading"
+                                    :row-class-name="({row}) => row.isSummary ? 'summary-row' : ''">
+                                    <el-table-column prop="index" label="序号" width="70" align="center" fixed>
+                                        <template #default="{ row }">
+                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.index
+                                                }}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="relatedProjectName" label="关联相关方项目" width="180" fixed>
+                                        <template #default="{ row }">
+                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{
+                                                row.relatedProjectName
+                                                }}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="projectCode" label="项目编号" width="180" fixed>
+                                        <template #default="{ row }">
+                                            <span :style="row.isSummary ? 'font-weight: 600;' : ''">{{ row.projectCode
+                                                }}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="projectName" label="项目名称" width="200" fixed>
+                                        <template #default="{ row }">
+                                            <span v-if="row.isSummary" style="font-weight: 600;">{{ row.projectName
+                                                }}</span>
+                                            <a v-else href="javascript:;" @click="handleProjectNameClick(row)"
+                                                style="color: #409EFF; text-decoration: underline; cursor: pointer;">
+                                                {{ row.projectName }}
+                                            </a>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column prop="categoryName" label="支出范围" width="150"></el-table-column>
                                     <el-table-column prop="planAmount" label="计划总额（万元）" width="150" align="right"
                                         sortable>
@@ -810,6 +854,8 @@
                 const projectTableData = ref([
                     {
                         index: 1,
+                        relatedProjectName: '变电站改造项目',
+                        projectCode: 'XGFXM-20260101-0001',
                         projectName: '车间防护栏杆更新',
                         categoryName: '安全防护设施',
                         planType: 'ancuo',
@@ -822,6 +868,8 @@
                     },
                     {
                         index: 2,
+                        relatedProjectName: '输电线路检修项目',
+                        projectCode: 'XGFXM-20260115-0002',
                         projectName: '全员安全培训',
                         categoryName: '安全培训教育',
                         planType: 'ancuo',
@@ -831,6 +879,62 @@
                         actualAmount: 328000,
                         deptName: '安全生产部',
                         responsiblePerson: '李四'
+                    },
+                    {
+                        index: 3,
+                        relatedProjectName: '变电站改造项目',
+                        projectCode: 'XGFXM-20260120-0003',
+                        projectName: '消防设施检测维护',
+                        categoryName: '消防设施维护及检测',
+                        planType: 'ancuo',
+                        planAmount: 280000,
+                        budgetAmount: 270000,
+                        accrualAmount: 275000,
+                        actualAmount: 268000,
+                        deptName: '消防安全组',
+                        responsiblePerson: '王五'
+                    },
+                    {
+                        index: 4,
+                        relatedProjectName: '配电网升级项目',
+                        projectCode: 'XGFXM-20260125-0004',
+                        projectName: '特种设备安全检测',
+                        categoryName: '特种设备检测检验',
+                        planType: 'ancuo',
+                        planAmount: 420000,
+                        budgetAmount: 410000,
+                        accrualAmount: 415000,
+                        actualAmount: 402000,
+                        deptName: '设备管理部',
+                        responsiblePerson: '赵六'
+                    },
+                    {
+                        index: 5,
+                        relatedProjectName: '输电线路检修项目',
+                        projectCode: 'XGFXM-20260201-0005',
+                        projectName: '应急救援装备采购',
+                        categoryName: '应急救援器材',
+                        planType: 'ancuo',
+                        planAmount: 380000,
+                        budgetAmount: 375000,
+                        accrualAmount: 378000,
+                        actualAmount: 365000,
+                        deptName: '应急管理部',
+                        responsiblePerson: '孙七'
+                    },
+                    {
+                        index: 6,
+                        relatedProjectName: '配电网升级项目',
+                        projectCode: 'XGFXM-20260210-0006',
+                        projectName: '安全标志标识更新',
+                        categoryName: '安全标志及标识',
+                        planType: 'ancuo',
+                        planAmount: 150000,
+                        budgetAmount: 145000,
+                        accrualAmount: 148000,
+                        actualAmount: 142000,
+                        deptName: '安全生产部',
+                        responsiblePerson: '周八'
                     }
                 ]);
 
@@ -920,6 +1024,62 @@
                     return sums;
                 };
 
+                // 计算支出范围表格数据（合计行作为第一行）
+                const categoryTableDataWithSummary = computed(() => {
+                    const summaryRow = {
+                        index: '合计',
+                        categoryName: '',
+                        planAmount: categoryTableData.value.reduce((sum, item) => sum + item.planAmount, 0),
+                        budgetAmount: categoryTableData.value.reduce((sum, item) => sum + item.budgetAmount, 0),
+                        accrualAmount: categoryTableData.value.reduce((sum, item) => sum + item.accrualAmount, 0),
+                        actualAmount: categoryTableData.value.reduce((sum, item) => sum + item.actualAmount, 0),
+                        isSummary: true
+                    };
+                    return [summaryRow, ...categoryTableData.value];
+                });
+
+                // 计算项目表格数据（合计行作为第一行）
+                const projectTableDataWithSummary = computed(() => {
+                    // 根据选中的相关方项目进行过滤
+                    let filteredData = projectTableData.value;
+
+                    if (selectedProject.value) {
+                        // 获取选中的项目名称
+                        let selectedProjectName = null;
+                        contractors.value.forEach(c => {
+                            const p = c.projects.find(proj => proj.id === selectedProject.value);
+                            if (p) selectedProjectName = p.name;
+                        });
+
+                        // 根据项目名称过滤数据
+                        if (selectedProjectName) {
+                            filteredData = projectTableData.value.filter(
+                                item => item.relatedProjectName === selectedProjectName
+                            );
+                        }
+                    }
+
+                    const summaryRow = {
+                        index: '合计',
+                        relatedProjectName: '',
+                        projectCode: '',
+                        projectName: '',
+                        categoryName: '',
+                        planAmount: filteredData.reduce((sum, item) => sum + item.planAmount, 0),
+                        budgetAmount: filteredData.reduce((sum, item) => sum + item.budgetAmount, 0),
+                        accrualAmount: filteredData.reduce((sum, item) => sum + item.accrualAmount, 0),
+                        actualAmount: filteredData.reduce((sum, item) => sum + item.actualAmount, 0),
+                        isSummary: true
+                    };
+                    return [summaryRow, ...filteredData];
+                });
+
+                // 处理项目名称点击
+                const handleProjectNameClick = (row) => {
+                    // 打开详情页面,传递项目ID、类型参数和来源页面
+                    window.location.href = `安全投入(相关方)-详情.html?mode=view&type=project&id=${row.index}&from=statistics-related`;
+                };
+
                 return {
                     activeTab,
                     tableLoading,
@@ -929,7 +1089,9 @@
                     isCompanyNode,
                     quickStats,
                     categoryTableData,
+                    categoryTableDataWithSummary,
                     projectTableData,
+                    projectTableDataWithSummary,
                     contractors,
                     filteredContractors,
                     selectedContractor,
@@ -941,7 +1103,8 @@
                     formatMoney,
                     formatNumber,
                     handleCardClick,
-                    getCategorySummary
+                    getCategorySummary,
+                    handleProjectNameClick
                 };
             }
         });

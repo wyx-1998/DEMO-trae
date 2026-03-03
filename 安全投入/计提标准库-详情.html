@@ -313,10 +313,11 @@
                             <div class="form-item">
                                 <el-form-item label="提取周期类型" prop="cycleType" required>
                                     <el-select v-model="formData.cycleType" placeholder="请选择提取周期类型" :disabled="isView"
-                                        style="width: 100%;">
+                                        style="width: 100%;" @change="handleCycleTypeChange">
                                         <el-option label="月度实时提取" value="monthly"></el-option>
                                         <el-option label="年度分摊提取" value="yearly"></el-option>
                                         <el-option label="项目进度提取" value="project"></el-option>
+                                        <el-option label="自定义提取" value="custom"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </div>
@@ -327,20 +328,25 @@
                                         <info-mark
                                             content="1、选择“超额累退”时，需要显示下方的详细规则，用于后续的计算。超额累退的计算举例说明：比如某危险品生产企业上一年度营业收入为1200万元，其中1000万元按照4.5%提取，剩余的200万元按照2.25%提取，然后相加。计算方式如下：M ≤1000万元，按M×4.5%计提；1000万元＜M≤1亿元，按1000万元×4.5%+（M-1000万元）×2.25%计提；1亿元＜M≤10亿元，按1000万元×4.5%+（1亿元-1000万元）×2.25%+（M-1亿元）×0.55%计提；10亿元＜M，按1000万元×4.5%+（1亿元-1000万元）×2.25%+（10亿元-1亿元）×0.55%+（M-10亿元）×0.2%计提。2、选择“比例提取”时，需要显示提取比例和提取比例单位，用于后续的计算，计算规则为后续提取页面中输入的提取依据值*提取比例。3、需要注意单位的换算"></info-mark>
                                     </template>
-                                    <el-select v-model="formData.ruleType" placeholder="请选择提取规则类型" :disabled="isView"
-                                        style="width: 100%;" @change="handleRuleTypeChange">
-                                        <el-option label="比例提取" value="proportion"></el-option>
-                                        <el-option label="超额累退" value="excess"></el-option>
+                                    <el-select v-model="formData.ruleType" placeholder="请选择提取规则类型"
+                                        :disabled="isView || formData.cycleType === 'custom'" style="width: 100%;"
+                                        @change="handleRuleTypeChange">
+                                        <el-option label="比例提取" value="proportion"
+                                            v-if="formData.cycleType !== 'custom'"></el-option>
+                                        <el-option label="超额累退" value="excess"
+                                            v-if="formData.cycleType !== 'custom'"></el-option>
+                                        <el-option label="自定义提取" value="custom"
+                                            v-if="formData.cycleType === 'custom'"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </div>
-                            <div class="form-item">
+                            <div class="form-item" v-if="formData.ruleType !== 'custom'">
                                 <el-form-item label="提取依据名称" prop="basisName" required>
                                     <el-input v-model="formData.basisName" placeholder="请输入提取依据名称" :disabled="isView" />
                                 </el-form-item>
                             </div>
                         </div>
-                        <div class="form-row">
+                        <div class="form-row" v-if="formData.ruleType !== 'custom'">
                             <div class="form-item">
                                 <el-form-item label="提取依据单位" prop="basisUnit" required>
                                     <el-input v-model="formData.basisUnit" placeholder="请输入提取依据单位，如：元、万元、吨等"
@@ -824,6 +830,14 @@
                     return parts.join('.');
                 };
 
+                // 周期类型变化
+                const handleCycleTypeChange = (val) => {
+                    if (val === 'custom') {
+                        formData.value.ruleType = 'custom';
+                        handleRuleTypeChange();
+                    }
+                };
+
                 // 规则类型变化
                 const handleRuleTypeChange = () => {
                     if (formData.value.ruleType === 'proportion' && formData.value.proportionRules.length === 0) {
@@ -935,6 +949,7 @@
                     filteredOrgList,
                     investmentCategories,
                     toggleModule,
+                    handleCycleTypeChange,
                     handleRuleTypeChange,
                     addProportionRow,
                     removeProportionRow,

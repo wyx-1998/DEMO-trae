@@ -768,7 +768,15 @@
                 };
 
                 const goBack = () => {
-                    window.location.href = '安全投入(相关方).html';
+                    // 检查URL参数中的from字段,确定返回到哪个页面
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const from = urlParams.get('from');
+
+                    if (from === 'statistics-related') {
+                        window.location.href = '统计查询-相关方.html';
+                    } else {
+                        window.location.href = '安全投入(相关方).html';
+                    }
                 };
 
                 return {

@@ -211,18 +211,20 @@
                 </div>
 
                 <el-table :data="tableData" border stripe style="width: 100%">
-                    <el-table-column type="index" label="序号" width="60" align="center" />
-                    <el-table-column prop="configName" label="配置名称" min-width="180" show-overflow-tooltip />
-                    <el-table-column prop="configCode" label="配置编号" width="150" show-overflow-tooltip />
-                    <el-table-column prop="templateCode" label="关联模板" width="150" show-overflow-tooltip />
+                    <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+                    <el-table-column prop="configName" label="配置名称" min-width="180"
+                        show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="configCode" label="配置编号" width="150" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="templateCode" label="关联模板" width="150"
+                        show-overflow-tooltip></el-table-column>
                     <el-table-column prop="triggerType" label="触发类型" width="110" align="center">
                         <template #default="{ row }">
-                            <el-tag :type="getTriggerTypeTagType(row.triggerType)" class="trigger-type-tag" size="small">
-                                {{ getTriggerTypeText(row.triggerType) }}
-                            </el-tag>
+                            <el-tag :type="getTriggerTypeTagType(row.triggerType)" class="trigger-type-tag"
+                                size="small">{{ getTriggerTypeText(row.triggerType) }}</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="triggerRule" label="触发规则" min-width="200" show-overflow-tooltip />
+                    <el-table-column prop="triggerRule" label="触发规则" min-width="200"
+                        show-overflow-tooltip></el-table-column>
                     <el-table-column prop="notifyMethods" label="通知方式" width="120" align="center">
                         <template #default="{ row }">
                             <div class="notify-methods">
@@ -241,17 +243,15 @@
                     <el-table-column prop="status" label="状态" width="100" align="center">
                         <template #default="{ row }">
                             <el-switch v-model="row.status" :active-value="1" :inactive-value="0"
-                                @change="handleStatusChange(row)" />
+                                @change="handleStatusChange(row)"></el-switch>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="180" align="center" fixed="right">
                         <template #default="{ row }">
-                            <el-button link type="primary" size="small" @click="handleEdit(row)">
-                                <i class="fa fa-edit"></i> 编辑
-                            </el-button>
-                            <el-button link type="danger" size="small" @click="handleDelete(row)">
-                                <i class="fa fa-trash"></i> 删除
-                            </el-button>
+                            <el-button link type="primary" size="small" @click="handleEdit(row)"><i
+                                    class="fa fa-edit"></i> 编辑</el-button>
+                            <el-button link type="danger" size="small" @click="handleDelete(row)"><i
+                                    class="fa fa-trash"></i> 删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -345,8 +345,7 @@
                     <div class="rule-config-area" style="width: 100%;">
                         <div class="rule-item">
                             <span class="rule-label">触发事件：</span>
-                            <el-select v-model="formData.instantConfig.event" placeholder="请选择触发事件"
-                                style="flex: 1;">
+                            <el-select v-model="formData.instantConfig.event" placeholder="请选择触发事件" style="flex: 1;">
                                 <el-option label="数据创建" value="create" />
                                 <el-option label="数据更新" value="update" />
                                 <el-option label="数据删除" value="delete" />
