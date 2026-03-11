@@ -522,7 +522,7 @@
                     <div class="main-content">
                         <!-- 计提标准库列表页面 -->
                         <div class="content-wrapper" v-if="activeMenu === 'accrual-standard'">
-                            <iframe src="./安全投入/计提标准库.html"
+                            <iframe src="./安全生产费用/计提标准库.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -530,7 +530,7 @@
 
                         <!-- 计提标准库详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'accrual-standard-detail'">
-                            <iframe src="./安全投入/计提标准库-详情.html"
+                            <iframe src="./安全生产费用/计提标准库-详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -538,7 +538,7 @@
 
                         <!-- 支出范围库页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'investment-category'">
-                            <iframe src="./安全投入/支出范围库.html"
+                            <iframe src="./安全生产费用/支出范围库.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -546,7 +546,7 @@
 
                         <!-- 预审计划页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'preliminary-review-plan'">
-                            <iframe src="./安全投入/预审计划.html"
+                            <iframe src="./安全生产费用/预审计划.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -554,7 +554,7 @@
 
                         <!-- 正式计划页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'formal-plan'">
-                            <iframe src="./安全投入/正式计划.html"
+                            <iframe src="./安全生产费用/正式计划.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -562,15 +562,7 @@
 
                         <!-- 计划变更页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'plan-change'">
-                            <iframe src="./安全投入/计划变更.html"
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px;"
-                                @load="handleIframeLoad">
-                            </iframe>
-                        </div>
-
-                        <!-- 安措计划详情页面 -->
-                        <div class="content-wrapper" v-else-if="activeMenu === 'safety-measures-plan-detail'">
-                            <iframe src="./安全投入/安措计划-详情.html"
+                            <iframe src="./安全生产费用/计划变更.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -578,7 +570,7 @@
 
                         <!-- 计划提取列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'planned-extraction'">
-                            <iframe src="./安全投入/计划提取.html"
+                            <iframe src="./安全生产费用/占位-开发中.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -609,7 +601,7 @@
 
                         <!-- 安全费用计提详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-expense-accrual-detail'">
-                            <iframe src="./安全投入/计划提取-详情.html"
+                            <iframe src="./安全生产费用/计划提取-详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -617,7 +609,7 @@
 
                         <!-- 数据看板页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'safety-investment-dashboard'">
-                            <iframe src="./安全投入/数据看板.html"
+                            <iframe src="./安全生产费用/数据看板.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -625,7 +617,7 @@
 
                         <!-- 统计查询页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'statistical-query'">
-                            <iframe src="./安全投入/统计查询.html"
+                            <iframe src="./安全生产费用/统计查询.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -633,7 +625,7 @@
 
                         <!-- 负面清单库页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'negative-list-library'">
-                            <iframe src="./安全投入/负面清单库.html"
+                            <iframe src="./安全生产费用/负面清单库.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -641,7 +633,7 @@
 
                         <!-- 安全费用使用列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'expense-management'">
-                            <iframe src="./安全投入/安全费用使用.html"
+                            <iframe src="./安全生产费用/安全费用使用.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -649,7 +641,7 @@
 
                         <!-- 安全费用使用详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'expense-management-detail'">
-                            <iframe src="./安全投入/安全费用使用-详情.html"
+                            <iframe src="./安全生产费用/安全费用使用-详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -659,7 +651,7 @@
 
                         <!-- 相关方-安全投入计划列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-investment-plan'">
-                            <iframe src="./安全投入/安全投入计划(相关方).html"
+                            <iframe src="./安全生产费用/相关方-安全费用计划.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -667,7 +659,7 @@
 
                         <!-- 相关方-安全投入计划详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-investment-plan-detail'">
-                            <iframe src="./安全投入/安全投入计划(相关方)-详情.html"
+                            <iframe src="./安全生产费用/相关方-安全费用计划-详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -675,7 +667,7 @@
 
                         <!-- 相关方-安全费用计提列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-accrual'">
-                            <iframe src="./安全投入/安全费用计提(相关方).html"
+                            <iframe src="./安全生产费用/占位-开发中.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -683,7 +675,7 @@
 
                         <!-- 相关方-安全费用计提详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-accrual-detail'">
-                            <iframe src="./安全投入/安全费用计提(相关方)-详情.html"
+                            <iframe src="./安全生产费用/占位-开发中.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -691,7 +683,7 @@
 
                         <!-- 相关方-费用使用记录列表页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-records'">
-                            <iframe src="./安全投入/安全投入(相关方).html"
+                            <iframe src="./安全生产费用/相关方-安全费用使用.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -699,7 +691,7 @@
 
                         <!-- 相关方-费用使用记录详情页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-expense-records-detail'">
-                            <iframe src="./安全投入/安全投入(相关方)-详情.html"
+                            <iframe src="./安全生产费用/相关方-安全费用使用-详情.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -707,7 +699,7 @@
 
                         <!-- 相关方-统计查询页面 -->
                         <div class="content-wrapper" v-else-if="activeMenu === 'related-statistical-query'">
-                            <iframe src="./安全投入/统计查询-相关方.html"
+                            <iframe src="./安全生产费用/相关方-统计查询.html"
                                 style="width: 100%; height: 100%; border: none; border-radius: 8px;"
                                 @load="handleIframeLoad">
                             </iframe>
@@ -807,7 +799,7 @@
                 // 类型选择弹窗
                 const typeSelectDialogVisible = ref(false);
                 const selectedCycleType = ref('yearly');
-                const plannedExtractionDetailSrc = ref('./安全投入/计划提取-详情.html');
+                const plannedExtractionDetailSrc = ref('./安全生产费用/计划提取-详情.html');
 
                 // 菜单配置
                 const menuConfig = {
@@ -820,7 +812,7 @@
                     // 安全费用计划子菜单
                     'preliminary-review-plan': { title: '预审计划', icon: 'fas fa-file-alt' },
                     'formal-plan': { title: '正式计划', icon: 'fas fa-file-contract' },
-                    'safety-measures-plan-detail': { title: '安措计划详情', icon: 'fas fa-info-circle' },
+                    'plan-change': { title: '计划变更', icon: 'fas fa-exchange-alt' },
                     // 安全费用提取子菜单
                     'planned-extraction': { title: '计划提取', icon: 'fas fa-calendar-check' },
                     'planned-extraction-detail': { title: '计划提取详情', icon: 'fas fa-info-circle' },
@@ -865,7 +857,7 @@
 
                 const handleMenuSelect = (index) => {
                     // 拦截计划提取菜单
-                    if (index === 'planned-extraction') {
+                    if (index === 'safety-expense-accrual') {
                         selectedCycleType.value = 'yearly';
                         typeSelectDialogVisible.value = true;
                         return;
@@ -886,13 +878,13 @@
 
                     // 根据选择设置详情页地址
                     if (selectedCycleType.value === 'monthly') {
-                        plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-月度.html?mode=add';
+                        plannedExtractionDetailSrc.value = './安全生产费用/计划提取-详情-月度.html?mode=add';
                     } else if (selectedCycleType.value === 'projectProgress') {
-                        plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-工程进度.html?mode=add';
+                        plannedExtractionDetailSrc.value = './安全生产费用/计划提取-详情-工程进度.html?mode=add';
                     } else if (selectedCycleType.value === 'custom') {
-                        plannedExtractionDetailSrc.value = './安全投入/计划提取-详情-自定义提取.html?mode=add';
+                        plannedExtractionDetailSrc.value = './安全生产费用/计划提取-详情-自定义提取.html?mode=add';
                     } else {
-                        plannedExtractionDetailSrc.value = './安全投入/计划提取-详情.html?mode=add';
+                        plannedExtractionDetailSrc.value = './安全生产费用/计划提取-详情.html?mode=add';
                     }
 
                     // 切换到详情页视图

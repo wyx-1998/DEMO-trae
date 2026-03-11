@@ -349,8 +349,12 @@
                         <div class="form-row" v-if="formData.ruleType !== 'custom'">
                             <div class="form-item">
                                 <el-form-item label="提取依据单位" prop="basisUnit" required>
-                                    <el-input v-model="formData.basisUnit" placeholder="请输入提取依据单位，如：元、万元、吨等"
-                                        :disabled="isView" />
+                                    <el-select v-model="formData.basisUnit" placeholder="请选择提取依据单位" :disabled="isView"
+                                        style="width: 100%;">
+                                        <el-option label="万元" value="万元"></el-option>
+                                        <el-option label="吨" value="吨"></el-option>
+                                        <el-option label="千立方米" value="千立方米"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
                             <!-- 比例提取字段 -->
@@ -362,7 +366,12 @@
                             </div>
                             <div class="form-item" v-if="formData.ruleType === 'proportion'">
                                 <el-form-item label="提取比例单位" prop="ruleUnit" required>
-                                    <el-input v-model="formData.ruleUnit" placeholder="请输入提取比例单位" :disabled="isView" />
+                                    <el-select v-model="formData.ruleUnit" placeholder="请选择提取比例单位" :disabled="isView"
+                                        style="width: 100%;">
+                                        <el-option label="%" value="%"></el-option>
+                                        <el-option label="元/吨" value="元/吨"></el-option>
+                                        <el-option label="元/千立方米" value="元/千立方米"></el-option>
+                                    </el-select>
                                 </el-form-item>
                             </div>
                         </div>
@@ -471,7 +480,7 @@
                         <el-table-column prop="shortName" label="企业简称" width="150"></el-table-column>
                         <el-table-column prop="fullName" label="企业名称" min-width="200"></el-table-column>
                         <el-table-column prop="category" label="企业类型" width="120"></el-table-column>
-                        <el-table-column prop="industryType" label="行业类型" width="120"></el-table-column>
+                        <el-table-column prop="industryType" label="企业主营业务" width="120"></el-table-column>
                         <el-table-column label="操作" width="80" align="center" v-if="!isView">
                             <template #default="{ $index }">
                                 <el-button type="danger" size="small" @click="removeOrg($index)" link>
@@ -507,11 +516,12 @@
                 <el-table-column prop="shortName" label="企业简称" width="150"></el-table-column>
                 <el-table-column prop="fullName" label="企业名称" min-width="200"></el-table-column>
                 <el-table-column prop="category" label="企业类型" width="120"></el-table-column>
-                <el-table-column prop="industryType" label="行业类型" width="120"></el-table-column>
+                <el-table-column prop="industryType" label="企业主营业务" width="120"></el-table-column>
             </el-table>
             <template #footer>
                 <el-button @click="orgDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmSelectOrgs">确定（已选 {{ tempSelectedOrgs.length }} 个）</el-button>
+                <el-button type="primary" @click="confirmSelectOrgs">确定（已选 {{ tempSelectedOrgs.length }}
+                    个）</el-button>
             </template>
         </el-dialog>
     </div>

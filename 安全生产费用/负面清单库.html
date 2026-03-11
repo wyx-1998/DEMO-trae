@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全费用标准库 - 支出范围库</title>
+    <title>安全费用标准库 - 负面清单库</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -207,9 +207,6 @@
                         <el-button type="primary" @click="handleAdd">
                             <i class="fas fa-plus"></i> 新建
                         </el-button>
-                        <el-button type="success" @click="handleImport">
-                            <i class="fas fa-file-import"></i> 导入
-                        </el-button>
                         <el-button type="danger" @click="handleBatchDelete" :disabled="selectedRows.length === 0">
                             <i class="fas fa-trash-alt"></i> 批量删除
                         </el-button>
@@ -219,10 +216,16 @@
                 <div class="search-area">
                     <el-form :model="searchForm" :inline="true" class="search-form"
                         style="display: flex; justify-content: space-between; align-items: center;">
-                        <el-form-item label="支出范围名称">
-                            <el-input v-model="searchForm.categoryName" placeholder="请输入支出范围名称" clearable
-                                style="width: 200px;" />
-                        </el-form-item>
+                        <div style="display: flex; gap: 16px;">
+                            <el-form-item label="所属支出范围">
+                                <el-input v-model="searchForm.scopeName" placeholder="请选择支出范围" clearable
+                                    style="width: 200px;" />
+                            </el-form-item>
+                            <el-form-item label="负面清单名称">
+                                <el-input v-model="searchForm.negativeListName" placeholder="请输入负面清单名称" clearable
+                                    style="width: 200px;" />
+                            </el-form-item>
+                        </div>
                         <el-form-item style="margin-left: auto;">
                             <el-button type="primary" @click="handleSearch">
                                 <i class="fas fa-search"></i> 查询
@@ -238,17 +241,9 @@
                     <el-table :data="pagedData" style="width: 100%" stripe border v-loading="loading"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="categoryName" label="支出范围名称" min-width="300"></el-table-column>
-                        <el-table-column prop="shortName" label="支出范围简称" width="180"></el-table-column>
-                        <el-table-column label="排序号" width="120" align="center">
-                            <template #header>
-                                排序号 <info-mark content="按照企业分类顺序排序，再按照排序号排序"></info-mark>
-                            </template>
-                            <template #default="{ row }">
-                                {{ row.sortOrder }}
-                            </template>
-                        </el-table-column>
                         <el-table-column prop="industryType" label="所属企业分类" min-width="180"></el-table-column>
+                        <el-table-column prop="scopeName" label="所属支出范围" min-width="300"></el-table-column>
+                        <el-table-column prop="negativeListName" label="负面清单名称" min-width="300"></el-table-column>
                         <el-table-column label="操作" width="140" fixed="right" align="center">
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleEdit(row)" link>
@@ -270,27 +265,29 @@
             </div>
         </div>
 
-        <!-- 新建/编辑支出范围弹窗 -->
+        <!-- 新建/编辑负面清单弹窗 -->
         <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" :close-on-click-modal="false">
             <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px" label-position="left">
-                <el-form-item label="支出范围名称" prop="categoryName">
-                    <el-input v-model="formData.categoryName" type="textarea" :rows="3" placeholder="请输入支出范围名称"
-                        maxlength="200" show-word-limit />
-                </el-form-item>
-                <el-form-item label="支出范围简称" prop="shortName">
-                    <el-input v-model="formData.shortName" placeholder="请输入支出范围简称，如：（一）安全防护设备设施" maxlength="50"
-                        show-word-limit />
-                </el-form-item>
-                <el-form-item label="排序号" prop="sortOrder">
-                    <el-input-number v-model="formData.sortOrder" :min="1" :max="9999" style="width: 100%;" />
-                </el-form-item>
                 <el-form-item label="所属企业分类" prop="industryType">
                     <template #label>
                         所属企业分类 <info-mark content="1、数据来源“安全生产费用企业分类”；2、新建时需要将列表左侧树所选节点值带过来"></info-mark>
                     </template>
                     <el-tree-select v-model="formData.industryType" :data="industryTreeOptions"
                         :props="{ label: 'label', value: 'value' }" placeholder="请选择企业分类" style="width: 100%;"
-                        check-strictly :render-after-expand="false" />
+                        check-strictly :render-after-expand="false" @change="handleIndustryChange" />
+                </el-form-item>
+                <el-form-item label="所属支出范围" prop="scopeName">
+                    <template #label>
+                        所属支出范围 <info-mark content="数据来源支出范围库，根据所选的企业分类过滤"></info-mark>
+                    </template>
+                    <el-select v-model="formData.scopeName" placeholder="请选择支出范围" style="width: 100%;" filterable>
+                        <el-option v-for="item in scopeOptions" :key="item.value" :label="item.label"
+                            :value="item.value" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="负面清单名称" prop="negativeListName">
+                    <el-input v-model="formData.negativeListName" type="textarea" :rows="3" placeholder="请输入负面清单名称"
+                        maxlength="500" show-word-limit />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -299,21 +296,6 @@
             </template>
         </el-dialog>
 
-        <!-- 导入弹窗 -->
-        <el-dialog v-model="importDialogVisible" title="导入支出范围" width="500px">
-            <el-upload class="upload-demo" drag action="#" :auto-upload="false" :on-change="handleFileChange"
-                accept=".xlsx,.xls">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #409EFF; margin-bottom: 16px;"></i>
-                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                <template #tip>
-                    <div class="el-upload__tip">只能上传 xlsx/xls 文件</div>
-                </template>
-            </el-upload>
-            <template #footer>
-                <el-button @click="importDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmImport">确定导入</el-button>
-            </template>
-        </el-dialog>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -334,26 +316,24 @@
                 const currentPage = ref(1);
                 const pageSize = ref(20);
                 const dialogVisible = ref(false);
-                const importDialogVisible = ref(false);
-                const dialogTitle = ref('新建支出范围');
+                const dialogTitle = ref('新建负面清单');
                 const editingId = ref(null);
-                const importFile = ref(null);
 
                 const searchForm = ref({
-                    categoryName: ''
+                    scopeName: '',
+                    negativeListName: ''
                 });
 
                 const formData = ref({
                     industryType: '',
-                    sortOrder: 1,
-                    categoryName: '',
-                    shortName: ''
+                    scopeName: '',
+                    negativeListName: ''
                 });
 
                 const formRules = ref({
                     industryType: [{ required: true, message: '请选择企业分类', trigger: 'change' }],
-                    categoryName: [{ required: true, message: '请输入支出范围名称', trigger: 'blur' }],
-                    shortName: [{ required: true, message: '请输入支出范围简称', trigger: 'blur' }]
+                    scopeName: [{ required: true, message: '请选择支出范围', trigger: 'change' }],
+                    negativeListName: [{ required: true, message: '请输入负面清单名称', trigger: 'blur' }]
                 });
 
                 // 行业树数据
@@ -388,132 +368,104 @@
                     }));
                 });
 
+                // 支出范围选项（根据行业过滤）
+                const allScopeOptions = ref([
+                    { industryValue: 'power', value: '（一）安全防护设备、设施支出', label: '（一）安全防护设备、设施支出' },
+                    { industryValue: 'power', value: '（二）应急救援器材支出', label: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出' },
+                    { industryValue: 'power', value: '（三）重大危险源检测支出', label: '（三）开展重大危险源检测、评估、监控支出' },
+                    { industryValue: 'power', value: '（四）安全生产检查支出', label: '（四）安全生产检查、评估评价、咨询和标准化建设支出' },
+                    { industryValue: 'power', value: '（五）安全生产宣传支出', label: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出' },
+                    { industryValue: 'power', value: '（六）安全防护用品支出', label: '（六）配备和更新现场作业人员安全防护用品支出' },
+                    { industryValue: 'power', value: '（七）新技术推广应用支出', label: '（七）安全生产适用的新技术、新标准的推广应用支出' },
+                    { industryValue: 'power', value: '（八）安全设施检测支出', label: '（八）安全设施及特种设备检测检验、检定校准支出' },
+                    { industryValue: 'power', value: '（九）安全生产责任保险支出', label: '（九）安全生产责任保险支出' },
+                    { industryValue: 'power', value: '（十）其他支出', label: '（十）与安全生产直接相关的其他支出' },
+                    { industryValue: 'coal', value: '煤炭（一）灾害防治', label: '（一）煤与瓦斯突出及冲击地压等灾害防治支出' },
+                    { industryValue: 'coal', value: '煤炭（二）综合防尘', label: '（二）综合防尘和职业健康防护支出' },
+                    { industryValue: 'coal', value: '煤炭（三）通风系统', label: '（三）通风系统装备及改造支出' }
+                ]);
+
+                const scopeOptions = computed(() => {
+                    if (!formData.value.industryType) return [];
+                    return allScopeOptions.value.filter(item => item.industryValue === formData.value.industryType);
+                });
+
                 const treeProps = {
                     children: 'children',
                     label: 'label'
                 };
 
-                // 模拟表格数据 - 仅一级，无子级
+                // 模拟表格数据
                 const tableData = ref([
                     {
                         id: 1,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 1,
-                        categoryName: '（一）安全防护设备、设施支出',
-                        shortName: '（一）安全防护设备设施'
+                        scopeName: '（一）安全防护设备、设施支出',
+                        negativeListName: '非生产经营活动所用安全防护设备的购置费用'
                     },
                     {
                         id: 2,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 2,
-                        categoryName: '（二）应急救援器材、设备设施支出和应急队伍建设、应急预案制修订与应急演练支出',
-                        shortName: '（二）应急救援'
+                        scopeName: '（一）安全防护设备、设施支出',
+                        negativeListName: '日常办公设备（如空调、打印机等）的购置费用'
                     },
                     {
                         id: 3,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 3,
-                        categoryName: '（三）开展重大危险源检测、评估、监控支出，安全风险分级管控和事故隐患排查整改支出，安全生产信息化、智能化建设、运维和网路安全支出',
-                        shortName: '（三）危险源与隐患排查'
+                        scopeName: '（二）应急救援器材支出',
+                        negativeListName: '与安全生产无关的活动组织费用'
                     },
                     {
                         id: 4,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 4,
-                        categoryName: '（四）安全生产检查、评估评价、咨询和标准化建设支出',
-                        shortName: '（四）安全检查评估'
+                        scopeName: '（三）重大危险源检测支出',
+                        negativeListName: '用于重大危险源检测以外的日常环境监测费用'
                     },
                     {
                         id: 5,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 5,
-                        categoryName: '（五）安全生产宣传、教育、培训和从业人员发现并报告事故隐患的奖励支出',
-                        shortName: '（五）宣传教育培训'
+                        scopeName: '（五）安全生产宣传支出',
+                        negativeListName: '企业形象宣传、商业广告等与安全生产无关的宣传费用'
                     },
                     {
                         id: 6,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 6,
-                        categoryName: '（六）配备和更新现场作业人员安全防护用品支出',
-                        shortName: '（六）安全防护用品'
+                        scopeName: '（五）安全生产宣传支出',
+                        negativeListName: '非安全生产内容的培训费用（如管理培训、技能培训等）'
                     },
                     {
                         id: 7,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 7,
-                        categoryName: '（七）安全生产适用的新技术、新标准、新工艺、新设备的推广应用支出',
-                        shortName: '（七）新技术新设备'
+                        scopeName: '（六）安全防护用品支出',
+                        negativeListName: '用于非生产作业人员的防护用品'
                     },
                     {
                         id: 8,
                         industryType: '电力生产与供应企业',
                         industryValue: 'power',
-                        sortOrder: 8,
-                        categoryName: '（八）安全设施及特种设备检测检验、检定校准支出',
-                        shortName: '（八）设备检测检验'
+                        scopeName: '（六）安全防护用品支出',
+                        negativeListName: '超出合理标准的奢侈品类防护用品'
                     },
                     {
                         id: 9,
-                        industryType: '电力生产与供应企业',
-                        industryValue: 'power',
-                        sortOrder: 9,
-                        categoryName: '（九）安全生产责任保险支出',
-                        shortName: '（九）责任保险'
+                        industryType: '煤炭生产企业',
+                        industryValue: 'coal',
+                        scopeName: '煤炭（一）灾害防治',
+                        negativeListName: '与瓦斯、冲击地压防治无直接关系的一般性设备维护费用'
                     },
                     {
                         id: 10,
-                        industryType: '电力生产与供应企业',
-                        industryValue: 'power',
-                        sortOrder: 10,
-                        categoryName: '（十）与安全生产直接相关的其他支出',
-                        shortName: '（十）其他支出'
-                    },
-                    {
-                        id: 11,
                         industryType: '煤炭生产企业',
                         industryValue: 'coal',
-                        sortOrder: 1,
-                        categoryName: '（一）煤与瓦斯突出及冲击地压等灾害防治支出',
-                        shortName: '（一）灾害防治'
-                    },
-                    {
-                        id: 12,
-                        industryType: '煤炭生产企业',
-                        industryValue: 'coal',
-                        sortOrder: 2,
-                        categoryName: '（二）综合防尘和职业健康防护支出',
-                        shortName: '（二）防尘健康防护'
-                    },
-                    {
-                        id: 13,
-                        industryType: '煤炭生产企业',
-                        industryValue: 'coal',
-                        sortOrder: 3,
-                        categoryName: '（三）通风系统装备及改造支出',
-                        shortName: '（三）通风系统'
-                    },
-                    {
-                        id: 14,
-                        industryType: '煤炭生产企业',
-                        industryValue: 'coal',
-                        sortOrder: 4,
-                        categoryName: '（四）防灭火及消防装备支出',
-                        shortName: '（四）防灭火消防'
-                    },
-                    {
-                        id: 15,
-                        industryType: '煤炭生产企业',
-                        industryValue: 'coal',
-                        sortOrder: 5,
-                        categoryName: '（五）防治水及环保装备支出',
-                        shortName: '（五）防治水环保'
+                        scopeName: '煤炭（二）综合防尘',
+                        negativeListName: '非矿井作业区域的日常清洁费用'
                     }
                 ]);
 
@@ -526,10 +478,16 @@
                         data = data.filter(item => item.industryValue === currentIndustry.value);
                     }
 
-                    // 按名称搜索
-                    if (searchForm.value.categoryName) {
-                        const keyword = searchForm.value.categoryName.toLowerCase();
-                        data = data.filter(item => item.categoryName.toLowerCase().includes(keyword));
+                    // 按支出范围搜索
+                    if (searchForm.value.scopeName) {
+                        const keyword = searchForm.value.scopeName.toLowerCase();
+                        data = data.filter(item => item.scopeName.toLowerCase().includes(keyword));
+                    }
+
+                    // 按负面清单名称搜索
+                    if (searchForm.value.negativeListName) {
+                        const keyword = searchForm.value.negativeListName.toLowerCase();
+                        data = data.filter(item => item.negativeListName.toLowerCase().includes(keyword));
                     }
 
                     return data;
@@ -559,6 +517,11 @@
                     currentPage.value = 1;
                 };
 
+                // 企业分类变化时清空支出范围
+                const handleIndustryChange = () => {
+                    formData.value.scopeName = '';
+                };
+
                 // 搜索
                 const handleSearch = () => {
                     loading.value = true;
@@ -571,7 +534,8 @@
 
                 // 重置
                 const handleReset = () => {
-                    searchForm.value.categoryName = '';
+                    searchForm.value.scopeName = '';
+                    searchForm.value.negativeListName = '';
                     currentPage.value = 1;
                 };
 
@@ -583,46 +547,23 @@
                 // 新建
                 const handleAdd = () => {
                     editingId.value = null;
-                    dialogTitle.value = '新建支出范围';
+                    dialogTitle.value = '新建负面清单';
                     formData.value = {
                         industryType: currentIndustry.value || '',
-                        sortOrder: tableData.value.length + 1,
-                        categoryName: '',
-                        shortName: ''
+                        scopeName: '',
+                        negativeListName: ''
                     };
                     dialogVisible.value = true;
-                };
-
-                // 导入
-                const handleImport = () => {
-                    importFile.value = null;
-                    importDialogVisible.value = true;
-                };
-
-                // 处理文件选择
-                const handleFileChange = (file) => {
-                    importFile.value = file;
-                };
-
-                // 确认导入
-                const confirmImport = () => {
-                    if (!importFile.value) {
-                        ElMessage.warning('请先选择文件');
-                        return;
-                    }
-                    ElMessage.success('导入成功');
-                    importDialogVisible.value = false;
                 };
 
                 // 编辑
                 const handleEdit = (row) => {
                     editingId.value = row.id;
-                    dialogTitle.value = '编辑支出范围';
+                    dialogTitle.value = '编辑负面清单';
                     formData.value = {
                         industryType: row.industryValue,
-                        sortOrder: row.sortOrder,
-                        categoryName: row.categoryName,
-                        shortName: row.shortName || ''
+                        scopeName: row.scopeName,
+                        negativeListName: row.negativeListName
                     };
                     dialogVisible.value = true;
                 };
@@ -644,9 +585,8 @@
                                     ...tableData.value[index],
                                     industryType: industryLabel,
                                     industryValue: formData.value.industryType,
-                                    sortOrder: formData.value.sortOrder,
-                                    categoryName: formData.value.categoryName,
-                                    shortName: formData.value.shortName
+                                    scopeName: formData.value.scopeName,
+                                    negativeListName: formData.value.negativeListName
                                 };
                             }
                             ElMessage.success('更新成功');
@@ -656,9 +596,8 @@
                                 id: Date.now(),
                                 industryType: industryLabel,
                                 industryValue: formData.value.industryType,
-                                sortOrder: formData.value.sortOrder,
-                                categoryName: formData.value.categoryName,
-                                shortName: formData.value.shortName
+                                scopeName: formData.value.scopeName,
+                                negativeListName: formData.value.negativeListName
                             };
                             tableData.value.push(newItem);
                             ElMessage.success('添加成功');
@@ -673,7 +612,7 @@
                 // 删除单条
                 const handleDelete = (row) => {
                     ElMessageBox.confirm(
-                        '确定要删除该支出范围吗？',
+                        '确定要删除该负面清单吗？',
                         '确认删除',
                         {
                             confirmButtonText: '确定',
@@ -720,24 +659,22 @@
                     searchForm,
                     industryTree,
                     industryTreeOptions,
+                    scopeOptions,
                     treeProps,
                     tableData,
                     filteredData,
                     pagedData,
                     dialogVisible,
-                    importDialogVisible,
                     dialogTitle,
                     formData,
                     formRules,
                     filterNode,
                     handleNodeClick,
+                    handleIndustryChange,
                     handleSearch,
                     handleReset,
                     handleSelectionChange,
                     handleAdd,
-                    handleImport,
-                    handleFileChange,
-                    confirmImport,
                     handleEdit,
                     handleSave,
                     handleDelete,
