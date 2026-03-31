@@ -167,7 +167,7 @@
                     <span style="color: #F56C6C;">*</span>
                     <span style="font-size: 14px; color: #606266; font-weight: bold;">
                         计划年份
-                        <info-mark content="1、下拉数据为当前登录账号所属组织的已定稿的正式计划年份；2、没有默认值；3、选择年份后加载出当前年份的正式计划数据"></info-mark>
+                        <info-mark content="1、下拉数据为当前登录账号所属组织的已定稿的正式计划年份；2、没有默认值；3、选择年份后加载出当前年份的正式计划数据；4、加载出来的正式计划项目如果已有使用记录，则不允许删除"></info-mark>
                     </span>
                     <el-select v-model="selectedYear" placeholder="请选择" style="width: 240px;" @change="handleYearChange"
                         :disabled="isViewMode">

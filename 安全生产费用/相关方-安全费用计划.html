@@ -450,6 +450,10 @@
                         <el-table-column prop="responsibleUnit" label="责任单位（部门）" min-width="140"></el-table-column>
                         <el-table-column prop="responsiblePerson" label="责任人" min-width="100"></el-table-column>
                         <el-table-column label="操作" width="120" fixed="right" align="center">
+                            <template #header>
+                                操作
+                                <info-mark content="如果安全费用项目已有使用记录，则不允许被删除"></info-mark>
+                            </template>
                             <template #default="{ row }">
                                 <el-button size="small" @click="handleView(row)" link>
                                     <i class="fas fa-eye" style="color: #67C23A;"></i>
